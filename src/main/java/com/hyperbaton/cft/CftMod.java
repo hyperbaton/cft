@@ -1,8 +1,11 @@
 package com.hyperbaton.cft;
 
 import com.hyperbaton.cft.creativetab.CreativeModTabs;
+import com.hyperbaton.cft.entity.CftEntities;
+import com.hyperbaton.cft.entity.client.XunguiRenderer;
 import com.hyperbaton.cft.item.CftItems;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,6 +38,8 @@ public class CftMod
         CreativeModTabs.register(modEventBus);
 
         CftItems.register(modEventBus);
+
+        CftEntities.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -80,6 +85,7 @@ public class CftMod
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
+            EntityRenderers.register(CftEntities.XUNGUI.get(), XunguiRenderer::new);
         }
     }
 }

@@ -89,7 +89,7 @@ public class MayorStaff extends Item {
 
                 if(foundHouse){
                     houseBlocks.forEach(blockPos -> ((ServerLevel) pContext.getLevel()).sendParticles(ParticleTypes.ENTITY_EFFECT, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
-                            100, blockPos.getX(), blockPos.getY(), blockPos.getZ(), 0.1));
+                            5, 0, 0, 0, 0.1));
                 }
                 player.sendSystemMessage(Component.literal("House size:" + houseBlocks.size()));
 

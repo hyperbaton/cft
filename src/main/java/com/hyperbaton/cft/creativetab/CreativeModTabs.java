@@ -23,6 +23,7 @@ public class CreativeModTabs {
                     .title(Component.translatable("creativetab.tutorial_tab"))
                     .displayItems((pParameters, pOutput) -> {
                         pOutput.accept(CftItems.MAYOR_STAFF.get());
+                        pOutput.accept(CftItems.XUNGUI_SPAWN_EGG.get());
                     })
                     .build()
     );

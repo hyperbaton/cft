@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.datagen;
 
 import com.hyperbaton.cft.CftMod;
+import com.hyperbaton.cft.item.CftItems;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -17,6 +18,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
+        withExistingParent(CftItems.XUNGUI_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
     }
 
     private ItemModelBuilder simpleItem(RegistryObject<Item> item){
