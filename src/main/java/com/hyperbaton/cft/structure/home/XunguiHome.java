@@ -27,6 +27,46 @@ public class XunguiHome {
     // The class of this home (habitable by Xunguis of the same class)
     private String homeClass;
 
+    public BlockPos getEntrance() {
+        return entrance;
+    }
+
+    public void setEntrance(BlockPos entrance) {
+        this.entrance = entrance;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(int leaderId) {
+        this.leaderId = leaderId;
+    }
+
+    public int getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(int ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getHomeClass() {
+        return homeClass;
+    }
+
+    public void setHomeClass(String homeClass) {
+        this.homeClass = homeClass;
+    }
+
     public XunguiHome(BlockPos entrance, int size, int leaderId, int ownerId, String homeClass) {
         this.entrance = entrance;
         this.size = size;
