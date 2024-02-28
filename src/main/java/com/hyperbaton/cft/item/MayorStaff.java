@@ -2,6 +2,8 @@ package com.hyperbaton.cft.item;
 
 import com.google.common.collect.Comparators;
 import com.google.common.collect.Sets;
+import com.hyperbaton.cft.structure.home.XunguiHome;
+import com.hyperbaton.cft.world.HomesData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
@@ -90,6 +92,9 @@ public class MayorStaff extends Item {
                 if(foundHouse){
                     houseBlocks.forEach(blockPos -> ((ServerLevel) pContext.getLevel()).sendParticles(ParticleTypes.ENTITY_EFFECT, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                             5, 0, 0, 0, 0.1));
+                    ((ServerLevel) pContext.getLevel()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData")
+                            .addHome(new XunguiHome(positionClicked, houseBlocks.size(), player.getId(), 0, "PLACEHOLDER"));
+                    
                 }
                 player.sendSystemMessage(Component.literal("House size:" + houseBlocks.size()));
 
