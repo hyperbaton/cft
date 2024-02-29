@@ -8,6 +8,7 @@ public class XunguiHome {
 
 
     private static final String TAG_ENTRANCE = "entrance";
+    private static final String TAG_CONTAINER = "container";
 
     private static final String TAG_SIZE = "leader";
 
@@ -15,7 +16,12 @@ public class XunguiHome {
     private static final String TAG_OWNER = "owner";
 
     private static final String TAG_HOME_CLASS = "homeClass";
+
+    // The (lower) block of the door to the house
     private BlockPos entrance;
+
+    // The position at which there is a container (a chest) for the owner to get their items
+    private BlockPos containerPos;
     private int size;
 
     // Id of the player that is leader of this home
@@ -33,6 +39,14 @@ public class XunguiHome {
 
     public void setEntrance(BlockPos entrance) {
         this.entrance = entrance;
+    }
+
+    public BlockPos getContainerPos() {
+        return containerPos;
+    }
+
+    public void setContainerPos(BlockPos containerPos) {
+        this.containerPos = containerPos;
     }
 
     public int getSize() {
@@ -67,8 +81,9 @@ public class XunguiHome {
         this.homeClass = homeClass;
     }
 
-    public XunguiHome(BlockPos entrance, int size, int leaderId, int ownerId, String homeClass) {
+    public XunguiHome(BlockPos entrance, BlockPos containerPos, int size, int leaderId, int ownerId, String homeClass) {
         this.entrance = entrance;
+        this.containerPos = containerPos;
         this.size = size;
         this.leaderId = leaderId;
         this.ownerId = ownerId;
@@ -77,17 +92,18 @@ public class XunguiHome {
 
     public static XunguiHome fromTag(CompoundTag homeTag) {
         BlockPos entrance = NbtUtils.readBlockPos(homeTag.getCompound(TAG_ENTRANCE));
+        BlockPos container = NbtUtils.readBlockPos(homeTag.getCompound(TAG_CONTAINER));
         int size = homeTag.getInt(TAG_SIZE);
         int leaderId = homeTag.getInt(TAG_LEADER);
         int owner = homeTag.getInt(TAG_OWNER);
         String homeClass = homeTag.getString(TAG_HOME_CLASS);
-        return new XunguiHome(entrance, size, leaderId, owner, homeClass);
+        return new XunguiHome(entrance, container, size, leaderId, owner, homeClass);
     }
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        // BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, entrance).result().ifPresent((encodedEntrance) -> tag.put(TAG_ENTRANCE, encodedEntrance));
         tag.put(TAG_ENTRANCE, NbtUtils.writeBlockPos(entrance));
+        tag.put(TAG_CONTAINER, NbtUtils.writeBlockPos(containerPos));
         tag.putInt(TAG_SIZE, size);
         tag.putInt(TAG_LEADER, leaderId);
         tag.putInt(TAG_OWNER, ownerId);

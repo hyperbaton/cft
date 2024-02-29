@@ -1,9 +1,11 @@
 package com.hyperbaton.cft.entity.custom;
 
 import com.hyperbaton.cft.entity.CftEntities;
+import com.hyperbaton.cft.structure.home.XunguiHome;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.AnimationState;
@@ -16,19 +18,25 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class XunguiEntity extends AgeableMob {
-    public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
+public class XunguiEntity extends AgeableMob implements InventoryCarrier {
+    public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel, int leaderId) {
         super(pEntityType, pLevel);
+        this.leaderId = leaderId;
     }
 
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
 
-    private Player leader;
+    private int leaderId;
+    private final SimpleContainer inventory = new SimpleContainer(27);
+
+    private XunguiHome home;
 
     @Override
     public void tick() {
@@ -101,5 +109,26 @@ public class XunguiEntity extends AgeableMob {
     @Override
     protected SoundEvent getHurtSound(DamageSource pDamageSource) {
         return SoundEvents.HUSK_HURT;
+    }
+
+    public int getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(int leaderId) {
+        this.leaderId = leaderId;
+    }
+
+    @Override
+    public SimpleContainer getInventory() {
+        return this.getInventory();
+    }
+
+    protected ItemStack addToInventory(ItemStack pStack) {
+        return this.inventory.addItem(pStack);
+    }
+
+    protected boolean canAddToInventory(ItemStack pStack) {
+        return this.inventory.canAddItem(pStack);
     }
 }
