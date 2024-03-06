@@ -23,12 +23,16 @@ public class XunguiSpawner implements CustomSpawner {
             this.nextTick += (60 + randomsource.nextInt(60) * 20);
             HomesData homesData = serverLevel.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
             for(XunguiHome home : homesData.getHomes()){
-                if(home.getOwnerId() == 0 &&
-                        new HomeDetection().detectHouse(home.getEntrance(), serverLevel, serverLevel.getPlayers(player -> player.getId() == home.getLeaderId()).get(0))/*&& randomsource.nextInt(20) == 1*/){
+                if(home.getOwnerId() == null
+                        && new HomeDetection().detectHouse(home.getEntrance(), serverLevel, serverLevel.getPlayers(player -> player.getUUID() == home.getLeaderId()).get(0))/*&& randomsource.nextInt(20) == 1*/){
                     XunguiEntity xungui = CftEntities.XUNGUI.get().spawn(serverLevel, home.getEntrance(), MobSpawnType.TRIGGERED);
                     if(xungui != null){
-                        home.setOwnerId(xungui.getId());
+                        home.setOwnerId(xungui.getUUID());
+                        xungui.setLeaderId(home.getLeaderId());
+                        xungui.setHome(home);
+                        xungui.addHomeRelatedGoals();
                         System.out.println("Xungui created\n");
+                        System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
                     }
                 }
             }

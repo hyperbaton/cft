@@ -4,6 +4,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 
+import java.util.UUID;
+
 public class XunguiHome {
 
 
@@ -25,10 +27,10 @@ public class XunguiHome {
     private int size;
 
     // Id of the player that is leader of this home
-    private int leaderId;
+    private UUID leaderId;
 
     // Id of the entity that is owner of the home (lives here)
-    private int ownerId;
+    private UUID ownerId;
 
     // The class of this home (habitable by Xunguis of the same class)
     private String homeClass;
@@ -57,19 +59,19 @@ public class XunguiHome {
         this.size = size;
     }
 
-    public int getLeaderId() {
+    public UUID getLeaderId() {
         return leaderId;
     }
 
-    public void setLeaderId(int leaderId) {
+    public void setLeaderId(UUID leaderId) {
         this.leaderId = leaderId;
     }
 
-    public int getOwnerId() {
+    public UUID getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerId(int ownerId) {
+    public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
     }
 
@@ -81,7 +83,7 @@ public class XunguiHome {
         this.homeClass = homeClass;
     }
 
-    public XunguiHome(BlockPos entrance, BlockPos containerPos, int size, int leaderId, int ownerId, String homeClass) {
+    public XunguiHome(BlockPos entrance, BlockPos containerPos, int size, UUID leaderId, UUID ownerId, String homeClass) {
         this.entrance = entrance;
         this.containerPos = containerPos;
         this.size = size;
@@ -94,8 +96,8 @@ public class XunguiHome {
         BlockPos entrance = NbtUtils.readBlockPos(homeTag.getCompound(TAG_ENTRANCE));
         BlockPos container = NbtUtils.readBlockPos(homeTag.getCompound(TAG_CONTAINER));
         int size = homeTag.getInt(TAG_SIZE);
-        int leaderId = homeTag.getInt(TAG_LEADER);
-        int owner = homeTag.getInt(TAG_OWNER);
+        UUID leaderId = homeTag.getUUID(TAG_LEADER);
+        UUID owner = homeTag.getUUID(TAG_OWNER);
         String homeClass = homeTag.getString(TAG_HOME_CLASS);
         return new XunguiHome(entrance, container, size, leaderId, owner, homeClass);
     }
@@ -105,8 +107,8 @@ public class XunguiHome {
         tag.put(TAG_ENTRANCE, NbtUtils.writeBlockPos(entrance));
         tag.put(TAG_CONTAINER, NbtUtils.writeBlockPos(containerPos));
         tag.putInt(TAG_SIZE, size);
-        tag.putInt(TAG_LEADER, leaderId);
-        tag.putInt(TAG_OWNER, ownerId);
+        tag.putUUID(TAG_LEADER, leaderId);
+        tag.putUUID(TAG_OWNER, ownerId);
         tag.putString(TAG_HOME_CLASS, homeClass);
         return tag;
     }

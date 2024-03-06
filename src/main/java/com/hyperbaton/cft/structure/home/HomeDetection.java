@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.compress.utils.Lists;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +40,6 @@ public class HomeDetection {
         houseBlocks.addAll(floorBlocks);
         houseBlocks.addAll(floorPerimeterBlocks);
 
-
         // Detect the walls of the house
         Set<BlockPos> wallBlocks = Sets.newHashSet();
         boolean foundWall = findWall(level, floorPerimeterBlocks, wallBlocks);
@@ -49,16 +49,24 @@ public class HomeDetection {
         }
         houseBlocks.addAll(wallBlocks);
         // Get the starting height of the roof
-        int lowestRoofHeight = wallBlocks.stream().map(Vec3i::getY).max(Comparators::max).orElse(entrance.getY());
+        int lowestRoofHeight = wallBlocks.stream().map(Vec3i::getY).distinct().max(Comparator.naturalOrder()).orElse(entrance.getY());
 
         // Detect the indoor area of the house
         Set<BlockPos> interiorBlocks = Sets.newHashSet();
         boolean foundInterior = findInterior(level, floorBlocks, interiorBlocks);
+        if(!foundInterior){
+            leader.sendSystemMessage(Component.literal("No house found. Invalid interior"));
+            return false;
+        }
         houseBlocks.addAll(interiorBlocks);
 
         // Detect the roof of the house
         Set<BlockPos> roofBlocks = Sets.newHashSet();
         boolean foundRoof = findRoof(level, floorBlocks, roofBlocks, lowestRoofHeight);
+        if(!foundRoof){
+            leader.sendSystemMessage(Component.literal("No house found. Invalid roof"));
+            return false;
+        }
         houseBlocks.addAll(roofBlocks);
 
         boolean foundHouse = foundFloor && foundWall && foundInterior && foundRoof;
@@ -67,15 +75,20 @@ public class HomeDetection {
         BlockPos containerPos = findContainer(level, floorBlocks);
 
         if(containerPos == null) {
-            foundHouse = false;
+            leader.sendSystemMessage(Component.literal("No house found. No container present"));
+            return false;
         }
 
         if(foundHouse){
             houseBlocks.forEach(blockPos -> ((ServerLevel) level).sendParticles(ParticleTypes.ENTITY_EFFECT, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                     5, 0, 0, 0, 0.1));
             HomesData homesData = ((ServerLevel) level).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
-            homesData.addHome(new XunguiHome(entrance, containerPos, houseBlocks.size(), leader.getId(), 0, "PLACEHOLDER"));
-            homesData.setDirty();
+            // If the home doesn't exist yet, add it to the list
+            if(homesData.getHomes().stream().noneMatch(home -> home.getEntrance().equals(entrance))){
+                homesData.addHome(new XunguiHome(entrance, containerPos, houseBlocks.size(), leader.getUUID(), null, "PLACEHOLDER"));
+                homesData.setDirty();
+
+            }
             leader.sendSystemMessage(Component.literal("House size:" + houseBlocks.size()));
 
         }
@@ -86,7 +99,7 @@ public class HomeDetection {
         Set<BlockPos> containers = Sets.newHashSet();
         for(BlockPos pos : floorBlocks){
             if(isContainer(level.getBlockState(pos.above()))) {
-                containers.add(pos);
+                containers.add(pos.above());
             }
         }
         if(containers.size() == 1){
@@ -267,7 +280,8 @@ public class HomeDetection {
     }
 
     private boolean isInterior(BlockState blockState) {
-        return blockState.is(Blocks.AIR);
+        return blockState.is(Blocks.AIR)
+            || blockState.is(Blocks.CHEST);
     }
 
     private boolean isRoof(BlockState blockState) {

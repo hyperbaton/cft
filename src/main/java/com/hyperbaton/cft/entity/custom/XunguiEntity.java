@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.entity.custom;
 
 import com.hyperbaton.cft.entity.CftEntities;
+import com.hyperbaton.cft.entity.goal.GetSuppliesGoal;
 import com.hyperbaton.cft.structure.home.XunguiHome;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -24,16 +25,21 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.UUID;
+
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
-    public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel, int leaderId) {
+    /*public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel, int leaderId) {
         super(pEntityType, pLevel);
         this.leaderId = leaderId;
+    }*/
+    public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
+        super(pEntityType, pLevel);
     }
 
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
 
-    private int leaderId;
+    private UUID leaderId;
     private final SimpleContainer inventory = new SimpleContainer(27);
 
     private XunguiHome home;
@@ -74,7 +80,20 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 1.1D));
         this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 3f));
         this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+        if(home != null){
+            System.out.println("Adding getSuppliesGoal\n");
+            this.goalSelector.addGoal(2, new GetSuppliesGoal(this, home.getContainerPos()));
+        }
 
+
+        // TODO: Add goals for moving to Chest and using it. Maybe through a brain?
+    }
+
+    public void addHomeRelatedGoals(){
+        if(home != null){
+            System.out.println("Adding getSuppliesGoal\n");
+            this.goalSelector.addGoal(2, new GetSuppliesGoal(this, home.getContainerPos()));
+        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -111,17 +130,25 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         return SoundEvents.HUSK_HURT;
     }
 
-    public int getLeaderId() {
+    public UUID getLeaderId() {
         return leaderId;
     }
 
-    public void setLeaderId(int leaderId) {
+    public void setLeaderId(UUID leaderId) {
         this.leaderId = leaderId;
+    }
+
+    public XunguiHome getHome() {
+        return home;
+    }
+
+    public void setHome(XunguiHome home) {
+        this.home = home;
     }
 
     @Override
     public SimpleContainer getInventory() {
-        return this.getInventory();
+        return this.inventory;
     }
 
     protected ItemStack addToInventory(ItemStack pStack) {
