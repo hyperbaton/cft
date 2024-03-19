@@ -1,0 +1,20 @@
+{
+  "minHappiness": 0.0,
+  "maxHappiness": 100.0,
+  "needs": [
+    "cft:stick_need"
+  ],
+  "upgrades": [
+    {
+      "nextClass": "cft:citizen",
+      "requiredHappiness": 50.0,
+      "requiredNeeds": [
+        {
+          "need": "cft:stick_need",
+          "satisfactionThreshold": 0.7
+        }
+      ]
+    }
+  ],
+  "downgrades": []
+}

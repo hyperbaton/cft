@@ -28,10 +28,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
-    /*public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel, int leaderId) {
-        super(pEntityType, pLevel);
-        this.leaderId = leaderId;
-    }*/
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
@@ -84,9 +80,6 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
             System.out.println("Adding getSuppliesGoal\n");
             this.goalSelector.addGoal(2, new GetSuppliesGoal(this, home.getContainerPos()));
         }
-
-
-        // TODO: Add goals for moving to Chest and using it. Maybe through a brain?
     }
 
     public void addHomeRelatedGoals(){

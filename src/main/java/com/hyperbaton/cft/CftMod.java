@@ -3,6 +3,7 @@ package com.hyperbaton.cft;
 import com.hyperbaton.cft.creativetab.CreativeModTabs;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.client.XunguiRenderer;
+import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.item.CftItems;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -30,7 +31,6 @@ public class CftMod
     public static final String MOD_ID = "cft";
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
-
     public CftMod()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -40,6 +40,9 @@ public class CftMod
         CftItems.register(modEventBus);
 
         CftEntities.register(modEventBus);
+
+        // Register Needs
+        modEventBus.register(new CftDatapackRegistryEvents());
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
