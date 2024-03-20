@@ -9,6 +9,9 @@ import net.minecraft.core.RegistryAccess;
 
 public class CftRegistry {
 
+    public static Registry<GoodsNeed> GOODS_NEEDS;
+    public static Registry<SocialClass> SOCIAL_CLASSES;
+
     public static Registry<GoodsNeed> getNeedsRegistry(RegistryAccess registryAccess){
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.GOODS_NEED_KEY);
     }

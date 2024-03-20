@@ -79,6 +79,8 @@ public class CftMod
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
+        CftRegistry.GOODS_NEEDS = CftRegistry.getNeedsRegistry(event.getServer().registryAccess());
+        CftRegistry.SOCIAL_CLASSES = CftRegistry.getSocialClassesRegistry(event.getServer().registryAccess());
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
