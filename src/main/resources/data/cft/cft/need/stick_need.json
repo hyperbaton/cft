@@ -2,6 +2,7 @@
   "need_type": "goods",
   "damage": 0.0,
   "provided_happiness": 1.0,
+  "satisfaction_threshold": 0.8,
   "item": "minecraft:stick",
   "frequency": 0.25,
   "quantity": 1

@@ -11,6 +11,7 @@ public class GoodsNeed extends Need {
             Codec.STRING.fieldOf("need_type").forGetter(GoodsNeed::getNeedType),
             Codec.DOUBLE.fieldOf("damage").forGetter(GoodsNeed::getDamage),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(GoodsNeed::getProvidedHappiness),
+            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(GoodsNeed::getSatisfactionThreshold),
             ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(GoodsNeed::getItem),
             Codec.DOUBLE.fieldOf("frequency").forGetter(GoodsNeed::getFrequency),
             Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity)
@@ -20,8 +21,8 @@ public class GoodsNeed extends Need {
     private double frequency;
     private int quantity;
 
-    public GoodsNeed(String needType, double damage, double providedHappiness, Item item, double frequency, int quantity) {
-        super(needType, damage, providedHappiness);
+    public GoodsNeed(String needType, double damage, double providedHappiness, double satisfactionThreshold, Item item, double frequency, int quantity) {
+        super(needType, damage, providedHappiness, satisfactionThreshold);
         this.item = item;
         this.frequency = frequency;
         this.quantity = quantity;

@@ -5,8 +5,9 @@ public abstract class Need {
     private String needType;
     private double damage;
     private double providedHappiness;
+    private double satisfactionThreshold;
 
-    public Need(String needType, double damage, double providedHappiness) {
+    public Need(String needType, double damage, double providedHappiness, double satisfactionThreshold) {
         this.needType = needType;
         this.damage = damage;
         this.providedHappiness = providedHappiness;
@@ -34,5 +35,13 @@ public abstract class Need {
 
     public void setProvidedHappiness(double providedHappiness) {
         this.providedHappiness = providedHappiness;
+    }
+
+    public double getSatisfactionThreshold() {
+        return satisfactionThreshold;
+    }
+
+    public void setSatisfactionThreshold(double satisfactionThreshold) {
+        this.satisfactionThreshold = satisfactionThreshold;
     }
 }

@@ -1,12 +1,10 @@
 package com.hyperbaton.cft.capability.need;
 
-public class ConsumeItemNeedCapability implements INeedCapability {
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-    // A value between 0 and 1 about how much this need is currently satisfied
-    float satisfaction;
-
-    @Override
-    public void satisfy() {
-
+public class ConsumeItemNeedCapability extends INeedCapability<GoodsNeed> {
+    public ConsumeItemNeedCapability(double satisfaction, boolean isSatisfied, GoodsNeed need) {
+        super(satisfaction, isSatisfied, need);
     }
 }

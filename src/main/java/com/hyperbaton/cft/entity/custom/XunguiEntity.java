@@ -1,7 +1,11 @@
 package com.hyperbaton.cft.entity.custom;
 
+import com.hyperbaton.cft.capability.need.ConsumeItemNeedCapability;
+import com.hyperbaton.cft.capability.need.GoodsNeed;
+import com.hyperbaton.cft.capability.need.INeedCapability;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.goal.GetSuppliesGoal;
+import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.XunguiHome;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -18,6 +22,7 @@ import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
@@ -25,11 +30,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
+        ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
     }
 
     public final AnimationState idleAnimationState = new AnimationState();
@@ -40,9 +49,41 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     private XunguiHome home;
 
+    private List<INeedCapability> needs;
+
+    private SocialClass socialClass;
+
+    private int satisfyNeedsDelay = 20;
+
     @Override
     public void tick() {
         super.tick();
+
+        // Run satisfaction of needs every 20 ticks (1 second)
+        if(satisfyNeedsDelay >= 0){
+            satisfyNeedsDelay--;
+        } else if(needs == null) {
+            satisfyNeedsDelay = 20;
+        } else {
+            for (INeedCapability currentNeed : needs) {
+                if (currentNeed instanceof ConsumeItemNeedCapability) {
+                    GoodsNeed need = ((ConsumeItemNeedCapability) currentNeed).getNeed();
+                    if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
+                        if (inventory.hasAnyMatching(itemStack -> itemStack.is(need.getItem()) && itemStack.getCount() >= need.getQuantity())) {
+                            inventory.removeItemType(need.getItem(), need.getQuantity());
+                            currentNeed.satisfy(need.getFrequency());
+                        } else {
+                            // TODO: Set goal to retrieve goods. Maybe through a memory in a brain?
+                            currentNeed.unsatisfy(need.getFrequency());
+                        }
+                    } else {
+                        currentNeed.unsatisfy(need.getFrequency());
+                    }
+                    currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
+                }
+            }
+            satisfyNeedsDelay = 20;
+        }
 
         if (this.level().isClientSide()) {
             setupAnimationStates();
@@ -150,5 +191,21 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     protected boolean canAddToInventory(ItemStack pStack) {
         return this.inventory.canAddItem(pStack);
+    }
+
+    public SocialClass getSocialClass() {
+        return socialClass;
+    }
+
+    public void setSocialClass(SocialClass socialClass) {
+        this.socialClass = socialClass;
+    }
+
+    public List<INeedCapability> getNeeds() {
+        return needs;
+    }
+
+    public void setNeeds(List<INeedCapability> needs) {
+        this.needs = needs;
     }
 }

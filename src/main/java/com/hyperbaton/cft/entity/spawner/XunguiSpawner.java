@@ -1,15 +1,23 @@
 package com.hyperbaton.cft.entity.spawner;
 
+import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.capability.need.ConsumeItemNeedCapability;
+import com.hyperbaton.cft.capability.need.GoodsNeed;
+import com.hyperbaton.cft.capability.need.INeedCapability;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.structure.home.XunguiHome;
 import com.hyperbaton.cft.world.HomesData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.CustomSpawner;
+
+import java.util.List;
 
 public class XunguiSpawner implements CustomSpawner {
     private int nextTick;
@@ -31,6 +39,8 @@ public class XunguiSpawner implements CustomSpawner {
                         xungui.setLeaderId(home.getLeaderId());
                         xungui.setHome(home);
                         xungui.addHomeRelatedGoals();
+                        xungui.setSocialClass(getRandomBasicClass(serverLevel.random));
+                        xungui.setNeeds(getNeedsForClass(xungui.getSocialClass()));
                         System.out.println("Xungui created\n");
                         System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
                     }
@@ -38,5 +48,20 @@ public class XunguiSpawner implements CustomSpawner {
             }
         }
         return 1;
+    }
+
+    private List<INeedCapability> getNeedsForClass(SocialClass socialClass) {
+        return socialClass.getNeeds().stream().map(needName -> CftRegistry.GOODS_NEEDS.get(new ResourceLocation(needName)))
+                .map(this::buildNeedCapability).toList();
+    }
+
+    // TODO: Generalize this method for any type of Need
+    private INeedCapability buildNeedCapability(GoodsNeed need) {
+        return new ConsumeItemNeedCapability(0.0, false, need);
+    }
+
+    private SocialClass getRandomBasicClass(RandomSource random) {
+        List<SocialClass> basicClasses = CftRegistry.SOCIAL_CLASSES.stream().filter(socialClass -> socialClass.getDowngrades().isEmpty()).toList();
+        return  basicClasses.get(random.nextInt(basicClasses.size()));
     }
 }
