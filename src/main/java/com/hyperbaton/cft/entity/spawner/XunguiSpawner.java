@@ -3,7 +3,7 @@ package com.hyperbaton.cft.entity.spawner;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.ConsumeItemNeedCapability;
 import com.hyperbaton.cft.capability.need.GoodsNeed;
-import com.hyperbaton.cft.capability.need.INeedCapability;
+import com.hyperbaton.cft.capability.need.NeedCapability;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -13,7 +13,6 @@ import com.hyperbaton.cft.world.HomesData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.CustomSpawner;
 
@@ -50,13 +49,13 @@ public class XunguiSpawner implements CustomSpawner {
         return 1;
     }
 
-    private List<INeedCapability> getNeedsForClass(SocialClass socialClass) {
+    private List<NeedCapability> getNeedsForClass(SocialClass socialClass) {
         return socialClass.getNeeds().stream().map(needName -> CftRegistry.GOODS_NEEDS.get(new ResourceLocation(needName)))
                 .map(this::buildNeedCapability).toList();
     }
 
     // TODO: Generalize this method for any type of Need
-    private INeedCapability buildNeedCapability(GoodsNeed need) {
+    private NeedCapability buildNeedCapability(GoodsNeed need) {
         return new ConsumeItemNeedCapability(0.0, false, need);
     }
 

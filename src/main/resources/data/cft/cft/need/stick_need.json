@@ -1,4 +1,5 @@
 {
+  "id": "cft:stick_need",
   "need_type": "goods",
   "damage": 0.0,
   "provided_happiness": 1.0,

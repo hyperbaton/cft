@@ -1,12 +1,17 @@
 package com.hyperbaton.cft.entity.custom;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.ConsumeItemNeedCapability;
 import com.hyperbaton.cft.capability.need.GoodsNeed;
-import com.hyperbaton.cft.capability.need.INeedCapability;
+import com.hyperbaton.cft.capability.need.NeedCapability;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.goal.GetSuppliesGoal;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.XunguiHome;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -28,14 +33,18 @@ import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Iterator;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
+
+    public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
@@ -49,40 +58,54 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     private XunguiHome home;
 
-    private List<INeedCapability> needs;
+    private List<NeedCapability> needs;
 
     private SocialClass socialClass;
 
-    private int satisfyNeedsDelay = 20;
+    private double happiness = 0.0;
+
+    private int satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
+
+    // Tag keys
+    private static final String KEY_LEADER_ID = "leaderId";
+    private static final String KEY_INVENTORY = "inventory";
+    private static final String KEY_HOME = "home";
+    private static final String KEY_NEEDS = "needs";
+    private static final String KEY_SOCIAL_CLASS = "socialClass";
+    private static final String KEY_HAPPINESS = "happiness";
+
 
     @Override
     public void tick() {
         super.tick();
 
         // Run satisfaction of needs every 20 ticks (1 second)
-        if(satisfyNeedsDelay >= 0){
+        if(satisfyNeedsDelay > 0){
             satisfyNeedsDelay--;
         } else if(needs == null) {
-            satisfyNeedsDelay = 20;
+            satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         } else {
-            for (INeedCapability currentNeed : needs) {
+            for (NeedCapability currentNeed : needs) {
                 if (currentNeed instanceof ConsumeItemNeedCapability) {
                     GoodsNeed need = ((ConsumeItemNeedCapability) currentNeed).getNeed();
                     if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
                         if (inventory.hasAnyMatching(itemStack -> itemStack.is(need.getItem()) && itemStack.getCount() >= need.getQuantity())) {
                             inventory.removeItemType(need.getItem(), need.getQuantity());
-                            currentNeed.satisfy(need.getFrequency());
+                            currentNeed.satisfy();
+                            increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                         } else {
                             // TODO: Set goal to retrieve goods. Maybe through a memory in a brain?
                             currentNeed.unsatisfy(need.getFrequency());
+                            decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                         }
                     } else {
                         currentNeed.unsatisfy(need.getFrequency());
+                        increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                     }
                     currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
                 }
             }
-            satisfyNeedsDelay = 20;
+            satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         }
 
         if (this.level().isClientSide()) {
@@ -164,6 +187,30 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         return SoundEvents.HUSK_HURT;
     }
 
+    private void decreaseHappiness(double providedHappiness, double frequency) {
+        happiness = Math.max(
+                happiness - (
+                        providedHappiness *
+                        BigDecimal.valueOf(DELAY_BETWEEN_NEEDS_CHECKS)
+                                .setScale(8, RoundingMode.HALF_UP)
+                                .divide(BigDecimal.valueOf(24000 * frequency),
+                                        RoundingMode.HALF_UP)
+                                .doubleValue()),
+                0);
+    }
+
+    private void increaseHappiness(double providedHappiness, double frequency) {
+    happiness = Math.min(
+            happiness + (
+                    providedHappiness *
+                            BigDecimal.valueOf(DELAY_BETWEEN_NEEDS_CHECKS)
+                                    .setScale(8, RoundingMode.HALF_UP)
+                                    .divide(BigDecimal.valueOf(24000 * frequency),
+                                            RoundingMode.HALF_UP)
+                                    .doubleValue()),
+            socialClass.getMaxHappiness());
+    }
+
     public UUID getLeaderId() {
         return leaderId;
     }
@@ -201,11 +248,66 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         this.socialClass = socialClass;
     }
 
-    public List<INeedCapability> getNeeds() {
+    public List<NeedCapability> getNeeds() {
         return needs;
     }
 
-    public void setNeeds(List<INeedCapability> needs) {
+    public void setNeeds(List<NeedCapability> needs) {
         this.needs = needs;
+    }
+
+    public double getHappiness() {
+        return happiness;
+    }
+
+    public void setHappiness(double happiness) {
+        this.happiness = happiness;
+    }
+
+    @Override
+    public void addAdditionalSaveData(final @NotNull CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putString(KEY_SOCIAL_CLASS, socialClass.getId());
+        tag.putUUID(KEY_LEADER_ID, leaderId);
+        tag.put(KEY_INVENTORY, inventory.createTag());
+        tag.put(KEY_HOME, home.toTag());
+        tag.put(KEY_NEEDS, getNeedsTag(needs));
+        tag.putDouble(KEY_HAPPINESS, happiness);
+    }
+
+    private ListTag getNeedsTag(List<NeedCapability> needs) {
+
+        ListTag needsTags = new ListTag();
+        if (!this.needs.isEmpty()) {
+            for (NeedCapability need : needs) {
+                needsTags.add(need.toTag());
+            }
+        }
+        return needsTags;
+    }
+    @Override
+    public void readAdditionalSaveData(final @NotNull CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if(tag.contains(KEY_SOCIAL_CLASS, Tag.TAG_STRING)) {
+            setSocialClass(CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(tag.getString(KEY_SOCIAL_CLASS))));
+        }
+        if(tag.contains(KEY_LEADER_ID)) {
+            setLeaderId(tag.getUUID(KEY_LEADER_ID));
+        }
+        if(tag.contains(KEY_INVENTORY)) {
+            readInventoryFromTag(tag);
+        }
+        if(tag.contains(KEY_HOME)) {
+            setHome(XunguiHome.fromTag(tag.getCompound(KEY_HOME)));
+        }
+        if(tag.contains(KEY_NEEDS)) {
+            needs = new ArrayList<>();
+            for(Tag needTag : tag.getList(KEY_NEEDS, Tag.TAG_COMPOUND)){
+                needs.add(NeedCapability.fromTag((CompoundTag) needTag));
+            }
+        }
+        if(tag.contains(KEY_HAPPINESS)) {
+            setHappiness(tag.getDouble(KEY_HAPPINESS));
+        }
     }
 }

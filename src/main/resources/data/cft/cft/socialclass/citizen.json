@@ -1,4 +1,5 @@
 {
+  "id": "cft:citizen",
   "minHappiness": 50.0,
   "maxHappiness": 100.0,
   "needs": [
