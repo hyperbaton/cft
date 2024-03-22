@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -19,14 +19,18 @@ public class GetSuppliesGoal extends Goal {
 
     protected final BlockPos targetContainer;
 
-    public GetSuppliesGoal(XunguiEntity mob, BlockPos targetContainer) {
+    protected ItemStack itemsToRetrieve;
+
+    public GetSuppliesGoal(XunguiEntity mob, BlockPos targetContainer, ItemStack itemsToRetrieve) {
         this.mob = mob;
         this.targetContainer = targetContainer;
+        this.itemsToRetrieve = itemsToRetrieve;
     }
 
     @Override
     public boolean canUse() {
-        return mob.getHome() != null;
+        return mob.getHome() != null
+                && !itemsToRetrieve.isEmpty();
     }
 
     @Override
@@ -52,9 +56,6 @@ public class GetSuppliesGoal extends Goal {
                 .map(direction -> targetContainer.relative(direction))
                 .filter(pos -> level.getBlockState(pos).isAir())
                 .findAny();
-        /*Direction.allShuffled(level.random).stream()
-                .map(direction -> targetContainer.relative(direction))
-                .map(pos -> level.getBlockState(pos)).toList();*/
     }
 
     public void stop() {
@@ -67,14 +68,21 @@ public class GetSuppliesGoal extends Goal {
             InvWrapper chestInventory = (InvWrapper) itemHandlerOptional.orElse(null);
             int latestStickSlot = -1;
             for(int i = 0; i < chest.getContainerSize(); i++){
-                if(chestInventory.getStackInSlot(i).getItem() == Items.STICK) {
+                if(chestInventory.getStackInSlot(i).is(itemsToRetrieve.getItem())
+                && chestInventory.getStackInSlot(i).getCount() >= itemsToRetrieve.getCount()) {
                     latestStickSlot = i;
                 }
             }
             if(latestStickSlot >= 0){
-                mob.getInventory().addItem(chestInventory.extractItem(latestStickSlot, 1, false));
+                mob.getInventory().addItem(chestInventory.extractItem(latestStickSlot, itemsToRetrieve.getCount(), false));
+                // Remove (set as empty) the items to retrieve, so this goal will be eliminated later in Entity tick method
+                this.itemsToRetrieve = ItemStack.EMPTY;
             }
         }
         super.stop();
+    }
+
+    public ItemStack getItemsToRetrieve() {
+        return itemsToRetrieve;
     }
 }

@@ -90,11 +90,13 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                     GoodsNeed need = ((ConsumeItemNeedCapability) currentNeed).getNeed();
                     if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
                         if (inventory.hasAnyMatching(itemStack -> itemStack.is(need.getItem()) && itemStack.getCount() >= need.getQuantity())) {
+                            // Consume item and satisfy the need
                             inventory.removeItemType(need.getItem(), need.getQuantity());
                             currentNeed.satisfy();
                             increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                         } else {
-                            // TODO: Set goal to retrieve goods. Maybe through a memory in a brain?
+                            // Add goal for resupplying
+                            this.goalSelector.addGoal(2, new GetSuppliesGoal(this, home.getContainerPos(), new ItemStack(need.getItem(), need.getQuantity())));
                             currentNeed.unsatisfy(need.getFrequency());
                             decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                         }
@@ -107,6 +109,10 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
             }
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         }
+
+        // Remove all accomplished resupplying goals
+        this.goalSelector.removeAllGoals(goal -> goal instanceof GetSuppliesGoal
+        && ((GetSuppliesGoal) goal).getItemsToRetrieve().isEmpty());
 
         if (this.level().isClientSide()) {
             setupAnimationStates();
@@ -140,17 +146,6 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 1.1D));
         this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 3f));
         this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-        if(home != null){
-            System.out.println("Adding getSuppliesGoal\n");
-            this.goalSelector.addGoal(2, new GetSuppliesGoal(this, home.getContainerPos()));
-        }
-    }
-
-    public void addHomeRelatedGoals(){
-        if(home != null){
-            System.out.println("Adding getSuppliesGoal\n");
-            this.goalSelector.addGoal(2, new GetSuppliesGoal(this, home.getContainerPos()));
-        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {

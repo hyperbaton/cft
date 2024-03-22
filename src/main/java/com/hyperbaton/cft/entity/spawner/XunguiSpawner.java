@@ -37,7 +37,6 @@ public class XunguiSpawner implements CustomSpawner {
                         home.setOwnerId(xungui.getUUID());
                         xungui.setLeaderId(home.getLeaderId());
                         xungui.setHome(home);
-                        xungui.addHomeRelatedGoals();
                         xungui.setSocialClass(getRandomBasicClass(serverLevel.random));
                         xungui.setNeeds(getNeedsForClass(xungui.getSocialClass()));
                         System.out.println("Xungui created\n");
