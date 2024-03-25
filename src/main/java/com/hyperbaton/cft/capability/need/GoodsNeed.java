@@ -23,22 +23,16 @@ public class GoodsNeed extends Need {
 
     private Item item;
     /**
-     * Given in in-game days (each day is 24000 ticks or 20 real world minutes).
-     */
-    private double frequency;
-    /**
      * How many items need to be consumed every frequency days for this to be satisfied
      */
     private int quantity;
 
     public static final String TAG_ITEM = "item";
-    public static final String TAG_FREQUENCY = "frequency";
     public static final String TAG_QUANTITIY = "quantity";
 
     public GoodsNeed(String id, String needType, double damage, double providedHappiness, double satisfactionThreshold, Item item, double frequency, int quantity) {
-        super(id, needType, damage, providedHappiness, satisfactionThreshold);
+        super(id, needType, damage, providedHappiness, satisfactionThreshold, frequency);
         this.item = item;
-        this.frequency = frequency;
         this.quantity = quantity;
     }
 
@@ -48,14 +42,6 @@ public class GoodsNeed extends Need {
 
     public void setItem(Item item) {
         this.item = item;
-    }
-
-    public double getFrequency() {
-        return frequency;
-    }
-
-    public void setFrequency(double frequency) {
-        this.frequency = frequency;
     }
 
     public int getQuantity() {
@@ -70,7 +56,7 @@ public class GoodsNeed extends Need {
     public CompoundTag toTag(){
         CompoundTag tag = super.toTag();
         tag.put(TAG_ITEM, Optional.ofNullable(item.getShareTag(item.getDefaultInstance())).orElseThrow());
-        tag.putDouble(TAG_FREQUENCY, frequency);
+        tag.putDouble(TAG_FREQUENCY, getFrequency());
         tag.putInt(TAG_QUANTITIY, quantity);
         return tag;
     }

@@ -15,20 +15,25 @@ public abstract class Need {
      */
     private double providedHappiness;
     private double satisfactionThreshold;
-
+    /**
+     * Given in in-game days (each day is 24000 ticks or 20 real world minutes).
+     */
+    private double frequency;
 
     public static final String TAG_ID = "id";
     public static final String TAG_NEED_TYPE = "needType";
     public static final String TAG_DAMAGE = "damage";
     public static final String TAG_PROVIDED_HAPPINESS = "providedHappiness";
     public static final String TAG_SATISFACTION_THRESHOLD = "satisfactionThreshold";
+    public static final String TAG_FREQUENCY = "frequency";
 
-    public Need(String id, String needType, double damage, double providedHappiness, double satisfactionThreshold) {
+    public Need(String id, String needType, double damage, double providedHappiness, double satisfactionThreshold, double frequency) {
         this.id = id;
         this.needType = needType;
         this.damage = damage;
         this.providedHappiness = providedHappiness;
         this.satisfactionThreshold = satisfactionThreshold;
+        this.frequency = frequency;
     }
 
     public String getId() {
@@ -67,6 +72,14 @@ public abstract class Need {
         this.satisfactionThreshold = satisfactionThreshold;
     }
 
+    public double getFrequency() {
+        return frequency;
+    }
+
+    public void setFrequency(double frequency) {
+        this.frequency = frequency;
+    }
+
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString(TAG_ID, id);
@@ -74,6 +87,7 @@ public abstract class Need {
         tag.putDouble(TAG_DAMAGE, damage);
         tag.putDouble(TAG_PROVIDED_HAPPINESS, providedHappiness);
         tag.putDouble(TAG_SATISFACTION_THRESHOLD, satisfactionThreshold);
+        tag.putDouble(TAG_FREQUENCY, frequency);
         return tag;
     }
 }
