@@ -36,6 +36,8 @@ public class CftMod
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        CftRegistry.NEEDS_CODEC.register(modEventBus);
+
         CreativeModTabs.register(modEventBus);
 
         CftItems.register(modEventBus);
@@ -80,7 +82,7 @@ public class CftMod
     @SubscribeEvent
     public void onServerStarting(ServerAboutToStartEvent event)
     {
-        CftRegistry.GOODS_NEEDS = CftRegistry.getNeedsRegistry(event.getServer().registryAccess());
+        CftRegistry.NEEDS = CftRegistry.getNeedsRegistry(event.getServer().registryAccess());
         CftRegistry.SOCIAL_CLASSES = CftRegistry.getSocialClassesRegistry(event.getServer().registryAccess());
     }
 

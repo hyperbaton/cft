@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.capability.need;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -9,7 +10,6 @@ public class HomeNeed extends Need{
 
     public static final Codec<HomeNeed> HOME_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(HomeNeed::getId),
-            Codec.STRING.fieldOf("need_type").forGetter(HomeNeed::getNeedType),
             Codec.DOUBLE.fieldOf("damage").forGetter(HomeNeed::getDamage),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(HomeNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(HomeNeed::getSatisfactionThreshold),
@@ -24,8 +24,8 @@ public class HomeNeed extends Need{
     List<HomeValidBlock> wallBlocks;
     List<HomeValidBlock> interiorBlocks;
     List<HomeValidBlock> roofBlocks;
-    public HomeNeed(String id, String needType, double damage, double providedHappiness, double satisfactionThreshold, double frequency, List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks, List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks) {
-        super(id, needType, damage, providedHappiness, satisfactionThreshold, frequency);
+    public HomeNeed(String id, double damage, double providedHappiness, double satisfactionThreshold, double frequency, List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks, List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks) {
+        super(id, damage, providedHappiness, satisfactionThreshold, frequency);
         this.floorBlocks = floorBlocks;
         this.wallBlocks = wallBlocks;
         this.interiorBlocks = interiorBlocks;
@@ -62,5 +62,10 @@ public class HomeNeed extends Need{
 
     public void setRoofBlocks(List<HomeValidBlock> roofBlocks) {
         this.roofBlocks = roofBlocks;
+    }
+
+    @Override
+    public Codec<?extends Need> needType() {
+        return CftRegistry.HOME_NEED.get();
     }
 }

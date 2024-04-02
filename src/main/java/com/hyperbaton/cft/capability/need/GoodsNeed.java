@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.capability.need;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
@@ -12,7 +13,6 @@ public class GoodsNeed extends Need {
 
     public static final Codec<GoodsNeed> GOODS_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(GoodsNeed::getId),
-            Codec.STRING.fieldOf("need_type").forGetter(GoodsNeed::getNeedType),
             Codec.DOUBLE.fieldOf("damage").forGetter(GoodsNeed::getDamage),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(GoodsNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(GoodsNeed::getSatisfactionThreshold),
@@ -20,6 +20,7 @@ public class GoodsNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(GoodsNeed::getFrequency),
             Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity)
     ).apply(instance, GoodsNeed::new));
+    private static final String GOODS_NEED_TYPE = "cft:goods_need";
 
     private Item item;
     /**
@@ -30,8 +31,8 @@ public class GoodsNeed extends Need {
     public static final String TAG_ITEM = "item";
     public static final String TAG_QUANTITIY = "quantity";
 
-    public GoodsNeed(String id, String needType, double damage, double providedHappiness, double satisfactionThreshold, Item item, double frequency, int quantity) {
-        super(id, needType, damage, providedHappiness, satisfactionThreshold, frequency);
+    public GoodsNeed(String id, double damage, double providedHappiness, double satisfactionThreshold, Item item, double frequency, int quantity) {
+        super(id, damage, providedHappiness, satisfactionThreshold, frequency);
         this.item = item;
         this.quantity = quantity;
     }
@@ -50,6 +51,11 @@ public class GoodsNeed extends Need {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public Codec<?extends Need> needType() {
+        return CftRegistry.GOODS_NEED.get();
     }
 
     @Override

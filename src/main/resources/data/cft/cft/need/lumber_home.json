@@ -1,28 +1,30 @@
 {
   "id": "cft:lumber_home",
-  "need_type": "home",
+  "type": "cft:home",
+  "need_type": "cft:home",
   "damage": 0.0,
   "provided_happiness": 1.0,
   "satisfaction_threshold": 0.8,
-  "floor_blocks": [
+  "frequency": 1.0,
+  "floorBlocks": [
     {
-      "item": "#minecraft:planks",
+      "item": "minecraft:oak_planks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 100.0
     }
   ],
-  "wall_blocks": [
+  "wallBlocks": [
     {
-      "item": "#minecraft:planks",
+      "item": "minecraft:oak_planks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 100.0
     }
   ],
-  "interior_blocks": [
+  "interiorBlocks": [
     {
       "item": "minecraft:air",
       "minQuantity": 0,
@@ -31,9 +33,9 @@
       "maxPercentage": 100.0
     }
   ],
-  "roof_blocks": [
+  "roofBlocks": [
     {
-      "item": "#minecraft:planks",
+      "item": "minecraft:oak_planks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

@@ -1,6 +1,6 @@
 {
   "id": "cft:stick_need",
-  "need_type": "goods",
+  "type": "cft:goods",
   "damage": 0.0,
   "provided_happiness": 1.0,
   "satisfaction_threshold": 0.8,

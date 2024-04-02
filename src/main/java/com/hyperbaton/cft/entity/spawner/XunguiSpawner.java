@@ -1,9 +1,7 @@
 package com.hyperbaton.cft.entity.spawner;
 
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.capability.need.ConsumeItemNeedCapability;
-import com.hyperbaton.cft.capability.need.GoodsNeed;
-import com.hyperbaton.cft.capability.need.NeedCapability;
+import com.hyperbaton.cft.capability.need.*;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -49,13 +47,18 @@ public class XunguiSpawner implements CustomSpawner {
     }
 
     private List<NeedCapability> getNeedsForClass(SocialClass socialClass) {
-        return socialClass.getNeeds().stream().map(needName -> CftRegistry.GOODS_NEEDS.get(new ResourceLocation(needName)))
+        return socialClass.getNeeds().stream().map(needName -> CftRegistry.NEEDS.get(new ResourceLocation(needName)))
                 .map(this::buildNeedCapability).toList();
     }
 
-    // TODO: Generalize this method for any type of Need
-    private NeedCapability buildNeedCapability(GoodsNeed need) {
-        return new ConsumeItemNeedCapability(0.0, false, need);
+    // TODO: Better generalize this method for any type of Need
+    private NeedCapability buildNeedCapability(Need need) {
+        if (need instanceof GoodsNeed) {
+            return new ConsumeItemNeedCapability(0.0, false, (GoodsNeed) need);
+        } else if (need instanceof HomeNeed) {
+            return new HomeNeedCapability(0.0, false, (HomeNeed) need);
+        }
+        return null;
     }
 
     private SocialClass getRandomBasicClass(RandomSource random) {

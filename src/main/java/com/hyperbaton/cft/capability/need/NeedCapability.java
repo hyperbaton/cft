@@ -1,8 +1,7 @@
 package com.hyperbaton.cft.capability.need;
 
-import com.hyperbaton.cft.CftRegistry;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.nbt.NbtOps;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -74,15 +73,7 @@ public abstract class NeedCapability<T extends Need> {
         CompoundTag tag = new CompoundTag();
         tag.putDouble(TAG_SATISFACTION, satisfaction);
         tag.putBoolean(TAG_IS_SATISFIED, isSatisfied);
-        tag.putString(TAG_NEED, need.getId());
+        tag.put(TAG_NEED, Need.NEED_CODEC.encodeStart(NbtOps.INSTANCE, need).result().get());
         return tag;
-    }
-
-    public static NeedCapability<GoodsNeed> fromTag(CompoundTag tag) {
-        return new ConsumeItemNeedCapability(
-                tag.getInt(TAG_SATISFACTION),
-                tag.getBoolean(TAG_IS_SATISFIED),
-                CftRegistry.GOODS_NEEDS.get(new ResourceLocation(tag.getString(TAG_NEED)))
-        );
     }
 }

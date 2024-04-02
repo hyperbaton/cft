@@ -4,6 +4,7 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.ConsumeItemNeedCapability;
 import com.hyperbaton.cft.capability.need.GoodsNeed;
 import com.hyperbaton.cft.capability.need.NeedCapability;
+import com.hyperbaton.cft.capability.need.NeedCapabilityMapper;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.goal.GetSuppliesGoal;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -298,7 +299,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         if(tag.contains(KEY_NEEDS)) {
             needs = new ArrayList<>();
             for(Tag needTag : tag.getList(KEY_NEEDS, Tag.TAG_COMPOUND)){
-                needs.add(NeedCapability.fromTag((CompoundTag) needTag));
+                needs.add(NeedCapabilityMapper.mapNeedCapability((CompoundTag) needTag));
             }
         }
         if(tag.contains(KEY_HAPPINESS)) {

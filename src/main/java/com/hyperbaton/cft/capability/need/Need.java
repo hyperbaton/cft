@@ -1,12 +1,19 @@
 package com.hyperbaton.cft.capability.need;
 
+import com.hyperbaton.cft.CftRegistry;
+import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.ExtraCodecs;
+
+import java.util.function.Function;
 
 public abstract class Need {
 
+    public static final Codec<Need> NEED_CODEC = ExtraCodecs.lazyInitializedCodec(() -> CftRegistry.NEEDS_CODEC_SUPPLIER.get().getCodec()
+            .dispatch(Need::needType, Function.identity()));
+
     private final String id;
-    private String needType;
     private double damage;
 
     /**
@@ -21,15 +28,13 @@ public abstract class Need {
     private double frequency;
 
     public static final String TAG_ID = "id";
-    public static final String TAG_NEED_TYPE = "needType";
     public static final String TAG_DAMAGE = "damage";
     public static final String TAG_PROVIDED_HAPPINESS = "providedHappiness";
     public static final String TAG_SATISFACTION_THRESHOLD = "satisfactionThreshold";
     public static final String TAG_FREQUENCY = "frequency";
 
-    public Need(String id, String needType, double damage, double providedHappiness, double satisfactionThreshold, double frequency) {
+    public Need(String id, double damage, double providedHappiness, double satisfactionThreshold, double frequency) {
         this.id = id;
-        this.needType = needType;
         this.damage = damage;
         this.providedHappiness = providedHappiness;
         this.satisfactionThreshold = satisfactionThreshold;
@@ -40,13 +45,7 @@ public abstract class Need {
         return id;
     }
 
-    public String getNeedType() {
-        return needType;
-    }
-
-    public void setNeedType(String needType) {
-        this.needType = needType;
-    }
+    public abstract Codec<?extends Need> needType();
 
     public double getDamage() {
         return damage;
@@ -83,7 +82,6 @@ public abstract class Need {
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString(TAG_ID, id);
-        tag.putString(TAG_NEED_TYPE, needType);
         tag.putDouble(TAG_DAMAGE, damage);
         tag.putDouble(TAG_PROVIDED_HAPPINESS, providedHappiness);
         tag.putDouble(TAG_SATISFACTION_THRESHOLD, satisfactionThreshold);
