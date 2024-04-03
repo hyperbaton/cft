@@ -3,7 +3,8 @@
   "minHappiness": 0.0,
   "maxHappiness": 100.0,
   "needs": [
-    "cft:stick_need"
+    "cft:stick_need",
+    "cft:lumber_home"
   ],
   "upgrades": [
     {

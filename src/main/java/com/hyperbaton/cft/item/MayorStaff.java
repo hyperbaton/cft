@@ -1,13 +1,8 @@
 package com.hyperbaton.cft.item;
 
-import com.google.common.collect.Comparators;
-import com.google.common.collect.Sets;
 import com.hyperbaton.cft.structure.home.HomeDetection;
-import com.hyperbaton.cft.structure.home.XunguiHome;
 import com.hyperbaton.cft.world.HomesData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -15,15 +10,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import org.apache.commons.compress.utils.Lists;
-
-import java.util.List;
-import java.util.Set;
 
 public class MayorStaff extends Item {
 
@@ -54,7 +42,7 @@ public class MayorStaff extends Item {
                 if(homesData.getHomes().stream().anyMatch(home -> home.getEntrance().equals(finalPositionClicked))){
                     foundHouse = false;
                 } else {
-                    foundHouse = new HomeDetection().detectHouse(positionClicked, (ServerLevel) pContext.getLevel(), player);
+                    foundHouse = new HomeDetection().detectAnyHouse(positionClicked, (ServerLevel) pContext.getLevel(), player.getUUID());
                 }
 
             } else {

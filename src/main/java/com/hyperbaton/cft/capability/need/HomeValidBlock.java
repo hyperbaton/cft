@@ -2,7 +2,7 @@ package com.hyperbaton.cft.capability.need;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class HomeValidBlock {
@@ -12,37 +12,37 @@ public class HomeValidBlock {
     private static final double TOP_PERCENTAGE = 100.0;
 
     public static final Codec<HomeValidBlock> HOME_VALID_BLOCK_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(HomeValidBlock::getItem),
+            ForgeRegistries.BLOCKS.getCodec().fieldOf("item").forGetter(HomeValidBlock::getBlock),
             Codec.INT.orElse(ZERO_QUANTITY).fieldOf("minQuantity").forGetter(HomeValidBlock::getMinQuantity),
             Codec.INT.orElse(INFINITE_QUANTITY).fieldOf("maxQuantity").forGetter(HomeValidBlock::getMaxQuantity),
             Codec.DOUBLE.orElse(ZERO_PERCENTAGE).fieldOf("minPercentage").forGetter(HomeValidBlock::getMinPercentage),
             Codec.DOUBLE.orElse(TOP_PERCENTAGE).fieldOf("maxPercentage").forGetter(HomeValidBlock::getMaxPercentage)
     ).apply(instance, HomeValidBlock::new));
-    private Item item;
+    private Block block;
 
     private int minQuantity = ZERO_QUANTITY;
     private int maxQuantity = INFINITE_QUANTITY;
     private double minPercentage = ZERO_PERCENTAGE;
     private double maxPercentage = TOP_PERCENTAGE;
 
-    public HomeValidBlock(Item item, int minQuantity, int maxQuantity, double minPercentage, double maxPercentage) {
-        this.item = item;
+    public HomeValidBlock(Block block, int minQuantity, int maxQuantity, double minPercentage, double maxPercentage) {
+        this.block = block;
         this.minQuantity = minQuantity;
         this.maxQuantity = maxQuantity;
         this.minPercentage = minPercentage;
         this.maxPercentage = maxPercentage;
     }
 
-    public HomeValidBlock(Item item) {
-        this.item = item;
+    public HomeValidBlock(Block block) {
+        this.block = block;
     }
 
-    public Item getItem() {
-        return item;
+    public Block getBlock() {
+        return block;
     }
 
-    public void setItem(Item item) {
-        this.item = item;
+    public void setBlock(Block item) {
+        this.block = block;
     }
 
     public int getMinQuantity() {

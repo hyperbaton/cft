@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.capability.need;
 
+import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 
@@ -30,8 +31,10 @@ public abstract class NeedCapability<T extends Need> {
         this.need = need;
     }
 
-    public void satisfy() {
+    public boolean satisfy(XunguiEntity mob) {
         satisfaction = 1.0;
+        mob.increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+        return true;
     }
 
     public void unsatisfy(double frequency) {

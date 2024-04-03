@@ -23,8 +23,6 @@ public class SocialClass {
     private String id;
     private double minHappiness;
     private double maxHappiness;
-
-    // TODO: Make this a dynamic reference to a Need object
     private List<String> needs;
     private List<SocialClassUpdate> upgrades;
     private List<SocialClassUpdate> downgrades;

@@ -43,7 +43,7 @@ public class GetSuppliesGoal extends Goal {
         System.out.println("Container at X: " + targetContainer.getX() + " Y: " + targetContainer.getY() + " Z: " + targetContainer.getZ() + "\n");
         ServerLevel level = (ServerLevel) mob.level();
         Optional<BlockPos> targetPosition = findEmptyBlockNextToContainer(level, targetContainer);
-        if(targetPosition.isPresent()){
+        if (targetPosition.isPresent()) {
             this.mob.getNavigation().moveTo(targetPosition.get().getX(), targetPosition.get().getY(), targetPosition.get().getZ(), this.mob.getSpeed());
         } else {
             System.out.println("Container can't be accessed\n");
@@ -63,17 +63,22 @@ public class GetSuppliesGoal extends Goal {
 
         System.out.println("Checking container in home\n");
         ChestBlockEntity chest = (ChestBlockEntity) mob.level().getBlockEntity(targetContainer);
+        // If there is no chest, the Xungui doesn't have a home and should not try to get anything
+        if (chest == null) {
+            super.stop();
+            return;
+        }
         LazyOptional<IItemHandler> itemHandlerOptional = chest.getCapability(ForgeCapabilities.ITEM_HANDLER, Direction.UP);
-        if(itemHandlerOptional.isPresent()){
+        if (itemHandlerOptional.isPresent()) {
             InvWrapper chestInventory = (InvWrapper) itemHandlerOptional.orElse(null);
             int latestStickSlot = -1;
-            for(int i = 0; i < chest.getContainerSize(); i++){
-                if(chestInventory.getStackInSlot(i).is(itemsToRetrieve.getItem())
-                && chestInventory.getStackInSlot(i).getCount() >= itemsToRetrieve.getCount()) {
+            for (int i = 0; i < chest.getContainerSize(); i++) {
+                if (chestInventory.getStackInSlot(i).is(itemsToRetrieve.getItem())
+                        && chestInventory.getStackInSlot(i).getCount() >= itemsToRetrieve.getCount()) {
                     latestStickSlot = i;
                 }
             }
-            if(latestStickSlot >= 0){
+            if (latestStickSlot >= 0) {
                 mob.getInventory().addItem(chestInventory.extractItem(latestStickSlot, itemsToRetrieve.getCount(), false));
                 // Remove (set as empty) the items to retrieve, so this goal will be eliminated later in Entity tick method
                 this.itemsToRetrieve = ItemStack.EMPTY;

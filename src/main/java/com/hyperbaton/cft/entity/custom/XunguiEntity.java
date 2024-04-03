@@ -1,10 +1,7 @@
 package com.hyperbaton.cft.entity.custom;
 
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.capability.need.ConsumeItemNeedCapability;
-import com.hyperbaton.cft.capability.need.GoodsNeed;
-import com.hyperbaton.cft.capability.need.NeedCapability;
-import com.hyperbaton.cft.capability.need.NeedCapabilityMapper;
+import com.hyperbaton.cft.capability.need.*;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.goal.GetSuppliesGoal;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -87,26 +84,14 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         } else {
             for (NeedCapability currentNeed : needs) {
-                if (currentNeed instanceof ConsumeItemNeedCapability) {
-                    GoodsNeed need = ((ConsumeItemNeedCapability) currentNeed).getNeed();
+                    Need need = currentNeed.getNeed();
                     if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
-                        if (inventory.hasAnyMatching(itemStack -> itemStack.is(need.getItem()) && itemStack.getCount() >= need.getQuantity())) {
-                            // Consume item and satisfy the need
-                            inventory.removeItemType(need.getItem(), need.getQuantity());
-                            currentNeed.satisfy();
-                            increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
-                        } else {
-                            // Add goal for resupplying
-                            this.goalSelector.addGoal(2, new GetSuppliesGoal(this, home.getContainerPos(), new ItemStack(need.getItem(), need.getQuantity())));
-                            currentNeed.unsatisfy(need.getFrequency());
-                            decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
-                        }
+                            currentNeed.satisfy(this);
                     } else {
                         currentNeed.unsatisfy(need.getFrequency());
                         increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                     }
                     currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
-                }
             }
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         }
@@ -183,7 +168,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         return SoundEvents.HUSK_HURT;
     }
 
-    private void decreaseHappiness(double providedHappiness, double frequency) {
+    public void decreaseHappiness(double providedHappiness, double frequency) {
         happiness = Math.max(
                 happiness - (
                         providedHappiness *
@@ -195,7 +180,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 0);
     }
 
-    private void increaseHappiness(double providedHappiness, double frequency) {
+    public void increaseHappiness(double providedHappiness, double frequency) {
     happiness = Math.min(
             happiness + (
                     providedHappiness *
