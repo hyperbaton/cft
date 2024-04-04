@@ -5,6 +5,7 @@ import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.client.XunguiRenderer;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.item.CftItems;
+import com.hyperbaton.cft.network.CftPacketHandler;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.level.block.Blocks;
@@ -46,6 +47,9 @@ public class CftMod
 
         // Register Needs
         modEventBus.register(new CftDatapackRegistryEvents());
+
+        // Register the packets
+        CftPacketHandler.init();
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -90,8 +94,6 @@ public class CftMod
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        //CftRegistry.GOODS_NEEDS = CftRegistry.getNeedsRegistry(event.getServer().registryAccess());
-        //CftRegistry.SOCIAL_CLASSES = CftRegistry.getSocialClassesRegistry(event.getServer().registryAccess());
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
