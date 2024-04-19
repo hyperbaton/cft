@@ -2,8 +2,10 @@ package com.hyperbaton.cft.capability.need;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.HomeDetection;
+import com.hyperbaton.cft.world.HomesData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
@@ -15,13 +17,20 @@ public class HomeNeedCapability extends NeedCapability<HomeNeed> {
     }
 
     @Override
-    public boolean satisfy(XunguiEntity mob){
+    public boolean satisfy(XunguiEntity mob) {
         if (mob.getHome() != null &&
                 HomeDetection.detectHouse(mob.getHome().getEntrance(), (ServerLevel) mob.level(), mob.getLeaderId(), getHomeNeedOfSocialClass(mob.getSocialClass()))) {
             super.satisfy(mob);
         } else {
             if (mob.getHome() != null) {
-               mob.setHome(null);
+                if (!mob.level().isClientSide) {
+                    HomesData homesData = ((ServerLevel) mob.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+                    homesData.getHomes().removeIf(home -> home.getEntrance().equals(mob.getHome().getEntrance()));
+                    homesData.setDirty();
+                }
+
+                mob.setHome(null);
+                mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
             }
             this.unsatisfy(need.getFrequency());
             mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
@@ -33,18 +42,8 @@ public class HomeNeedCapability extends NeedCapability<HomeNeed> {
 
     @Override
     public void addMemoriesForSatisfaction(XunguiEntity mob) {
-        // TODO: Add a memory that activates looking for a home (or activate sensor?)
-
+        // We only need to check if the mob has a null home in the respective Behaviour
     }
-
-    /*@Override
-    public boolean unsatisfy(XunguiEntity mob){
-        // Add goal for looking for a new home
-        if(mob.goalSelector.getRunningGoals().noneMatch(goal -> goal.getGoal() instanceof SearchForHomeGoal)){
-            mob.goalSelector.addGoal(1, new SearchForHomeGoal(mob));
-        }
-        super.unsatisfy();
-    }*/
 
     public static NeedCapability<HomeNeed> fromTag(CompoundTag tag) {
         return new HomeNeedCapability(

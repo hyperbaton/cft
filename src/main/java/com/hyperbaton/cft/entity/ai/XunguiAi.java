@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hyperbaton.cft.entity.behaviour.GetSuppliesBehaviour;
+import com.hyperbaton.cft.entity.behaviour.SearchHomeBehaviour;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
 import com.mojang.datafixers.util.Pair;
@@ -17,7 +18,6 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
 
-import java.util.Collection;
 import java.util.Map;
 
 public class XunguiAi {
@@ -58,9 +58,13 @@ public class XunguiAi {
 
     private static void initInvestigateActivity(Brain<XunguiEntity> pBrain) {
         pBrain.addActivity(Activity.INVESTIGATE, ImmutableList.of(
-                Pair.of( 1, new GetSuppliesBehaviour(
+                Pair.of(1, new GetSuppliesBehaviour(
                         Map.of(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), MemoryStatus.VALUE_PRESENT,
                                 CftMemoryModuleType.SUPPLIES_NEEDED.get(), MemoryStatus.VALUE_PRESENT)
-                ))));
+                )),
+                Pair.of(0, new SearchHomeBehaviour(
+                        Map.of()
+                ))
+        ));
     }
 }

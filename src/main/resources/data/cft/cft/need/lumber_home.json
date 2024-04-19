@@ -4,7 +4,7 @@
   "need_type": "cft:home",
   "damage": 0.0,
   "provided_happiness": 1.0,
-  "satisfaction_threshold": 0.8,
+  "satisfaction_threshold": 0.95,
   "frequency": 1.0,
   "floorBlocks": [
     {
