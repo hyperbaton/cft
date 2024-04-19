@@ -23,13 +23,28 @@ public class HomeNeedCapability extends NeedCapability<HomeNeed> {
             if (mob.getHome() != null) {
                mob.setHome(null);
             }
-            // Add goal for looking for a new home
-            //mob.goalSelector.addGoal(2, new GetSuppliesGoal(mob, mob.getHome().getContainerPos(), new ItemStack(need.getItem(), need.getQuantity())));
             this.unsatisfy(need.getFrequency());
             mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+            addMemoriesForSatisfaction(mob);
+            return false;
         }
         return true;
     }
+
+    @Override
+    public void addMemoriesForSatisfaction(XunguiEntity mob) {
+        // TODO: Add a memory that activates looking for a home (or activate sensor?)
+
+    }
+
+    /*@Override
+    public boolean unsatisfy(XunguiEntity mob){
+        // Add goal for looking for a new home
+        if(mob.goalSelector.getRunningGoals().noneMatch(goal -> goal.getGoal() instanceof SearchForHomeGoal)){
+            mob.goalSelector.addGoal(1, new SearchForHomeGoal(mob));
+        }
+        super.unsatisfy();
+    }*/
 
     public static NeedCapability<HomeNeed> fromTag(CompoundTag tag) {
         return new HomeNeedCapability(

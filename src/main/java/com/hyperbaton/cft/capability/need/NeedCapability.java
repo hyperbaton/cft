@@ -48,6 +48,8 @@ public abstract class NeedCapability<T extends Need> {
                 0);
     }
 
+    public abstract void addMemoriesForSatisfaction(XunguiEntity mob);
+
     public double getSatisfaction() {
         return satisfaction;
     }
@@ -79,4 +81,5 @@ public abstract class NeedCapability<T extends Need> {
         tag.put(TAG_NEED, Need.NEED_CODEC.encodeStart(NbtOps.INSTANCE, need).result().get());
         return tag;
     }
+
 }

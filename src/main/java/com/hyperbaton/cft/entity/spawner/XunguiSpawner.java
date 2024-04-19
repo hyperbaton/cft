@@ -4,6 +4,7 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.*;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.structure.home.XunguiHome;
@@ -39,6 +40,7 @@ public class XunguiSpawner implements CustomSpawner {
                         home.setOwnerId(xungui.getUUID());
                         xungui.setLeaderId(home.getLeaderId());
                         xungui.setHome(home);
+                        xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
                         xungui.setSocialClass(getRandomBasicClass(serverLevel.random, getHomeNeedOfHome(home)));
                         xungui.setNeeds(getNeedsForClass(xungui.getSocialClass()));
                         System.out.println("Xungui created\n");

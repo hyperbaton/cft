@@ -3,6 +3,7 @@ package com.hyperbaton.cft;
 import com.hyperbaton.cft.creativetab.CreativeModTabs;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.client.XunguiRenderer;
+import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.item.CftItems;
 import com.hyperbaton.cft.network.CftPacketHandler;
@@ -44,6 +45,8 @@ public class CftMod
         CftItems.register(modEventBus);
 
         CftEntities.register(modEventBus);
+
+        CftMemoryModuleType.register(modEventBus);
 
         // Register Needs
         modEventBus.register(new CftDatapackRegistryEvents());

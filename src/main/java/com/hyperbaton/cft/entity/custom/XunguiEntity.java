@@ -1,11 +1,16 @@
 package com.hyperbaton.cft.entity.custom;
 
+import com.google.common.collect.ImmutableList;
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.capability.need.*;
+import com.hyperbaton.cft.capability.need.Need;
+import com.hyperbaton.cft.capability.need.NeedCapability;
+import com.hyperbaton.cft.capability.need.NeedCapabilityMapper;
 import com.hyperbaton.cft.entity.CftEntities;
-import com.hyperbaton.cft.entity.goal.GetSuppliesGoal;
+import com.hyperbaton.cft.entity.ai.XunguiAi;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.XunguiHome;
+import com.hyperbaton.cft.world.HomesData;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -19,16 +24,13 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.npc.InventoryCarrier;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -38,14 +40,16 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
+
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        ((GroundPathNavigation)this.getNavigation()).setCanOpenDoors(true);
+        ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
     }
 
     public final AnimationState idleAnimationState = new AnimationState();
@@ -78,27 +82,23 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         super.tick();
 
         // Run satisfaction of needs every 20 ticks (1 second)
-        if(satisfyNeedsDelay > 0){
+        if (satisfyNeedsDelay > 0) {
             satisfyNeedsDelay--;
-        } else if(needs == null) {
+        } else if (needs == null) {
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         } else {
             for (NeedCapability currentNeed : needs) {
-                    Need need = currentNeed.getNeed();
-                    if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
-                            currentNeed.satisfy(this);
-                    } else {
-                        currentNeed.unsatisfy(need.getFrequency());
-                        increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
-                    }
-                    currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
+                Need need = currentNeed.getNeed();
+                if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
+                    currentNeed.satisfy(this);
+                } else {
+                    currentNeed.unsatisfy(need.getFrequency());
+                    increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+                }
+                currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
             }
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         }
-
-        // Remove all accomplished resupplying goals
-        this.goalSelector.removeAllGoals(goal -> goal instanceof GetSuppliesGoal
-        && ((GetSuppliesGoal) goal).getItemsToRetrieve().isEmpty());
 
         if (this.level().isClientSide()) {
             setupAnimationStates();
@@ -127,11 +127,9 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     }
 
     @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 1.1D));
-        this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 3f));
-        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+    protected void customServerAiStep() {
+        getBrain().tick((ServerLevel) level(), this);
+        this.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -168,28 +166,57 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         return SoundEvents.HUSK_HURT;
     }
 
+    @Override
+    protected Brain.Provider<XunguiEntity> brainProvider() {
+        return Brain.provider(XunguiAi.MEMORY_TYPES, XunguiAi.SENSOR_TYPES);
+    }
+
+    @Override
+    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
+        return XunguiAi.makeBrain(brainProvider().makeBrain(dynamic));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Brain<XunguiEntity> getBrain() {
+        return (Brain<XunguiEntity>) super.getBrain();
+    }
+
     public void decreaseHappiness(double providedHappiness, double frequency) {
         happiness = Math.max(
                 happiness - (
                         providedHappiness *
-                        BigDecimal.valueOf(DELAY_BETWEEN_NEEDS_CHECKS)
-                                .setScale(8, RoundingMode.HALF_UP)
-                                .divide(BigDecimal.valueOf(24000 * frequency),
-                                        RoundingMode.HALF_UP)
-                                .doubleValue()),
+                                BigDecimal.valueOf(DELAY_BETWEEN_NEEDS_CHECKS)
+                                        .setScale(8, RoundingMode.HALF_UP)
+                                        .divide(BigDecimal.valueOf(24000 * frequency),
+                                                RoundingMode.HALF_UP)
+                                        .doubleValue()),
                 0);
     }
 
     public void increaseHappiness(double providedHappiness, double frequency) {
-    happiness = Math.min(
-            happiness + (
-                    providedHappiness *
-                            BigDecimal.valueOf(DELAY_BETWEEN_NEEDS_CHECKS)
-                                    .setScale(8, RoundingMode.HALF_UP)
-                                    .divide(BigDecimal.valueOf(24000 * frequency),
-                                            RoundingMode.HALF_UP)
-                                    .doubleValue()),
-            socialClass.getMaxHappiness());
+        happiness = Math.min(
+                happiness + (
+                        providedHappiness *
+                                BigDecimal.valueOf(DELAY_BETWEEN_NEEDS_CHECKS)
+                                        .setScale(8, RoundingMode.HALF_UP)
+                                        .divide(BigDecimal.valueOf(24000 * frequency),
+                                                RoundingMode.HALF_UP)
+                                        .doubleValue()),
+                socialClass.getMaxHappiness());
+    }
+
+    @Override
+    public void die(DamageSource pDamageSource) {
+        if (!this.level().isClientSide) {
+            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+            Optional<XunguiHome> mobHome = homesData.getHomes().stream().filter(
+                    home -> home.equals(this.home)
+            ).findFirst();
+            mobHome.ifPresent(xunguiHome -> xunguiHome.setOwnerId(null));
+            homesData.setDirty();
+        }
+        super.die(pDamageSource);
     }
 
     public UUID getLeaderId() {
@@ -266,28 +293,29 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         }
         return needsTags;
     }
+
     @Override
     public void readAdditionalSaveData(final @NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if(tag.contains(KEY_SOCIAL_CLASS, Tag.TAG_STRING)) {
+        if (tag.contains(KEY_SOCIAL_CLASS, Tag.TAG_STRING)) {
             setSocialClass(CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(tag.getString(KEY_SOCIAL_CLASS))));
         }
-        if(tag.contains(KEY_LEADER_ID)) {
+        if (tag.contains(KEY_LEADER_ID)) {
             setLeaderId(tag.getUUID(KEY_LEADER_ID));
         }
-        if(tag.contains(KEY_INVENTORY)) {
+        if (tag.contains(KEY_INVENTORY)) {
             readInventoryFromTag(tag);
         }
-        if(tag.contains(KEY_HOME)) {
+        if (tag.contains(KEY_HOME)) {
             setHome(XunguiHome.fromTag(tag.getCompound(KEY_HOME)));
         }
-        if(tag.contains(KEY_NEEDS)) {
+        if (tag.contains(KEY_NEEDS)) {
             needs = new ArrayList<>();
-            for(Tag needTag : tag.getList(KEY_NEEDS, Tag.TAG_COMPOUND)){
+            for (Tag needTag : tag.getList(KEY_NEEDS, Tag.TAG_COMPOUND)) {
                 needs.add(NeedCapabilityMapper.mapNeedCapability((CompoundTag) needTag));
             }
         }
-        if(tag.contains(KEY_HAPPINESS)) {
+        if (tag.contains(KEY_HAPPINESS)) {
             setHappiness(tag.getDouble(KEY_HAPPINESS));
         }
     }

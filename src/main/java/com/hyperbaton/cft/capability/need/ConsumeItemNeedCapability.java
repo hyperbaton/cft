@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.capability.need;
 
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
-import com.hyperbaton.cft.entity.goal.GetSuppliesGoal;
+import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.ItemStack;
@@ -18,14 +18,19 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
             mob.getInventory().removeItemType(need.getItem(), need.getQuantity());
             super.satisfy(mob);
         } else {
-            // Add goal for resupplying
-            if (mob.getHome() != null) {
-                mob.goalSelector.addGoal(2, new GetSuppliesGoal(mob, mob.getHome().getContainerPos(), new ItemStack(need.getItem(), need.getQuantity())));
-            }
             this.unsatisfy(need.getFrequency());
             mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+            addMemoriesForSatisfaction(mob);
+            return false;
         }
         return true;
+    }
+
+    @Override
+    public void addMemoriesForSatisfaction(XunguiEntity mob) {
+        if(!mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())){
+            mob.getBrain().setMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get(), new ItemStack(need.getItem(), need.getQuantity()));
+        }
     }
 
     public static NeedCapability<GoodsNeed> fromTag(CompoundTag tag) {
