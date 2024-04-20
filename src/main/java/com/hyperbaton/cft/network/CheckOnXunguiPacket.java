@@ -46,11 +46,11 @@ public class CheckOnXunguiPacket {
     public void handle(Supplier<NetworkEvent.Context> context) {
         final Player player = Minecraft.getInstance().player;
         if (player != null) {
-            player.sendSystemMessage(Component.literal("Xungui class: " + this.socialClass));
+            player.sendSystemMessage(Component.literal("Xungui class: ").append(Component.translatable(this.socialClass)));
             player.sendSystemMessage(Component.literal("Xungui happiness: " + String.format("%.2f", this.happiness)));
             player.sendSystemMessage(Component.literal("Xungui needs: "));
             for (Map.Entry<String, Double> entry : needsSatisfaction.entrySet()) {
-                player.sendSystemMessage(Component.literal(entry.getKey() + " satisfied at " + String.format("%.2f", entry.getValue() * 100) + "%"));
+                player.sendSystemMessage(Component.translatable(entry.getKey()).append(" satisfied at " + String.format("%.2f", entry.getValue() * 100) + "%"));
             }
         }
         context.get().setPacketHandled(true);

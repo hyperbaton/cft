@@ -1,4 +1,10 @@
 {
   "item.cft.mayor_staff": "Mayor Staff",
-  "creativetab.cft": "Care For Them"
+  "creativetab.cft": "Care For Them",
+  "cft:citizen": "Citizen",
+  "cft:settler": "Settler",
+  "cft:bread_need": "Bread",
+  "cft:stick_need": "Stick",
+  "cft:lumber_home": "Lumber house",
+  "cft:stone_home": "Cobblestone house"
 }
