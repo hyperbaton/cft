@@ -5,15 +5,20 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.Need;
 import com.hyperbaton.cft.capability.need.NeedCapability;
 import com.hyperbaton.cft.capability.need.NeedCapabilityMapper;
+import com.hyperbaton.cft.capability.need.NeedUtils;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.XunguiAi;
 import com.hyperbaton.cft.socialclass.SocialClass;
+import com.hyperbaton.cft.socialclass.SocialClassUpdate;
 import com.hyperbaton.cft.structure.home.XunguiHome;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -46,6 +51,7 @@ import java.util.UUID;
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
+    public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XunguiEntity.class, EntityDataSerializers.STRING);
 
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -97,11 +103,58 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 }
                 currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
             }
+            checkSocialClass();
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         }
 
         if (this.level().isClientSide()) {
             setupAnimationStates();
+        }
+    }
+
+    private void checkSocialClass() {
+        if (!downgradeSocialClass()) {
+            upgradeSocialClass();
+        }
+    }
+
+    private void upgradeSocialClass() {
+        this.socialClass.getUpgrades().stream()
+                .filter(this::appliesForUpgrade)
+                .findAny()
+                .ifPresent(this::changeSocialClass);
+    }
+
+    private boolean appliesForUpgrade(SocialClassUpdate socialClassUpdate) {
+        return socialClassUpdate.getRequiredHappiness() < this.happiness
+                && socialClassUpdate.getRequiredNeeds().stream().anyMatch(needRequirement ->
+                this.getNeeds().stream()
+                        .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
+                        .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold())
+        );
+    }
+
+    private boolean downgradeSocialClass() {
+        Optional<SocialClassUpdate> optSocialClassToDowngradeTo = this.socialClass.getDowngrades().stream()
+                .filter(this::appliesForDowngrade).findAny();
+        optSocialClassToDowngradeTo.ifPresent(this::changeSocialClass);
+        return optSocialClassToDowngradeTo.isPresent();
+    }
+
+    private boolean appliesForDowngrade(SocialClassUpdate socialClassUpdate) {
+        return socialClassUpdate.getRequiredHappiness() > this.happiness
+                && socialClassUpdate.getRequiredNeeds().stream().anyMatch(needRequirement ->
+                this.getNeeds().stream()
+                        .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
+                        .anyMatch(need -> need.getSatisfaction() < needRequirement.getSatisfactionThreshold())
+        );
+    }
+
+    private void changeSocialClass(SocialClassUpdate socialClassUpdate) {
+        this.socialClass = CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(socialClassUpdate.getNextClass()));
+        if (this.socialClass != null) {
+            this.needs = NeedUtils.getNeedsForClass(this.socialClass);
+            this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
         }
     }
 
@@ -270,6 +323,12 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     public void setHappiness(double happiness) {
         this.happiness = happiness;
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(SOCIAL_CLASS_NAME, "xungui");
     }
 
     @Override

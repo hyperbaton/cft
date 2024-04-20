@@ -42,7 +42,8 @@ public class XunguiSpawner implements CustomSpawner {
                         xungui.setHome(home);
                         xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
                         xungui.setSocialClass(getRandomBasicClass(serverLevel.random, getHomeNeedOfHome(home)));
-                        xungui.setNeeds(getNeedsForClass(xungui.getSocialClass()));
+                        xungui.setNeeds(NeedUtils.getNeedsForClass(xungui.getSocialClass()));
+                        xungui.getEntityData().set(XunguiEntity.SOCIAL_CLASS_NAME, xungui.getSocialClass().getId());
                         System.out.println("Xungui created\n");
                         System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
                     }
@@ -57,23 +58,6 @@ public class XunguiSpawner implements CustomSpawner {
      */
     private HomeNeed getHomeNeedOfHome(XunguiHome home) {
         return (HomeNeed) Objects.requireNonNull(CftRegistry.NEEDS.get(new ResourceLocation(home.getSatisfiedNeed())));
-    }
-
-    private List<NeedCapability> getNeedsForClass(SocialClass socialClass) {
-        return socialClass.getNeeds().stream()
-                .map(need -> CftRegistry.NEEDS.get(new ResourceLocation(need)))
-                .map(this::buildNeedCapability)
-                .toList();
-    }
-
-    // TODO: Better generalize this method for any type of Need
-    private NeedCapability buildNeedCapability(Need need) {
-        if (need instanceof GoodsNeed) {
-            return new ConsumeItemNeedCapability(0.0, false, (GoodsNeed) need);
-        } else if (need instanceof HomeNeed) {
-            return new HomeNeedCapability(0.0, false, (HomeNeed) need);
-        }
-        return null;
     }
 
     /**

@@ -32,6 +32,7 @@ public class SearchHomeBehaviour extends Behavior<XunguiEntity> {
         ServerLevel level = (ServerLevel) mob.level();
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
         Optional<XunguiHome> opNearestHome = findNearestHome(mob.blockPosition(), mob.getLeaderId(), homesData, getHomeNeed(mob.getSocialClass().getNeeds()));
+        // TODO: Make him try to reach the home first
         opNearestHome.ifPresent(home -> assignHome(mob, home));
         delayCounter = 0;
     }
