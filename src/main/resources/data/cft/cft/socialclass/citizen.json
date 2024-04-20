@@ -3,18 +3,18 @@
   "minHappiness": 50.0,
   "maxHappiness": 100.0,
   "needs": [
-    "cft:stick_need",
-    "cft:lumber_home"
+    "cft:bread_need",
+    "cft:stone_home"
   ],
   "upgrades": [
   ],
   "downgrades": [
     {
       "nextClass": "cft:settler",
-      "requiredHappiness": 50.0,
+      "requiredHappiness": 0.05,
       "requiredNeeds": [
         {
-          "need": "cft:stick_need",
+          "need": "cft:bread_need",
           "satisfactionThreshold": 0.2
         }
       ]

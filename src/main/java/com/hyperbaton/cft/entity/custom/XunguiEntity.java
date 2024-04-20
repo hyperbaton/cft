@@ -127,7 +127,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     private boolean appliesForUpgrade(SocialClassUpdate socialClassUpdate) {
         return socialClassUpdate.getRequiredHappiness() < this.happiness
-                && socialClassUpdate.getRequiredNeeds().stream().anyMatch(needRequirement ->
+                && socialClassUpdate.getRequiredNeeds().stream().allMatch(needRequirement ->
                 this.getNeeds().stream()
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
                         .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold())
@@ -358,6 +358,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         super.readAdditionalSaveData(tag);
         if (tag.contains(KEY_SOCIAL_CLASS, Tag.TAG_STRING)) {
             setSocialClass(CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(tag.getString(KEY_SOCIAL_CLASS))));
+            this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
         }
         if (tag.contains(KEY_LEADER_ID)) {
             setLeaderId(tag.getUUID(KEY_LEADER_ID));

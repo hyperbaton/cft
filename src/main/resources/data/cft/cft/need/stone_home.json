@@ -1,0 +1,45 @@
+{
+  "id": "cft:stone_home",
+  "type": "cft:home",
+  "need_type": "cft:home",
+  "damage": 0.0,
+  "provided_happiness": 1.5,
+  "satisfaction_threshold": 0.95,
+  "frequency": 1.0,
+  "floorBlocks": [
+    {
+      "item": "minecraft:cobblestone",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 100.0
+    }
+  ],
+  "wallBlocks": [
+    {
+      "item": "minecraft:cobblestone",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 100.0
+    }
+  ],
+  "interiorBlocks": [
+    {
+      "item": "minecraft:air",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 100.0
+    }
+  ],
+  "roofBlocks": [
+    {
+      "item": "minecraft:cobblestone",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 100.0
+    }
+  ]
+}

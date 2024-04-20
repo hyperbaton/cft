@@ -9,7 +9,7 @@
   "upgrades": [
     {
       "nextClass": "cft:citizen",
-      "requiredHappiness": 50.0,
+      "requiredHappiness": 0.10,
       "requiredNeeds": [
         {
           "need": "cft:stick_need",

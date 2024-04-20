@@ -1,0 +1,10 @@
+{
+  "id": "cft:bread_need",
+  "type": "cft:goods",
+  "damage": 0.0,
+  "provided_happiness": 1.5,
+  "satisfaction_threshold": 0.8,
+  "item": "minecraft:bread",
+  "frequency": 0.25,
+  "quantity": 2
+}
