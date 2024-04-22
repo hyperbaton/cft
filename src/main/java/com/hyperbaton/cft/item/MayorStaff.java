@@ -6,6 +6,7 @@ import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXunguiPacket;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.world.HomesData;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -21,10 +22,12 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraftforge.network.PacketDistributor;
+import org.slf4j.Logger;
 
 import java.util.stream.Collectors;
 
 public class MayorStaff extends Item {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public MayorStaff(Properties pProperties) {
         super(pProperties);
@@ -51,6 +54,7 @@ public class MayorStaff extends Item {
                 HomesData homesData = ((ServerLevel) pContext.getLevel()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
                 BlockPos finalPositionClicked = positionClicked;
                 if (homesData.getHomes().stream().anyMatch(home -> home.getEntrance().equals(finalPositionClicked))) {
+                    LOGGER.debug("House already registered.");
                     foundHouse = false;
                 } else {
                     foundHouse = new HomeDetection().detectAnyHouse(positionClicked, (ServerLevel) pContext.getLevel(), player.getUUID());

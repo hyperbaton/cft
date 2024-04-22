@@ -14,11 +14,17 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.compress.utils.Lists;
 import org.slf4j.Logger;
+import oshi.util.tuples.Pair;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class HomeDetection {
     private static final int MAX_HOUSE_SIZE = 1000;
@@ -47,7 +53,10 @@ public class HomeDetection {
         // Detect the floor of the house
         boolean foundFloor = findFloor(level, entrance.below(), floorBlocks, floorPerimeterBlocks,
                 homeNeed.getFloorBlocks().stream().map(HomeValidBlock::getBlock).toList());
-        if (floorBlocks.isEmpty()) {
+        if (floorBlocks.isEmpty()
+                || !checkValidBlocks(level,
+                Stream.of(floorBlocks, floorPerimeterBlocks).flatMap(Collection::stream).collect(Collectors.toSet()),
+                homeNeed.getFloorBlocks())) {
             return houseNotFound("Invalid floor", entrance, level);
         }
         // The inner corners are misidentified as non perimeter blocks in the previous method.
@@ -59,7 +68,8 @@ public class HomeDetection {
         Set<BlockPos> wallBlocks = Sets.newHashSet();
         boolean foundWall = findWall(level, floorPerimeterBlocks, wallBlocks,
                 homeNeed.getWallBlocks().stream().map(HomeValidBlock::getBlock).toList());
-        if (!foundWall) {
+        if (!foundWall
+                || !checkValidBlocks(level, wallBlocks, homeNeed.getWallBlocks())) {
             return houseNotFound("Invalid walls", entrance, level);
         }
         houseBlocks.addAll(wallBlocks);
@@ -70,7 +80,8 @@ public class HomeDetection {
         Set<BlockPos> interiorBlocks = Sets.newHashSet();
         boolean foundInterior = findInterior(level, floorBlocks, interiorBlocks,
                 homeNeed.getInteriorBlocks().stream().map(HomeValidBlock::getBlock).toList());
-        if (!foundInterior) {
+        if (!foundInterior
+                || !checkValidBlocks(level, interiorBlocks, homeNeed.getInteriorBlocks())) {
             return houseNotFound("Invalid interior", entrance, level);
         }
         houseBlocks.addAll(interiorBlocks);
@@ -79,7 +90,8 @@ public class HomeDetection {
         Set<BlockPos> roofBlocks = Sets.newHashSet();
         boolean foundRoof = findRoof(level, floorBlocks, roofBlocks, lowestRoofHeight,
                 homeNeed.getRoofBlocks().stream().map(HomeValidBlock::getBlock).toList());
-        if (!foundRoof) {
+        if (!foundRoof
+                || !checkValidBlocks(level, roofBlocks, homeNeed.getRoofBlocks())) {
             return houseNotFound("Invalid roof", entrance, level);
         }
         houseBlocks.addAll(roofBlocks);
@@ -112,6 +124,26 @@ public class HomeDetection {
         LOGGER.debug("House size:" + houseBlocks.size());
 
         return true;
+    }
+
+    private static boolean checkValidBlocks(ServerLevel level, Set<BlockPos> blockList, List<HomeValidBlock> validBlocks) {
+        return blockList.stream()
+                .map(level::getBlockState)
+                .map(BlockBehaviour.BlockStateBase::getBlock)
+                .collect(Collectors.groupingBy(Block::getDescriptionId))
+                .entrySet().stream()
+                .map(entry -> new Pair<>(entry.getKey(), entry.getValue().size()))
+                .allMatch(blockEntry -> satisfiesValidityConditions(blockEntry, validBlocks, blockList.size()));
+    }
+
+    private static boolean satisfiesValidityConditions(Pair<String, Integer> blockEntry, List<HomeValidBlock> validBlocks, int size) {
+        return validBlocks.stream()
+                .filter(validBlock -> validBlock.getBlock().getDescriptionId().equals(blockEntry.getA()))
+                .allMatch(validBlock -> validBlock.getMinQuantity() <= blockEntry.getB()
+                        && validBlock.getMaxQuantity() >= blockEntry.getB()
+                        && validBlock.getMinPercentage() <= BigDecimal.valueOf(blockEntry.getB().doubleValue()).divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP).doubleValue()
+                        && validBlock.getMaxPercentage() >= BigDecimal.valueOf(blockEntry.getB().doubleValue()).divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP).doubleValue()
+                );
     }
 
     private static BlockPos findContainer(ServerLevel level, Set<BlockPos> floorBlocks) {
