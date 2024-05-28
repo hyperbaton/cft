@@ -7,6 +7,7 @@ import com.hyperbaton.cft.capability.need.HomeValidBlock;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +24,7 @@ import oshi.util.tuples.Pair;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,6 +51,7 @@ public class HomeDetection {
         Set<BlockPos> houseBlocks = Sets.newHashSet(entrance);
         Set<BlockPos> floorBlocks = Sets.newHashSet();
         Set<BlockPos> floorPerimeterBlocks = Sets.newHashSet();
+        Set<BlockPos> fullFloorBlocks = Sets.newHashSet();
 
         // Detect the floor of the house
         boolean foundFloor = findFloor(level, entrance.below(), floorBlocks, floorPerimeterBlocks,
@@ -61,8 +64,9 @@ public class HomeDetection {
         }
         // The inner corners are misidentified as non perimeter blocks in the previous method.
         detectInnerCorners(level, floorBlocks, floorPerimeterBlocks);
-        houseBlocks.addAll(floorBlocks);
-        houseBlocks.addAll(floorPerimeterBlocks);
+        fullFloorBlocks.addAll(floorBlocks);
+        fullFloorBlocks.addAll(floorPerimeterBlocks);
+        houseBlocks.addAll(fullFloorBlocks);
 
         // Detect the walls of the house
         Set<BlockPos> wallBlocks = Sets.newHashSet();
@@ -74,7 +78,7 @@ public class HomeDetection {
         }
         houseBlocks.addAll(wallBlocks);
         // Get the starting height of the roof
-        int lowestRoofHeight = wallBlocks.stream().map(Vec3i::getY).distinct().max(Comparator.naturalOrder()).orElse(entrance.getY());
+        int lowestRoofHeight = 1 + wallBlocks.stream().map(Vec3i::getY).distinct().max(Comparator.naturalOrder()).orElse(entrance.getY());
 
         // Detect the indoor area of the house
         Set<BlockPos> interiorBlocks = Sets.newHashSet();
@@ -88,8 +92,9 @@ public class HomeDetection {
 
         // Detect the roof of the house
         Set<BlockPos> roofBlocks = Sets.newHashSet();
-        boolean foundRoof = findRoof(level, floorBlocks, roofBlocks, lowestRoofHeight,
-                homeNeed.getRoofBlocks().stream().map(HomeValidBlock::getBlock).toList());
+        boolean foundRoof = findRoof(level, fullFloorBlocks, roofBlocks, interiorBlocks, lowestRoofHeight,
+                homeNeed.getRoofBlocks().stream().map(HomeValidBlock::getBlock).toList(),
+                homeNeed.getInteriorBlocks().stream().map(HomeValidBlock::getBlock).toList());
         if (!foundRoof
                 || !checkValidBlocks(level, roofBlocks, homeNeed.getRoofBlocks())) {
             return houseNotFound("Invalid roof", entrance, level);
@@ -234,20 +239,27 @@ public class HomeDetection {
     }
 
     // TODO: Improve roofs. Allow for slanted roofs.
-    private static boolean findRoof(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> roofBlocks, int lowestRoofHeight, List<Block> validBlocks) {
-        floorBlocks.forEach(floorPos -> {
-            BlockPos testPos = floorPos.above();
-            while (!isRoof(level.getBlockState(testPos), validBlocks) && testPos.getY() < MAX_HEIGHT) {
-                testPos = testPos.above();
-            }
-            if (isRoof(level.getBlockState(testPos), validBlocks)) {
-                roofBlocks.add(testPos);
-            }
-        });
-        return !roofBlocks.isEmpty()
-                && roofBlocks.stream().allMatch(roofPos ->
-                (roofPos.getY() == lowestRoofHeight)
-                        && isRoof(level.getBlockState(roofPos), validBlocks));
+    private static boolean findRoof(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> roofBlocks,  Set<BlockPos> interiorBlocks, int lowestRoofHeight, List<Block> validFloorBlocks, List<Block> validInteriorBlocks) {
+        Set<BlockPos> testSetOfBlocks = floorBlocks.stream()
+                .map(blockPos -> blockPos.relative(Direction.Axis.Y, lowestRoofHeight - blockPos.getY()))
+                .collect(Collectors.toSet());
+        AtomicBoolean wrongRoofFound = new AtomicBoolean(false);
+        while (!testSetOfBlocks.isEmpty() && !wrongRoofFound.get()) {
+            Set<BlockPos> nextTestSetOfBlocks = new HashSet<>();
+            testSetOfBlocks.forEach(testPos -> {
+                if(isRoof(level.getBlockState(testPos), validFloorBlocks) && testPos.getY() < MAX_HEIGHT) {
+                    roofBlocks.add(testPos);
+                } else if (isInterior(level.getBlockState(testPos), validInteriorBlocks) && testPos.getY() < MAX_HEIGHT) {
+                    interiorBlocks.add(testPos);
+                    nextTestSetOfBlocks.add(testPos.above());
+                } else {
+                    wrongRoofFound.set(true);
+                }
+            });
+            testSetOfBlocks.clear();
+            testSetOfBlocks.addAll(nextTestSetOfBlocks);
+        }
+        return !roofBlocks.isEmpty() && !wrongRoofFound.get();
     }
 
     private static boolean findInterior(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> interiorBlocks, List<Block> validBlocks) {

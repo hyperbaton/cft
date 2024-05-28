@@ -35,7 +35,7 @@
   ],
   "roofBlocks": [
     {
-      "item": "minecraft:cobblestone",
+      "item": "minecraft:cobblestone_stairs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

@@ -57,7 +57,7 @@ public class XunguiSpawner implements CustomSpawner {
      * Given a home, return the HomeNeed that is expected to be satisfied by it.
      */
     private HomeNeed getHomeNeedOfHome(XunguiHome home) {
-        return (HomeNeed) Objects.requireNonNull(CftRegistry.NEEDS.get(new ResourceLocation(home.getSatisfiedNeed())));
+ w        return (HomeNeed) Objects.requireNonNull(CftRegistry.NEEDS.get(new ResourceLocation(home.getSatisfiedNeed())));
     }
 
     /**
@@ -69,7 +69,8 @@ public class XunguiSpawner implements CustomSpawner {
                 .filter(socialClass -> socialClass.getDowngrades().isEmpty())
                 .filter(socialClass -> socialClass.getNeeds().contains(homeNeed.getId()))
                 .toList();
-        // TODO: The next statement should never give null class. If that's the case, Exception must be thrown
-        return basicClasses.get(random.nextInt(basicClasses.size()));
+        // TODO: This is checking for every home need, even those of non basic classes. It can be optimized to skip
+        //  checks for such needs
+        return basicClasses.isEmpty() ? null : basicClasses.get(random.nextInt(basicClasses.size()));
     }
 }

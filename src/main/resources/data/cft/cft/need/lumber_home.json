@@ -17,7 +17,7 @@
   ],
   "wallBlocks": [
     {
-      "item": "minecraft:oak_planks",
+      "item": "minecraft:jungle_planks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -35,7 +35,7 @@
   ],
   "roofBlocks": [
     {
-      "item": "minecraft:oak_planks",
+      "item": "minecraft:birch_planks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
