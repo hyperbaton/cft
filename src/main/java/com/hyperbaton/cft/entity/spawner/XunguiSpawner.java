@@ -20,6 +20,7 @@ import java.util.Objects;
 
 public class XunguiSpawner implements CustomSpawner {
     private int nextTick;
+
     @Override
     public int tick(ServerLevel serverLevel, boolean b, boolean b1) {
         RandomSource randomsource = serverLevel.random;
@@ -29,14 +30,14 @@ public class XunguiSpawner implements CustomSpawner {
         } else {
             this.nextTick += (60 + randomsource.nextInt(60) * 20);
             HomesData homesData = serverLevel.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
-            for(XunguiHome home : homesData.getHomes()){
-                if(home.getOwnerId() == null
+            for (XunguiHome home : homesData.getHomes()) {
+                if (home.getOwnerId() == null
                         && HomeDetection.detectHouse(home.getEntrance(), serverLevel, home.getLeaderId(),
-                            getHomeNeedOfHome(home))
+                        getHomeNeedOfHome(home))
                         && getRandomBasicClass(serverLevel.random, getHomeNeedOfHome(home)) != null
-                        /*&& randomsource.nextInt(20) == 1*/){
+                    /*&& randomsource.nextInt(20) == 1*/) {
                     XunguiEntity xungui = CftEntities.XUNGUI.get().spawn(serverLevel, home.getEntrance(), MobSpawnType.TRIGGERED);
-                    if(xungui != null){
+                    if (xungui != null) {
                         home.setOwnerId(xungui.getUUID());
                         xungui.setLeaderId(home.getLeaderId());
                         xungui.setHome(home);
@@ -57,7 +58,7 @@ public class XunguiSpawner implements CustomSpawner {
      * Given a home, return the HomeNeed that is expected to be satisfied by it.
      */
     private HomeNeed getHomeNeedOfHome(XunguiHome home) {
- w        return (HomeNeed) Objects.requireNonNull(CftRegistry.NEEDS.get(new ResourceLocation(home.getSatisfiedNeed())));
+        return (HomeNeed) Objects.requireNonNull(CftRegistry.NEEDS.get(new ResourceLocation(home.getSatisfiedNeed())));
     }
 
     /**

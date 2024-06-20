@@ -8,7 +8,7 @@
   "frequency": 1.0,
   "floorBlocks": [
     {
-      "item": "minecraft:cobblestone",
+      "block": "minecraft:cobblestone",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -17,16 +17,16 @@
   ],
   "wallBlocks": [
     {
-      "item": "minecraft:cobblestone",
+      "tagBlock": "minecraft:acacia_logs",
       "minQuantity": 0,
-      "maxQuantity": 500,
+      "maxQuantity": 512,
       "minPercentage": 0.0,
       "maxPercentage": 100.0
     }
   ],
   "interiorBlocks": [
     {
-      "item": "minecraft:air",
+      "block": "minecraft:air",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -35,7 +35,7 @@
   ],
   "roofBlocks": [
     {
-      "item": "minecraft:cobblestone_stairs",
+      "block": "minecraft:cobblestone_stairs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

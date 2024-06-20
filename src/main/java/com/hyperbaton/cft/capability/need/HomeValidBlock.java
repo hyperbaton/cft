@@ -2,8 +2,12 @@ package com.hyperbaton.cft.capability.need;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Optional;
 
 public class HomeValidBlock {
     private static final int ZERO_QUANTITY = 0;
@@ -12,21 +16,24 @@ public class HomeValidBlock {
     private static final double TOP_PERCENTAGE = 100.0;
 
     public static final Codec<HomeValidBlock> HOME_VALID_BLOCK_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ForgeRegistries.BLOCKS.getCodec().fieldOf("item").forGetter(HomeValidBlock::getBlock),
+            ForgeRegistries.BLOCKS.getCodec().optionalFieldOf("block").forGetter(validBlock -> Optional.ofNullable(validBlock.block)),
+            TagKey.codec(Registries.BLOCK).optionalFieldOf("tagBlock").forGetter(validBlock -> Optional.ofNullable(validBlock.getTagBlock())),
             Codec.INT.orElse(ZERO_QUANTITY).fieldOf("minQuantity").forGetter(HomeValidBlock::getMinQuantity),
             Codec.INT.orElse(INFINITE_QUANTITY).fieldOf("maxQuantity").forGetter(HomeValidBlock::getMaxQuantity),
             Codec.DOUBLE.orElse(ZERO_PERCENTAGE).fieldOf("minPercentage").forGetter(HomeValidBlock::getMinPercentage),
             Codec.DOUBLE.orElse(TOP_PERCENTAGE).fieldOf("maxPercentage").forGetter(HomeValidBlock::getMaxPercentage)
     ).apply(instance, HomeValidBlock::new));
     private Block block;
+    private TagKey<Block> tagBlock;
 
     private int minQuantity = ZERO_QUANTITY;
     private int maxQuantity = INFINITE_QUANTITY;
     private double minPercentage = ZERO_PERCENTAGE;
     private double maxPercentage = TOP_PERCENTAGE;
 
-    public HomeValidBlock(Block block, int minQuantity, int maxQuantity, double minPercentage, double maxPercentage) {
-        this.block = block;
+    public HomeValidBlock(Optional<Block> block, Optional<TagKey<Block>> tagBlock, int minQuantity, int maxQuantity, double minPercentage, double maxPercentage) {
+        this.block = block.orElse(null);
+        this.tagBlock = tagBlock.orElse(null);
         this.minQuantity = minQuantity;
         this.maxQuantity = maxQuantity;
         this.minPercentage = minPercentage;
@@ -41,8 +48,16 @@ public class HomeValidBlock {
         return block;
     }
 
-    public void setBlock(Block item) {
+    public void setBlock(Block block) {
         this.block = block;
+    }
+
+    public TagKey<Block> getTagBlock() {
+        return tagBlock;
+    }
+
+    public void setTagBlock(TagKey<Block> tagBlock) {
+        this.tagBlock = tagBlock;
     }
 
     public int getMinQuantity() {

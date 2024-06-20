@@ -15,7 +15,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.compress.utils.Lists;
 import org.slf4j.Logger;
@@ -55,7 +54,7 @@ public class HomeDetection {
 
         // Detect the floor of the house
         boolean foundFloor = findFloor(level, entrance.below(), floorBlocks, floorPerimeterBlocks,
-                homeNeed.getFloorBlocks().stream().map(HomeValidBlock::getBlock).toList());
+                homeNeed.getFloorBlocks());
         if (floorBlocks.isEmpty()
                 || !checkValidBlocks(level,
                 Stream.of(floorBlocks, floorPerimeterBlocks).flatMap(Collection::stream).collect(Collectors.toSet()),
@@ -71,7 +70,7 @@ public class HomeDetection {
         // Detect the walls of the house
         Set<BlockPos> wallBlocks = Sets.newHashSet();
         boolean foundWall = findWall(level, floorPerimeterBlocks, wallBlocks,
-                homeNeed.getWallBlocks().stream().map(HomeValidBlock::getBlock).toList());
+                homeNeed.getWallBlocks());
         if (!foundWall
                 || !checkValidBlocks(level, wallBlocks, homeNeed.getWallBlocks())) {
             return houseNotFound("Invalid walls", entrance, level);
@@ -83,7 +82,7 @@ public class HomeDetection {
         // Detect the indoor area of the house
         Set<BlockPos> interiorBlocks = Sets.newHashSet();
         boolean foundInterior = findInterior(level, floorBlocks, interiorBlocks,
-                homeNeed.getInteriorBlocks().stream().map(HomeValidBlock::getBlock).toList());
+                homeNeed.getInteriorBlocks());
         if (!foundInterior
                 || !checkValidBlocks(level, interiorBlocks, homeNeed.getInteriorBlocks())) {
             return houseNotFound("Invalid interior", entrance, level);
@@ -93,8 +92,8 @@ public class HomeDetection {
         // Detect the roof of the house
         Set<BlockPos> roofBlocks = Sets.newHashSet();
         boolean foundRoof = findRoof(level, fullFloorBlocks, roofBlocks, interiorBlocks, lowestRoofHeight,
-                homeNeed.getRoofBlocks().stream().map(HomeValidBlock::getBlock).toList(),
-                homeNeed.getInteriorBlocks().stream().map(HomeValidBlock::getBlock).toList());
+                homeNeed.getRoofBlocks(),
+                homeNeed.getInteriorBlocks());
         if (!foundRoof
                 || !checkValidBlocks(level, roofBlocks, homeNeed.getRoofBlocks())) {
             return houseNotFound("Invalid roof", entrance, level);
@@ -113,7 +112,7 @@ public class HomeDetection {
         }
 
         // At this point, a house has been found
-        houseBlocks.forEach(blockPos -> ((ServerLevel) level).sendParticles(ParticleTypes.ENTITY_EFFECT, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+        houseBlocks.forEach(blockPos -> level.sendParticles(ParticleTypes.ENTITY_EFFECT, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
                 5, 0, 0, 0, 0.1));
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
         // If the home doesn't exist yet, add it to the list
@@ -134,16 +133,15 @@ public class HomeDetection {
     private static boolean checkValidBlocks(ServerLevel level, Set<BlockPos> blockList, List<HomeValidBlock> validBlocks) {
         return blockList.stream()
                 .map(level::getBlockState)
-                .map(BlockBehaviour.BlockStateBase::getBlock)
-                .collect(Collectors.groupingBy(Block::getDescriptionId))
-                .entrySet().stream()
-                .map(entry -> new Pair<>(entry.getKey(), entry.getValue().size()))
+                .collect(Collectors.groupingBy(blockState -> blockState.getBlock().getDescriptionId()))
+                .values().stream()
+                .map(blocks -> new Pair<>(blocks.stream().findFirst(), blocks.size()))
                 .allMatch(blockEntry -> satisfiesValidityConditions(blockEntry, validBlocks, blockList.size()));
     }
 
-    private static boolean satisfiesValidityConditions(Pair<String, Integer> blockEntry, List<HomeValidBlock> validBlocks, int size) {
+    private static boolean satisfiesValidityConditions(Pair<Optional<BlockState>, Integer> blockEntry, List<HomeValidBlock> validBlocks, int size) {
         return validBlocks.stream()
-                .filter(validBlock -> validBlock.getBlock().getDescriptionId().equals(blockEntry.getA()))
+                .filter(validBlock -> blockEntry.getA().isPresent() && isValidBlock(blockEntry.getA().get(), validBlock))
                 .allMatch(validBlock -> validBlock.getMinQuantity() <= blockEntry.getB()
                         && validBlock.getMaxQuantity() >= blockEntry.getB()
                         && validBlock.getMinPercentage() <= BigDecimal.valueOf(blockEntry.getB().doubleValue()).divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP).doubleValue()
@@ -239,7 +237,7 @@ public class HomeDetection {
     }
 
     // TODO: Improve roofs. Allow for slanted roofs.
-    private static boolean findRoof(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> roofBlocks,  Set<BlockPos> interiorBlocks, int lowestRoofHeight, List<Block> validFloorBlocks, List<Block> validInteriorBlocks) {
+    private static boolean findRoof(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> roofBlocks, Set<BlockPos> interiorBlocks, int lowestRoofHeight, List<HomeValidBlock> validFloorBlocks, List<HomeValidBlock> validInteriorBlocks) {
         Set<BlockPos> testSetOfBlocks = floorBlocks.stream()
                 .map(blockPos -> blockPos.relative(Direction.Axis.Y, lowestRoofHeight - blockPos.getY()))
                 .collect(Collectors.toSet());
@@ -247,7 +245,7 @@ public class HomeDetection {
         while (!testSetOfBlocks.isEmpty() && !wrongRoofFound.get()) {
             Set<BlockPos> nextTestSetOfBlocks = new HashSet<>();
             testSetOfBlocks.forEach(testPos -> {
-                if(isRoof(level.getBlockState(testPos), validFloorBlocks) && testPos.getY() < MAX_HEIGHT) {
+                if (isRoof(level.getBlockState(testPos), validFloorBlocks) && testPos.getY() < MAX_HEIGHT) {
                     roofBlocks.add(testPos);
                 } else if (isInterior(level.getBlockState(testPos), validInteriorBlocks) && testPos.getY() < MAX_HEIGHT) {
                     interiorBlocks.add(testPos);
@@ -262,7 +260,7 @@ public class HomeDetection {
         return !roofBlocks.isEmpty() && !wrongRoofFound.get();
     }
 
-    private static boolean findInterior(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> interiorBlocks, List<Block> validBlocks) {
+    private static boolean findInterior(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> interiorBlocks, List<HomeValidBlock> validBlocks) {
         floorBlocks.forEach(floorPos -> {
             BlockPos testPos = floorPos.above();
             while (isInterior(level.getBlockState(testPos), validBlocks)) {
@@ -277,7 +275,7 @@ public class HomeDetection {
         return true;
     }
 
-    private static boolean findWall(Level level, Set<BlockPos> floorPerimeterBlocks, Set<BlockPos> wallBlocks, List<Block> validBlocks) {
+    private static boolean findWall(Level level, Set<BlockPos> floorPerimeterBlocks, Set<BlockPos> wallBlocks, List<HomeValidBlock> validBlocks) {
         List<Integer> heights = Lists.newArrayList();
         floorPerimeterBlocks.forEach(perimeterBlockPos -> {
             BlockPos testPos = perimeterBlockPos.above();
@@ -291,7 +289,7 @@ public class HomeDetection {
         return heights.stream().distinct().count() == 1;
     }
 
-    private static boolean findFloor(Level level, BlockPos testPos, Set<BlockPos> floorBlocks, Set<BlockPos> floorPerimeterBlocks, List<Block> validBlocks) {
+    private static boolean findFloor(Level level, BlockPos testPos, Set<BlockPos> floorBlocks, Set<BlockPos> floorPerimeterBlocks, List<HomeValidBlock> validBlocks) {
         if (floorBlocks.size() + floorPerimeterBlocks.size() > MAX_FLOOR_SIZE) {
             return false;
         }
@@ -321,7 +319,7 @@ public class HomeDetection {
                 && findFloor(level, testPos.east(), floorBlocks, floorPerimeterBlocks, validBlocks);
     }
 
-    private static int countFloorNeighbours(Level level, BlockPos testPos, List<Block> validBlocks) {
+    private static int countFloorNeighbours(Level level, BlockPos testPos, List<HomeValidBlock> validBlocks) {
         int count = 0;
         if (isFloor(level.getBlockState(testPos.north()), validBlocks)) {
             count++;
@@ -338,22 +336,32 @@ public class HomeDetection {
         return count;
     }
 
-    private static boolean isFloor(BlockState blockState, List<Block> validBlocks) {
-        return validBlocks.contains(blockState.getBlock());
+    private static boolean isFloor(BlockState blockState, List<HomeValidBlock> validBlocks) {
+        return validBlocks.stream().anyMatch(validBlock -> isValidBlock(blockState, validBlock));
     }
 
-    private static boolean isInterior(BlockState blockState, List<Block> validBlocks) {
-        return validBlocks.contains(blockState.getBlock())
-                || blockState.is(Blocks.CHEST);
+    private static boolean isInterior(BlockState blockState, List<HomeValidBlock> validBlocks) {
+        return blockState.is(Blocks.CHEST)
+                || validBlocks.stream().anyMatch(validBlock -> isValidBlock(blockState, validBlock));
     }
 
-    private static boolean isRoof(BlockState blockState, List<Block> validBlocks) {
-        return validBlocks.contains(blockState.getBlock());
+    private static boolean isRoof(BlockState blockState, List<HomeValidBlock> validBlocks) {
+        return validBlocks.stream().anyMatch(validBlock -> isValidBlock(blockState, validBlock));
     }
 
-    private static boolean isWall(BlockState blockState, List<Block> validBlocks) {
+    private static boolean isWall(BlockState blockState, List<HomeValidBlock> validBlocks) {
         return blockState.is(BlockTags.DOORS)
-                || validBlocks.contains(blockState.getBlock());
+                || validBlocks.stream().anyMatch(validBlock -> isValidBlock(blockState, validBlock));
+    }
+
+    private static boolean isValidBlock(BlockState blockState, HomeValidBlock validBlock) {
+        if (validBlock.getTagBlock() != null) {
+            return blockState.is(validBlock.getTagBlock());
+        } else if (validBlock.getBlock() != null) {
+            return blockState.is(validBlock.getBlock());
+        } else {
+            throw new IllegalArgumentException("HomeValidBlock doesn't have a valid block nor tag");
+        }
     }
 
     private static boolean isContainer(BlockState blockState) {
