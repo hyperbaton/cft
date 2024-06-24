@@ -6,5 +6,6 @@
   "cft:bread_need": "Bread",
   "cft:stick_need": "Stick",
   "cft:lumber_home": "Lumber house",
-  "cft:stone_home": "Cobblestone house"
+  "cft:stone_home": "Cobblestone house",
+  "cft.socialstrcture.message": "Social structure: "
 }
