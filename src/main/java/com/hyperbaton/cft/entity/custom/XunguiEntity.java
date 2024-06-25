@@ -8,8 +8,10 @@ import com.hyperbaton.cft.capability.need.NeedCapabilityMapper;
 import com.hyperbaton.cft.capability.need.NeedUtils;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.XunguiAi;
+import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
+import com.hyperbaton.cft.socialclass.SocialStructureHelper;
 import com.hyperbaton.cft.structure.home.XunguiHome;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.serialization.Dynamic;
@@ -21,6 +23,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.SimpleContainer;
@@ -43,10 +46,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
@@ -131,7 +132,16 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 this.getNeeds().stream()
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
                         .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold())
-        );
+                        && checkSocialStructureForUpgrade(getNormalizedSocialStructure(), socialClassUpdate));
+    }
+
+    private boolean checkSocialStructureForUpgrade(Map<String, BigDecimal> socialStructure, SocialClassUpdate socialClassUpdate) {
+        if (socialClassUpdate.getSocialStructureRequirements() != null) {
+            return socialClassUpdate.getSocialStructureRequirements().stream().allMatch(socialStructureRequirement ->
+                    socialStructure.get(socialStructureRequirement.getSocialClass()).doubleValue() > socialStructureRequirement.getPercentage());
+        } else {
+            return true;
+        }
     }
 
     private boolean downgradeSocialClass() {
@@ -142,12 +152,26 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private boolean appliesForDowngrade(SocialClassUpdate socialClassUpdate) {
-        return socialClassUpdate.getRequiredHappiness() > this.happiness
+        return (socialClassUpdate.getRequiredHappiness() > this.happiness
                 && socialClassUpdate.getRequiredNeeds().stream().anyMatch(needRequirement ->
                 this.getNeeds().stream()
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
-                        .anyMatch(need -> need.getSatisfaction() < needRequirement.getSatisfactionThreshold())
-        );
+                        .anyMatch(need -> need.getSatisfaction() < needRequirement.getSatisfactionThreshold())))
+                || checkSocialStructureForDowngrade(getNormalizedSocialStructure(), socialClassUpdate);
+    }
+
+    private boolean checkSocialStructureForDowngrade(Map<String, BigDecimal> socialStructure, SocialClassUpdate socialClassUpdate) {
+        if (socialClassUpdate.getSocialStructureRequirements() != null) {
+            return socialClassUpdate.getSocialStructureRequirements().stream().anyMatch(socialStructureRequirement ->
+                    socialStructure.get(socialStructureRequirement.getSocialClass()).doubleValue() < socialStructureRequirement.getPercentage());
+        } else {
+            return false;
+        }
+    }
+
+    private Map<String, BigDecimal> getNormalizedSocialStructure() {
+        return SocialStructureHelper.computeNormalizedSocialStructureForPlayer((ServerLevel) this.level(), (ServerPlayer) this.level().getPlayerByUUID(this.leaderId))
+                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getId(), Map.Entry::getValue));
     }
 
     private void changeSocialClass(SocialClassUpdate socialClassUpdate) {
@@ -155,6 +179,14 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
+        }
+        if (this.home != null) {
+            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+            homesData.getHomes().stream().filter(home -> home.getOwnerId() != null
+                    && home.getOwnerId().equals(this.uuid)).findFirst().ifPresent(home -> home.setOwnerId(null));
+            homesData.setDirty();
+            this.home = null;
+            this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
         }
     }
 
@@ -337,7 +369,9 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         tag.putString(KEY_SOCIAL_CLASS, socialClass.getId());
         tag.putUUID(KEY_LEADER_ID, leaderId);
         tag.put(KEY_INVENTORY, inventory.createTag());
-        tag.put(KEY_HOME, home.toTag());
+        if (home != null) {
+            tag.put(KEY_HOME, home.toTag());
+        }
         tag.put(KEY_NEEDS, getNeedsTag(needs));
         tag.putDouble(KEY_HAPPINESS, happiness);
     }

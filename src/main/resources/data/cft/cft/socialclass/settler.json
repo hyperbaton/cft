@@ -15,6 +15,12 @@
           "need": "cft:stick_need",
           "satisfactionThreshold": 0.7
         }
+      ],
+      "socialStructureRequirements": [
+        {
+          "socialClass": "cft:settler",
+          "percentage": 0.7
+        }
       ]
     }
   ],

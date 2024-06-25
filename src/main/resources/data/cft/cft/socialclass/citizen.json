@@ -17,6 +17,12 @@
           "need": "cft:bread_need",
           "satisfactionThreshold": 0.2
         }
+      ],
+      "socialStructureRequirements": [
+        {
+          "socialClass": "cft:settler",
+          "percentage": 0.7
+        }
       ]
     }
   ]

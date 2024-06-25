@@ -7,19 +7,23 @@ import java.util.List;
 
 public class SocialClassUpdate {
 
-    public static final Codec<SocialClassUpdate> GOODS_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final Codec<SocialClassUpdate> SOCIAL_CLASS_UPDATE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("nextClass").forGetter(SocialClassUpdate::getNextClass),
             Codec.DOUBLE.fieldOf("requiredHappiness").forGetter(SocialClassUpdate::getRequiredHappiness),
-            NeedSatisfaction.NEED_SATISFACTION_CODEC.listOf().fieldOf("requiredNeeds").forGetter(SocialClassUpdate::getRequiredNeeds)
+            NeedSatisfaction.NEED_SATISFACTION_CODEC.listOf().fieldOf("requiredNeeds").forGetter(SocialClassUpdate::getRequiredNeeds),
+            SocialStructureRequirement.SOCIAL_STRUCTURE_REQUIREMENT_CODEC.listOf().fieldOf("socialStructureRequirements").forGetter(SocialClassUpdate::getSocialStructureRequirements)
     ).apply(instance, SocialClassUpdate::new));
     private String nextClass;
     private double requiredHappiness;
     List<NeedSatisfaction> requiredNeeds;
 
-    public SocialClassUpdate(String nextClass, double requiredHappiness, List<NeedSatisfaction> requiredNeeds) {
+    List<SocialStructureRequirement> socialStructureRequirements;
+
+    public SocialClassUpdate(String nextClass, double requiredHappiness, List<NeedSatisfaction> requiredNeeds, List<SocialStructureRequirement> socialStructureRequirements) {
         this.nextClass = nextClass;
         this.requiredHappiness = requiredHappiness;
         this.requiredNeeds = requiredNeeds;
+        this.socialStructureRequirements = socialStructureRequirements;
     }
 
     public String getNextClass() {
@@ -44,5 +48,13 @@ public class SocialClassUpdate {
 
     public void setRequiredNeeds(List<NeedSatisfaction> requiredNeeds) {
         this.requiredNeeds = requiredNeeds;
+    }
+
+    public List<SocialStructureRequirement> getSocialStructureRequirements() {
+        return socialStructureRequirements;
+    }
+
+    public void setSocialStructureRequirements(List<SocialStructureRequirement> socialStructureRequirements) {
+        this.socialStructureRequirements = socialStructureRequirements;
     }
 }

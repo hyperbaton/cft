@@ -11,8 +11,8 @@ public class SocialClass {
             Codec.DOUBLE.fieldOf("minHappiness").forGetter(SocialClass::getMinHappiness),
             Codec.DOUBLE.fieldOf("maxHappiness").forGetter(SocialClass::getMaxHappiness),
             Codec.STRING.listOf().fieldOf("needs").forGetter(SocialClass::getNeeds),
-            SocialClassUpdate.GOODS_NEED_CODEC.listOf().fieldOf("upgrades").forGetter(SocialClass::getUpgrades),
-            SocialClassUpdate.GOODS_NEED_CODEC.listOf().fieldOf("downgrades").forGetter(SocialClass::getDowngrades)
+            SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("upgrades").forGetter(SocialClass::getUpgrades),
+            SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("downgrades").forGetter(SocialClass::getDowngrades)
     ).apply(instance, SocialClass::new));
 
     /**

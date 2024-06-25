@@ -35,6 +35,9 @@ public class GetSuppliesBehaviour extends Behavior<XunguiEntity> {
     protected void stop(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
 
         LOGGER.debug("Checking container in home");
+        if(!mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())) {
+            return;
+        }
         Container container = (Container) mob.level().getBlockEntity(mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get());
         // If there is no chest, the Xungui doesn't have a home and should not try to get anything
         if (container == null) {
