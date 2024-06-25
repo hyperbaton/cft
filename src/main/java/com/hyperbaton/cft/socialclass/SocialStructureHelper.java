@@ -36,7 +36,7 @@ public class SocialStructureHelper {
         return normalizedSocialStructure;
     }
 
-    private static List<XunguiEntity> getAllXunguis(ServerLevel level) {
+    public static List<XunguiEntity> getAllXunguis(ServerLevel level) {
         Iterator<Entity> entityIterator = level.getEntities().getAll().iterator();
         List<XunguiEntity> xunguiList = new ArrayList<>();
         while (entityIterator.hasNext()) {

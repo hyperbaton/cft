@@ -8,5 +8,7 @@
   "cft:lumber_home": "Lumber house",
   "cft:stone_home": "Cobblestone house",
   "cft.socialstructure.message": "Social structure: ",
-  "cft.socialstructure.population": "Population: "
+  "cft.socialstructure.population": "Population: ",
+  "cft.populationladder.header": "Population ladder: ",
+  "cft.happinessladder.header": "Happiness ladder: "
 }
