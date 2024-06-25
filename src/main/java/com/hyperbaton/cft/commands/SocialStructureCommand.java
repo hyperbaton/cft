@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 
 public class SocialStructureCommand {
@@ -29,14 +31,29 @@ public class SocialStructureCommand {
     }
 
     private Component formatSocialStructure(Map<SocialClass, Integer> socialStructure) {
-        MutableComponent formattedSocialStructure = Component.translatable("cft.socialstrcture.message")
+        int population = socialStructure.values().stream().reduce(0, Integer::sum);
+        MutableComponent formattedSocialStructure = Component.translatable("cft.socialstructure.message")
                 .withStyle(ChatFormatting.BLUE)
+                .append(Component.literal("\n"))
+                .append(Component.translatable("cft.socialstructure.population").withStyle(ChatFormatting.YELLOW))
+                .append(Component.literal(String.valueOf(population)).withStyle(ChatFormatting.DARK_AQUA))
                 .append(Component.literal("\n"));
         socialStructure.forEach((key, value) -> formattedSocialStructure.append(Component.translatable(key.getId())
                         .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal("    "))
                 .append(Component.literal(value.toString()).withStyle(ChatFormatting.DARK_AQUA))
-                .append(Component.literal("\n")));
+                .append(Component.literal("  ("))
+                .append(Component.literal(populationFraction(value, population)).withStyle(ChatFormatting.DARK_AQUA))
+                .append(Component.literal("%)\n")));
         return formattedSocialStructure;
+    }
+
+    private String populationFraction(Integer value, int population) {
+        return BigDecimal.valueOf(value)
+                .setScale(8, RoundingMode.HALF_UP)
+                .divide(BigDecimal.valueOf(population).setScale(8, RoundingMode.HALF_UP),  RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(2, RoundingMode.HALF_UP)
+                .toString();
     }
 }
