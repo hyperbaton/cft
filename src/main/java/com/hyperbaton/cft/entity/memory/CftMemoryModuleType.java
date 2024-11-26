@@ -16,6 +16,9 @@ public class CftMemoryModuleType {
     public static final DeferredRegister<MemoryModuleType<?>> MEMORY_TYPES = DeferredRegister.create(Registries.MEMORY_MODULE_TYPE, CftMod.MOD_ID);
     public static final RegistryObject<MemoryModuleType<ItemStack>> SUPPLIES_NEEDED = registerMemory("supplies_needed", ItemStack.CODEC);
     public static final RegistryObject<MemoryModuleType<BlockPos>> HOME_CONTAINER_POSITION = registerMemory("home_container_position", BlockPos.CODEC);
+    public static final RegistryObject<MemoryModuleType<BlockPos>> HOME_CANDIDATE_POSITION = registerMemory("home_candidate_position", BlockPos.CODEC);
+    public static final RegistryObject<MemoryModuleType<Boolean>> HOME_NEEDED = registerMemory("home_needed", Codec.BOOL);
+    public static final RegistryObject<MemoryModuleType<Boolean>> SUPPLY_COOLDOWN = registerMemory("supply_cooldown", Codec.BOOL);
 
     public static <T> RegistryObject<MemoryModuleType<T>> registerMemory(String name)
     {

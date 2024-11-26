@@ -3,8 +3,9 @@ package com.hyperbaton.cft.entity.ai;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.hyperbaton.cft.entity.behaviour.GetSuppliesBehaviour;
-import com.hyperbaton.cft.entity.behaviour.SearchHomeBehaviour;
+import com.hyperbaton.cft.entity.behavior.FindAndClaimHomeBehavior;
+import com.hyperbaton.cft.entity.behavior.GetSuppliesBehavior;
+import com.hyperbaton.cft.entity.behavior.SearchHomeBehavior;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
 import com.mojang.datafixers.util.Pair;
@@ -23,7 +24,10 @@ import java.util.Map;
 public class XunguiAi {
     public static final ImmutableList<? extends MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             CftMemoryModuleType.HOME_CONTAINER_POSITION.get(),
-            CftMemoryModuleType.SUPPLIES_NEEDED.get()
+            CftMemoryModuleType.SUPPLIES_NEEDED.get(),
+            CftMemoryModuleType.HOME_CANDIDATE_POSITION.get(),
+            CftMemoryModuleType.SUPPLY_COOLDOWN.get(),
+            CftMemoryModuleType.HOME_NEEDED.get()
     );
     public static final ImmutableList<? extends SensorType<? extends Sensor<? super XunguiEntity>>> SENSOR_TYPES = ImmutableList.of();
 
@@ -58,12 +62,10 @@ public class XunguiAi {
 
     private static void initInvestigateActivity(Brain<XunguiEntity> pBrain) {
         pBrain.addActivity(Activity.INVESTIGATE, ImmutableList.of(
-                Pair.of(1, new GetSuppliesBehaviour(
+                Pair.of(0, new FindAndClaimHomeBehavior()),
+                Pair.of(1, new GetSuppliesBehavior(
                         Map.of(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), MemoryStatus.VALUE_PRESENT,
                                 CftMemoryModuleType.SUPPLIES_NEEDED.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(0, new SearchHomeBehaviour(
-                        Map.of()
                 ))
         ));
     }

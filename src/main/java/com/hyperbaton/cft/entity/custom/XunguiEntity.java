@@ -113,6 +113,19 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         }
     }
 
+    @Override
+    protected void customServerAiStep() {
+        Brain<XunguiEntity> brain = this.getBrain();
+
+        brain.tick((ServerLevel) level(), this);
+        if (brain.getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).isEmpty()
+                || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())) {
+            brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
+        } else {
+            brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
+        }
+    }
+
     private void checkSocialClass() {
         if (!downgradeSocialClass()) {
             upgradeSocialClass();
@@ -209,12 +222,6 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         }
 
         this.walkAnimation.update(f, 0.2f);
-    }
-
-    @Override
-    protected void customServerAiStep() {
-        getBrain().tick((ServerLevel) level(), this);
-        this.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
     }
 
     public static AttributeSupplier.Builder createAttributes() {

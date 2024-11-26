@@ -11,6 +11,8 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 
+import java.util.Optional;
+
 public class HomeNeedCapability extends NeedCapability<HomeNeed> {
     public HomeNeedCapability(double satisfaction, boolean isSatisfied, HomeNeed need) {
         super(satisfaction, isSatisfied, need);
@@ -42,7 +44,7 @@ public class HomeNeedCapability extends NeedCapability<HomeNeed> {
 
     @Override
     public void addMemoriesForSatisfaction(XunguiEntity mob) {
-        // We only need to check if the mob has a null home in the respective Behaviour
+        mob.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
     }
 
     public static NeedCapability<HomeNeed> fromTag(CompoundTag tag) {

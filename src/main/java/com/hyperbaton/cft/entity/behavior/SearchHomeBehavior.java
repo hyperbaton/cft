@@ -1,4 +1,4 @@
-package com.hyperbaton.cft.entity.behaviour;
+package com.hyperbaton.cft.entity.behavior;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.HomeNeed;
@@ -17,11 +17,12 @@ import org.slf4j.Logger;
 
 import java.util.*;
 
-public class SearchHomeBehaviour extends Behavior<XunguiEntity> {
+@Deprecated
+public class SearchHomeBehavior extends Behavior<XunguiEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int DELAY_TICKS = 100;
     private int delayCounter;
-    public SearchHomeBehaviour(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
+    public SearchHomeBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
         super(pEntryCondition);
     }
 

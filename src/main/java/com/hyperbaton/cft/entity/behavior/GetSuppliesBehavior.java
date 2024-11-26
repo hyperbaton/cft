@@ -1,4 +1,4 @@
-package com.hyperbaton.cft.entity.behaviour;
+package com.hyperbaton.cft.entity.behavior;
 
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
@@ -13,10 +13,10 @@ import org.slf4j.Logger;
 
 import java.util.Map;
 
-public class GetSuppliesBehaviour extends Behavior<XunguiEntity> {
+public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public GetSuppliesBehaviour(Map pEntryCondition) {
+    public GetSuppliesBehavior(Map pEntryCondition) {
         super(pEntryCondition);
     }
 
@@ -28,7 +28,10 @@ public class GetSuppliesBehaviour extends Behavior<XunguiEntity> {
 
     @Override
     protected void tick(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
-
+        if (mob.position().distanceTo(mob.getBrain()
+                .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get().getCenter()) <= 1.0) {
+            mob.getNavigation().stop(); // Stop moving once close
+        }
     }
 
     @Override
@@ -41,10 +44,15 @@ public class GetSuppliesBehaviour extends Behavior<XunguiEntity> {
         Container container = (Container) mob.level().getBlockEntity(mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get());
         // If there is no chest, the Xungui doesn't have a home and should not try to get anything
         if (container == null) {
+            mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
             return;
         }
 
         ItemStack itemsToRetrieve = mob.getBrain().getMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get()).get();
+        if (!mob.getInventory().canAddItem(itemsToRetrieve)) {
+            LOGGER.warn("Xungui's inventory is full, cannot retrieve supplies.");
+            return;
+        }
         if (container.hasAnyMatching(stack -> stack.is(itemsToRetrieve.getItem())
                 && stack.getCount() >= itemsToRetrieve.getCount())) {
             int latestStickSlot = -1;
@@ -60,6 +68,8 @@ public class GetSuppliesBehaviour extends Behavior<XunguiEntity> {
             }
         }
         mob.getBrain().eraseMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get());
+        // Add a cooldown for retrying
+        mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.SUPPLY_COOLDOWN.get(), true, 200L);
     }
 
     @Override
@@ -68,7 +78,8 @@ public class GetSuppliesBehaviour extends Behavior<XunguiEntity> {
                 && mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())
                 && mob.position().distanceTo(mob.getBrain()
                 .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())
-                .get().getCenter()) > 1.0;
+                .get().getCenter()) > 1.0
+                && !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
     }
 
     private void startWalkingTowards(XunguiEntity mob, BlockPos pos) {

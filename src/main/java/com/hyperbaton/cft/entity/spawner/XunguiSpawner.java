@@ -15,38 +15,68 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.CustomSpawner;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class XunguiSpawner implements CustomSpawner {
     private int nextTick;
-
     @Override
     public int tick(ServerLevel serverLevel, boolean b, boolean b1) {
-        RandomSource randomsource = serverLevel.random;
+        RandomSource randomSource = serverLevel.random;
         --this.nextTick;
         if (this.nextTick > 0) {
             return 0;
         } else {
-            this.nextTick += (60 + randomsource.nextInt(60) * 20);
+            this.nextTick += (60 + randomSource.nextInt(60) * 20);
+
             HomesData homesData = serverLevel.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+            // Step 1: Count homes and xunguis per leader and HomeNeed
+            Map<UUID, Map<String, Long>> leaderHomeNeedCounts = countHomePerLeaderAndNeed(homesData.getHomes());
+            Map<UUID, Map<String, Long>> leaderXunguiNeedCounts =
+                    countXunguiPerLeaderAndNeed(serverLevel.getEntities(CftEntities.XUNGUI.get(), entity -> true));
+
+            // Step 2: Check and spawn new Xunguis if necessary
             for (XunguiHome home : homesData.getHomes()) {
-                if (home.getOwnerId() == null
-                        && HomeDetection.detectHouse(home.getEntrance(), serverLevel, home.getLeaderId(),
-                        getHomeNeedOfHome(home))
-                        && getRandomBasicClass(serverLevel.random, getHomeNeedOfHome(home)) != null
-                    /*&& randomsource.nextInt(20) == 1*/) {
+                UUID leaderId = home.getLeaderId();
+                if (leaderId == null) {
+                    continue; // Skip homes without a leader
+                }
+
+                HomeNeed homeNeed = getHomeNeedOfHome(home);
+                if (homeNeed == null) {
+                    continue; // Skip homes with invalid HomeNeed
+                }
+
+                // Check the count of Xunguis and homes for the leader and the given HomeNeed
+                long homesForNeed = leaderHomeNeedCounts
+                        .getOrDefault(leaderId, Collections.emptyMap())
+                        .getOrDefault(homeNeed.getId(), 0L);
+
+                long xunguisForNeed = leaderXunguiNeedCounts
+                        .getOrDefault(leaderId, Collections.emptyMap())
+                        .getOrDefault(homeNeed.getId(), 0L);
+
+                // Step 3: Only spawn a new Xungui if the leader doesn't have enough Xunguis for this HomeNeed
+                if (xunguisForNeed < homesForNeed
+                        && HomeDetection.detectHouse(home.getEntrance(), serverLevel, leaderId, homeNeed)
+                        && getRandomBasicClass(randomSource, homeNeed) != null) {
+
+                    // Step 4: Spawn the Xungui
                     XunguiEntity xungui = CftEntities.XUNGUI.get().spawn(serverLevel, home.getEntrance(), MobSpawnType.TRIGGERED);
                     if (xungui != null) {
                         home.setOwnerId(xungui.getUUID());
-                        xungui.setLeaderId(home.getLeaderId());
+                        xungui.setLeaderId(leaderId);
                         xungui.setHome(home);
                         xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
-                        xungui.setSocialClass(getRandomBasicClass(serverLevel.random, getHomeNeedOfHome(home)));
+                        xungui.setSocialClass(getRandomBasicClass(randomSource, homeNeed));
                         xungui.setNeeds(NeedUtils.getNeedsForClass(xungui.getSocialClass()));
                         xungui.getEntityData().set(XunguiEntity.SOCIAL_CLASS_NAME, xungui.getSocialClass().getId());
                         System.out.println("Xungui created\n");
                         System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
+
+                        // Update the Xungui count for the leader and HomeNeed
+                        leaderXunguiNeedCounts
+                                .computeIfAbsent(leaderId, k -> new HashMap<>())
+                                .merge(homeNeed.getId(), 1L, Long::sum);
                     }
                 }
             }
@@ -55,10 +85,67 @@ public class XunguiSpawner implements CustomSpawner {
     }
 
     /**
+     * Count the number of xunguis that there are for each leader, classified by the home need they require
+     * @param entities the xunguis in the level
+     * @return A two-level map, with the counts of xunguis per need and leader
+     */
+    private Map<UUID, Map<String, Long>> countXunguiPerLeaderAndNeed(List<? extends XunguiEntity> entities) {
+        Map<UUID, Map<String, Long>> leaderXunguiNeedCounts = new HashMap<>();
+        entities.forEach(xungui -> {
+            UUID leaderId = xungui.getLeaderId();
+            if (leaderId == null) {
+                return;
+            }
+
+            Optional<String> homeNeed = getHomeNeedOfSocialClass(xungui.getSocialClass());
+            // Count the Xunguis by HomeNeed
+            homeNeed.ifPresent(homeNeedId -> leaderXunguiNeedCounts
+                    .computeIfAbsent(leaderId, k -> new HashMap<>())
+                    .merge(homeNeedId, 1L, Long::sum));
+        });
+        return leaderXunguiNeedCounts;
+    }
+
+    /**
+     * Count the number of homes that there are for each leader, classified by the need they satisfy
+     * @param homes the list of homes in the level
+     * @return A two-level map, with the counts of homes per need and leader
+     */
+    private Map<UUID, Map<String, Long>> countHomePerLeaderAndNeed(List<XunguiHome> homes) {
+        Map<UUID, Map<String, Long>> leaderHomeNeedCounts = new HashMap<>();
+        // Count homes per leader and HomeNeed
+        for (XunguiHome home : homes) {
+            UUID leaderId = home.getLeaderId();
+            if (leaderId == null) {
+                continue; // Skip homes without a leader
+            }
+
+            HomeNeed homeNeed = getHomeNeedOfHome(home);
+            if (homeNeed == null) {
+                continue; // Skip homes with invalid HomeNeed
+            }
+
+            leaderHomeNeedCounts
+                    .computeIfAbsent(leaderId, k -> new HashMap<>())
+                    .merge(homeNeed.getId(), 1L, Long::sum); // Count the homes by HomeNeed
+        }
+        return leaderHomeNeedCounts;
+    }
+
+    /**
      * Given a home, return the HomeNeed that is expected to be satisfied by it.
      */
     private HomeNeed getHomeNeedOfHome(XunguiHome home) {
         return (HomeNeed) Objects.requireNonNull(CftRegistry.NEEDS.get(new ResourceLocation(home.getSatisfiedNeed())));
+    }
+
+    /**
+     * Given a social class, return the HomeNeed that it needs to satisfy.
+     */
+    private Optional<String> getHomeNeedOfSocialClass(SocialClass socialClass) {
+        return socialClass.getNeeds().stream()
+                .filter(need -> CftRegistry.NEEDS.get(new ResourceLocation(need)) instanceof HomeNeed)
+                .findFirst();
     }
 
     /**
