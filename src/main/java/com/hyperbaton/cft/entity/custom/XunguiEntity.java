@@ -318,7 +318,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         if (!this.level().isClientSide) {
             HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
             Optional<XunguiHome> mobHome = homesData.getHomes().stream().filter(
-                    home -> home.equals(this.home)
+                    home -> home.getOwnerId().equals(this.uuid)
             ).findFirst();
             mobHome.ifPresent(xunguiHome -> xunguiHome.setOwnerId(null));
             homesData.setDirty();

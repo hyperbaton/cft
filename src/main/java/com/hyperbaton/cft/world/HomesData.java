@@ -45,5 +45,11 @@ public class HomesData extends SavedData {
 
     public void addHome(XunguiHome newHome) {
         this.homes.add(newHome);
+        this.setDirty();
+    }
+
+    public void removeHome(XunguiHome home) {
+        this.homes.remove(home);
+        this.setDirty();
     }
 }

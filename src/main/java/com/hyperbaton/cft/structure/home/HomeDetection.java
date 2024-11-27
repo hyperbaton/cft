@@ -122,7 +122,6 @@ public class HomeDetection {
                     wallBlocks.stream().toList(),
                     interiorBlocks.stream().toList(),
                     roofBlocks.stream().toList()));
-            homesData.setDirty();
         }
 
         LOGGER.debug("House size:" + houseBlocks.size());
