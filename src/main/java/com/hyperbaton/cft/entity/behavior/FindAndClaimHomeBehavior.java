@@ -23,6 +23,10 @@ import java.util.UUID;
 public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private static final int MAX_SEARCHING_TIME = 2000;
+    // A timer to limit how long the xunguis spends looking for a home
+    private int currentSearchingTime;
+
     public FindAndClaimHomeBehavior() {
         // Configure with minimum and maximum run duration
         super(ImmutableMap.of(CftMemoryModuleType.HOME_NEEDED.get(), MemoryStatus.VALUE_PRESENT));
@@ -49,11 +53,14 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
                 homesData.getHomes().remove(home);
             }
         });
+
+        currentSearchingTime = 0;
     }
 
     @Override
     protected boolean canStillUse(ServerLevel level, XunguiEntity xungui, long gameTime) {
-        return xungui.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
+        return xungui.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get()) &&
+                currentSearchingTime < MAX_SEARCHING_TIME;
     }
 
     @Override
@@ -64,6 +71,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
                 HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
                 homesData.getHomes().stream()
                         .filter(home -> home.getEntrance().equals(pos))
+                        .filter(home -> home.getOwnerId() == null)
                         .findFirst()
                         .ifPresent(home -> {
                             home.setOwnerId(xungui.getUUID());
@@ -71,12 +79,14 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
                             xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
                             xungui.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
                             xungui.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), false);
+                            homesData.setDirty();
                         });
             } else {
                 // Continue navigation to the target home
                 xungui.getNavigation().moveTo(pos.getX(), pos.getY(), pos.getZ(), 1.0D);
             }
         });
+        currentSearchingTime++;
     }
 
     @Override

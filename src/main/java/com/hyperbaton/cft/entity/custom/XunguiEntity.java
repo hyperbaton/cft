@@ -36,6 +36,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.schedule.Activity;
@@ -57,8 +58,9 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
+        ((GroundPathNavigation) this.getNavigation()).setCanPassDoors(true);
+        this.setMaxUpStep(1.0F); // Allow stepping up one block
     }
-
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
 
@@ -126,7 +128,19 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         }
     }
 
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        GroundPathNavigation navigation = new GroundPathNavigation(this, level);
+        navigation.setCanOpenDoors(true);  // Allows the entity to open doors
+        navigation.setCanPassDoors(true); // Allows the pathfinder to consider doors as passable
+        return navigation;
+    }
+
     private void checkSocialClass() {
+        // TODO: Game crashed at startup because player is not yet loaded. Maybe there is a better way of loading or checking this?
+        if(this.level().getPlayerByUUID(this.leaderId) == null) {
+            return;
+        }
         if (!downgradeSocialClass()) {
             upgradeSocialClass();
         }
@@ -200,6 +214,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
             homesData.setDirty();
             this.home = null;
             this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
+            this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
         }
     }
 

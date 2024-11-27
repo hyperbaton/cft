@@ -64,6 +64,7 @@ public class XunguiSpawner implements CustomSpawner {
                     XunguiEntity xungui = CftEntities.XUNGUI.get().spawn(serverLevel, home.getEntrance(), MobSpawnType.TRIGGERED);
                     if (xungui != null) {
                         home.setOwnerId(xungui.getUUID());
+                        homesData.setDirty();
                         xungui.setLeaderId(leaderId);
                         xungui.setHome(home);
                         xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
@@ -73,10 +74,7 @@ public class XunguiSpawner implements CustomSpawner {
                         System.out.println("Xungui created\n");
                         System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
 
-                        // Update the Xungui count for the leader and HomeNeed
-                        leaderXunguiNeedCounts
-                                .computeIfAbsent(leaderId, k -> new HashMap<>())
-                                .merge(homeNeed.getId(), 1L, Long::sum);
+                        return 0;
                     }
                 }
             }
