@@ -27,3 +27,6 @@ forge*changelog.txt
 # Logs and local data
 logs
 run-data
+
+# Generated data
+/src/generated/resources/.cache/**
