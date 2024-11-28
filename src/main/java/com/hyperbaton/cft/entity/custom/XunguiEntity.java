@@ -150,7 +150,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         this.socialClass.getUpgrades().stream()
                 .filter(this::appliesForUpgrade)
                 .findAny()
-                .ifPresent(this::changeSocialClass);
+                .ifPresent(socialClassUpdate -> changeSocialClass(socialClassUpdate.getNextClass()));
     }
 
     private boolean appliesForUpgrade(SocialClassUpdate socialClassUpdate) {
@@ -159,7 +159,9 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 this.getNeeds().stream()
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
                         .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold())
-                        && checkSocialStructureForUpgrade(getNormalizedSocialStructure(), socialClassUpdate));
+                        && checkSocialStructureForUpgrade(
+                                getNormalizedSocialStructureWithUpgrade(this.socialClass.getId(), socialClassUpdate.getNextClass()),
+                        socialClassUpdate));
     }
 
     private boolean checkSocialStructureForUpgrade(Map<String, BigDecimal> socialStructure, SocialClassUpdate socialClassUpdate) {
@@ -174,7 +176,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     private boolean downgradeSocialClass() {
         Optional<SocialClassUpdate> optSocialClassToDowngradeTo = this.socialClass.getDowngrades().stream()
                 .filter(this::appliesForDowngrade).findAny();
-        optSocialClassToDowngradeTo.ifPresent(this::changeSocialClass);
+        optSocialClassToDowngradeTo.ifPresent(socialClassUpdate -> changeSocialClass(socialClassUpdate.getNextClass()));
         return optSocialClassToDowngradeTo.isPresent();
     }
 
@@ -201,8 +203,16 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 .entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getId(), Map.Entry::getValue));
     }
 
-    private void changeSocialClass(SocialClassUpdate socialClassUpdate) {
-        this.socialClass = CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(socialClassUpdate.getNextClass()));
+    private Map<String, BigDecimal> getNormalizedSocialStructureWithUpgrade(String fromClass, String toClass) {
+        return SocialStructureHelper.computeNormalizedSocialStructureForPlayerWithUpgrade((ServerLevel) this.level(),
+                        (ServerPlayer) this.level().getPlayerByUUID(this.leaderId),
+                        fromClass,
+                        toClass)
+                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getId(), Map.Entry::getValue));
+    }
+
+    private void changeSocialClass(String nextClass) {
+        this.socialClass = CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(nextClass));
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
