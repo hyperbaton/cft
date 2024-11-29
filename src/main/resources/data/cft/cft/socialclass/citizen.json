@@ -2,6 +2,7 @@
   "id": "cft:citizen",
   "minHappiness": 50.0,
   "maxHappiness": 100.0,
+  "spontaneouslySpawnPopulation": 0,
   "needs": [
     "cft:bread_need",
     "cft:stone_home"

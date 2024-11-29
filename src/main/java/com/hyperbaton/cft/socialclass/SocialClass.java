@@ -10,6 +10,7 @@ public class SocialClass {
             Codec.STRING.fieldOf("id").forGetter(SocialClass::getId),
             Codec.DOUBLE.fieldOf("minHappiness").forGetter(SocialClass::getMinHappiness),
             Codec.DOUBLE.fieldOf("maxHappiness").forGetter(SocialClass::getMaxHappiness),
+            Codec.INT.fieldOf("spontaneouslySpawnPopulation").forGetter(SocialClass::getSpontaneouslySpawnPopulation),
             Codec.STRING.listOf().fieldOf("needs").forGetter(SocialClass::getNeeds),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("upgrades").forGetter(SocialClass::getUpgrades),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("downgrades").forGetter(SocialClass::getDowngrades)
@@ -23,14 +24,18 @@ public class SocialClass {
     private String id;
     private double minHappiness;
     private double maxHappiness;
+
+    private int spontaneouslySpawnPopulation;
     private List<String> needs;
     private List<SocialClassUpdate> upgrades;
     private List<SocialClassUpdate> downgrades;
 
-    public SocialClass(String id, double minHappiness, double maxHappiness, List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades) {
+    public SocialClass(String id, double minHappiness, double maxHappiness, int spontaneouslySpawnPopulation,
+                       List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades) {
         this.id = id;
         this.minHappiness = minHappiness;
         this.maxHappiness = maxHappiness;
+        this.spontaneouslySpawnPopulation = spontaneouslySpawnPopulation;
         this.needs = needs;
         this.upgrades = upgrades;
         this.downgrades = downgrades;
@@ -58,6 +63,14 @@ public class SocialClass {
 
     public void setMaxHappiness(double maxHappiness) {
         this.maxHappiness = maxHappiness;
+    }
+
+    public int getSpontaneouslySpawnPopulation() {
+        return spontaneouslySpawnPopulation;
+    }
+
+    public void setSpontaneouslySpawnPopulation(int spontaneouslySpawnPopulation) {
+        this.spontaneouslySpawnPopulation = spontaneouslySpawnPopulation;
     }
 
     public List<String> getNeeds() {
