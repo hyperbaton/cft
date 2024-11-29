@@ -28,7 +28,6 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
     private int currentSearchingTime;
 
     public FindAndClaimHomeBehavior() {
-        // Configure with minimum and maximum run duration
         super(ImmutableMap.of(CftMemoryModuleType.HOME_NEEDED.get(), MemoryStatus.VALUE_PRESENT));
     }
 
@@ -83,7 +82,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
                         });
             } else {
                 // Continue navigation to the target home
-                xungui.getNavigation().moveTo(pos.getX(), pos.getY(), pos.getZ(), 1.0D);
+                xungui.getNavigation().moveTo(xungui.getNavigation().createPath(pos, 1), 1);
             }
         });
         currentSearchingTime++;

@@ -16,7 +16,7 @@ public class CftEntities {
 
     public static final RegistryObject<EntityType<XunguiEntity>> XUNGUI =
             ENTITY_TYPES.register("xungui", () -> EntityType.Builder.of(XunguiEntity::new, MobCategory.CREATURE)
-                    .sized(1.0f, 1.2f).build("xungui"));
+                    .sized(0.6f, 1.2f).build("xungui"));
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }

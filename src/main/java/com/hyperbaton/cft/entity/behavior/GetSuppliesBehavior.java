@@ -15,21 +15,32 @@ import java.util.Map;
 
 public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final double CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = 1.0;
 
     public GetSuppliesBehavior(Map pEntryCondition) {
         super(pEntryCondition);
     }
 
-    // TODO: There should be some delay after the mob doesn't find any supplies
+    @Override
+    protected boolean checkExtraStartConditions(ServerLevel level, XunguiEntity mob) {
+        LOGGER.debug("Starting behavior for getting supplies");
+        // Only start if the Xungui has a home with a container
+        return mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()) &&
+                !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
+    }
+
     @Override
     protected void start(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
-        startWalkingTowards(mob, mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get());
+        mob.getNavigation().moveTo(
+                mob.getNavigation().createPath(mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get(),
+                        1),
+                1);
     }
 
     @Override
     protected void tick(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
         if (mob.position().distanceTo(mob.getBrain()
-                .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get().getCenter()) <= 1.0) {
+                .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get().getCenter()) <= CLOSE_ENOUGH_DISTANCE_TO_CONTAINER) {
             mob.getNavigation().stop(); // Stop moving once close
         }
     }
@@ -78,7 +89,7 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
                 && mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())
                 && mob.position().distanceTo(mob.getBrain()
                 .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())
-                .get().getCenter()) > 1.0
+                .get().getCenter()) > CLOSE_ENOUGH_DISTANCE_TO_CONTAINER
                 && !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
     }
 
