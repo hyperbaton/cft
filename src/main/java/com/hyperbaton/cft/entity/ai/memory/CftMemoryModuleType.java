@@ -1,4 +1,4 @@
-package com.hyperbaton.cft.entity.memory;
+package com.hyperbaton.cft.entity.ai.memory;
 
 import com.hyperbaton.cft.CftMod;
 import com.mojang.serialization.Codec;
@@ -11,6 +11,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class CftMemoryModuleType {
     public static final DeferredRegister<MemoryModuleType<?>> MEMORY_TYPES = DeferredRegister.create(Registries.MEMORY_MODULE_TYPE, CftMod.MOD_ID);
@@ -19,6 +20,8 @@ public class CftMemoryModuleType {
     public static final RegistryObject<MemoryModuleType<BlockPos>> HOME_CANDIDATE_POSITION = registerMemory("home_candidate_position", BlockPos.CODEC);
     public static final RegistryObject<MemoryModuleType<Boolean>> HOME_NEEDED = registerMemory("home_needed", Codec.BOOL);
     public static final RegistryObject<MemoryModuleType<Boolean>> SUPPLY_COOLDOWN = registerMemory("supply_cooldown", Codec.BOOL);
+    public static final RegistryObject<MemoryModuleType<Boolean>> CAN_MATE = registerMemory("can_mate", Codec.BOOL);
+    public static final RegistryObject<MemoryModuleType<String>> MATING_CANDIDATE = registerMemory("mating_candidate", Codec.STRING);
 
     public static <T> RegistryObject<MemoryModuleType<T>> registerMemory(String name)
     {

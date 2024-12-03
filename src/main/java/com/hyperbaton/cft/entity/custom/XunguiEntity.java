@@ -8,7 +8,8 @@ import com.hyperbaton.cft.capability.need.NeedCapabilityMapper;
 import com.hyperbaton.cft.capability.need.NeedUtils;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.XunguiAi;
-import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.entity.ai.activity.CftActivities;
+import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
 import com.hyperbaton.cft.socialclass.SocialStructureHelper;
@@ -53,14 +54,15 @@ import java.util.stream.Collectors;
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
+    private static final int MATING_COOLDOWN = 30; // In ticks (6000 - 5 minutes in Minecraft)
     public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XunguiEntity.class, EntityDataSerializers.STRING);
 
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
-        ((GroundPathNavigation) this.getNavigation()).setCanPassDoors(true);
         this.setMaxUpStep(1.0F); // Allow stepping up one block
     }
+
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
 
@@ -76,6 +78,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     private double happiness = 0.0;
 
     private int satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
+    private int matingDelay = MATING_COOLDOWN;
 
     // Tag keys
     private static final String KEY_LEADER_ID = "leaderId";
@@ -123,6 +126,9 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         if (brain.getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).isEmpty()
                 || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
+        } else if (brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).isPresent() &&
+                brain.getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).isPresent()){
+            brain.setActiveActivityToFirstValid(ImmutableList.of(CftActivities.MATE.get(), Activity.IDLE));
         } else {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
         }
@@ -136,9 +142,79 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         return navigation;
     }
 
+    @Nullable
+    @Override
+    public AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
+        return CftEntities.XUNGUI.get().create(serverLevel);
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.HOGLIN_AMBIENT;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.RAVAGER_DEATH;
+    }
+
+    @Nullable
+    @Override
+    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
+        return SoundEvents.HUSK_HURT;
+    }
+
+    @Override
+    protected void updateWalkAnimation(float pPartialTick) {
+        float f;
+        if (this.getPose() == Pose.STANDING) {
+            f = Math.min(pPartialTick * 6F, 1f);
+        } else {
+            f = 0f;
+        }
+
+        this.walkAnimation.update(f, 0.2f);
+    }
+
+    @Override
+    protected Brain.Provider<XunguiEntity> brainProvider() {
+        return Brain.provider(XunguiAi.MEMORY_TYPES, XunguiAi.SENSOR_TYPES);
+    }
+
+    @Override
+    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
+        return XunguiAi.makeBrain(brainProvider().makeBrain(dynamic));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Brain<XunguiEntity> getBrain() {
+        return (Brain<XunguiEntity>) super.getBrain();
+    }
+
+    @Override
+    public void die(DamageSource pDamageSource) {
+        if (!this.level().isClientSide) {
+            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+            Optional<XunguiHome> mobHome = homesData.getHomes().stream().filter(
+                    home -> home.getOwnerId().equals(this.uuid)
+            ).findFirst();
+            mobHome.ifPresent(xunguiHome -> xunguiHome.setOwnerId(null));
+            homesData.setDirty();
+        }
+        super.die(pDamageSource);
+    }
+
+    @Override
+    public SimpleContainer getInventory() {
+        return this.inventory;
+    }
+
     private void checkSocialClass() {
         // TODO: Game crashed at startup because player is not yet loaded. Maybe there is a better way of loading or checking this?
-        if(this.level().getPlayerByUUID(this.leaderId) == null) {
+        if (this.level().getPlayerByUUID(this.leaderId) == null) {
             return;
         }
         if (!downgradeSocialClass()) {
@@ -160,7 +236,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
                         .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold())
                         && checkSocialStructureForUpgrade(
-                                getNormalizedSocialStructureWithUpgrade(this.socialClass.getId(), socialClassUpdate.getNextClass()),
+                        getNormalizedSocialStructureWithUpgrade(this.socialClass.getId(), socialClassUpdate.getNextClass()),
                         socialClassUpdate));
     }
 
@@ -237,18 +313,6 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         }
     }
 
-    @Override
-    protected void updateWalkAnimation(float pPartialTick) {
-        float f;
-        if (this.getPose() == Pose.STANDING) {
-            f = Math.min(pPartialTick * 6F, 1f);
-        } else {
-            f = 0f;
-        }
-
-        this.walkAnimation.update(f, 0.2f);
-    }
-
     public static AttributeSupplier.Builder createAttributes() {
         return Animal.createLivingAttributes()
                 .add(Attributes.MAX_HEALTH, 20D)
@@ -257,46 +321,6 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
                 .add(Attributes.ATTACK_DAMAGE, 2f)
                 .add(Attributes.FOLLOW_RANGE, 24D);
-    }
-
-    @Nullable
-    @Override
-    public AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
-        return CftEntities.XUNGUI.get().create(serverLevel);
-    }
-
-    @Nullable
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return SoundEvents.HOGLIN_AMBIENT;
-    }
-
-    @Nullable
-    @Override
-    protected SoundEvent getDeathSound() {
-        return SoundEvents.RAVAGER_DEATH;
-    }
-
-    @Nullable
-    @Override
-    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
-        return SoundEvents.HUSK_HURT;
-    }
-
-    @Override
-    protected Brain.Provider<XunguiEntity> brainProvider() {
-        return Brain.provider(XunguiAi.MEMORY_TYPES, XunguiAi.SENSOR_TYPES);
-    }
-
-    @Override
-    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
-        return XunguiAi.makeBrain(brainProvider().makeBrain(dynamic));
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Brain<XunguiEntity> getBrain() {
-        return (Brain<XunguiEntity>) super.getBrain();
     }
 
     public void decreaseHappiness(double providedHappiness, double frequency) {
@@ -323,17 +347,20 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 socialClass.getMaxHappiness());
     }
 
-    @Override
-    public void die(DamageSource pDamageSource) {
-        if (!this.level().isClientSide) {
-            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
-            Optional<XunguiHome> mobHome = homesData.getHomes().stream().filter(
-                    home -> home.getOwnerId().equals(this.uuid)
-            ).findFirst();
-            mobHome.ifPresent(xunguiHome -> xunguiHome.setOwnerId(null));
-            homesData.setDirty();
-        }
-        super.die(pDamageSource);
+    /**
+     * A xungui can mate if it didn't mate recently, its happiness is over the mating threshold and
+     * all its needs are satisfied
+     * @return Whether or not the xungui can mate
+     */
+    public boolean canMate() {
+        matingDelay --;
+        return matingDelay <= 0 &&
+                this.happiness >= this.socialClass.getMatingHappinessThreshold() &&
+                this.needs.stream().allMatch(NeedCapability::isSatisfied);
+    }
+
+    public void resetMatingDelay(){
+        matingDelay = MATING_COOLDOWN;
     }
 
     public UUID getLeaderId() {
@@ -350,11 +377,6 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     public void setHome(XunguiHome home) {
         this.home = home;
-    }
-
-    @Override
-    public SimpleContainer getInventory() {
-        return this.inventory;
     }
 
     protected ItemStack addToInventory(ItemStack pStack) {

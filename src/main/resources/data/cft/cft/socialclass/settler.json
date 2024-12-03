@@ -2,6 +2,7 @@
   "id": "cft:settler",
   "minHappiness": 0.0,
   "maxHappiness": 100.0,
+  "matingHappinessThreshold": 0.30,
   "spontaneouslySpawnPopulation": 3,
   "needs": [
     "cft:stick_need",

@@ -3,11 +3,13 @@ package com.hyperbaton.cft.entity.ai;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.hyperbaton.cft.entity.behavior.FindAndClaimHomeBehavior;
-import com.hyperbaton.cft.entity.behavior.GetSuppliesBehavior;
-import com.hyperbaton.cft.entity.behavior.SearchHomeBehavior;
+import com.hyperbaton.cft.entity.ai.activity.CftActivities;
+import com.hyperbaton.cft.entity.ai.behavior.FindAndClaimHomeBehavior;
+import com.hyperbaton.cft.entity.ai.behavior.GetSuppliesBehavior;
+import com.hyperbaton.cft.entity.ai.behavior.MateBehavior;
+import com.hyperbaton.cft.entity.ai.sensor.CftSensorTypes;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
-import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
@@ -22,20 +24,28 @@ import net.minecraft.world.entity.schedule.Activity;
 import java.util.Map;
 
 public class XunguiAi {
+
+    public static final ImmutableList<? extends SensorType<? extends Sensor<? super XunguiEntity>>> SENSOR_TYPES = ImmutableList.of(
+            CftSensorTypes.ABLE_TO_MATE.get(), CftSensorTypes.FIND_POTENTIAL_MATES.get()
+    );
+
     public static final ImmutableList<? extends MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             CftMemoryModuleType.HOME_CONTAINER_POSITION.get(),
             CftMemoryModuleType.SUPPLIES_NEEDED.get(),
             CftMemoryModuleType.HOME_CANDIDATE_POSITION.get(),
             CftMemoryModuleType.SUPPLY_COOLDOWN.get(),
-            CftMemoryModuleType.HOME_NEEDED.get()
+            CftMemoryModuleType.HOME_NEEDED.get(),
+            CftMemoryModuleType.CAN_MATE.get(),
+            CftMemoryModuleType.MATING_CANDIDATE.get(),
+            MemoryModuleType.WALK_TARGET,
+            MemoryModuleType.LOOK_TARGET
     );
-    public static final ImmutableList<? extends SensorType<? extends Sensor<? super XunguiEntity>>> SENSOR_TYPES = ImmutableList.of();
 
     public static Brain<?> makeBrain(Brain<XunguiEntity> pBrain) {
         initCoreActivity(pBrain);
         initIdleActivity(pBrain);
-        // TODO: Create a proper activity for this
         initInvestigateActivity(pBrain);
+        initMateActivity(pBrain);
         pBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         pBrain.setDefaultActivity(Activity.IDLE);
         pBrain.useDefaultActivity();
@@ -67,6 +77,12 @@ public class XunguiAi {
                         Map.of(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), MemoryStatus.VALUE_PRESENT,
                                 CftMemoryModuleType.SUPPLIES_NEEDED.get(), MemoryStatus.VALUE_PRESENT)
                 ))
+        ));
+    }
+
+    private static void initMateActivity(Brain<XunguiEntity> pBrain) {
+        pBrain.addActivity(CftActivities.MATE.get(), ImmutableList.of(
+                Pair.of(0, new MateBehavior(Map.of(CftMemoryModuleType.MATING_CANDIDATE.get(), MemoryStatus.VALUE_PRESENT)))
         ));
     }
 }

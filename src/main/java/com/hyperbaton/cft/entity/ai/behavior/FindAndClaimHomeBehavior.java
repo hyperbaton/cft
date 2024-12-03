@@ -1,10 +1,10 @@
-package com.hyperbaton.cft.entity.behavior;
+package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.HomeNeed;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
-import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.structure.home.XunguiHome;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.logging.LogUtils;

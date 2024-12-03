@@ -10,6 +10,7 @@ public class SocialClass {
             Codec.STRING.fieldOf("id").forGetter(SocialClass::getId),
             Codec.DOUBLE.fieldOf("minHappiness").forGetter(SocialClass::getMinHappiness),
             Codec.DOUBLE.fieldOf("maxHappiness").forGetter(SocialClass::getMaxHappiness),
+            Codec.DOUBLE.fieldOf("matingHappinessThreshold").forGetter(SocialClass::getMatingHappinessThreshold),
             Codec.INT.fieldOf("spontaneouslySpawnPopulation").forGetter(SocialClass::getSpontaneouslySpawnPopulation),
             Codec.STRING.listOf().fieldOf("needs").forGetter(SocialClass::getNeeds),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("upgrades").forGetter(SocialClass::getUpgrades),
@@ -25,16 +26,18 @@ public class SocialClass {
     private double minHappiness;
     private double maxHappiness;
 
+    private double matingHappinessThreshold;
     private int spontaneouslySpawnPopulation;
     private List<String> needs;
     private List<SocialClassUpdate> upgrades;
     private List<SocialClassUpdate> downgrades;
 
-    public SocialClass(String id, double minHappiness, double maxHappiness, int spontaneouslySpawnPopulation,
+    public SocialClass(String id, double minHappiness, double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
                        List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades) {
         this.id = id;
         this.minHappiness = minHappiness;
         this.maxHappiness = maxHappiness;
+        this.matingHappinessThreshold = matingHappinessThreshold;
         this.spontaneouslySpawnPopulation = spontaneouslySpawnPopulation;
         this.needs = needs;
         this.upgrades = upgrades;
@@ -63,6 +66,14 @@ public class SocialClass {
 
     public void setMaxHappiness(double maxHappiness) {
         this.maxHappiness = maxHappiness;
+    }
+
+    public double getMatingHappinessThreshold() {
+        return matingHappinessThreshold;
+    }
+
+    public void setMatingHappinessThreshold(double matingHappinessThreshold) {
+        this.matingHappinessThreshold = matingHappinessThreshold;
     }
 
     public int getSpontaneouslySpawnPopulation() {

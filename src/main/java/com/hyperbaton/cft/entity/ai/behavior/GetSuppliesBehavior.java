@@ -1,7 +1,7 @@
-package com.hyperbaton.cft.entity.behavior;
+package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
-import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

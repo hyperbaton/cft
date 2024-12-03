@@ -2,7 +2,7 @@ package com.hyperbaton.cft.capability.need;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
-import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.world.HomesData;
@@ -10,8 +10,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-
-import java.util.Optional;
 
 public class HomeNeedCapability extends NeedCapability<HomeNeed> {
     public HomeNeedCapability(double satisfaction, boolean isSatisfied, HomeNeed need) {

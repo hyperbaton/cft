@@ -4,7 +4,7 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.*;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
-import com.hyperbaton.cft.entity.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.XunguiHome;
 import com.hyperbaton.cft.world.HomesData;
@@ -79,17 +79,21 @@ public class XunguiSpawner implements CustomSpawner {
     private boolean spawnXungui(ServerLevel serverLevel, XunguiHome home, SocialClass socialClass, UUID leaderId) {
         XunguiEntity xungui = CftEntities.XUNGUI.get().spawn(serverLevel, home.getEntrance(), MobSpawnType.TRIGGERED);
         if (xungui != null) {
-            home.setOwnerId(xungui.getUUID());
-            xungui.setLeaderId(leaderId);
-            xungui.setHome(home);
-            xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
-            xungui.setSocialClass(socialClass);
-            xungui.setNeeds(NeedUtils.getNeedsForClass(xungui.getSocialClass()));
-            xungui.getEntityData().set(XunguiEntity.SOCIAL_CLASS_NAME, xungui.getSocialClass().getId());
-            System.out.println("Xungui created\n");
-            System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
+            updateSpawnedXungui(xungui, home, socialClass, leaderId);
             return true;
         }
         return false;
+    }
+
+    public static void updateSpawnedXungui(XunguiEntity xungui, XunguiHome home, SocialClass socialClass, UUID leaderId) {
+        home.setOwnerId(xungui.getUUID());
+        xungui.setLeaderId(leaderId);
+        xungui.setHome(home);
+        xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
+        xungui.setSocialClass(socialClass);
+        xungui.setNeeds(NeedUtils.getNeedsForClass(xungui.getSocialClass()));
+        xungui.getEntityData().set(XunguiEntity.SOCIAL_CLASS_NAME, xungui.getSocialClass().getId());
+        System.out.println("Xungui created\n");
+        System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
     }
 }
