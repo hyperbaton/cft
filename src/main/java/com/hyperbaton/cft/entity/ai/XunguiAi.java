@@ -4,15 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
-import com.hyperbaton.cft.entity.ai.behavior.FindAndClaimHomeBehavior;
-import com.hyperbaton.cft.entity.ai.behavior.GetSuppliesBehavior;
-import com.hyperbaton.cft.entity.ai.behavior.MateBehavior;
+import com.hyperbaton.cft.entity.ai.behavior.*;
 import com.hyperbaton.cft.entity.ai.sensor.CftSensorTypes;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -56,18 +52,13 @@ public class XunguiAi {
         pBrain.addActivity(Activity.CORE, 2, ImmutableList.of(
                 new Swim(0.8F),
                 new LookAtTargetSink(45, 90),
-                new MoveToTargetSink()));
+                new MoveToTargetSink(),
+                new OpenDoorBehavior()));
     }
 
     private static void initIdleActivity(Brain<XunguiEntity> pBrain) {
         pBrain.addActivity(Activity.IDLE, ImmutableList.of(
-                Pair.of(3, SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60))),
-                Pair.of(4, new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F)),
-                Pair.of(5, new RunOne(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT),
-                        ImmutableList.of(
-                                Pair.of(RandomStroll.stroll(2.0F), 1),
-                                Pair.of(SetWalkTargetFromLookTarget.create(2.0F, 3), 1),
-                                Pair.of(new DoNothing(30, 60), 1))))));
+                Pair.of(3, new RandomStrollBehavior(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT)))));
     }
 
     private static void initInvestigateActivity(Brain<XunguiEntity> pBrain) {

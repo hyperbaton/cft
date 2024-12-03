@@ -3,11 +3,9 @@ package com.hyperbaton.cft.entity.ai.behavior;
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.mojang.logging.LogUtils;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 
@@ -15,7 +13,7 @@ import java.util.Map;
 
 public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final double CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = 1.0;
+    public static final double CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = 0.7;
 
     public GetSuppliesBehavior(Map pEntryCondition) {
         super(pEntryCondition);
@@ -91,9 +89,5 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
                 .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())
                 .get().getCenter()) > CLOSE_ENOUGH_DISTANCE_TO_CONTAINER
                 && !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
-    }
-
-    private void startWalkingTowards(XunguiEntity mob, BlockPos pos) {
-        BehaviorUtils.setWalkAndLookTargetMemories(mob, pos, 1f, 1);
     }
 }
