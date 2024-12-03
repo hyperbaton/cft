@@ -32,7 +32,7 @@ public class HomeNeedCapability extends NeedCapability<HomeNeed> {
                 mob.setHome(null);
                 mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
             }
-            this.unsatisfy(need.getFrequency());
+            this.unsatisfy(need.getFrequency(), mob);
             mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
             addMemoriesForSatisfaction(mob);
             return false;

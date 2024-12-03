@@ -1,8 +1,12 @@
 package com.hyperbaton.cft.capability.need;
 
 import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -37,7 +41,7 @@ public abstract class NeedCapability<T extends Need> {
         return true;
     }
 
-    public void unsatisfy(double frequency) {
+    public void unsatisfy(double frequency, XunguiEntity mob) {
         satisfaction = Math.max(
                 satisfaction -
                         BigDecimal.valueOf(20)
@@ -46,6 +50,9 @@ public abstract class NeedCapability<T extends Need> {
                                 RoundingMode.HALF_UP)
                         .doubleValue(),
                 0);
+        if(satisfaction < need.getSatisfactionThreshold()) {
+            mob.hurt(mob.level().damageSources().generic(), (float) need.getDamage());
+        }
     }
 
     public abstract void addMemoriesForSatisfaction(XunguiEntity mob);

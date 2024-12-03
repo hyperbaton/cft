@@ -104,7 +104,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
                     currentNeed.satisfy(this);
                 } else {
-                    currentNeed.unsatisfy(need.getFrequency());
+                    currentNeed.unsatisfy(need.getFrequency(), this);
                     increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                 }
                 currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
@@ -199,7 +199,8 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         if (!this.level().isClientSide) {
             HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
             Optional<XunguiHome> mobHome = homesData.getHomes().stream().filter(
-                    home -> home.getOwnerId().equals(this.uuid)
+                    home -> home.getOwnerId() != null &&
+                            home.getOwnerId().equals(this.uuid)
             ).findFirst();
             mobHome.ifPresent(xunguiHome -> xunguiHome.setOwnerId(null));
             homesData.setDirty();

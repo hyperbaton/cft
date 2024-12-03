@@ -16,6 +16,8 @@ public abstract class Need {
     private final String id;
     private double damage;
 
+    private double damageThreshold;
+
     /**
      * The happiness this need gives if satisfied over a full period
      * The period is given by its frequency
@@ -29,13 +31,15 @@ public abstract class Need {
 
     public static final String TAG_ID = "id";
     public static final String TAG_DAMAGE = "damage";
+    public static final String TAG_DAMAGE_THRESHOLD = "damageThreshold";
     public static final String TAG_PROVIDED_HAPPINESS = "providedHappiness";
     public static final String TAG_SATISFACTION_THRESHOLD = "satisfactionThreshold";
     public static final String TAG_FREQUENCY = "frequency";
 
-    public Need(String id, double damage, double providedHappiness, double satisfactionThreshold, double frequency) {
+    public Need(String id, double damage, double damageThreshold, double providedHappiness, double satisfactionThreshold, double frequency) {
         this.id = id;
         this.damage = damage;
+        this.damageThreshold = damageThreshold;
         this.providedHappiness = providedHappiness;
         this.satisfactionThreshold = satisfactionThreshold;
         this.frequency = frequency;
@@ -53,6 +57,14 @@ public abstract class Need {
 
     public void setDamage(double damage) {
         this.damage = damage;
+    }
+
+    public double getDamageThreshold() {
+        return damageThreshold;
+    }
+
+    public void setDamageThreshold(double damageThreshold) {
+        this.damageThreshold = damageThreshold;
     }
 
     public double getProvidedHappiness() {
@@ -83,6 +95,7 @@ public abstract class Need {
         CompoundTag tag = new CompoundTag();
         tag.putString(TAG_ID, id);
         tag.putDouble(TAG_DAMAGE, damage);
+        tag.putDouble(TAG_DAMAGE_THRESHOLD, damageThreshold);
         tag.putDouble(TAG_PROVIDED_HAPPINESS, providedHappiness);
         tag.putDouble(TAG_SATISFACTION_THRESHOLD, satisfactionThreshold);
         tag.putDouble(TAG_FREQUENCY, frequency);

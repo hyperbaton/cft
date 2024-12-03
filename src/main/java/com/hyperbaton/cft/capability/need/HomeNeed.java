@@ -11,6 +11,7 @@ public class HomeNeed extends Need{
     public static final Codec<HomeNeed> HOME_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(HomeNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(HomeNeed::getDamage),
+            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(HomeNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(HomeNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(HomeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(HomeNeed::getFrequency),
@@ -24,8 +25,8 @@ public class HomeNeed extends Need{
     List<HomeValidBlock> wallBlocks;
     List<HomeValidBlock> interiorBlocks;
     List<HomeValidBlock> roofBlocks;
-    public HomeNeed(String id, double damage, double providedHappiness, double satisfactionThreshold, double frequency, List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks, List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks) {
-        super(id, damage, providedHappiness, satisfactionThreshold, frequency);
+    public HomeNeed(String id, double damage, double damageThreshold, double providedHappiness, double satisfactionThreshold, double frequency, List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks, List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency);
         this.floorBlocks = floorBlocks;
         this.wallBlocks = wallBlocks;
         this.interiorBlocks = interiorBlocks;

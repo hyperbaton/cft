@@ -14,6 +14,7 @@ public class GoodsNeed extends Need {
     public static final Codec<GoodsNeed> GOODS_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(GoodsNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(GoodsNeed::getDamage),
+            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(GoodsNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(GoodsNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(GoodsNeed::getSatisfactionThreshold),
             ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(GoodsNeed::getItem),
@@ -31,8 +32,8 @@ public class GoodsNeed extends Need {
     public static final String TAG_ITEM = "item";
     public static final String TAG_QUANTITIY = "quantity";
 
-    public GoodsNeed(String id, double damage, double providedHappiness, double satisfactionThreshold, Item item, double frequency, int quantity) {
-        super(id, damage, providedHappiness, satisfactionThreshold, frequency);
+    public GoodsNeed(String id, double damage, double damageThreshold, double providedHappiness, double satisfactionThreshold, Item item, double frequency, int quantity) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency);
         this.item = item;
         this.quantity = quantity;
     }

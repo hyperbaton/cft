@@ -3,6 +3,7 @@
   "type": "cft:home",
   "need_type": "cft:home",
   "damage": 0.0,
+  "damage_threshold": 0.0,
   "provided_happiness": 1.5,
   "satisfaction_threshold": 0.95,
   "frequency": 1.0,

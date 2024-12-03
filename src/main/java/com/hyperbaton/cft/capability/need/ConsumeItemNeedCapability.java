@@ -18,7 +18,7 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
             mob.getInventory().removeItemType(need.getItem(), need.getQuantity());
             super.satisfy(mob);
         } else {
-            this.unsatisfy(need.getFrequency());
+            this.unsatisfy(need.getFrequency(), mob);
             mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
             addMemoriesForSatisfaction(mob);
             return false;
