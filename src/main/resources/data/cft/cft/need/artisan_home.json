@@ -1,0 +1,45 @@
+{
+  "id": "cft:artisan_home",
+  "type": "cft:home",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 1.8,
+  "satisfaction_threshold": 0.9,
+  "frequency": 1.0,
+  "floorBlocks": [
+    {
+      "block": "minecraft:terracotta",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "wallBlocks": [
+    {
+      "block": "minecraft:bricks",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "interiorBlocks": [
+    {
+      "block": "minecraft:air",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "roofBlocks": [
+    {
+      "block": "minecraft:red_terracotta",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ]
+}

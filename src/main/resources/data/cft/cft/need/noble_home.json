@@ -1,0 +1,52 @@
+{
+  "id": "cft:noble_home",
+  "type": "cft:home",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 2.5,
+  "satisfaction_threshold": 0.95,
+  "frequency": 1.0,
+  "floorBlocks": [
+    {
+      "block": "minecraft:polished_diorite",
+      "minQuantity": 20,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "wallBlocks": [
+    {
+      "block": "minecraft:quartz_block",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:glass_pane",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.05,
+      "maxPercentage": 0.20
+    }
+  ],
+  "interiorBlocks": [
+    {
+      "block": "minecraft:air",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "roofBlocks": [
+    {
+      "block": "minecraft:smooth_quartz",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ]
+}

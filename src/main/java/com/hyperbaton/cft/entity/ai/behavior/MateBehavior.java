@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public class MateBehavior extends Behavior<XunguiEntity> {
+
+    public static final double MIN_DISTANCE_FOR_MATING = 0.7;
+
     public MateBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
         super(pEntryCondition);
     }
@@ -46,7 +49,7 @@ public class MateBehavior extends Behavior<XunguiEntity> {
     protected boolean canStillUse(ServerLevel level, XunguiEntity xungui, long pGameTime) {
         return xungui.getBrain().hasMemoryValue(CftMemoryModuleType.CAN_MATE.get()) &&
                 xungui.getBrain().hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get()) &&
-                xungui.getEyePosition().distanceTo(getMate(level, xungui).get().getEyePosition()) <= 1.0;
+                closeEnoughToMate(level, xungui);
     }
 
     @Override
@@ -60,9 +63,13 @@ public class MateBehavior extends Behavior<XunguiEntity> {
         if (mate.isEmpty()) {
             return;
         }
-        XunguiEntity offspring = CftEntities.XUNGUI.get().spawn(level, xungui.getOnPos(), MobSpawnType.BREEDING);
         Optional<XunguiHome> home = findAvailableHome(level, xungui);
-        if (offspring != null && home.isPresent()) {
+        // Only mate if the child will have a home to go to.
+        if (home.isEmpty()) {
+            return;
+        }
+        XunguiEntity offspring = CftEntities.XUNGUI.get().spawn(level, xungui.getOnPos(), MobSpawnType.BREEDING);
+        if (offspring != null) {
             offspring.setBaby(true);
             XunguiSpawner.updateSpawnedXungui(offspring, home.get(), xungui.getSocialClass(), xungui.getLeaderId());
             level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData").setDirty();
@@ -95,5 +102,16 @@ public class MateBehavior extends Behavior<XunguiEntity> {
                         home.getOwnerId() == null &&
                         xungui.getSocialClass().getNeeds().contains(home.getSatisfiedNeed()))
                 .min(Comparator.comparingDouble(home -> Vec3.atCenterOf(home.getEntrance()).distanceToSqr(xungui.getEyePosition())));
+    }
+
+    /**
+     * Whether or not the mating candidate is close enough to mate.
+     * If for some reason the candidate doesn't exist, it returns false so we can end the behavior.
+     */
+    private boolean closeEnoughToMate(ServerLevel level, XunguiEntity xungui) {
+        return getMate(level, xungui)
+                .filter(xunguiEntity -> xungui.getEyePosition()
+                        .distanceTo(xunguiEntity.getEyePosition()) <= MIN_DISTANCE_FOR_MATING)
+                .isPresent();
     }
 }

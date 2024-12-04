@@ -1,0 +1,11 @@
+{
+  "id": "cft:iron_sword_need",
+  "type": "cft:goods",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 2.0,
+  "satisfaction_threshold": 0.8,
+  "item": "minecraft:iron_sword",
+  "frequency": 3,
+  "quantity": 1
+}

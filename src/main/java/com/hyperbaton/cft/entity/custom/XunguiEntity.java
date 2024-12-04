@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
-    private static final int MATING_COOLDOWN = 30; // In ticks (6000 - 5 minutes in Minecraft)
+    private static final int MATING_COOLDOWN = 100; // In ticks (6000 - 5 minutes in Minecraft)
     public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XunguiEntity.class, EntityDataSerializers.STRING);
 
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
@@ -355,7 +355,9 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
      */
     public boolean canMate() {
         matingDelay --;
-        return matingDelay <= 0 &&
+        return !this.isBaby() &&
+                matingDelay <= 0 &&
+                this.socialClass != null &&
                 this.happiness >= this.socialClass.getMatingHappinessThreshold() &&
                 this.needs.stream().allMatch(NeedCapability::isSatisfied);
     }

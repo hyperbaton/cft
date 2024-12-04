@@ -1,27 +1,27 @@
 {
   "id": "cft:settler",
-  "minHappiness": 0.0,
   "maxHappiness": 100.0,
   "matingHappinessThreshold": 0.30,
   "spontaneouslySpawnPopulation": 3,
   "needs": [
-    "cft:stick_need",
-    "cft:lumber_home"
+    "cft:potato_need",
+    "cft:wood_logs_need",
+    "cft:settler_home"
   ],
   "upgrades": [
     {
       "nextClass": "cft:citizen",
-      "requiredHappiness": 0.10,
+      "requiredHappiness": 0.50,
       "requiredNeeds": [
         {
-          "need": "cft:stick_need",
-          "satisfactionThreshold": 0.7
+          "need": "cft:potato_need",
+          "satisfactionThreshold": 0.70
         }
       ],
       "socialStructureRequirements": [
         {
           "socialClass": "cft:settler",
-          "percentage": 0.7
+          "percentage": 0.30
         }
       ]
     }

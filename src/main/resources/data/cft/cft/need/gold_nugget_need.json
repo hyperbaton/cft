@@ -1,0 +1,11 @@
+{
+  "id": "cft:gold_nugget_need",
+  "type": "cft:goods",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 1.8,
+  "satisfaction_threshold": 0.75,
+  "item": "minecraft:gold_nugget",
+  "frequency": 1,
+  "quantity": 1
+}

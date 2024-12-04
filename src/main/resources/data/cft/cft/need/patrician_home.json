@@ -1,28 +1,34 @@
 {
-  "id": "cft:stone_home",
+  "id": "cft:patrician_home",
   "type": "cft:home",
-  "need_type": "cft:home",
   "damage": 0.0,
   "damage_threshold": 0.0,
-  "provided_happiness": 1.5,
+  "provided_happiness": 2.0,
   "satisfaction_threshold": 0.95,
   "frequency": 1.0,
   "floorBlocks": [
     {
-      "block": "minecraft:cobblestone",
-      "minQuantity": 0,
+      "block": "minecraft:deepslate_tiles",
+      "minQuantity": 16,
       "maxQuantity": 500,
       "minPercentage": 0.0,
-      "maxPercentage": 100.0
+      "maxPercentage": 1.0
     }
   ],
   "wallBlocks": [
     {
-      "tagBlock": "minecraft:acacia_logs",
+      "block": "minecraft:polished_andesite",
       "minQuantity": 0,
-      "maxQuantity": 512,
+      "maxQuantity": 500,
       "minPercentage": 0.0,
-      "maxPercentage": 100.0
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:glass_pane",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.05,
+      "maxPercentage": 0.20
     }
   ],
   "interiorBlocks": [
@@ -31,16 +37,16 @@
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
-      "maxPercentage": 100.0
+      "maxPercentage": 1.0
     }
   ],
   "roofBlocks": [
     {
-      "block": "minecraft:cobblestone_stairs",
+      "block": "minecraft:polished_granite",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
-      "maxPercentage": 100.0
+      "maxPercentage": 1.0
     }
   ]
 }

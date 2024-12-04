@@ -8,7 +8,6 @@ import java.util.List;
 public class SocialClass {
     public static final Codec<SocialClass> SOCIAL_CLASS_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(SocialClass::getId),
-            Codec.DOUBLE.fieldOf("minHappiness").forGetter(SocialClass::getMinHappiness),
             Codec.DOUBLE.fieldOf("maxHappiness").forGetter(SocialClass::getMaxHappiness),
             Codec.DOUBLE.fieldOf("matingHappinessThreshold").forGetter(SocialClass::getMatingHappinessThreshold),
             Codec.INT.fieldOf("spontaneouslySpawnPopulation").forGetter(SocialClass::getSpontaneouslySpawnPopulation),
@@ -23,7 +22,6 @@ public class SocialClass {
      * Example: "cft:citizen"
      */
     private String id;
-    private double minHappiness;
     private double maxHappiness;
 
     private double matingHappinessThreshold;
@@ -32,10 +30,9 @@ public class SocialClass {
     private List<SocialClassUpdate> upgrades;
     private List<SocialClassUpdate> downgrades;
 
-    public SocialClass(String id, double minHappiness, double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
+    public SocialClass(String id, double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
                        List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades) {
         this.id = id;
-        this.minHappiness = minHappiness;
         this.maxHappiness = maxHappiness;
         this.matingHappinessThreshold = matingHappinessThreshold;
         this.spontaneouslySpawnPopulation = spontaneouslySpawnPopulation;
@@ -50,14 +47,6 @@ public class SocialClass {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public double getMinHappiness() {
-        return minHappiness;
-    }
-
-    public void setMinHappiness(double minHappiness) {
-        this.minHappiness = minHappiness;
     }
 
     public double getMaxHappiness() {

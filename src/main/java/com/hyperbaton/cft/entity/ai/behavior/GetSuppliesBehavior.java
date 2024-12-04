@@ -21,7 +21,7 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XunguiEntity mob) {
-        LOGGER.debug("Starting behavior for getting supplies");
+        LOGGER.trace("Starting behavior for getting supplies");
         // Only start if the Xungui has a home with a container
         return mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()) &&
                 !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
@@ -46,7 +46,7 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     @Override
     protected void stop(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
 
-        LOGGER.debug("Checking container in home");
+        LOGGER.trace("Checking container in home");
         if(!mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())) {
             return;
         }

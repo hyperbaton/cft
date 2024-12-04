@@ -1,29 +1,96 @@
 {
   "id": "cft:citizen",
-  "minHappiness": 50.0,
   "maxHappiness": 100.0,
-  "matingHappinessThreshold": 80.0,
+  "matingHappinessThreshold": 0.60,
   "spontaneouslySpawnPopulation": 0,
   "needs": [
     "cft:bread_need",
-    "cft:stone_home"
+    "cft:coal_need",
+    "cft:citizen_terracotta_need",
+    "cft:citizen_book_need",
+    "cft:citizen_iron_sword_need",
+    "cft:citizen_home"
   ],
   "upgrades": [
-  ],
-  "downgrades": [
     {
-      "nextClass": "cft:settler",
-      "requiredHappiness": 0.05,
+      "nextClass": "cft:patrician",
+      "requiredHappiness": 0.80,
       "requiredNeeds": [
         {
-          "need": "cft:bread_need",
-          "satisfactionThreshold": 0.2
+          "need": "cft:citizen_book_need",
+          "satisfactionThreshold": 0.85
         }
       ],
       "socialStructureRequirements": [
         {
           "socialClass": "cft:settler",
-          "percentage": 0.7
+          "percentage": 0.30
+        },
+        {
+          "socialClass": "cft:citizen",
+          "percentage": 0.30
+        }
+      ]
+    },
+    {
+      "nextClass": "cft:artisan",
+      "requiredHappiness": 0.75,
+      "requiredNeeds": [
+        {
+          "need": "cft:citizen_terracotta_need",
+          "satisfactionThreshold": 0.80
+        }
+      ],
+      "socialStructureRequirements": [
+        {
+          "socialClass": "cft:settler",
+          "percentage": 0.30
+        },
+        {
+          "socialClass": "cft:citizen",
+          "percentage": 0.30
+        }
+      ]
+    },
+    {
+      "nextClass": "cft:soldier",
+      "requiredHappiness": 0.70,
+      "requiredNeeds": [
+        {
+          "need": "cft:citizen_iron_sword_need",
+          "satisfactionThreshold": 0.80
+        }
+      ],
+      "socialStructureRequirements": [
+        {
+          "socialClass": "cft:settler",
+          "percentage": 0.30
+        },
+        {
+          "socialClass": "cft:citizen",
+          "percentage": 0.30
+        }
+      ]
+    }
+  ],
+  "downgrades": [
+    {
+      "nextClass": "cft:settler",
+      "requiredHappiness": 0.30,
+      "requiredNeeds": [
+        {
+          "need": "cft:bread_need",
+          "satisfactionThreshold": 0.40
+        }
+      ],
+      "socialStructureRequirements": [
+        {
+          "socialClass": "cft:settler",
+          "percentage": 0.30
+        },
+        {
+          "socialClass": "cft:settler",
+          "percentage": 0.30
         }
       ]
     }

@@ -1,0 +1,52 @@
+{
+  "id": "cft:soldier_home",
+  "type": "cft:home",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 1.7,
+  "satisfaction_threshold": 0.9,
+  "frequency": 1.0,
+  "floorBlocks": [
+    {
+      "block": "minecraft:stone_bricks",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "wallBlocks": [
+    {
+      "block": "minecraft:iron_bars",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.05,
+      "maxPercentage": 0.20
+    },
+    {
+      "block": "minecraft:stone_bricks",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "interiorBlocks": [
+    {
+      "block": "minecraft:air",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "roofBlocks": [
+    {
+      "block": "minecraft:stone_brick_slab",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ]
+}

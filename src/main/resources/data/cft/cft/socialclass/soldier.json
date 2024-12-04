@@ -1,0 +1,27 @@
+{
+  "id": "cft:soldier",
+  "maxHappiness": 100.0,
+  "matingHappinessThreshold": 0.70,
+  "spontaneouslySpawnPopulation": 0,
+  "needs": [
+    "cft:bread_need",
+    "cft:flint_need",
+    "cft:iron_sword_need",
+    "cft:chicken_need",
+    "cft:soldier_home"
+  ],
+  "upgrades": [],
+  "downgrades": [
+    {
+      "nextClass": "cft:citizen",
+      "requiredHappiness": 0.40,
+      "requiredNeeds": [
+        {
+          "need": "cft:bread_need",
+          "satisfactionThreshold": 0.30
+        }
+      ],
+      "socialStructureRequirements": []
+    }
+  ]
+}

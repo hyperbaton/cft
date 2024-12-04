@@ -1,0 +1,11 @@
+{
+  "id": "cft:potato_need",
+  "type": "cft:goods",
+  "damage": 0.4,
+  "damage_threshold": 0.5,
+  "provided_happiness": 1.2,
+  "satisfaction_threshold": 0.75,
+  "item": "minecraft:potato",
+  "frequency": 0.3,
+  "quantity": 1
+}

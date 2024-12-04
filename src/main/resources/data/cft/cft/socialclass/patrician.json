@@ -1,0 +1,43 @@
+{
+  "id": "cft:patrician",
+  "maxHappiness": 100.0,
+  "matingHappinessThreshold": 0.85,
+  "spontaneouslySpawnPopulation": 0,
+  "needs": [
+    "cft:gold_nugget_need",
+    "cft:book_need",
+    "cft:pork_need",
+    "cft:patrician_home"
+  ],
+  "upgrades": [
+    {
+      "nextClass": "cft:noble",
+      "requiredHappiness": 0.90,
+      "requiredNeeds": [
+        {
+          "need": "cft:gold_nugget_need",
+          "satisfactionThreshold": 0.85
+        }
+      ],
+      "socialStructureRequirements": [
+        {
+          "socialClass": "cft:patrician",
+          "percentage": 0.06
+        }
+      ]
+    }
+  ],
+  "downgrades": [
+    {
+      "nextClass": "cft:citizen",
+      "requiredHappiness": 0.50,
+      "requiredNeeds": [
+        {
+          "need": "cft:gold_nugget_need",
+          "satisfactionThreshold": 0.40
+        }
+      ],
+      "socialStructureRequirements": []
+    }
+  ]
+}

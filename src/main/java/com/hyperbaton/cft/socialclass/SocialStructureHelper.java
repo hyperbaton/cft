@@ -17,7 +17,8 @@ public class SocialStructureHelper {
         Map<SocialClass, Integer> socialStructure = new HashMap<>();
         List<XunguiEntity> xunguiList = getAllXunguis(level);
         for (XunguiEntity xungui : xunguiList) {
-            if (xungui.getLeaderId().equals(player.getUUID())) {
+            if (xungui.getLeaderId() != null &&
+                    xungui.getLeaderId().equals(player.getUUID())) {
                 if (socialStructure.containsKey(xungui.getSocialClass())) {
                     socialStructure.replace(xungui.getSocialClass(), socialStructure.get(xungui.getSocialClass()) + 1);
                 } else {

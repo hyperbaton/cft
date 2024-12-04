@@ -1,0 +1,37 @@
+{
+  "id": "cft:noble",
+  "maxHappiness": 100.0,
+  "matingHappinessThreshold": 0.95,
+  "spontaneouslySpawnPopulation": 0,
+  "needs": [
+    "cft:cake_need",
+    "cft:diamond_need",
+    "cft:beef_need",
+    "cft:noble_home"
+  ],
+  "upgrades": [],
+  "downgrades": [
+    {
+      "nextClass": "cft:patrician",
+      "requiredHappiness": 0.60,
+      "requiredNeeds": [
+        {
+          "need": "cft:diamond_need",
+          "satisfactionThreshold": 0.50
+        }
+      ],
+      "socialStructureRequirements": []
+    },
+    {
+      "nextClass": "cft:artisan",
+      "requiredHappiness": 0.60,
+      "requiredNeeds": [
+        {
+          "need": "cft:cake_need",
+          "satisfactionThreshold": 0.40
+        }
+      ],
+      "socialStructureRequirements": []
+    }
+  ]
+}

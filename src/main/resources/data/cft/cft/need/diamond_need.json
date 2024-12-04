@@ -1,0 +1,11 @@
+{
+  "id": "cft:diamond_need",
+  "type": "cft:goods",
+  "damage": 1.5,
+  "damage_threshold": 1.0,
+  "provided_happiness": 3.0,
+  "satisfaction_threshold": 0.95,
+  "item": "minecraft:diamond",
+  "frequency": 0.05,
+  "quantity": 1
+}

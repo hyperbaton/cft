@@ -1,0 +1,11 @@
+{
+  "id": "cft:clay_need",
+  "type": "cft:goods",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 1.5,
+  "satisfaction_threshold": 0.75,
+  "item": "minecraft:clay_ball",
+  "frequency": 0.25,
+  "quantity": 1
+}

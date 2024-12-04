@@ -33,7 +33,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XunguiEntity entity) {
-        LOGGER.debug("Starting behavior for finding a home");
+        LOGGER.trace("Starting behavior for finding a home");
         // Only start if the Xungui doesn't have a home
         return entity.getHome() == null;
     }

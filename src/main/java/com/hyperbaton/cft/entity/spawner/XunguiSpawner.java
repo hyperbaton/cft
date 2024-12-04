@@ -39,7 +39,7 @@ public class XunguiSpawner implements CustomSpawner {
 
                 // Increment the count for each XunguiEntity's SocialClass
                 serverLevel.getEntities(CftEntities.XUNGUI.get(), entity -> true).stream()
-                        .filter(xungui -> xungui.getLeaderId().equals(player.getUUID()))
+                        .filter(xungui -> xungui.getLeaderId() != null && xungui.getLeaderId().equals(player.getUUID()))
                         .map(XunguiEntity::getSocialClass)
                         .forEach(socialClass -> socialClassCounts.merge(socialClass, 1, Integer::sum));
 

@@ -1,0 +1,11 @@
+{
+  "id": "cft:coal_need",
+  "type": "cft:goods",
+  "damage": 0.2,
+  "damage_threshold": 0.25,
+  "provided_happiness": 1.2,
+  "satisfaction_threshold": 0.75,
+  "item": "minecraft:coal",
+  "frequency": 1,
+  "quantity": 1
+}

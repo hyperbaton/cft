@@ -1,11 +1,11 @@
 {
-  "id": "cft:bread_need",
+  "id": "cft:pork_need",
   "type": "cft:goods",
   "damage": 0.5,
   "damage_threshold": 0.5,
   "provided_happiness": 1.5,
   "satisfaction_threshold": 0.75,
-  "item": "minecraft:bread",
+  "item": "minecraft:cooked_porkchop",
   "frequency": 0.5,
-  "quantity": 2
+  "quantity": 1
 }
