@@ -17,9 +17,9 @@ public class NeedUtils {
     // TODO: Better generalize this method for any type of Need
     private static NeedCapability buildNeedCapability(Need need) {
         if (need instanceof GoodsNeed) {
-            return new ConsumeItemNeedCapability(0.0, false, (GoodsNeed) need);
+            return new ConsumeItemNeedCapability(need.getSatisfactionThreshold(), false, (GoodsNeed) need);
         } else if (need instanceof HomeNeed) {
-            return new HomeNeedCapability(0.0, false, (HomeNeed) need);
+            return new HomeNeedCapability(need.getSatisfactionThreshold(), false, (HomeNeed) need);
         }
         return null;
     }

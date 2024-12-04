@@ -50,7 +50,7 @@ public abstract class NeedCapability<T extends Need> {
                                 RoundingMode.HALF_UP)
                         .doubleValue(),
                 0);
-        if(satisfaction < need.getSatisfactionThreshold()) {
+        if(need.getDamage() != 0.0 && satisfaction < need.getDamageThreshold()) {
             mob.hurt(mob.level().damageSources().generic(), (float) need.getDamage());
         }
     }
