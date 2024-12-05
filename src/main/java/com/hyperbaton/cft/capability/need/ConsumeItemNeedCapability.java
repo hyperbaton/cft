@@ -4,7 +4,11 @@ import com.hyperbaton.cft.entity.custom.XunguiEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
     public ConsumeItemNeedCapability(double satisfaction, boolean isSatisfied, GoodsNeed need) {
@@ -13,7 +17,8 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
 
     @Override
     public boolean satisfy(XunguiEntity mob) {
-        if (mob.getInventory().hasAnyMatching(itemStack -> itemStack.is(need.getItem()) && itemStack.getCount() >= need.getQuantity())) {
+        if (mob.getInventory().hasAnyMatching(itemStack -> itemStack.is(need.getItem()) &&
+                itemStack.getCount() >= need.getQuantity())) {
             // Consume item and satisfy the need
             mob.getInventory().removeItemType(need.getItem(), need.getQuantity());
             super.satisfy(mob);
@@ -28,9 +33,19 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
 
     @Override
     public void addMemoriesForSatisfaction(XunguiEntity mob) {
-        if(!mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())){
-            mob.getBrain().setMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get(), new ItemStack(need.getItem(), need.getQuantity()));
-        }
+        ItemStack neededStack = new ItemStack(need.getItem(), need.getQuantity());
+        mob.getBrain().getMemory(suppliesNeededMemoryType()).ifPresentOrElse(
+                memory -> {
+                    // Create a mutable copy of the memory list
+                    if (memory.stream().noneMatch(item -> item.is(neededStack.getItem()))) {
+                        List<ItemStack> mutableMemory = new ArrayList<>(memory);
+                        mutableMemory.add(new ItemStack(need.getItem(), need.getQuantity()));
+                        mob.getBrain().setMemory(suppliesNeededMemoryType(), mutableMemory);
+                    }
+                },
+                () -> mob.getBrain().setMemory(suppliesNeededMemoryType(),
+                        new ArrayList<>(List.of(new ItemStack(need.getItem(), need.getQuantity()))))
+        );
     }
 
     public static NeedCapability<GoodsNeed> fromTag(CompoundTag tag) {
@@ -39,6 +54,10 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
                 tag.getBoolean(TAG_IS_SATISFIED),
                 (GoodsNeed) Need.NEED_CODEC.parse(NbtOps.INSTANCE, tag.getCompound(TAG_NEED)).result().orElse(null)
         );
+    }
+
+    private MemoryModuleType<List<ItemStack>> suppliesNeededMemoryType() {
+        return CftMemoryModuleType.SUPPLIES_NEEDED.get();
     }
 
 }

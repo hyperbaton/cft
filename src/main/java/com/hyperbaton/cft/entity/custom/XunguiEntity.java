@@ -59,6 +59,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
+        ((GroundPathNavigation) this.getNavigation()).setCanPassDoors(true);
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
         this.setMaxUpStep(1.0F); // Allow stepping up one block
     }
@@ -361,7 +362,10 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 matingDelay <= 0 &&
                 this.socialClass != null &&
                 this.happiness >= this.socialClass.getMatingHappinessThreshold() &&
-                this.needs.stream().allMatch(NeedCapability::isSatisfied);
+                // All non-luxury needs are satisfied
+                this.needs.stream()
+                        .filter(needCapability -> needCapability.getNeed().getDamage() > 0.0)
+                        .allMatch(NeedCapability::isSatisfied);
     }
 
     public void resetMatingDelay() {
