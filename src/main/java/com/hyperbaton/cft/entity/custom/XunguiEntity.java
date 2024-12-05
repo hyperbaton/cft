@@ -13,6 +13,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
 import com.hyperbaton.cft.socialclass.SocialStructureHelper;
+import com.hyperbaton.cft.sound.CftSounds;
 import com.hyperbaton.cft.structure.home.XunguiHome;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.serialization.Dynamic;
@@ -29,10 +30,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.AnimationState;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -54,7 +52,7 @@ import java.util.stream.Collectors;
 public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
-    private static final int MATING_COOLDOWN = 100; // In ticks (6000 - 5 minutes in Minecraft)
+    private static final int MATING_COOLDOWN = 6000; // In ticks (6000 - 5 minutes in Minecraft)
     public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XunguiEntity.class, EntityDataSerializers.STRING);
 
     public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
@@ -152,19 +150,19 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.HOGLIN_AMBIENT;
+        return CftSounds.XUNGUI_AMBIENT.get();
     }
 
     @Nullable
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.RAVAGER_DEATH;
+        return CftSounds.XUNGUI_DEATH.get();
     }
 
     @Nullable
     @Override
-    protected SoundEvent getHurtSound(DamageSource pDamageSource) {
-        return SoundEvents.HUSK_HURT;
+    protected SoundEvent getHurtSound(@NotNull DamageSource pDamageSource) {
+        return CftSounds.XUNGUI_HURT.get();
     }
 
     @Override
@@ -424,6 +422,11 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(SOCIAL_CLASS_NAME, "xungui");
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return EntityDimensions.scalable(0.6F, 1.4F).scale(this.getScale()); // Width, Height
     }
 
     @Override

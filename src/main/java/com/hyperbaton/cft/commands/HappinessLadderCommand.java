@@ -42,7 +42,7 @@ public class HappinessLadderCommand {
         return SocialStructureHelper.getAllXunguis(level).stream()
                 .filter(xungui -> xungui.getLeaderId().equals(player.getUUID()))
                 .map(XunguiEntity::getHappiness)
-                .reduce(Double.NaN, Double::sum).intValue();
+                .reduce(0.0, Double::sum).intValue();
 
     }
 }
