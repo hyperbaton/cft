@@ -1,7 +1,7 @@
 {
   "id": "cft:noble",
-  "maxHappiness": 100.0,
-  "matingHappinessThreshold": 0.95,
+  "maxHappiness": 24000.0,
+  "matingHappinessThreshold": 2400.0,
   "spontaneouslySpawnPopulation": 0,
   "needs": [
     "cft:cake_need",
@@ -13,7 +13,7 @@
   "downgrades": [
     {
       "nextClass": "cft:patrician",
-      "requiredHappiness": 0.60,
+      "requiredHappiness": 600,
       "requiredNeeds": [
         {
           "need": "cft:diamond_need",
@@ -24,7 +24,7 @@
     },
     {
       "nextClass": "cft:artisan",
-      "requiredHappiness": 0.60,
+      "requiredHappiness": 400,
       "requiredNeeds": [
         {
           "need": "cft:cake_need",

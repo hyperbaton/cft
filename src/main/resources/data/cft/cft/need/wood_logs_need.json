@@ -3,7 +3,7 @@
   "type": "cft:goods",
   "damage": 0.3,
   "damage_threshold": 0.4,
-  "provided_happiness": 1.0,
+  "provided_happiness": 7,
   "satisfaction_threshold": 0.75,
   "item": "minecraft:oak_log",
   "frequency": 1,

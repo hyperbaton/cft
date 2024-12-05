@@ -3,7 +3,7 @@
   "type": "cft:goods",
   "damage": 0.0,
   "damage_threshold": 0.0,
-  "provided_happiness": 1.5,
+  "provided_happiness": 20,
   "satisfaction_threshold": 0.75,
   "item": "minecraft:terracotta",
   "frequency": 2,

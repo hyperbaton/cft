@@ -1,7 +1,7 @@
 {
   "id": "cft:citizen",
-  "maxHappiness": 100.0,
-  "matingHappinessThreshold": 0.60,
+  "maxHappiness": 200.0,
+  "matingHappinessThreshold": 40.0,
   "spontaneouslySpawnPopulation": 0,
   "needs": [
     "cft:bread_need",
@@ -14,7 +14,7 @@
   "upgrades": [
     {
       "nextClass": "cft:patrician",
-      "requiredHappiness": 0.80,
+      "requiredHappiness": 90,
       "requiredNeeds": [
         {
           "need": "cft:citizen_book_need",
@@ -34,7 +34,7 @@
     },
     {
       "nextClass": "cft:artisan",
-      "requiredHappiness": 0.75,
+      "requiredHappiness": 60,
       "requiredNeeds": [
         {
           "need": "cft:citizen_terracotta_need",
@@ -54,7 +54,7 @@
     },
     {
       "nextClass": "cft:soldier",
-      "requiredHappiness": 0.70,
+      "requiredHappiness": 45,
       "requiredNeeds": [
         {
           "need": "cft:citizen_iron_sword_need",
@@ -76,7 +76,7 @@
   "downgrades": [
     {
       "nextClass": "cft:settler",
-      "requiredHappiness": 0.30,
+      "requiredHappiness": 10,
       "requiredNeeds": [
         {
           "need": "cft:bread_need",

@@ -3,9 +3,9 @@
   "type": "cft:goods",
   "damage": 0.4,
   "damage_threshold": 0.5,
-  "provided_happiness": 1.2,
+  "provided_happiness": 5,
   "satisfaction_threshold": 0.75,
   "item": "minecraft:potato",
-  "frequency": 0.3,
+  "frequency": 0.33,
   "quantity": 1
 }

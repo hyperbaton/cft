@@ -3,7 +3,7 @@
   "type": "cft:home",
   "damage": 0.0,
   "damage_threshold": 0.0,
-  "provided_happiness": 1.7,
+  "provided_happiness": 20,
   "satisfaction_threshold": 0.9,
   "frequency": 1.0,
   "floorBlocks": [

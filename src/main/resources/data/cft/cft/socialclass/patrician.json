@@ -1,7 +1,7 @@
 {
   "id": "cft:patrician",
-  "maxHappiness": 100.0,
-  "matingHappinessThreshold": 0.85,
+  "maxHappiness": 4000.0,
+  "matingHappinessThreshold": 800.0,
   "spontaneouslySpawnPopulation": 0,
   "needs": [
     "cft:gold_nugget_need",
@@ -12,7 +12,7 @@
   "upgrades": [
     {
       "nextClass": "cft:noble",
-      "requiredHappiness": 0.90,
+      "requiredHappiness": 1000,
       "requiredNeeds": [
         {
           "need": "cft:gold_nugget_need",
@@ -30,7 +30,7 @@
   "downgrades": [
     {
       "nextClass": "cft:citizen",
-      "requiredHappiness": 0.50,
+      "requiredHappiness": 60,
       "requiredNeeds": [
         {
           "need": "cft:gold_nugget_need",

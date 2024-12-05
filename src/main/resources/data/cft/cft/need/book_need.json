@@ -3,7 +3,7 @@
   "type": "cft:goods",
   "damage": 0.0,
   "damage_threshold": 0.0,
-  "provided_happiness": 2.0,
+  "provided_happiness": 80,
   "satisfaction_threshold": 0.5,
   "item": "minecraft:book",
   "frequency": 3,

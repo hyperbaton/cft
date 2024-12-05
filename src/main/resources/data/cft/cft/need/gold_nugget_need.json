@@ -3,9 +3,9 @@
   "type": "cft:goods",
   "damage": 0.0,
   "damage_threshold": 0.0,
-  "provided_happiness": 1.8,
+  "provided_happiness": 80,
   "satisfaction_threshold": 0.75,
   "item": "minecraft:gold_nugget",
-  "frequency": 1,
+  "frequency": 2,
   "quantity": 1
 }

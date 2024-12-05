@@ -3,7 +3,7 @@
   "type": "cft:goods",
   "damage": 0.2,
   "damage_threshold": 0.25,
-  "provided_happiness": 1.2,
+  "provided_happiness": 10,
   "satisfaction_threshold": 0.75,
   "item": "minecraft:coal",
   "frequency": 1,

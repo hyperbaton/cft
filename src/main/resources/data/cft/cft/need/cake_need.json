@@ -1,11 +1,11 @@
 {
   "id": "cft:cake_need",
   "type": "cft:goods",
-  "damage": 1.0,
-  "damage_threshold": 0.9,
-  "provided_happiness": 2.5,
-  "satisfaction_threshold": 0.95,
+  "damage": 0.1,
+  "damage_threshold": 0.2,
+  "provided_happiness": 500,
+  "satisfaction_threshold": 0.75,
   "item": "minecraft:cake",
-  "frequency": 0.1,
+  "frequency": 1,
   "quantity": 1
 }

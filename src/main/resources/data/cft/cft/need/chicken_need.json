@@ -3,7 +3,7 @@
   "type": "cft:goods",
   "damage": 0.5,
   "damage_threshold": 0.5,
-  "provided_happiness": 1.5,
+  "provided_happiness": 15,
   "satisfaction_threshold": 0.75,
   "item": "minecraft:cooked_chicken",
   "frequency": 0.5,

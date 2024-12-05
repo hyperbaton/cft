@@ -1,7 +1,7 @@
 {
   "id": "cft:artisan",
-  "maxHappiness": 100.0,
-  "matingHappinessThreshold": 0.70,
+  "maxHappiness": 750.0,
+  "matingHappinessThreshold": 300,
   "spontaneouslySpawnPopulation": 0,
   "needs": [
     "cft:clay_need",
@@ -13,10 +13,10 @@
   "downgrades": [
     {
       "nextClass": "cft:citizen",
-      "requiredHappiness": 0.40,
+      "requiredHappiness": 40,
       "requiredNeeds": [
         {
-          "need": "cft:clay_need",
+          "need": "cft:chicken_need",
           "satisfactionThreshold": 0.30
         }
       ],
