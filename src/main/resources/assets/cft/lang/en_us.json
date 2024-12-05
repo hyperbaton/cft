@@ -34,5 +34,8 @@
   "cft.socialstructure.message": "Social structure: ",
   "cft.socialstructure.population": "Population: ",
   "cft.populationladder.header": "Population ladder: ",
-  "cft.happinessladder.header": "Happiness ladder: "
+  "cft.happinessladder.header": "Happiness ladder: ",
+  "sounds.cft.entity.xungui.hurt": "Xungui hurt",
+  "sounds.cft.entity.xungui.death": "Xungui dying",
+  "sounds.cft.entity.xungui.ambient": "Xungui babbling"
 }

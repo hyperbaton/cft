@@ -9,6 +9,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.item.CftItems;
 import com.hyperbaton.cft.network.CftPacketHandler;
+import com.hyperbaton.cft.sound.CftSounds;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.level.block.Blocks;
@@ -53,6 +54,8 @@ public class CftMod
         CftSensorTypes.register(modEventBus);
 
         CftActivities.register(modEventBus);
+
+        CftSounds.register(modEventBus);
 
         // Register Needs
         modEventBus.register(new CftDatapackRegistryEvents());
