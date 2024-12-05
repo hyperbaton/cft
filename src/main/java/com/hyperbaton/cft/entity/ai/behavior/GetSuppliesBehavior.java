@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final double CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = 0.7;
+    public static final double CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = 1.25;
 
     public GetSuppliesBehavior(Map pEntryCondition) {
         super(pEntryCondition);
@@ -37,8 +37,7 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
 
     @Override
     protected void tick(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
-        if (mob.position().distanceTo(mob.getBrain()
-                .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get().getCenter()) <= CLOSE_ENOUGH_DISTANCE_TO_CONTAINER) {
+        if (isCloseEnoughToContainer(mob)) {
             mob.getNavigation().stop(); // Stop moving once close
         }
     }
@@ -47,7 +46,8 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     protected void stop(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
 
         LOGGER.trace("Checking container in home");
-        if(!mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())) {
+        if (!mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()) ||
+                !isCloseEnoughToContainer(mob)) {
             return;
         }
         Container container = (Container) mob.level().getBlockEntity(mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).get());
@@ -85,9 +85,14 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     protected boolean canStillUse(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
         return mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
                 && mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())
-                && mob.position().distanceTo(mob.getBrain()
-                .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get())
-                .get().getCenter()) > CLOSE_ENOUGH_DISTANCE_TO_CONTAINER
+                && !isCloseEnoughToContainer(mob)
                 && !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
+    }
+
+    private boolean isCloseEnoughToContainer(XunguiEntity mob) {
+        return mob.getBrain()
+                .getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).map(
+                        containerPos -> mob.position().distanceTo(containerPos.getCenter()) < CLOSE_ENOUGH_DISTANCE_TO_CONTAINER
+                ).orElse(false);
     }
 }

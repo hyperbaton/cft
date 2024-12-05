@@ -127,7 +127,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
         } else if (brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).isPresent() &&
-                brain.getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).isPresent()){
+                brain.getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).isPresent()) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(CftActivities.MATE.get(), Activity.IDLE));
         } else {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
@@ -231,7 +231,8 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private boolean appliesForUpgrade(SocialClassUpdate socialClassUpdate) {
-        return socialClassUpdate.getRequiredHappiness() < this.happiness
+        return !this.isBaby()
+                && socialClassUpdate.getRequiredHappiness() < this.happiness
                 && socialClassUpdate.getRequiredNeeds().stream().allMatch(needRequirement ->
                 this.getNeeds().stream()
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
@@ -351,10 +352,11 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     /**
      * A xungui can mate if it didn't mate recently, its happiness is over the mating threshold and
      * all its needs are satisfied
+     *
      * @return Whether or not the xungui can mate
      */
     public boolean canMate() {
-        matingDelay --;
+        matingDelay--;
         return !this.isBaby() &&
                 matingDelay <= 0 &&
                 this.socialClass != null &&
@@ -362,7 +364,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
                 this.needs.stream().allMatch(NeedCapability::isSatisfied);
     }
 
-    public void resetMatingDelay(){
+    public void resetMatingDelay() {
         matingDelay = MATING_COOLDOWN;
     }
 

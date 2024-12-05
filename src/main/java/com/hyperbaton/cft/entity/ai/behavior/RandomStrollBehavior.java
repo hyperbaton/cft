@@ -20,7 +20,7 @@ public class RandomStrollBehavior  extends Behavior<XunguiEntity> {
     @Override
     protected void start(@NotNull ServerLevel pLevel, XunguiEntity xungui, long pGameTime) {
         xungui.getNavigation().moveTo(
-                xungui.getNavigation().createPath(createRandomPath(pLevel, xungui.blockPosition(), 3, 30.0),
+                xungui.getNavigation().createPath(createRandomPath(pLevel, xungui.blockPosition(), 1, 10.0),
                         1),
                 0.8);
     }

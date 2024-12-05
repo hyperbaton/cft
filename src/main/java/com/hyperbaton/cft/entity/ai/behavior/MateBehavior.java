@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public class MateBehavior extends Behavior<XunguiEntity> {
 
-    public static final double MIN_DISTANCE_FOR_MATING = 0.7;
+    public static final double MIN_DISTANCE_FOR_MATING = 1.2;
 
     public MateBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
         super(pEntryCondition);
@@ -48,19 +48,23 @@ public class MateBehavior extends Behavior<XunguiEntity> {
     @Override
     protected boolean canStillUse(ServerLevel level, XunguiEntity xungui, long pGameTime) {
         return xungui.getBrain().hasMemoryValue(CftMemoryModuleType.CAN_MATE.get()) &&
+                xungui.getBrain().getMemory(CftMemoryModuleType.CAN_MATE.get()).get() &&
                 xungui.getBrain().hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get()) &&
                 closeEnoughToMate(level, xungui);
     }
 
     @Override
     protected void tick(ServerLevel level, XunguiEntity xungui, long pGameTime) {
-        getMate(level, xungui).ifPresent(mateCandidate -> xungui.getNavigation().moveTo(mateCandidate, 1.0));                
+        getMate(level, xungui).ifPresent(mateCandidate -> xungui.getNavigation().moveTo(mateCandidate, 1.0));
     }
 
     @Override
     protected void stop(ServerLevel level, XunguiEntity xungui, long pGameTime) {
         Optional<XunguiEntity> mate = getMate(level, xungui);
-        if (mate.isEmpty()) {
+        // Only mate if there is a mate and it's close enough
+        if (mate.isEmpty() ||
+                !(xungui.getEyePosition()
+                        .distanceTo(mate.get().getEyePosition()) <= MIN_DISTANCE_FOR_MATING)) {
             return;
         }
         Optional<XunguiHome> home = findAvailableHome(level, xungui);

@@ -19,8 +19,9 @@ public class FindPotentialMatesSensor extends Sensor<XunguiEntity> {
         findPotentialMates(serverLevel, xungui, MAXIMUM_MATING_RANGE)
                 .stream()
                 .min(Comparator.comparingDouble(candidate -> candidate.getEyePosition().distanceTo(xungui.getEyePosition())))
-                .ifPresent(potentialMate -> xungui.getBrain()
-                        .setMemory(CftMemoryModuleType.MATING_CANDIDATE.get(), potentialMate.getStringUUID()));
+                .ifPresentOrElse(potentialMate -> xungui.getBrain()
+                        .setMemory(CftMemoryModuleType.MATING_CANDIDATE.get(), potentialMate.getStringUUID()),
+                        () -> xungui.getBrain().eraseMemory(CftMemoryModuleType.MATING_CANDIDATE.get()));
     }
 
     @Override
