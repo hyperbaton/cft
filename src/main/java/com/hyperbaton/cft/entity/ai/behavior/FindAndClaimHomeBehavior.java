@@ -3,9 +3,9 @@ package com.hyperbaton.cft.entity.ai.behavior;
 import com.google.common.collect.ImmutableMap;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.HomeNeed;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
-import com.hyperbaton.cft.structure.home.XunguiHome;
+import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
+public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int MAX_SEARCHING_TIME = 2000;
-    // A timer to limit how long the xunguis spends looking for a home
+    // A timer to limit how long the xoonglins spends looking for a home
     private int currentSearchingTime;
 
     public FindAndClaimHomeBehavior() {
@@ -32,21 +32,21 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, XunguiEntity entity) {
+    protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
         LOGGER.trace("Starting behavior for finding a home");
-        // Only start if the Xungui doesn't have a home
+        // Only start if the Xoonglin doesn't have a home
         return entity.getHome() == null;
     }
 
     @Override
-    protected void start(ServerLevel level, XunguiEntity xungui, long gameTime) {
+    protected void start(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
 
-        Optional<XunguiHome> nearestHome = findNearestHome(xungui.blockPosition(), xungui.getLeaderId(), homesData, getHomeNeed(xungui.getSocialClass().getNeeds()));
+        Optional<XoonglinHome> nearestHome = findNearestHome(xoonglin.blockPosition(), xoonglin.getLeaderId(), homesData, getHomeNeed(xoonglin.getSocialClass().getNeeds()));
 
         nearestHome.ifPresent(home -> {
-            if (xungui.getNavigation().createPath(home.getEntrance(), 0) != null) {
-                xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get(), home.getEntrance());
+            if (xoonglin.getNavigation().createPath(home.getEntrance(), 0) != null) {
+                xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get(), home.getEntrance());
             } else {
                 // Forget unreachable home
                 homesData.getHomes().remove(home);
@@ -57,15 +57,15 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XunguiEntity xungui, long gameTime) {
-        return xungui.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get()) &&
+    protected boolean canStillUse(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
+        return xoonglin.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get()) &&
                 currentSearchingTime < MAX_SEARCHING_TIME;
     }
 
     @Override
-    protected void tick(ServerLevel level, XunguiEntity xungui, long gameTime) {
-        xungui.getBrain().getMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get()).ifPresent(pos -> {
-            if (xungui.distanceToSqr(pos.getCenter()) < 10.0D) {
+    protected void tick(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
+        xoonglin.getBrain().getMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get()).ifPresent(pos -> {
+            if (xoonglin.distanceToSqr(pos.getCenter()) < 10.0D) {
                 // If reached, claim the home
                 HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
                 homesData.getHomes().stream()
@@ -73,27 +73,27 @@ public class FindAndClaimHomeBehavior extends Behavior<XunguiEntity> {
                         .filter(home -> home.getOwnerId() == null)
                         .findFirst()
                         .ifPresent(home -> {
-                            home.setOwnerId(xungui.getUUID());
-                            xungui.setHome(home);
-                            xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
-                            xungui.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
-                            xungui.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), false);
+                            home.setOwnerId(xoonglin.getUUID());
+                            xoonglin.setHome(home);
+                            xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
+                            xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
+                            xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), false);
                             homesData.setDirty();
                         });
             } else {
                 // Continue navigation to the target home
-                xungui.getNavigation().moveTo(xungui.getNavigation().createPath(pos, 1), 1);
+                xoonglin.getNavigation().moveTo(xoonglin.getNavigation().createPath(pos, 1), 1);
             }
         });
         currentSearchingTime++;
     }
 
     @Override
-    protected void stop(ServerLevel level, XunguiEntity xungui, long gameTime) {
-        xungui.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
+    protected void stop(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
+        xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
     }
 
-    private Optional<XunguiHome> findNearestHome(BlockPos blockPos, UUID leaderId, HomesData homesData, HomeNeed homeNeed) {
+    private Optional<XoonglinHome> findNearestHome(BlockPos blockPos, UUID leaderId, HomesData homesData, HomeNeed homeNeed) {
         return homesData.getHomes().stream()
                 .filter(home -> home.getOwnerId() == null)  // Empty homes
                 .filter(home -> home.getLeaderId().equals(leaderId))    // Owned by the leader of the mob

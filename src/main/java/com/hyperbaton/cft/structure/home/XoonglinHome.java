@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class XunguiHome {
+public class XoonglinHome {
 
 
     private static final String TAG_ENTRANCE = "entrance";
@@ -44,7 +44,7 @@ public class XunguiHome {
     // Id of the entity that is owner of the home (lives here)
     private UUID ownerId;
 
-    // The need satisfied by this home (habitable by Xunguis of any class that has such need)
+    // The need satisfied by this home (habitable by Xoonglins of any class that has such need)
     private String satisfiedNeed;
 
     private List<BlockPos> floorBlocks;
@@ -132,7 +132,7 @@ public class XunguiHome {
         this.roofBlocks = roofBlocks;
     }
 
-    public XunguiHome(BlockPos entrance, BlockPos containerPos, int size, UUID leaderId, UUID ownerId, String satisfiedNeed, List<BlockPos> floorBlocks, List<BlockPos> wallBlocks, List<BlockPos> interiorBlocks, List<BlockPos> roofBlocks) {
+    public XoonglinHome(BlockPos entrance, BlockPos containerPos, int size, UUID leaderId, UUID ownerId, String satisfiedNeed, List<BlockPos> floorBlocks, List<BlockPos> wallBlocks, List<BlockPos> interiorBlocks, List<BlockPos> roofBlocks) {
         this.entrance = entrance;
         this.containerPos = containerPos;
         this.size = size;
@@ -145,7 +145,7 @@ public class XunguiHome {
         this.roofBlocks = roofBlocks;
     }
 
-    public static XunguiHome fromTag(CompoundTag homeTag) {
+    public static XoonglinHome fromTag(CompoundTag homeTag) {
         BlockPos entrance = NbtUtils.readBlockPos(homeTag.getCompound(TAG_ENTRANCE));
         BlockPos container = NbtUtils.readBlockPos(homeTag.getCompound(TAG_CONTAINER));
         int size = homeTag.getInt(TAG_SIZE);
@@ -171,7 +171,7 @@ public class XunguiHome {
         for(Tag blockPosTag : homeTag.getList(TAG_ROOF_BLOCKS, Tag.TAG_COMPOUND)){
             roofBlocks.add(NbtUtils.readBlockPos((CompoundTag) blockPosTag));
         }
-        return new XunguiHome(entrance, container, size, leaderId, owner, homeClass,
+        return new XoonglinHome(entrance, container, size, leaderId, owner, homeClass,
                 floorBlocks, wallBlocks, interiorBlocks, roofBlocks);
     }
 

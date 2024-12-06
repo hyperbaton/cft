@@ -2,9 +2,9 @@ package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
-import com.hyperbaton.cft.entity.spawner.XunguiSpawner;
-import com.hyperbaton.cft.structure.home.XunguiHome;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.entity.spawner.XoonglinSpawner;
+import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.hyperbaton.cft.world.HomesData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobSpawnType;
@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 
-public class MateBehavior extends Behavior<XunguiEntity> {
+public class MateBehavior extends Behavior<XoonglinEntity> {
 
     public static final double MIN_DISTANCE_FOR_MATING = 1.2;
 
@@ -34,88 +34,88 @@ public class MateBehavior extends Behavior<XunguiEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, XunguiEntity xungui) {
-        return xungui.getBrain().getMemory(CftMemoryModuleType.CAN_MATE.get()).isPresent() &&
-                xungui.getBrain().getMemory(CftMemoryModuleType.CAN_MATE.get()).get() &&
-                xungui.getBrain().hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get());
+    protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity xoonglin) {
+        return xoonglin.getBrain().getMemory(CftMemoryModuleType.CAN_MATE.get()).isPresent() &&
+                xoonglin.getBrain().getMemory(CftMemoryModuleType.CAN_MATE.get()).get() &&
+                xoonglin.getBrain().hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get());
     }
 
     @Override
-    protected void start(ServerLevel level, XunguiEntity xungui, long gameTime) {
-        getMate(level, xungui).ifPresent(mateCandidate -> xungui.getNavigation().moveTo(mateCandidate, 1.0));
+    protected void start(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
+        getMate(level, xoonglin).ifPresent(mateCandidate -> xoonglin.getNavigation().moveTo(mateCandidate, 1.0));
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XunguiEntity xungui, long pGameTime) {
-        return xungui.getBrain().hasMemoryValue(CftMemoryModuleType.CAN_MATE.get()) &&
-                xungui.getBrain().getMemory(CftMemoryModuleType.CAN_MATE.get()).get() &&
-                xungui.getBrain().hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get()) &&
-                closeEnoughToMate(level, xungui);
+    protected boolean canStillUse(ServerLevel level, XoonglinEntity xoonglin, long pGameTime) {
+        return xoonglin.getBrain().hasMemoryValue(CftMemoryModuleType.CAN_MATE.get()) &&
+                xoonglin.getBrain().getMemory(CftMemoryModuleType.CAN_MATE.get()).get() &&
+                xoonglin.getBrain().hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get()) &&
+                closeEnoughToMate(level, xoonglin);
     }
 
     @Override
-    protected void tick(ServerLevel level, XunguiEntity xungui, long pGameTime) {
-        getMate(level, xungui).ifPresent(mateCandidate -> xungui.getNavigation().moveTo(mateCandidate, 1.0));
+    protected void tick(ServerLevel level, XoonglinEntity xoonglin, long pGameTime) {
+        getMate(level, xoonglin).ifPresent(mateCandidate -> xoonglin.getNavigation().moveTo(mateCandidate, 1.0));
     }
 
     @Override
-    protected void stop(ServerLevel level, XunguiEntity xungui, long pGameTime) {
-        Optional<XunguiEntity> mate = getMate(level, xungui);
+    protected void stop(ServerLevel level, XoonglinEntity xoonglin, long pGameTime) {
+        Optional<XoonglinEntity> mate = getMate(level, xoonglin);
         // Only mate if there is a mate and it's close enough
         if (mate.isEmpty() ||
-                !(xungui.getEyePosition()
+                !(xoonglin.getEyePosition()
                         .distanceTo(mate.get().getEyePosition()) <= MIN_DISTANCE_FOR_MATING)) {
             return;
         }
-        Optional<XunguiHome> home = findAvailableHome(level, xungui);
+        Optional<XoonglinHome> home = findAvailableHome(level, xoonglin);
         // Only mate if the child will have a home to go to.
         if (home.isEmpty()) {
             return;
         }
-        XunguiEntity offspring = CftEntities.XUNGUI.get().spawn(level, xungui.getOnPos(), MobSpawnType.BREEDING);
+        XoonglinEntity offspring = CftEntities.XOONGLIN.get().spawn(level, xoonglin.getOnPos(), MobSpawnType.BREEDING);
         if (offspring != null) {
             offspring.setBaby(true);
-            XunguiSpawner.updateSpawnedXungui(offspring, home.get(), xungui.getSocialClass(), xungui.getLeaderId());
+            XoonglinSpawner.updateSpawnedXoonglin(offspring, home.get(), xoonglin.getSocialClass(), xoonglin.getLeaderId());
             level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData").setDirty();
         }
-        xungui.resetMatingDelay();
-        xungui.getBrain().eraseMemory(CftMemoryModuleType.CAN_MATE.get());
-        xungui.getBrain().eraseMemory(CftMemoryModuleType.MATING_CANDIDATE.get());
-        mate.ifPresent(mateXungui -> {
-            mateXungui.resetMatingDelay();
-            mateXungui.getBrain().eraseMemory(CftMemoryModuleType.CAN_MATE.get());
-            mateXungui.getBrain().eraseMemory(CftMemoryModuleType.MATING_CANDIDATE.get());
+        xoonglin.resetMatingDelay();
+        xoonglin.getBrain().eraseMemory(CftMemoryModuleType.CAN_MATE.get());
+        xoonglin.getBrain().eraseMemory(CftMemoryModuleType.MATING_CANDIDATE.get());
+        mate.ifPresent(mateXoonglin -> {
+            mateXoonglin.resetMatingDelay();
+            mateXoonglin.getBrain().eraseMemory(CftMemoryModuleType.CAN_MATE.get());
+            mateXoonglin.getBrain().eraseMemory(CftMemoryModuleType.MATING_CANDIDATE.get());
         });
     }
 
-    private Optional<XunguiEntity> getMate(ServerLevel level, XunguiEntity xungui) {
-        if (xungui.getBrain().getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).isPresent()) {
-            return (Optional<XunguiEntity>) level.getEntities(CftEntities.XUNGUI.get(),
+    private Optional<XoonglinEntity> getMate(ServerLevel level, XoonglinEntity xoonglin) {
+        if (xoonglin.getBrain().getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).isPresent()) {
+            return (Optional<XoonglinEntity>) level.getEntities(CftEntities.XOONGLIN.get(),
                             candidate -> candidate.getStringUUID()
-                                    .equals(xungui.getBrain().getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).get()))
+                                    .equals(xoonglin.getBrain().getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).get()))
                     .stream().findFirst();
         } else {
             return Optional.empty();
         }
     }
 
-    private Optional<XunguiHome> findAvailableHome(ServerLevel serverLevel, XunguiEntity xungui) {
+    private Optional<XoonglinHome> findAvailableHome(ServerLevel serverLevel, XoonglinEntity xoonglin) {
         return serverLevel.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData")
                 .getHomes().stream()
-                .filter(home -> home.getLeaderId().equals(xungui.getLeaderId()) &&
+                .filter(home -> home.getLeaderId().equals(xoonglin.getLeaderId()) &&
                         home.getOwnerId() == null &&
-                        xungui.getSocialClass().getNeeds().contains(home.getSatisfiedNeed()))
-                .min(Comparator.comparingDouble(home -> Vec3.atCenterOf(home.getEntrance()).distanceToSqr(xungui.getEyePosition())));
+                        xoonglin.getSocialClass().getNeeds().contains(home.getSatisfiedNeed()))
+                .min(Comparator.comparingDouble(home -> Vec3.atCenterOf(home.getEntrance()).distanceToSqr(xoonglin.getEyePosition())));
     }
 
     /**
      * Whether or not the mating candidate is close enough to mate.
      * If for some reason the candidate doesn't exist, it returns false so we can end the behavior.
      */
-    private boolean closeEnoughToMate(ServerLevel level, XunguiEntity xungui) {
-        return getMate(level, xungui)
-                .filter(xunguiEntity -> xungui.getEyePosition()
-                        .distanceTo(xunguiEntity.getEyePosition()) <= MIN_DISTANCE_FOR_MATING)
+    private boolean closeEnoughToMate(ServerLevel level, XoonglinEntity xoonglin) {
+        return getMate(level, xoonglin)
+                .filter(xoonglinEntity -> xoonglin.getEyePosition()
+                        .distanceTo(xoonglinEntity.getEyePosition()) <= MIN_DISTANCE_FOR_MATING)
                 .isPresent();
     }
 }

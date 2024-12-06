@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.capability.need;
 
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.HomeDetection;
@@ -17,7 +17,7 @@ public class HomeNeedCapability extends NeedCapability<HomeNeed> {
     }
 
     @Override
-    public boolean satisfy(XunguiEntity mob) {
+    public boolean satisfy(XoonglinEntity mob) {
         if (mob.getHome() != null &&
                 HomeDetection.detectHouse(mob.getHome().getEntrance(), (ServerLevel) mob.level(), mob.getLeaderId(), getHomeNeedOfSocialClass(mob.getSocialClass()))) {
             super.satisfy(mob);
@@ -41,7 +41,7 @@ public class HomeNeedCapability extends NeedCapability<HomeNeed> {
     }
 
     @Override
-    public void addMemoriesForSatisfaction(XunguiEntity mob) {
+    public void addMemoriesForSatisfaction(XoonglinEntity mob) {
         mob.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
     }
 

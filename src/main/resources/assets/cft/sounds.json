@@ -1,23 +1,23 @@
 {
-  "entity.xungui.hurt": {
-    "subtitles": "sounds.cft.entity.xungui.hurt",
+  "entity.xoonglin.hurt": {
+    "subtitles": "sounds.cft.entity.xoonglin.hurt",
     "sounds": [
-      "cft:entity/xungui/hurt1",
-      "cft:entity/xungui/hurt2",
-      "cft:entity/xungui/hurt3"
+      "cft:entity/xoonglin/hurt1",
+      "cft:entity/xoonglin/hurt2",
+      "cft:entity/xoonglin/hurt3"
     ]
   },
-  "entity.xungui.ambient": {
-    "subtitles": "sounds.cft.entity.xungui.ambient",
+  "entity.xoonglin.ambient": {
+    "subtitles": "sounds.cft.entity.xoonglin.ambient",
     "sounds": [
-      "cft:entity/xungui/ambient1",
-      "cft:entity/xungui/ambient2"
+      "cft:entity/xoonglin/ambient1",
+      "cft:entity/xoonglin/ambient2"
     ]
   },
-  "entity.xungui.death": {
-    "subtitles": "sounds.cft.entity.xungui.death",
+  "entity.xoonglin.death": {
+    "subtitles": "sounds.cft.entity.xoonglin.death",
     "sounds": [
-      "cft:entity/xungui/death"
+      "cft:entity/xoonglin/death"
     ]
   }
 }

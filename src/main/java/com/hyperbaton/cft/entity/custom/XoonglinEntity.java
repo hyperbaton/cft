@@ -7,14 +7,14 @@ import com.hyperbaton.cft.capability.need.NeedCapability;
 import com.hyperbaton.cft.capability.need.NeedCapabilityMapper;
 import com.hyperbaton.cft.capability.need.NeedUtils;
 import com.hyperbaton.cft.entity.CftEntities;
-import com.hyperbaton.cft.entity.ai.XunguiAi;
+import com.hyperbaton.cft.entity.ai.XoonglinAi;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
 import com.hyperbaton.cft.socialclass.SocialStructureHelper;
 import com.hyperbaton.cft.sound.CftSounds;
-import com.hyperbaton.cft.structure.home.XunguiHome;
+import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
@@ -49,13 +49,13 @@ import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class XunguiEntity extends AgeableMob implements InventoryCarrier {
+public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
     private static final int MATING_COOLDOWN = 6000; // In ticks (6000 - 5 minutes in Minecraft)
-    public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XunguiEntity.class, EntityDataSerializers.STRING);
+    public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.STRING);
 
-    public XunguiEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
+    public XoonglinEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
         ((GroundPathNavigation) this.getNavigation()).setCanPassDoors(true);
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
@@ -68,7 +68,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     private UUID leaderId;
     private final SimpleContainer inventory = new SimpleContainer(27);
 
-    private XunguiHome home;
+    private XoonglinHome home;
 
     private List<NeedCapability> needs;
 
@@ -119,7 +119,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
 
     @Override
     protected void customServerAiStep() {
-        Brain<XunguiEntity> brain = this.getBrain();
+        Brain<XoonglinEntity> brain = this.getBrain();
 
         brain.tick((ServerLevel) level(), this);
         if (brain.getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).isEmpty()
@@ -144,25 +144,25 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     @Nullable
     @Override
     public AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
-        return CftEntities.XUNGUI.get().create(serverLevel);
+        return CftEntities.XOONGLIN.get().create(serverLevel);
     }
 
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return CftSounds.XUNGUI_AMBIENT.get();
+        return CftSounds.XOONGLIN_AMBIENT.get();
     }
 
     @Nullable
     @Override
     protected SoundEvent getDeathSound() {
-        return CftSounds.XUNGUI_DEATH.get();
+        return CftSounds.XOONGLIN_DEATH.get();
     }
 
     @Nullable
     @Override
     protected SoundEvent getHurtSound(@NotNull DamageSource pDamageSource) {
-        return CftSounds.XUNGUI_HURT.get();
+        return CftSounds.XOONGLIN_HURT.get();
     }
 
     @Override
@@ -178,30 +178,30 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     }
 
     @Override
-    protected Brain.Provider<XunguiEntity> brainProvider() {
-        return Brain.provider(XunguiAi.MEMORY_TYPES, XunguiAi.SENSOR_TYPES);
+    protected Brain.Provider<XoonglinEntity> brainProvider() {
+        return Brain.provider(XoonglinAi.MEMORY_TYPES, XoonglinAi.SENSOR_TYPES);
     }
 
     @Override
     protected Brain<?> makeBrain(Dynamic<?> dynamic) {
-        return XunguiAi.makeBrain(brainProvider().makeBrain(dynamic));
+        return XoonglinAi.makeBrain(brainProvider().makeBrain(dynamic));
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Brain<XunguiEntity> getBrain() {
-        return (Brain<XunguiEntity>) super.getBrain();
+    public Brain<XoonglinEntity> getBrain() {
+        return (Brain<XoonglinEntity>) super.getBrain();
     }
 
     @Override
     public void die(DamageSource pDamageSource) {
         if (!this.level().isClientSide) {
             HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
-            Optional<XunguiHome> mobHome = homesData.getHomes().stream().filter(
+            Optional<XoonglinHome> mobHome = homesData.getHomes().stream().filter(
                     home -> home.getOwnerId() != null &&
                             home.getOwnerId().equals(this.uuid)
             ).findFirst();
-            mobHome.ifPresent(xunguiHome -> xunguiHome.setOwnerId(null));
+            mobHome.ifPresent(xoonglinHome -> xoonglinHome.setOwnerId(null));
             homesData.setDirty();
         }
         super.die(pDamageSource);
@@ -349,10 +349,10 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     }
 
     /**
-     * A xungui can mate if it didn't mate recently, its happiness is over the mating threshold and
+     * A xoonglin can mate if it didn't mate recently, its happiness is over the mating threshold and
      * all its needs are satisfied
      *
-     * @return Whether or not the xungui can mate
+     * @return Whether or not the xoonglin can mate
      */
     public boolean canMate() {
         matingDelay--;
@@ -378,11 +378,11 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
         this.leaderId = leaderId;
     }
 
-    public XunguiHome getHome() {
+    public XoonglinHome getHome() {
         return home;
     }
 
-    public void setHome(XunguiHome home) {
+    public void setHome(XoonglinHome home) {
         this.home = home;
     }
 
@@ -421,7 +421,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(SOCIAL_CLASS_NAME, "xungui");
+        this.entityData.define(SOCIAL_CLASS_NAME, "xoonglin");
     }
 
     @Override
@@ -467,7 +467,7 @@ public class XunguiEntity extends AgeableMob implements InventoryCarrier {
             readInventoryFromTag(tag);
         }
         if (tag.contains(KEY_HOME)) {
-            setHome(XunguiHome.fromTag(tag.getCompound(KEY_HOME)));
+            setHome(XoonglinHome.fromTag(tag.getCompound(KEY_HOME)));
         }
         if (tag.contains(KEY_NEEDS)) {
             needs = new ArrayList<>();

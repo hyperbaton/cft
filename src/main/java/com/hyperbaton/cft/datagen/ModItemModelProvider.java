@@ -18,7 +18,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        withExistingParent(CftItems.XUNGUI_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
+        withExistingParent(CftItems.XOONGLIN_SPAWN_EGG.getId().getPath(), mcLoc("item/template_spawn_egg"));
     }
 
     private ItemModelBuilder simpleItem(RegistryObject<Item> item){

@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.world;
 
-import com.hyperbaton.cft.structure.home.XunguiHome;
+import com.hyperbaton.cft.structure.home.XoonglinHome;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -13,14 +13,14 @@ import java.util.List;
 public class HomesData extends SavedData {
     private static final String TAG_HOMES = "homes";
 
-    List<XunguiHome> homes = new ArrayList<>();
+    List<XoonglinHome> homes = new ArrayList<>();
 
     public static HomesData load(CompoundTag compoundTag){
         HomesData data = new HomesData();
         data.homes = new ArrayList<>();
         ListTag homeTags = compoundTag.getList(TAG_HOMES, Tag.TAG_COMPOUND);
         for(Tag homeTag : homeTags){
-            XunguiHome home = XunguiHome.fromTag((CompoundTag) homeTag);
+            XoonglinHome home = XoonglinHome.fromTag((CompoundTag) homeTag);
             data.homes.add(home);
         }
         return data;
@@ -31,7 +31,7 @@ public class HomesData extends SavedData {
 
         ListTag homesTags = new ListTag();
         if (!this.homes.isEmpty()) {
-            for (XunguiHome home : this.homes) {
+            for (XoonglinHome home : this.homes) {
                 homesTags.add(home.toTag());
             }
         }
@@ -39,16 +39,16 @@ public class HomesData extends SavedData {
         return compoundTag;
     }
 
-    public List<XunguiHome> getHomes() {
+    public List<XoonglinHome> getHomes() {
         return homes;
     }
 
-    public void addHome(XunguiHome newHome) {
+    public void addHome(XoonglinHome newHome) {
         this.homes.add(newHome);
         this.setDirty();
     }
 
-    public void removeHome(XunguiHome home) {
+    public void removeHome(XoonglinHome home) {
         this.homes.remove(home);
         this.setDirty();
     }

@@ -19,11 +19,11 @@ public class CreativeModTabs {
     }
 
     public static final RegistryObject<CreativeModeTab> TUTORIAL_TAB = CREATIVE_MODE_TABS.register("cft",
-            () -> CreativeModeTab.builder().icon((() -> new ItemStack(CftItems.MAYOR_STAFF.get())))
+            () -> CreativeModeTab.builder().icon((() -> new ItemStack(CftItems.LEADER_STAFF.get())))
                     .title(Component.translatable("creativetab.tutorial_tab"))
                     .displayItems((pParameters, pOutput) -> {
-                        pOutput.accept(CftItems.MAYOR_STAFF.get());
-                        pOutput.accept(CftItems.XUNGUI_SPAWN_EGG.get());
+                        pOutput.accept(CftItems.LEADER_STAFF.get());
+                        pOutput.accept(CftItems.XOONGLIN_SPAWN_EGG.get());
                     })
                     .build()
     );

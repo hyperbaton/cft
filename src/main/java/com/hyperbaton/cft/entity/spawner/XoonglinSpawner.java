@@ -3,10 +3,10 @@ package com.hyperbaton.cft.entity.spawner;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.*;
 import com.hyperbaton.cft.entity.CftEntities;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
-import com.hyperbaton.cft.structure.home.XunguiHome;
+import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.hyperbaton.cft.world.HomesData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -18,7 +18,7 @@ import oshi.util.tuples.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class XunguiSpawner implements CustomSpawner {
+public class XoonglinSpawner implements CustomSpawner {
     private int nextTick;
 
     @Override
@@ -37,10 +37,10 @@ public class XunguiSpawner implements CustomSpawner {
                 Map<SocialClass, Integer> socialClassCounts = CftRegistry.SOCIAL_CLASSES.stream()
                         .collect(Collectors.toMap(socialClass -> socialClass, socialClass -> 0));
 
-                // Increment the count for each XunguiEntity's SocialClass
-                serverLevel.getEntities(CftEntities.XUNGUI.get(), entity -> true).stream()
-                        .filter(xungui -> xungui.getLeaderId() != null && xungui.getLeaderId().equals(player.getUUID()))
-                        .map(XunguiEntity::getSocialClass)
+                // Increment the count for each XoonglinEntity's SocialClass
+                serverLevel.getEntities(CftEntities.XOONGLIN.get(), entity -> true).stream()
+                        .filter(xoonglin -> xoonglin.getLeaderId() != null && xoonglin.getLeaderId().equals(player.getUUID()))
+                        .map(XoonglinEntity::getSocialClass)
                         .forEach(socialClass -> socialClassCounts.merge(socialClass, 1, Integer::sum));
 
                 // Filter out those that already reached the max spawning population
@@ -48,7 +48,7 @@ public class XunguiSpawner implements CustomSpawner {
                         .stream()
                         .filter(entry -> entry.getKey().getSpontaneouslySpawnPopulation() > entry.getValue())
                         .map(Map.Entry::getKey)
-                        // Now find a home in which a new Xungui can spawn
+                        // Now find a home in which a new Xoonglin can spawn
                         .flatMap(socialClass ->
                                 homesData.getHomes().stream()
                                         .filter(home ->
@@ -57,8 +57,8 @@ public class XunguiSpawner implements CustomSpawner {
                                                         homeMeetsNeed(home, socialClass))
                                         .map(home -> new Pair<>(socialClass, home)))
                         .findAny()
-                        // Spawn the xungui in the found home
-                        .map(pair -> spawnXungui(serverLevel, pair.getB(), pair.getA(), player.getUUID()))
+                        // Spawn the xoonglin in the found home
+                        .map(pair -> spawnXoonglin(serverLevel, pair.getB(), pair.getA(), player.getUUID()))
                         .ifPresent(didSpawn -> {
                             if (didSpawn) {
                                 homesData.setDirty();
@@ -72,28 +72,28 @@ public class XunguiSpawner implements CustomSpawner {
     /**
      * Returns whether or not this home satisfies the home need of the given socialClass
      */
-    private boolean homeMeetsNeed(XunguiHome home, SocialClass socialClass) {
+    private boolean homeMeetsNeed(XoonglinHome home, SocialClass socialClass) {
         return socialClass.getNeeds().stream().anyMatch(need -> need.equals(home.getSatisfiedNeed()));
     }
 
-    private boolean spawnXungui(ServerLevel serverLevel, XunguiHome home, SocialClass socialClass, UUID leaderId) {
-        XunguiEntity xungui = CftEntities.XUNGUI.get().spawn(serverLevel, home.getEntrance(), MobSpawnType.TRIGGERED);
-        if (xungui != null) {
-            updateSpawnedXungui(xungui, home, socialClass, leaderId);
+    private boolean spawnXoonglin(ServerLevel serverLevel, XoonglinHome home, SocialClass socialClass, UUID leaderId) {
+        XoonglinEntity xoonglin = CftEntities.XOONGLIN.get().spawn(serverLevel, home.getEntrance(), MobSpawnType.TRIGGERED);
+        if (xoonglin != null) {
+            updateSpawnedXoonglin(xoonglin, home, socialClass, leaderId);
             return true;
         }
         return false;
     }
 
-    public static void updateSpawnedXungui(XunguiEntity xungui, XunguiHome home, SocialClass socialClass, UUID leaderId) {
-        home.setOwnerId(xungui.getUUID());
-        xungui.setLeaderId(leaderId);
-        xungui.setHome(home);
-        xungui.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
-        xungui.setSocialClass(socialClass);
-        xungui.setNeeds(NeedUtils.getNeedsForClass(xungui.getSocialClass()));
-        xungui.getEntityData().set(XunguiEntity.SOCIAL_CLASS_NAME, xungui.getSocialClass().getId());
-        System.out.println("Xungui created\n");
+    public static void updateSpawnedXoonglin(XoonglinEntity xoonglin, XoonglinHome home, SocialClass socialClass, UUID leaderId) {
+        home.setOwnerId(xoonglin.getUUID());
+        xoonglin.setLeaderId(leaderId);
+        xoonglin.setHome(home);
+        xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
+        xoonglin.setSocialClass(socialClass);
+        xoonglin.setNeeds(NeedUtils.getNeedsForClass(xoonglin.getSocialClass()));
+        xoonglin.getEntityData().set(XoonglinEntity.SOCIAL_CLASS_NAME, xoonglin.getSocialClass().getId());
+        System.out.println("Xoonglin created\n");
         System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
     }
 }

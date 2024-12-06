@@ -13,11 +13,11 @@ public class CftItems {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, CftMod.MOD_ID);
 
-    public static final RegistryObject<Item> MAYOR_STAFF = ITEMS.register("mayor_staff",
-            () -> new MayorStaff(new MayorStaff.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> LEADER_STAFF = ITEMS.register("leader_staff",
+            () -> new LeaderStaff(new LeaderStaff.Properties().stacksTo(1)));
 
-    public static final RegistryObject<Item> XUNGUI_SPAWN_EGG = ITEMS.register("xungui_spawn_egg",
-            () -> new ForgeSpawnEggItem(CftEntities.XUNGUI, 0x121212, 0x404040, new Item.Properties()));
+    public static final RegistryObject<Item> XOONGLIN_SPAWN_EGG = ITEMS.register("xoonglin_spawn_egg",
+            () -> new ForgeSpawnEggItem(CftEntities.XOONGLIN, 0x121212, 0x404040, new Item.Properties()));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

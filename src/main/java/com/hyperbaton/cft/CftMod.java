@@ -4,7 +4,7 @@ import com.hyperbaton.cft.creativetab.CreativeModTabs;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
 import com.hyperbaton.cft.entity.ai.sensor.CftSensorTypes;
-import com.hyperbaton.cft.entity.client.XunguiRenderer;
+import com.hyperbaton.cft.entity.client.XoonglinRenderer;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.item.CftItems;
@@ -115,7 +115,7 @@ public class CftMod
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            EntityRenderers.register(CftEntities.XUNGUI.get(), XunguiRenderer::new);
+            EntityRenderers.register(CftEntities.XOONGLIN.get(), XoonglinRenderer::new);
         }
     }
 }

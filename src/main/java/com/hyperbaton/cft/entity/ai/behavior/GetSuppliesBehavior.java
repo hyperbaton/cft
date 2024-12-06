@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
+public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final double CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = 1.25;
 
@@ -24,15 +24,15 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, XunguiEntity mob) {
+    protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity mob) {
         LOGGER.trace("Starting behavior for getting supplies");
-        // Only start if the Xungui has a home with a container
+        // Only start if the Xoonglin has a home with a container
         return mob.getBrain().hasMemoryValue(homeContainerMemoryType()) &&
                 !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
     }
 
     @Override
-    protected void start(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
+    protected void start(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
         mob.getNavigation().moveTo(
                 mob.getNavigation().createPath(mob.getBrain().getMemory(homeContainerMemoryType()).get(),
                         1),
@@ -40,14 +40,14 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     }
 
     @Override
-    protected void tick(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
+    protected void tick(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
         if (isCloseEnoughToContainer(mob)) {
             mob.getNavigation().stop(); // Stop moving once close
         }
     }
 
     @Override
-    protected void stop(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
+    protected void stop(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
 
         LOGGER.trace("Checking container in home");
         if (!mob.getBrain().hasMemoryValue(homeContainerMemoryType()) ||
@@ -55,7 +55,7 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
             return;
         }
         Container container = (Container) mob.level().getBlockEntity(mob.getBrain().getMemory(homeContainerMemoryType()).get());
-        // If there is no chest, the Xungui doesn't have a home and should not try to get anything
+        // If there is no chest, the Xoonglin doesn't have a home and should not try to get anything
         if (container == null) {
             mob.getBrain().eraseMemory(homeContainerMemoryType());
             return;
@@ -75,14 +75,14 @@ public class GetSuppliesBehavior extends Behavior<XunguiEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel pLevel, XunguiEntity mob, long pGameTime) {
+    protected boolean canStillUse(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
         return mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
                 && mob.getBrain().hasMemoryValue(homeContainerMemoryType())
                 && !isCloseEnoughToContainer(mob)
                 && !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
     }
 
-    private boolean isCloseEnoughToContainer(XunguiEntity mob) {
+    private boolean isCloseEnoughToContainer(XoonglinEntity mob) {
         return mob.getBrain()
                 .getMemory(homeContainerMemoryType()).map(
                         containerPos -> mob.position().distanceTo(containerPos.getCenter()) < CLOSE_ENOUGH_DISTANCE_TO_CONTAINER

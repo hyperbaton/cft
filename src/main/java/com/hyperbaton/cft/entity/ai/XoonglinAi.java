@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
 import com.hyperbaton.cft.entity.ai.behavior.*;
 import com.hyperbaton.cft.entity.ai.sensor.CftSensorTypes;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.entity.ai.Brain;
@@ -19,9 +19,9 @@ import net.minecraft.world.entity.schedule.Activity;
 
 import java.util.Map;
 
-public class XunguiAi {
+public class XoonglinAi {
 
-    public static final ImmutableList<? extends SensorType<? extends Sensor<? super XunguiEntity>>> SENSOR_TYPES = ImmutableList.of(
+    public static final ImmutableList<? extends SensorType<? extends Sensor<? super XoonglinEntity>>> SENSOR_TYPES = ImmutableList.of(
             CftSensorTypes.ABLE_TO_MATE.get(), CftSensorTypes.FIND_POTENTIAL_MATES.get()
     );
 
@@ -37,7 +37,7 @@ public class XunguiAi {
             MemoryModuleType.LOOK_TARGET
     );
 
-    public static Brain<?> makeBrain(Brain<XunguiEntity> pBrain) {
+    public static Brain<?> makeBrain(Brain<XoonglinEntity> pBrain) {
         initCoreActivity(pBrain);
         initIdleActivity(pBrain);
         initInvestigateActivity(pBrain);
@@ -48,7 +48,7 @@ public class XunguiAi {
         return pBrain;
     }
 
-    private static void initCoreActivity(Brain<XunguiEntity> pBrain) {
+    private static void initCoreActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(Activity.CORE, 2, ImmutableList.of(
                 new Swim(0.8F),
                 new LookAtTargetSink(45, 90),
@@ -56,12 +56,12 @@ public class XunguiAi {
                 new OpenDoorBehavior()));
     }
 
-    private static void initIdleActivity(Brain<XunguiEntity> pBrain) {
+    private static void initIdleActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(Activity.IDLE, ImmutableList.of(
                 Pair.of(3, new RandomStrollBehavior(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT)))));
     }
 
-    private static void initInvestigateActivity(Brain<XunguiEntity> pBrain) {
+    private static void initInvestigateActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(Activity.INVESTIGATE, ImmutableList.of(
                 Pair.of(0, new FindAndClaimHomeBehavior()),
                 Pair.of(1, new GetSuppliesBehavior(
@@ -71,7 +71,7 @@ public class XunguiAi {
         ));
     }
 
-    private static void initMateActivity(Brain<XunguiEntity> pBrain) {
+    private static void initMateActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(CftActivities.MATE.get(), ImmutableList.of(
                 Pair.of(0, new MateBehavior(Map.of(CftMemoryModuleType.MATING_CANDIDATE.get(), MemoryStatus.VALUE_PRESENT)))
         ));

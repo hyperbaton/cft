@@ -3,8 +3,8 @@ package com.hyperbaton.cft.entity.client;
 // Exported for Minecraft version 1.17 or later with Mojang mappings
 // Paste this class into your mod and generate all required imports
 
-import com.hyperbaton.cft.entity.animations.XunguiAnimations;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.animations.XoonglinAnimations;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.HierarchicalModel;
@@ -14,7 +14,7 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 
-public class XunguiModel<T extends Entity> extends HierarchicalModel<T> {
+public class XoonglinModel<T extends Entity> extends HierarchicalModel<T> {
     private final ModelPart torso;
     private final ModelPart left_shoulder;
     private final ModelPart right_shoulder;
@@ -29,7 +29,7 @@ public class XunguiModel<T extends Entity> extends HierarchicalModel<T> {
     private final ModelPart right_ear;
     private final ModelPart left_ear;
 
-    public XunguiModel(ModelPart root) {
+    public XoonglinModel(ModelPart root) {
         this.torso = root.getChild("torso");
         this.left_shoulder = this.torso.getChild("left_shoulder");
         this.right_shoulder = this.torso.getChild("right_shoulder");
@@ -103,8 +103,8 @@ public class XunguiModel<T extends Entity> extends HierarchicalModel<T> {
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.applyHeadRotation(netHeadYaw, headPitch, ageInTicks);
 
-        this.animateWalk(XunguiAnimations.XUNGUI_WALK, limbSwing, limbSwingAmount, 2f, 2.5f);
-        this.animate(((XunguiEntity) entity).idleAnimationState, XunguiAnimations.XUNGUI_IDLE, ageInTicks, 1f);
+        this.animateWalk(XoonglinAnimations.XOONGLIN_WALK, limbSwing, limbSwingAmount, 2f, 2.5f);
+        this.animate(((XoonglinEntity) entity).idleAnimationState, XoonglinAnimations.XOONGLIN_IDLE, ageInTicks, 1f);
     }
 
     private void applyHeadRotation(float pNetHeadYaw, float pHeadPitch, float pAgeInTicks) {

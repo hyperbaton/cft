@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.entity;
 
 import com.hyperbaton.cft.CftMod;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -14,9 +14,9 @@ public class CftEntities {
             DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, CftMod.MOD_ID);
 
 
-    public static final RegistryObject<EntityType<XunguiEntity>> XUNGUI =
-            ENTITY_TYPES.register("xungui", () -> EntityType.Builder.of(XunguiEntity::new, MobCategory.CREATURE)
-                    .sized(0.6f, 1.2f).build("xungui"));
+    public static final RegistryObject<EntityType<XoonglinEntity>> XOONGLIN =
+            ENTITY_TYPES.register("xoonglin", () -> EntityType.Builder.of(XoonglinEntity::new, MobCategory.CREATURE)
+                    .sized(0.6f, 1.2f).build("xoonglin"));
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);
     }

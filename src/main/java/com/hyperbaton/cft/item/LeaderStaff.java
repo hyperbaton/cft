@@ -1,9 +1,9 @@
 package com.hyperbaton.cft.item;
 
 import com.hyperbaton.cft.capability.need.NeedCapability;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.CftPacketHandler;
-import com.hyperbaton.cft.network.CheckOnXunguiPacket;
+import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.logging.LogUtils;
@@ -26,10 +26,10 @@ import org.slf4j.Logger;
 
 import java.util.stream.Collectors;
 
-public class MayorStaff extends Item {
+public class LeaderStaff extends Item {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public MayorStaff(Properties pProperties) {
+    public LeaderStaff(Properties pProperties) {
         super(pProperties);
     }
 
@@ -77,14 +77,14 @@ public class MayorStaff extends Item {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player playerIn, LivingEntity entity, InteractionHand hand) {
         if (!playerIn.level().isClientSide &&
-                entity instanceof XunguiEntity) {
-            if (((XunguiEntity) entity).getLeaderId() != null &&
-                    ((XunguiEntity) entity).getLeaderId().equals(playerIn.getUUID())) {
-                // Send message to client player with information about this Xungui
-                CheckOnXunguiPacket message = createXunguiInfoMessage((XunguiEntity) entity);
+                entity instanceof XoonglinEntity) {
+            if (((XoonglinEntity) entity).getLeaderId() != null &&
+                    ((XoonglinEntity) entity).getLeaderId().equals(playerIn.getUUID())) {
+                // Send message to client player with information about this Xoonglin
+                CheckOnXoonglinPacket message = createXoonglinInfoMessage((XoonglinEntity) entity);
                 CftPacketHandler.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) playerIn), message);
             } else {
-                playerIn.sendSystemMessage(Component.literal("You are not the leader of this Xungui."));
+                playerIn.sendSystemMessage(Component.literal("You are not the leader of this Xoonglin."));
             }
             return InteractionResult.SUCCESS;
         } else {
@@ -92,8 +92,8 @@ public class MayorStaff extends Item {
         }
     }
 
-    private CheckOnXunguiPacket createXunguiInfoMessage(XunguiEntity entity) {
-        return new CheckOnXunguiPacket(entity.getSocialClass().getId(),
+    private CheckOnXoonglinPacket createXoonglinInfoMessage(XoonglinEntity entity) {
+        return new CheckOnXoonglinPacket(entity.getSocialClass().getId(),
                 entity.getHappiness(),
                 entity.getNeeds().stream().collect(Collectors
                         .toMap(needCapability -> needCapability.getNeed().getId(),

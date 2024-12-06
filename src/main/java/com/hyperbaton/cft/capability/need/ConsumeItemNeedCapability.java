@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.capability.need;
 
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -16,7 +16,7 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
     }
 
     @Override
-    public boolean satisfy(XunguiEntity mob) {
+    public boolean satisfy(XoonglinEntity mob) {
         if (mob.getInventory().hasAnyMatching(itemStack -> itemStack.is(need.getItem()) &&
                 itemStack.getCount() >= need.getQuantity())) {
             // Consume item and satisfy the need
@@ -32,7 +32,7 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
     }
 
     @Override
-    public void addMemoriesForSatisfaction(XunguiEntity mob) {
+    public void addMemoriesForSatisfaction(XoonglinEntity mob) {
         ItemStack neededStack = new ItemStack(need.getItem(), need.getQuantity());
         mob.getBrain().getMemory(suppliesNeededMemoryType()).ifPresentOrElse(
                 memory -> {

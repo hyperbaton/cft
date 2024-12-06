@@ -5,9 +5,9 @@ import net.minecraft.client.animation.AnimationDefinition;
 import net.minecraft.client.animation.Keyframe;
 import net.minecraft.client.animation.KeyframeAnimations;
 
-public class XunguiAnimations {
+public class XoonglinAnimations {
 
-        public static final AnimationDefinition XUNGUI_IDLE = AnimationDefinition.Builder.withLength(1.5F).looping()
+        public static final AnimationDefinition XOONGLIN_IDLE = AnimationDefinition.Builder.withLength(1.5F).looping()
                 .addAnimation("torso", new AnimationChannel(AnimationChannel.Targets.POSITION,
                         new Keyframe(0.0F, KeyframeAnimations.posVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.LINEAR),
                         new Keyframe(0.75F, KeyframeAnimations.posVec(0.0F, -0.1F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
@@ -27,7 +27,7 @@ public class XunguiAnimations {
                 ))
                 .build();
 
-    public static final AnimationDefinition XUNGUI_WALK = AnimationDefinition.Builder.withLength(1.5F).looping()
+    public static final AnimationDefinition XOONGLIN_WALK = AnimationDefinition.Builder.withLength(1.5F).looping()
             // Add torso sway for walking dynamics
             .addAnimation("torso", new AnimationChannel(AnimationChannel.Targets.ROTATION,
                     new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 2.0F), AnimationChannel.Interpolations.CATMULLROM),

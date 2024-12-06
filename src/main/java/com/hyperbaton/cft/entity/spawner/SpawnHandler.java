@@ -15,7 +15,7 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = CftMod.MOD_ID)
 public class SpawnHandler {
 
-    public static List<CustomSpawner> specialSpawners = Lists.newArrayList(new XunguiSpawner());
+    public static List<CustomSpawner> specialSpawners = Lists.newArrayList(new XoonglinSpawner());
 
     @SubscribeEvent
     public static void onWorldTick(TickEvent.LevelTickEvent event) {

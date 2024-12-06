@@ -117,7 +117,7 @@ public class HomeDetection {
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
         // If the home doesn't exist yet, add it to the list
         if (homesData.getHomes().stream().noneMatch(home -> home.getEntrance().equals(entrance))) {
-            homesData.addHome(new XunguiHome(entrance, containerPos, houseBlocks.size(), leaderId, null, homeNeed.getId(),
+            homesData.addHome(new XoonglinHome(entrance, containerPos, houseBlocks.size(), leaderId, null, homeNeed.getId(),
                     floorBlocks.stream().toList(),
                     wallBlocks.stream().toList(),
                     interiorBlocks.stream().toList(),
@@ -373,7 +373,7 @@ public class HomeDetection {
     private static boolean houseNotFound(String reason, BlockPos entrance, ServerLevel level) {
         LOGGER.debug("No house found. " + reason);
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
-        Optional<XunguiHome> homeToRemove = homesData.getHomes().stream().filter(home -> home.getEntrance().equals(entrance)).findFirst();
+        Optional<XoonglinHome> homeToRemove = homesData.getHomes().stream().filter(home -> home.getEntrance().equals(entrance)).findFirst();
         if (homeToRemove.isPresent()) {
             homesData.getHomes().remove(homeToRemove.get());
             homesData.setDirty();

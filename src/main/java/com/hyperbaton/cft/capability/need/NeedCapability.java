@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.capability.need;
 
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -35,13 +35,13 @@ public abstract class NeedCapability<T extends Need> {
         this.need = need;
     }
 
-    public boolean satisfy(XunguiEntity mob) {
+    public boolean satisfy(XoonglinEntity mob) {
         satisfaction = 1.0;
         mob.increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
         return true;
     }
 
-    public void unsatisfy(double frequency, XunguiEntity mob) {
+    public void unsatisfy(double frequency, XoonglinEntity mob) {
         satisfaction = Math.max(
                 satisfaction -
                         BigDecimal.valueOf(20)
@@ -55,7 +55,7 @@ public abstract class NeedCapability<T extends Need> {
         }
     }
 
-    public abstract void addMemoriesForSatisfaction(XunguiEntity mob);
+    public abstract void addMemoriesForSatisfaction(XoonglinEntity mob);
 
     public double getSatisfaction() {
         return satisfaction;

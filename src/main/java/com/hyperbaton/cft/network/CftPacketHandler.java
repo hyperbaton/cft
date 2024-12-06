@@ -19,6 +19,6 @@ public class CftPacketHandler {
         CHANNEL.send(target, message);
     }
     public static void init() {
-        CHANNEL.registerMessage(ID.incrementAndGet(), CheckOnXunguiPacket.class, CheckOnXunguiPacket::encode, CheckOnXunguiPacket::new, CheckOnXunguiPacket::handle);
+        CHANNEL.registerMessage(ID.incrementAndGet(), CheckOnXoonglinPacket.class, CheckOnXoonglinPacket::encode, CheckOnXoonglinPacket::new, CheckOnXoonglinPacket::handle);
     }
 }

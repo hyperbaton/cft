@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.socialclass;
 
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,14 +15,14 @@ public class SocialStructureHelper {
 
     public static Map<SocialClass, Integer> computeSocialStructureForPlayer(ServerLevel level, ServerPlayer player) {
         Map<SocialClass, Integer> socialStructure = new HashMap<>();
-        List<XunguiEntity> xunguiList = getAllXunguis(level);
-        for (XunguiEntity xungui : xunguiList) {
-            if (xungui.getLeaderId() != null &&
-                    xungui.getLeaderId().equals(player.getUUID())) {
-                if (socialStructure.containsKey(xungui.getSocialClass())) {
-                    socialStructure.replace(xungui.getSocialClass(), socialStructure.get(xungui.getSocialClass()) + 1);
+        List<XoonglinEntity> xoonglinList = getAllXoonglins(level);
+        for (XoonglinEntity xoonglin : xoonglinList) {
+            if (xoonglin.getLeaderId() != null &&
+                    xoonglin.getLeaderId().equals(player.getUUID())) {
+                if (socialStructure.containsKey(xoonglin.getSocialClass())) {
+                    socialStructure.replace(xoonglin.getSocialClass(), socialStructure.get(xoonglin.getSocialClass()) + 1);
                 } else {
-                    socialStructure.put(xungui.getSocialClass(), 1);
+                    socialStructure.put(xoonglin.getSocialClass(), 1);
                 }
             }
         }
@@ -59,15 +59,15 @@ public class SocialStructureHelper {
         return normalizedSocialStructure;
     }
 
-    public static List<XunguiEntity> getAllXunguis(ServerLevel level) {
+    public static List<XoonglinEntity> getAllXoonglins(ServerLevel level) {
         Iterator<Entity> entityIterator = level.getEntities().getAll().iterator();
-        List<XunguiEntity> xunguiList = new ArrayList<>();
+        List<XoonglinEntity> xoonglinList = new ArrayList<>();
         while (entityIterator.hasNext()) {
             Entity entity = entityIterator.next();
-            if (entity instanceof XunguiEntity) {
-                xunguiList.add((XunguiEntity) entity);
+            if (entity instanceof XoonglinEntity) {
+                xoonglinList.add((XoonglinEntity) entity);
             }
         }
-        return xunguiList;
+        return xoonglinList;
     }
 }

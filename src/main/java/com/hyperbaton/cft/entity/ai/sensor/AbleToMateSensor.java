@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.entity.ai.sensor;
 
 import com.google.common.collect.ImmutableSet;
-import com.hyperbaton.cft.entity.custom.XunguiEntity;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.world.HomesData;
 import net.minecraft.server.level.ServerLevel;
@@ -11,13 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
-public class AbleToMateSensor extends Sensor<XunguiEntity> {
+public class AbleToMateSensor extends Sensor<XoonglinEntity> {
     @Override
-    protected void doTick(@NotNull ServerLevel serverLevel, XunguiEntity xungui) {
-        if (xungui.canMate() && thereIsHomeAvailable(serverLevel, xungui)) {
-            xungui.getBrain().setMemory(CftMemoryModuleType.CAN_MATE.get(), true);
+    protected void doTick(@NotNull ServerLevel serverLevel, XoonglinEntity xoonglin) {
+        if (xoonglin.canMate() && thereIsHomeAvailable(serverLevel, xoonglin)) {
+            xoonglin.getBrain().setMemory(CftMemoryModuleType.CAN_MATE.get(), true);
         } else {
-            xungui.getBrain().setMemory(CftMemoryModuleType.CAN_MATE.get(), false);
+            xoonglin.getBrain().setMemory(CftMemoryModuleType.CAN_MATE.get(), false);
         }
     }
 
@@ -26,11 +26,11 @@ public class AbleToMateSensor extends Sensor<XunguiEntity> {
         return ImmutableSet.of(CftMemoryModuleType.CAN_MATE.get());
     }
 
-    private boolean thereIsHomeAvailable(ServerLevel serverLevel, XunguiEntity xungui) {
+    private boolean thereIsHomeAvailable(ServerLevel serverLevel, XoonglinEntity xoonglin) {
         return serverLevel.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData")
                 .getHomes().stream()
-                .anyMatch(home -> home.getLeaderId().equals(xungui.getLeaderId()) &&
+                .anyMatch(home -> home.getLeaderId().equals(xoonglin.getLeaderId()) &&
                         home.getOwnerId() == null &&
-                        xungui.getSocialClass().getNeeds().contains(home.getSatisfiedNeed()));
+                        xoonglin.getSocialClass().getNeeds().contains(home.getSatisfiedNeed()));
     }
 }
