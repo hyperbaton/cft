@@ -212,6 +212,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         return this.inventory;
     }
 
+    @Override
+    public boolean isPersistenceRequired() {
+        return true;
+    }
+
     private void checkSocialClass() {
         // TODO: Game crashed at startup because player is not yet loaded. Maybe there is a better way of loading or checking this?
         if (this.level().getPlayerByUUID(this.leaderId) == null) {
