@@ -69,4 +69,14 @@ public class HomeNeed extends Need{
     public Codec<?extends Need> needType() {
         return CftRegistry.HOME_NEED.get();
     }
+
+    @Override
+    public NeedCapability<HomeNeed> createCapability() {
+        return createCapability(this.getSatisfactionThreshold(), false);
+    }
+
+    @Override
+    public NeedCapability<HomeNeed> createCapability(double satisfaction, boolean isSatisfied) {
+        return new HomeNeedCapability(satisfaction, isSatisfied, this);
+    }
 }

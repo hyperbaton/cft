@@ -49,7 +49,7 @@ public abstract class Need {
         return id;
     }
 
-    public abstract Codec<?extends Need> needType();
+    public abstract Codec<? extends Need> needType();
 
     public double getDamage() {
         return damage;
@@ -90,6 +90,10 @@ public abstract class Need {
     public void setFrequency(double frequency) {
         this.frequency = frequency;
     }
+
+    public abstract NeedCapability<? extends Need> createCapability();
+
+    public abstract NeedCapability<? extends Need> createCapability(double satisfaction, boolean isSatisfied);
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();

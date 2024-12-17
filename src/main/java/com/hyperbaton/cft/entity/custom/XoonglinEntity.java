@@ -70,7 +70,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private XoonglinHome home;
 
-    private List<NeedCapability> needs;
+    private List<NeedCapability<? extends Need>> needs;
 
     private SocialClass socialClass;
 
@@ -407,11 +407,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.socialClass = socialClass;
     }
 
-    public List<NeedCapability> getNeeds() {
+    public List<? extends NeedCapability<? extends Need>> getNeeds() {
         return needs;
     }
 
-    public void setNeeds(List<NeedCapability> needs) {
+    public void setNeeds(List<NeedCapability<? extends Need>> needs) {
         this.needs = needs;
     }
 
@@ -447,11 +447,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         tag.putDouble(KEY_HAPPINESS, happiness);
     }
 
-    private ListTag getNeedsTag(List<NeedCapability> needs) {
+    private ListTag getNeedsTag(List<? extends NeedCapability<? extends Need>> needs) {
 
         ListTag needsTags = new ListTag();
         if (!this.needs.isEmpty()) {
-            for (NeedCapability need : needs) {
+            for (NeedCapability<? extends Need> need : needs) {
                 needsTags.add(need.toTag());
             }
         }

@@ -60,6 +60,16 @@ public class GoodsNeed extends Need {
     }
 
     @Override
+    public NeedCapability<GoodsNeed> createCapability() {
+        return this.createCapability(this.getSatisfactionThreshold(), false);
+    }
+
+    @Override
+    public NeedCapability<GoodsNeed> createCapability(double satisfaction, boolean isSatisfied) {
+        return new ConsumeItemNeedCapability(satisfaction, isSatisfied, this);
+    }
+
+    @Override
     public CompoundTag toTag(){
         CompoundTag tag = super.toTag();
         tag.put(TAG_ITEM, Optional.ofNullable(item.getShareTag(item.getDefaultInstance())).orElseThrow());
