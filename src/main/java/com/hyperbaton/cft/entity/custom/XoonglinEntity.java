@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.entity.custom;
 
 import com.google.common.collect.ImmutableList;
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.Need;
 import com.hyperbaton.cft.capability.need.NeedCapability;
@@ -52,7 +53,6 @@ import java.util.stream.Collectors;
 public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
-    private static final int MATING_COOLDOWN = 6000; // In ticks (6000 - 5 minutes in Minecraft)
     public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.STRING);
 
     public XoonglinEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
@@ -77,7 +77,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private double happiness = 0.0;
 
     private int satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
-    private int matingDelay = MATING_COOLDOWN;
+    private int matingDelay = CftConfig.XOONGLIN_MATING_COOLDOWN.get();
 
     // Tag keys
     private static final String KEY_LEADER_ID = "leaderId";
@@ -240,10 +240,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 && socialClassUpdate.getRequiredNeeds().stream().allMatch(needRequirement ->
                 this.getNeeds().stream()
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
-                        .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold())
-                        && checkSocialStructureForUpgrade(
-                        getNormalizedSocialStructureWithUpgrade(this.socialClass.getId(), socialClassUpdate.getNextClass()),
-                        socialClassUpdate));
+                        .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold()))
+                && checkSocialStructureForUpgrade(
+                getNormalizedSocialStructureWithUpgrade(this.socialClass.getId(), socialClassUpdate.getNextClass()),
+                socialClassUpdate);
     }
 
     private boolean checkSocialStructureForUpgrade(Map<String, BigDecimal> socialStructure, SocialClassUpdate socialClassUpdate) {
@@ -372,7 +372,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     public void resetMatingDelay() {
-        matingDelay = MATING_COOLDOWN;
+        matingDelay = CftConfig.XOONGLIN_MATING_COOLDOWN.get();
     }
 
     public UUID getLeaderId() {

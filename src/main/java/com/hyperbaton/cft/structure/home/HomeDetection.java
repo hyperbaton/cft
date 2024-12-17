@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.structure.home;
 
 import com.google.common.collect.Sets;
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.capability.need.HomeNeed;
 import com.hyperbaton.cft.capability.need.HomeValidBlock;
@@ -28,9 +29,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class HomeDetection {
-    private static final int MAX_HOUSE_SIZE = 1000;
-    private static final int MAX_FLOOR_SIZE = 100;
-    private static final int MAX_HEIGHT = 319;
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public boolean detectAnyHouse(BlockPos positionClicked, ServerLevel level, UUID leaderId) {
@@ -107,7 +105,7 @@ public class HomeDetection {
             return houseNotFound("No container present", entrance, level);
         }
 
-        if (houseBlocks.size() > MAX_HOUSE_SIZE) {
+        if (houseBlocks.size() > CftConfig.MAX_HOUSE_SIZE.get()) {
             return houseNotFound("House too large", entrance, level);
         }
 
@@ -244,9 +242,9 @@ public class HomeDetection {
         while (!testSetOfBlocks.isEmpty() && !wrongRoofFound.get()) {
             Set<BlockPos> nextTestSetOfBlocks = new HashSet<>();
             testSetOfBlocks.forEach(testPos -> {
-                if (isRoof(level.getBlockState(testPos), validFloorBlocks) && testPos.getY() < MAX_HEIGHT) {
+                if (isRoof(level.getBlockState(testPos), validFloorBlocks) && testPos.getY() < CftConfig.MAX_HOUSE_HEIGHT.get()) {
                     roofBlocks.add(testPos);
-                } else if (isInterior(level.getBlockState(testPos), validInteriorBlocks) && testPos.getY() < MAX_HEIGHT) {
+                } else if (isInterior(level.getBlockState(testPos), validInteriorBlocks) && testPos.getY() < CftConfig.MAX_HOUSE_HEIGHT.get()) {
                     interiorBlocks.add(testPos);
                     nextTestSetOfBlocks.add(testPos.above());
                 } else {
@@ -264,7 +262,7 @@ public class HomeDetection {
             BlockPos testPos = floorPos.above();
             while (isInterior(level.getBlockState(testPos), validBlocks)) {
                 interiorBlocks.add(testPos);
-                if (testPos.getY() >= MAX_HEIGHT) { // TODO: This should say there is no house
+                if (testPos.getY() >= CftConfig.MAX_HOUSE_HEIGHT.get()) { // TODO: This should say there is no house
                     break;
                 } else {
                     testPos = testPos.above();
@@ -289,7 +287,7 @@ public class HomeDetection {
     }
 
     private static boolean findFloor(Level level, BlockPos testPos, Set<BlockPos> floorBlocks, Set<BlockPos> floorPerimeterBlocks, List<HomeValidBlock> validBlocks) {
-        if (floorBlocks.size() + floorPerimeterBlocks.size() > MAX_FLOOR_SIZE) {
+        if (floorBlocks.size() + floorPerimeterBlocks.size() > CftConfig.MAX_FLOOR_SIZE.get()) {
             return false;
         }
         if (!isFloor(level.getBlockState(testPos), validBlocks)) {
