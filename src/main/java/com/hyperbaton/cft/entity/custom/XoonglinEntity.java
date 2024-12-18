@@ -27,6 +27,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.SimpleContainer;
@@ -41,6 +42,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -114,6 +116,17 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
         if (this.level().isClientSide()) {
             setupAnimationStates();
+        }
+
+        if (!this.level().isClientSide && CftConfig.KEEP_XOONGLINS_LOADED.get()) {
+            // Ensure the chunk is loaded
+            ChunkPos chunkPos = new ChunkPos(this.blockPosition());
+            ((ServerLevel) this.level()).getChunkSource().addRegionTicket(
+                    CftRegistry.XOONGLIN_CHUNK_TICKET,
+                    chunkPos,
+                    1,
+                    this.getUUID()
+            );
         }
     }
 
@@ -205,6 +218,21 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             homesData.setDirty();
         }
         super.die(pDamageSource);
+    }
+
+    @Override
+    public void remove(Entity.RemovalReason reason) {
+        super.remove(reason);
+
+        if (!this.level().isClientSide && CftConfig.KEEP_XOONGLINS_LOADED.get()) {
+            ChunkPos chunkPos = new ChunkPos(this.blockPosition());
+            ((ServerLevel) this.level()).getChunkSource().removeRegionTicket(
+                    CftRegistry.XOONGLIN_CHUNK_TICKET,
+                    chunkPos,
+                    1,
+                    this.getUUID()
+            );
+        }
     }
 
     @Override

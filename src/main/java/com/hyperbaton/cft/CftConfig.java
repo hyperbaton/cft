@@ -27,6 +27,9 @@ public class CftConfig
     public static final ForgeConfigSpec.IntValue MAX_HOUSE_HEIGHT = BUILDER
             .comment("Maximum height of a block that is part of a Xoonglin house.")
             .defineInRange("homeDetection.maxHouseSize", 319, -64, 319);
+    public static final ForgeConfigSpec.BooleanValue KEEP_XOONGLINS_LOADED = BUILDER
+            .comment("This will force loading the chunks where a Xoonglin is present. ATTENTION: This can highly damage the performance.")
+            .define("keepXoonglinsLoaded", false);
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
 

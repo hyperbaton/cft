@@ -8,15 +8,22 @@ import com.hyperbaton.cft.socialclass.SocialClass;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.server.level.TicketType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.Comparator;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 
 public class CftRegistry {
+
+    public static final TicketType<UUID> XOONGLIN_CHUNK_TICKET = TicketType.create(
+            "xoonglin_chunk_ticket", Comparator.comparing(UUID::toString)
+    );
 
     public static Registry<Need> NEEDS;
     public static Registry<SocialClass> SOCIAL_CLASSES;
