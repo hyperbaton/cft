@@ -73,6 +73,9 @@ public class HomeDetection {
                 || !checkValidBlocks(level, wallBlocks, homeNeed.getWallBlocks())) {
             return houseNotFound("Invalid walls", entrance, level);
         }
+        if(tooManyDoors(level, wallBlocks)) {
+            return houseNotFound("Too many doors", entrance, level);
+        }
         houseBlocks.addAll(wallBlocks);
         // Get the starting height of the roof
         int lowestRoofHeight = 1 + wallBlocks.stream().map(Vec3i::getY).distinct().max(Comparator.naturalOrder()).orElse(entrance.getY());
@@ -349,6 +352,13 @@ public class HomeDetection {
     private static boolean isWall(BlockState blockState, List<HomeValidBlock> validBlocks) {
         return blockState.is(BlockTags.DOORS)
                 || validBlocks.stream().anyMatch(validBlock -> isValidBlock(blockState, validBlock));
+    }
+
+    private static boolean tooManyDoors(ServerLevel level, Set<BlockPos> wallBlocks) {
+        return wallBlocks.stream()
+                .filter(pos -> level.getBlockState(pos).is(BlockTags.DOORS))
+                .limit(3) // A door occupies two blocks. If we find more than that, there is no correct home.
+                .count() > 2;
     }
 
     private static boolean isValidBlock(BlockState blockState, HomeValidBlock validBlock) {
