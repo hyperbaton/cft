@@ -5,7 +5,9 @@
   "damage_threshold": 0.0,
   "provided_happiness": 20,
   "satisfaction_threshold": 0.75,
-  "item": "minecraft:clay_ball",
+  "item": {
+    "item": "minecraft:clay_ball"
+  },
   "frequency": 0.25,
   "quantity": 1
 }

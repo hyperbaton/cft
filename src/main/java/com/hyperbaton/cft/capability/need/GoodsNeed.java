@@ -4,10 +4,10 @@ import com.hyperbaton.cft.CftRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.item.Item;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.world.item.crafting.Ingredient;
 
-import java.util.Optional;
+import static com.hyperbaton.cft.capability.need.codec.CftCodec.INGREDIENT_CODEC;
 
 public class GoodsNeed extends Need {
 
@@ -17,32 +17,37 @@ public class GoodsNeed extends Need {
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(GoodsNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(GoodsNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(GoodsNeed::getSatisfactionThreshold),
-            ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(GoodsNeed::getItem),
+            INGREDIENT_CODEC.fieldOf("item").forGetter(GoodsNeed::getIngredient),
             Codec.DOUBLE.fieldOf("frequency").forGetter(GoodsNeed::getFrequency),
             Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity)
     ).apply(instance, GoodsNeed::new));
     private static final String GOODS_NEED_TYPE = "cft:goods_need";
 
-    private Item item;
+    private Ingredient item;
     /**
      * How many items need to be consumed every frequency days for this to be satisfied
      */
     private int quantity;
 
     public static final String TAG_ITEM = "item";
-    public static final String TAG_QUANTITIY = "quantity";
+    public static final String TAG_QUANTITY = "quantity";
 
-    public GoodsNeed(String id, double damage, double damageThreshold, double providedHappiness, double satisfactionThreshold, Item item, double frequency, int quantity) {
+    public GoodsNeed(String id, double damage, double damageThreshold, double providedHappiness,
+                     double satisfactionThreshold, Ingredient item, double frequency, int quantity) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency);
-        this.item = item;
         this.quantity = quantity;
+        this.item = item;
     }
 
-    public Item getItem() {
+    public Ingredient getIngredient() {
+        return this.item;
+    }
+
+    public Ingredient getItem() {
         return item;
     }
 
-    public void setItem(Item item) {
+    public void setItem(Ingredient item) {
         this.item = item;
     }
 
@@ -55,7 +60,7 @@ public class GoodsNeed extends Need {
     }
 
     @Override
-    public Codec<?extends Need> needType() {
+    public Codec<? extends Need> needType() {
         return CftRegistry.GOODS_NEED.get();
     }
 
@@ -70,11 +75,14 @@ public class GoodsNeed extends Need {
     }
 
     @Override
-    public CompoundTag toTag(){
+    public CompoundTag toTag() {
         CompoundTag tag = super.toTag();
-        tag.put(TAG_ITEM, Optional.ofNullable(item.getShareTag(item.getDefaultInstance())).orElseThrow());
+        tag.put(TAG_ITEM, INGREDIENT_CODEC.encodeStart(NbtOps.INSTANCE, item)
+                .result()
+                .orElseThrow());
         tag.putDouble(TAG_FREQUENCY, getFrequency());
-        tag.putInt(TAG_QUANTITIY, quantity);
+        tag.putInt(TAG_QUANTITY, quantity);
         return tag;
     }
+
 }

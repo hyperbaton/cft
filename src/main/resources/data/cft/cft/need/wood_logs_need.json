@@ -5,7 +5,9 @@
   "damage_threshold": 0.4,
   "provided_happiness": 7,
   "satisfaction_threshold": 0.75,
-  "item": "minecraft:oak_log",
+  "item": {
+    "tag": "minecraft:logs"
+  },
   "frequency": 1,
   "quantity": 1
 }

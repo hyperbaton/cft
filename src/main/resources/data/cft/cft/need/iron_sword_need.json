@@ -5,7 +5,9 @@
   "damage_threshold": 0.0,
   "provided_happiness": 20,
   "satisfaction_threshold": 0.8,
-  "item": "minecraft:iron_sword",
+  "item": {
+    "item": "minecraft:iron_sword"
+  },
   "frequency": 3,
   "quantity": 1
 }

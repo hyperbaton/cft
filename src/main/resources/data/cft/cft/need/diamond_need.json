@@ -5,7 +5,9 @@
   "damage_threshold": 0.0,
   "provided_happiness": 500,
   "satisfaction_threshold": 0.75,
-  "item": "minecraft:diamond",
+  "item": {
+    "item": "minecraft:diamond"
+  },
   "frequency": 5,
   "quantity": 1
 }

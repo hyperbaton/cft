@@ -5,7 +5,9 @@
   "damage_threshold": 0.0,
   "provided_happiness": 80,
   "satisfaction_threshold": 0.5,
-  "item": "minecraft:book",
+  "item": {
+    "item": "minecraft:book"
+  },
   "frequency": 3,
   "quantity": 3
 }

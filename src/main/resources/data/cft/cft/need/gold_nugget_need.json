@@ -5,7 +5,9 @@
   "damage_threshold": 0.0,
   "provided_happiness": 80,
   "satisfaction_threshold": 0.75,
-  "item": "minecraft:gold_nugget",
+  "item": {
+    "item": "minecraft:gold_nugget"
+  },
   "frequency": 2,
   "quantity": 1
 }

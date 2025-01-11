@@ -5,7 +5,9 @@
   "damage_threshold": 0.0,
   "provided_happiness": 20,
   "satisfaction_threshold": 0.75,
-  "item": "minecraft:terracotta",
+  "item": {
+    "item": "minecraft:terracotta"
+  },
   "frequency": 2,
   "quantity": 1
 }

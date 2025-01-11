@@ -9,6 +9,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -48,30 +49,75 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
-
-        LOGGER.trace("Checking container in home");
+        LOGGER.debug("Checking container in home");
         if (!mob.getBrain().hasMemoryValue(homeContainerMemoryType()) ||
                 !isCloseEnoughToContainer(mob)) {
             return;
         }
-        Container container = (Container) mob.level().getBlockEntity(mob.getBrain().getMemory(homeContainerMemoryType()).get());
-        // If there is no chest, the Xoonglin doesn't have a home and should not try to get anything
-        if (container == null) {
-            mob.getBrain().eraseMemory(homeContainerMemoryType());
+
+        Optional<Container> container = mob.getBrain().getMemory(homeContainerMemoryType())
+                .map(blockPos -> (Container) mob.level().getBlockEntity(blockPos));
+
+        if (container.isEmpty()) {
+            // If the home container is missing, forget about it
+            mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
             return;
         }
 
-        mob.getBrain().getMemory(suppliesNeededMemoryType()).ifPresent(
-                suppliesNeeded -> suppliesNeeded.stream()
-                        // Check if inventory is full
-                        .filter(itemToRetrieve -> mob.getInventory().canAddItem(itemToRetrieve))
-                        .forEach(itemToRetrieve -> findItemPositionInContainer(container, itemToRetrieve)
-                                .ifPresent(position -> mob.getInventory()
-                                        .addItem(container.removeItem(position, itemToRetrieve.getCount()))))
-        );
-        mob.getBrain().eraseMemory(suppliesNeededMemoryType());
-        // Add a cooldown for retrying
+        Optional<List<Ingredient>> neededSupplies = mob.getBrain().getMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get());
+        if (neededSupplies.isEmpty()) {
+            return;
+        }
+
+        List<Ingredient> ingredientsNeeded = neededSupplies.get();
+        retrieveSupplies(mob, container.get(), ingredientsNeeded);
+
+        // Once supplies are retrieved, remove the memory
+        mob.getBrain().eraseMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get());
+        // Add a cooldown before requesting new supplies
         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.SUPPLY_COOLDOWN.get(), true, 200L);
+    }
+
+    /**
+     * Tries to retrieve the needed supplies from the container.
+     */
+    private void retrieveSupplies(XoonglinEntity mob, Container container, List<Ingredient> neededSupplies) {
+        for (Ingredient ingredient : neededSupplies) {
+            if (!canStoreItem(mob, ingredient)) {
+                LOGGER.warn("Xoonglin's inventory is full, cannot retrieve supplies.");
+                return;
+            }
+
+            for (int i = 0; i < container.getContainerSize(); i++) {
+                ItemStack stack = container.getItem(i);
+
+                if (ingredient.test(stack) && !stack.isEmpty()) {
+                    int neededAmount = getNeededQuantity(mob, ingredient);
+                    int takenAmount = Math.min(neededAmount, stack.getCount());
+
+                    ItemStack takenStack = container.removeItem(i, takenAmount);
+                    mob.getInventory().addItem(takenStack);
+
+                    // Stop looking for this supply if we got enough
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Checks if the Xoonglin has space for the given ingredient.
+     */
+    private boolean canStoreItem(XoonglinEntity mob, Ingredient ingredient) {
+        return mob.getInventory().canAddItem(ingredient.getItems()[0]); // Check using first matching item
+    }
+
+    /**
+     * Determines how much of an ingredient the Xoonglin needs.
+     * (This method could be extended if we want different amounts per ingredient.)
+     */
+    private int getNeededQuantity(XoonglinEntity mob, Ingredient ingredient) {
+        return 1; // Defaulting to 1 for now; can be adjusted dynamically.
     }
 
     @Override
@@ -99,7 +145,7 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
         return Optional.empty();
     }
 
-    private MemoryModuleType<List<ItemStack>> suppliesNeededMemoryType() {
+    private MemoryModuleType<List<Ingredient>> suppliesNeededMemoryType() {
         return CftMemoryModuleType.SUPPLIES_NEEDED.get();
     }
 

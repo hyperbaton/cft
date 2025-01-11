@@ -5,7 +5,9 @@
   "damage_threshold": 0.5,
   "provided_happiness": 10,
   "satisfaction_threshold": 0.75,
-  "item": "minecraft:cooked_porkchop",
+  "item": {
+    "item": "minecraft:cooked_porkchop"
+  },
   "frequency": 0.5,
   "quantity": 1
 }

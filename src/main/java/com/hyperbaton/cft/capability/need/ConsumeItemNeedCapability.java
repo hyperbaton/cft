@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,34 +18,35 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
 
     @Override
     public boolean satisfy(XoonglinEntity mob) {
-        if (mob.getInventory().hasAnyMatching(itemStack -> itemStack.is(need.getItem()) &&
-                itemStack.getCount() >= need.getQuantity())) {
-            // Consume item and satisfy the need
-            mob.getInventory().removeItemType(need.getItem(), need.getQuantity());
-            super.satisfy(mob);
-        } else {
-            this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
-            addMemoriesForSatisfaction(mob);
-            return false;
+        // Consume matching item and satisfy the need
+        for (int i = 0; i < mob.getInventory().getContainerSize(); i++) {
+            ItemStack stack = mob.getInventory().getItem(i);
+            if (need.getIngredient().test(stack) && stack.getCount() >= need.getQuantity()) {
+                mob.getInventory().removeItem(i, need.getQuantity());
+                super.satisfy(mob);
+                return true;
+            }
         }
-        return true;
+        // If it didn't stop after finding something, unsatisfy the need
+        this.unsatisfy(need.getFrequency(), mob);
+        mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+        addMemoriesForSatisfaction(mob);
+        return false;
     }
 
     @Override
     public void addMemoriesForSatisfaction(XoonglinEntity mob) {
-        ItemStack neededStack = new ItemStack(need.getItem(), need.getQuantity());
         mob.getBrain().getMemory(suppliesNeededMemoryType()).ifPresentOrElse(
                 memory -> {
-                    // Create a mutable copy of the memory list
-                    if (memory.stream().noneMatch(item -> item.is(neededStack.getItem()))) {
-                        List<ItemStack> mutableMemory = new ArrayList<>(memory);
-                        mutableMemory.add(new ItemStack(need.getItem(), need.getQuantity()));
+                    // Ensure the Ingredient isn't already in memory before adding
+                    if (memory.stream().noneMatch(ingredient -> ingredient.equals(need.getIngredient()))) {
+                        List<Ingredient> mutableMemory = new ArrayList<>(memory);
+                        mutableMemory.add(need.getIngredient());
                         mob.getBrain().setMemory(suppliesNeededMemoryType(), mutableMemory);
                     }
                 },
                 () -> mob.getBrain().setMemory(suppliesNeededMemoryType(),
-                        new ArrayList<>(List.of(new ItemStack(need.getItem(), need.getQuantity()))))
+                        new ArrayList<>(List.of(need.getIngredient())))
         );
     }
 
@@ -56,7 +58,7 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
         );
     }
 
-    private MemoryModuleType<List<ItemStack>> suppliesNeededMemoryType() {
+    private MemoryModuleType<List<Ingredient>> suppliesNeededMemoryType() {
         return CftMemoryModuleType.SUPPLIES_NEEDED.get();
     }
 
