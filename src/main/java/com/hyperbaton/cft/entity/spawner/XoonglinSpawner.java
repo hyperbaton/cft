@@ -1,10 +1,10 @@
 package com.hyperbaton.cft.entity.spawner;
 
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.capability.need.*;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.hyperbaton.cft.world.HomesData;

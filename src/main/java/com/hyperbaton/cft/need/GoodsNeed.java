@@ -1,13 +1,15 @@
-package com.hyperbaton.cft.capability.need;
+package com.hyperbaton.cft.need;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.need.satisfaction.ConsumeItemNeedSatisfier;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.item.crafting.Ingredient;
 
-import static com.hyperbaton.cft.capability.need.codec.CftCodec.INGREDIENT_CODEC;
+import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
 public class GoodsNeed extends Need {
 
@@ -65,13 +67,13 @@ public class GoodsNeed extends Need {
     }
 
     @Override
-    public NeedCapability<GoodsNeed> createCapability() {
-        return this.createCapability(this.getSatisfactionThreshold(), false);
+    public NeedSatisfier<GoodsNeed> createSatisfier() {
+        return this.createSatisfier(this.getSatisfactionThreshold(), false);
     }
 
     @Override
-    public NeedCapability<GoodsNeed> createCapability(double satisfaction, boolean isSatisfied) {
-        return new ConsumeItemNeedCapability(satisfaction, isSatisfied, this);
+    public NeedSatisfier<GoodsNeed> createSatisfier(double satisfaction, boolean isSatisfied) {
+        return new ConsumeItemNeedSatisfier(satisfaction, isSatisfied, this);
     }
 
     @Override

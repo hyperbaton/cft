@@ -1,17 +1,14 @@
-package com.hyperbaton.cft.capability.need;
+package com.hyperbaton.cft.need.satisfaction;
 
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import net.minecraft.core.Holder;
+import com.hyperbaton.cft.need.Need;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.damagesource.DamageTypes;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public abstract class NeedCapability<T extends Need> {
+public abstract class NeedSatisfier<T extends Need> {
 
     /**
      * A value between 0 and 1 about how much this need is currently satisfied
@@ -29,7 +26,7 @@ public abstract class NeedCapability<T extends Need> {
     public static final String TAG_IS_SATISFIED = "isSatisfied";
     public static final String TAG_NEED = "need";
 
-    public NeedCapability(double satisfaction, boolean isSatisfied, T need) {
+    public NeedSatisfier(double satisfaction, boolean isSatisfied, T need) {
         this.satisfaction = satisfaction;
         this.isSatisfied = isSatisfied;
         this.need = need;

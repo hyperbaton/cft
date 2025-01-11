@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.entity.ai.memory;
 
 import com.hyperbaton.cft.CftMod;
-import com.hyperbaton.cft.capability.need.codec.CftCodec;
+import com.hyperbaton.cft.need.codec.CftCodec;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;

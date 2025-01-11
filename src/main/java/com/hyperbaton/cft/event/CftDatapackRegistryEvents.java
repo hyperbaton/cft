@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.event;
 
 import com.hyperbaton.cft.CftMod;
-import com.hyperbaton.cft.capability.need.Need;
+import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;

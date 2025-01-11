@@ -1,8 +1,8 @@
 package com.hyperbaton.cft;
 
-import com.hyperbaton.cft.capability.need.GoodsNeed;
-import com.hyperbaton.cft.capability.need.HomeNeed;
-import com.hyperbaton.cft.capability.need.Need;
+import com.hyperbaton.cft.need.GoodsNeed;
+import com.hyperbaton.cft.need.HomeNeed;
+import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.mojang.serialization.Codec;

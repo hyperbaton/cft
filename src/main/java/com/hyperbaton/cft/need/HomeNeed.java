@@ -1,6 +1,8 @@
-package com.hyperbaton.cft.capability.need;
+package com.hyperbaton.cft.need;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.need.satisfaction.HomeNeedSatisfier;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
@@ -71,12 +73,12 @@ public class HomeNeed extends Need{
     }
 
     @Override
-    public NeedCapability<HomeNeed> createCapability() {
-        return createCapability(this.getSatisfactionThreshold(), false);
+    public NeedSatisfier<HomeNeed> createSatisfier() {
+        return createSatisfier(this.getSatisfactionThreshold(), false);
     }
 
     @Override
-    public NeedCapability<HomeNeed> createCapability(double satisfaction, boolean isSatisfied) {
-        return new HomeNeedCapability(satisfaction, isSatisfied, this);
+    public NeedSatisfier<HomeNeed> createSatisfier(double satisfaction, boolean isSatisfied) {
+        return new HomeNeedSatisfier(satisfaction, isSatisfied, this);
     }
 }

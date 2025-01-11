@@ -2,7 +2,7 @@ package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.capability.need.HomeNeed;
+import com.hyperbaton.cft.need.HomeNeed;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.structure.home.XoonglinHome;

@@ -1,9 +1,9 @@
-package com.hyperbaton.cft.capability.need;
+package com.hyperbaton.cft.need;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.ExtraCodecs;
 
 import java.util.function.Function;
@@ -91,9 +91,9 @@ public abstract class Need {
         this.frequency = frequency;
     }
 
-    public abstract NeedCapability<? extends Need> createCapability();
+    public abstract NeedSatisfier<? extends Need> createSatisfier();
 
-    public abstract NeedCapability<? extends Need> createCapability(double satisfaction, boolean isSatisfied);
+    public abstract NeedSatisfier<? extends Need> createSatisfier(double satisfaction, boolean isSatisfied);
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();

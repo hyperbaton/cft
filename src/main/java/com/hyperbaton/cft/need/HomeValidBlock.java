@@ -1,4 +1,4 @@
-package com.hyperbaton.cft.capability.need;
+package com.hyperbaton.cft.need;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

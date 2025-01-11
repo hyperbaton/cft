@@ -1,7 +1,9 @@
-package com.hyperbaton.cft.capability.need;
+package com.hyperbaton.cft.need.satisfaction;
 
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.need.GoodsNeed;
+import com.hyperbaton.cft.need.Need;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -11,8 +13,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
-    public ConsumeItemNeedCapability(double satisfaction, boolean isSatisfied, GoodsNeed need) {
+public class ConsumeItemNeedSatisfier extends NeedSatisfier<GoodsNeed> {
+    public ConsumeItemNeedSatisfier(double satisfaction, boolean isSatisfied, GoodsNeed need) {
         super(satisfaction, isSatisfied, need);
     }
 
@@ -50,8 +52,8 @@ public class ConsumeItemNeedCapability extends NeedCapability<GoodsNeed> {
         );
     }
 
-    public static NeedCapability<GoodsNeed> fromTag(CompoundTag tag) {
-        return new ConsumeItemNeedCapability(
+    public static NeedSatisfier<GoodsNeed> fromTag(CompoundTag tag) {
+        return new ConsumeItemNeedSatisfier(
                 tag.getInt(TAG_SATISFACTION),
                 tag.getBoolean(TAG_IS_SATISFIED),
                 (GoodsNeed) Need.NEED_CODEC.parse(NbtOps.INSTANCE, tag.getCompound(TAG_NEED)).result().orElse(null)

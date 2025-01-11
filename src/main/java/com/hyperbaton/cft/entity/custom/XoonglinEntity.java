@@ -3,10 +3,10 @@ package com.hyperbaton.cft.entity.custom;
 import com.google.common.collect.ImmutableList;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.capability.need.Need;
-import com.hyperbaton.cft.capability.need.NeedCapability;
-import com.hyperbaton.cft.capability.need.NeedCapabilityMapper;
-import com.hyperbaton.cft.capability.need.NeedUtils;
+import com.hyperbaton.cft.need.Need;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfierMapper;
+import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.XoonglinAi;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
@@ -75,7 +75,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private XoonglinHome home;
 
-    private List<NeedCapability<? extends Need>> needs;
+    private List<NeedSatisfier<? extends Need>> needs;
 
     private SocialClass socialClass;
 
@@ -103,7 +103,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         } else if (needs == null) {
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         } else {
-            for (NeedCapability currentNeed : needs) {
+            for (NeedSatisfier currentNeed : needs) {
                 Need need = currentNeed.getNeed();
                 if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
                     currentNeed.satisfy(this);
@@ -398,8 +398,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 this.happiness >= this.socialClass.getMatingHappinessThreshold() &&
                 // All non-luxury needs are satisfied
                 this.needs.stream()
-                        .filter(needCapability -> needCapability.getNeed().getDamage() > 0.0)
-                        .allMatch(NeedCapability::isSatisfied);
+                        .filter(needSatisfier -> needSatisfier.getNeed().getDamage() > 0.0)
+                        .allMatch(NeedSatisfier::isSatisfied);
     }
 
     public void resetMatingDelay() {
@@ -438,11 +438,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.socialClass = socialClass;
     }
 
-    public List<? extends NeedCapability<? extends Need>> getNeeds() {
+    public List<? extends NeedSatisfier<? extends Need>> getNeeds() {
         return needs;
     }
 
-    public void setNeeds(List<NeedCapability<? extends Need>> needs) {
+    public void setNeeds(List<NeedSatisfier<? extends Need>> needs) {
         this.needs = needs;
     }
 
@@ -478,11 +478,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         tag.putDouble(KEY_HAPPINESS, happiness);
     }
 
-    private ListTag getNeedsTag(List<? extends NeedCapability<? extends Need>> needs) {
+    private ListTag getNeedsTag(List<? extends NeedSatisfier<? extends Need>> needs) {
 
         ListTag needsTags = new ListTag();
         if (!this.needs.isEmpty()) {
-            for (NeedCapability<? extends Need> need : needs) {
+            for (NeedSatisfier<? extends Need> need : needs) {
                 needsTags.add(need.toTag());
             }
         }
@@ -508,7 +508,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (tag.contains(KEY_NEEDS)) {
             needs = new ArrayList<>();
             for (Tag needTag : tag.getList(KEY_NEEDS, Tag.TAG_COMPOUND)) {
-                needs.add(NeedCapabilityMapper.mapNeedCapability((CompoundTag) needTag));
+                needs.add(NeedSatisfierMapper.mapNeedSatisfier((CompoundTag) needTag));
             }
         }
         if (tag.contains(KEY_HAPPINESS)) {

@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.item;
 
-import com.hyperbaton.cft.capability.need.NeedCapability;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
@@ -96,8 +96,8 @@ public class LeaderStaff extends Item {
         return new CheckOnXoonglinPacket(entity.getSocialClass().getId(),
                 entity.getHappiness(),
                 entity.getNeeds().stream().collect(Collectors
-                        .toMap(needCapability -> needCapability.getNeed().getId(),
-                                NeedCapability::getSatisfaction)));
+                        .toMap(needSatisfier -> needSatisfier.getNeed().getId(),
+                                NeedSatisfier::getSatisfaction)));
     }
 
     private boolean clickedOnDoor(UseOnContext pContext) {
