@@ -1,0 +1,52 @@
+{
+  "id": "cft:mountain_dweller_home",
+  "type": "cft:home",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 8,
+  "satisfaction_threshold": 0.95,
+  "frequency": 1.0,
+  "floorBlocks": [
+    {
+      "block": "minecraft:chiseled_stone_bricks",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "wallBlocks": [
+    {
+      "tagBlock": "minecraft:logs",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "tagBlock": "minecraft:planks",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "interiorBlocks": [
+    {
+      "block": "minecraft:air",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "roofBlocks": [
+    {
+      "tagBlock": "minecraft:wooden_stairs",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ]
+}

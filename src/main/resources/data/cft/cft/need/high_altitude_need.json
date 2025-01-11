@@ -1,0 +1,11 @@
+{
+  "id": "cft:high_altitude_need",
+  "type": "cft:altitude",
+  "damage": 0.4,
+  "damage_threshold": 0.5,
+  "provided_happiness": 5,
+  "satisfaction_threshold": 0.75,
+  "frequency": 0.1,
+  "min_altitude": 100,
+  "max_altitude": 300
+}

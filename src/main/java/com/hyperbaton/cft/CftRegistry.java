@@ -1,8 +1,6 @@
 package com.hyperbaton.cft;
 
-import com.hyperbaton.cft.need.GoodsNeed;
-import com.hyperbaton.cft.need.HomeNeed;
-import com.hyperbaton.cft.need.Need;
+import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.mojang.serialization.Codec;
@@ -34,6 +32,8 @@ public class CftRegistry {
 
     public static final RegistryObject<Codec<HomeNeed>> HOME_NEED = NEEDS_CODEC.register("home", () -> HomeNeed.HOME_NEED_CODEC);
     public static final RegistryObject<Codec<GoodsNeed>> GOODS_NEED = NEEDS_CODEC.register("goods", () -> GoodsNeed.GOODS_NEED_CODEC);
+    public static final RegistryObject<Codec<AltitudeNeed>> ALTITUDE_NEED = NEEDS_CODEC.register("altitude", () -> AltitudeNeed.ALTITUDE_NEED_CODEC);
+    public static final RegistryObject<Codec<BiomeNeed>> BIOME_NEED = NEEDS_CODEC.register("biome", () -> BiomeNeed.BIOME_NEED_CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess){
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);

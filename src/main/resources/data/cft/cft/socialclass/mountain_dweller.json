@@ -1,0 +1,32 @@
+{
+  "id": "cft:mountain_dweller",
+  "maxHappiness": 100.0,
+  "matingHappinessThreshold": 5.0,
+  "spontaneouslySpawnPopulation": 3,
+  "needs": [
+    "cft:potato_need",
+    "cft:wood_logs_need",
+    "cft:mountain_dweller_home",
+    "cft:mountain_biomes_need",
+    "cft:high_altitude_need"
+  ],
+  "upgrades": [
+    {
+      "nextClass": "cft:citizen",
+      "requiredHappiness": 20,
+      "requiredNeeds": [
+        {
+          "need": "cft:potato_need",
+          "satisfactionThreshold": 0.70
+        }
+      ],
+      "socialStructureRequirements": [
+        {
+          "socialClass": "cft:mountain_dweller",
+          "percentage": 0.30
+        }
+      ]
+    }
+  ],
+  "downgrades": []
+}
