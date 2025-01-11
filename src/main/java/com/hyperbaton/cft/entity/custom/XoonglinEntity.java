@@ -21,15 +21,14 @@ import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -50,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
@@ -62,6 +62,9 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         ((GroundPathNavigation) this.getNavigation()).setCanPassDoors(true);
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
         this.setMaxUpStep(1.0F); // Allow stepping up one block
+        if (!pLevel.isClientSide && !this.hasCustomName()) {
+            this.setCustomName(Component.literal(XoonglinNameGenerator.generateName()));
+        }
     }
 
     public final AnimationState idleAnimationState = new AnimationState();

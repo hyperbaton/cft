@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class XoonglinRenderer extends MobRenderer<XoonglinEntity, XoonglinModel<XoonglinEntity>> {
@@ -31,4 +32,13 @@ public class XoonglinRenderer extends MobRenderer<XoonglinEntity, XoonglinModel<
 
         super.render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
     }
+
+    @Override
+    protected void renderNameTag(XoonglinEntity entity, Component name, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+        poseStack.pushPose();
+        poseStack.translate(0, entity.getBbHeight() * 0.6F, 0); // Move name above entity
+        super.renderNameTag(entity, name, poseStack, buffer, packedLight);
+        poseStack.popPose();
+    }
+
 }
