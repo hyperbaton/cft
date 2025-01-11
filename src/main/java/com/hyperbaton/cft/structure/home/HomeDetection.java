@@ -14,8 +14,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.compress.utils.Lists;
 import org.slf4j.Logger;
@@ -341,7 +340,7 @@ public class HomeDetection {
     }
 
     private static boolean isInterior(BlockState blockState, List<HomeValidBlock> validBlocks) {
-        return blockState.is(Blocks.CHEST)
+        return isContainer(blockState)
                 || validBlocks.stream().anyMatch(validBlock -> isValidBlock(blockState, validBlock));
     }
 
@@ -372,7 +371,7 @@ public class HomeDetection {
     }
 
     private static boolean isContainer(BlockState blockState) {
-        return blockState.is(Blocks.CHEST);
+        return blockState.getBlock() instanceof ChestBlock;
     }
 
     /**
