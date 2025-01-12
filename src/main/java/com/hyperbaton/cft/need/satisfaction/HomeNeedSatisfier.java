@@ -21,7 +21,10 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
     @Override
     public boolean satisfy(XoonglinEntity mob) {
         if (mob.getHome() != null &&
-                HomeDetection.detectHouse(mob.getHome().getEntrance(), (ServerLevel) mob.level(), mob.getLeaderId(), getHomeNeedOfSocialClass(mob.getSocialClass()))) {
+                HomeDetection.detectHouse(mob.getHome().getEntrance(),
+                                (ServerLevel) mob.level(), mob.getLeaderId(),
+                                getHomeNeedOfSocialClass(mob.getSocialClass()))
+                        .isHomeDetected()) {
             super.satisfy(mob);
         } else {
             if (mob.getHome() != null) {

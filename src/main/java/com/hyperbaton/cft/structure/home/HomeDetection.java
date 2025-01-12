@@ -5,12 +5,12 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.need.HomeNeed;
 import com.hyperbaton.cft.need.HomeValidBlock;
+import com.hyperbaton.cft.network.HomeDetectionPacket;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
@@ -30,20 +30,21 @@ import java.util.stream.Stream;
 public class HomeDetection {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public boolean detectAnyHouse(BlockPos positionClicked, ServerLevel level, UUID leaderId) {
+    public HomeDetectionPacket detectAnyHouse(BlockPos positionClicked, ServerLevel level, UUID leaderId) {
         List<HomeNeed> homeNeeds = CftRegistry.NEEDS.stream()
                 .filter(need -> need instanceof HomeNeed)
                 .map(need -> (HomeNeed) need)
                 .toList();
-        boolean detectedHome = false;
+        List<HomeDetectionPacket> detectedHomePackets = new ArrayList<>();
         for (HomeNeed homeNeed : homeNeeds) {
-            detectedHome = detectHouse(positionClicked, level, leaderId, homeNeed);
-            if (detectedHome) break;
+            HomeDetectionPacket detectedHomePacket = detectHouse(positionClicked, level, leaderId, homeNeed);
+            detectedHomePackets.add(detectedHomePacket);
+            if (detectedHomePacket.isHomeDetected()) break;
         }
-        return detectedHome;
+        return selectDetectionPacket(detectedHomePackets);
     }
 
-    public static boolean detectHouse(BlockPos entrance, ServerLevel level, UUID leaderId, HomeNeed homeNeed) {
+    public static HomeDetectionPacket detectHouse(BlockPos entrance, ServerLevel level, UUID leaderId, HomeNeed homeNeed) {
         Set<BlockPos> houseBlocks = Sets.newHashSet(entrance);
         Set<BlockPos> floorBlocks = Sets.newHashSet();
         Set<BlockPos> floorPerimeterBlocks = Sets.newHashSet();
@@ -56,7 +57,7 @@ public class HomeDetection {
                 || !checkValidBlocks(level,
                 Stream.of(floorBlocks, floorPerimeterBlocks).flatMap(Collection::stream).collect(Collectors.toSet()),
                 homeNeed.getFloorBlocks())) {
-            return houseNotFound("Invalid floor", entrance, level);
+            return houseNotFound(HomeDetectionReasons.INVALID_FLOOR, entrance, level, homeNeed.getId());
         }
         // The inner corners are misidentified as non perimeter blocks in the previous method.
         detectInnerCorners(level, floorBlocks, floorPerimeterBlocks);
@@ -70,10 +71,10 @@ public class HomeDetection {
                 homeNeed.getWallBlocks());
         if (!foundWall
                 || !checkValidBlocks(level, wallBlocks, homeNeed.getWallBlocks())) {
-            return houseNotFound("Invalid walls", entrance, level);
+            return houseNotFound(HomeDetectionReasons.INVALID_WALLS, entrance, level, homeNeed.getId());
         }
         if(tooManyDoors(level, wallBlocks)) {
-            return houseNotFound("Too many doors", entrance, level);
+            return houseNotFound(HomeDetectionReasons.TOO_MANY_DOORS, entrance, level, homeNeed.getId());
         }
         houseBlocks.addAll(wallBlocks);
         // Get the starting height of the roof
@@ -85,7 +86,7 @@ public class HomeDetection {
                 homeNeed.getInteriorBlocks());
         if (!foundInterior
                 || !checkValidBlocks(level, interiorBlocks, homeNeed.getInteriorBlocks())) {
-            return houseNotFound("Invalid interior", entrance, level);
+            return houseNotFound(HomeDetectionReasons.INVALID_INTERIOR, entrance, level, homeNeed.getId());
         }
         houseBlocks.addAll(interiorBlocks);
 
@@ -96,7 +97,7 @@ public class HomeDetection {
                 homeNeed.getInteriorBlocks());
         if (!foundRoof
                 || !checkValidBlocks(level, roofBlocks, homeNeed.getRoofBlocks())) {
-            return houseNotFound("Invalid roof", entrance, level);
+            return houseNotFound(HomeDetectionReasons.INVALID_ROOF, entrance, level, homeNeed.getId());
         }
         houseBlocks.addAll(roofBlocks);
 
@@ -104,16 +105,17 @@ public class HomeDetection {
         BlockPos containerPos = findContainer(level, floorBlocks);
 
         if (containerPos == null) {
-            return houseNotFound("No container present", entrance, level);
+            return houseNotFound(HomeDetectionReasons.NO_CONTAINER, entrance, level, homeNeed.getId());
         }
 
         if (houseBlocks.size() > CftConfig.MAX_HOUSE_SIZE.get()) {
-            return houseNotFound("House too large", entrance, level);
+            return houseNotFound(HomeDetectionReasons.HOUSE_TOO_LARGE, entrance, level, homeNeed.getId());
         }
 
         // At this point, a house has been found
-        houseBlocks.forEach(blockPos -> level.sendParticles(ParticleTypes.ENTITY_EFFECT, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
-                5, 0, 0, 0, 0.1));
+        // DEBUG MODE: Send particles
+        //houseBlocks.forEach(blockPos -> level.sendParticles(ParticleTypes.ENTITY_EFFECT, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+        //        5, 0, 0, 0, 0.1));
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
         // If the home doesn't exist yet, add it to the list
         if (homesData.getHomes().stream().noneMatch(home -> home.getEntrance().equals(entrance))) {
@@ -126,7 +128,7 @@ public class HomeDetection {
 
         LOGGER.debug("House size:" + houseBlocks.size());
 
-        return true;
+        return new HomeDetectionPacket(true, homeNeed.getId(), HomeDetectionReasons.HOUSE_DETECTED);
     }
 
     private static boolean checkValidBlocks(ServerLevel level, Set<BlockPos> blockList, List<HomeValidBlock> validBlocks) {
@@ -377,7 +379,7 @@ public class HomeDetection {
     /**
      * Treatment of the case a house is not found: log the reason and remove it from the stored data
      */
-    private static boolean houseNotFound(String reason, BlockPos entrance, ServerLevel level) {
+    private static HomeDetectionPacket houseNotFound(HomeDetectionReasons reason, BlockPos entrance, ServerLevel level, String homeNeedId) {
         LOGGER.debug("No house found. " + reason);
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
         Optional<XoonglinHome> homeToRemove = homesData.getHomes().stream().filter(home -> home.getEntrance().equals(entrance)).findFirst();
@@ -385,6 +387,18 @@ public class HomeDetection {
             homesData.getHomes().remove(homeToRemove.get());
             homesData.setDirty();
         }
-        return false;
+        return new HomeDetectionPacket(false, homeNeedId, reason);
     }
+
+    private HomeDetectionPacket selectDetectionPacket(List<HomeDetectionPacket> detectedHomePackets) {
+        return detectedHomePackets.stream()
+                .filter(HomeDetectionPacket::isHomeDetected) // Prioritize fully detected homes
+                .findFirst() // If any home is fully detected, return it immediately
+                .or(() -> detectedHomePackets.stream()
+                        .filter(packet -> packet.getDetectionReason() != null) // Only consider those with an error
+                        .max(Comparator.comparingInt(packet -> packet.getDetectionReason().ordinal())) // Pick the highest-priority error
+                )
+                .orElse(null); // If no valid detection is found, return null
+    }
+
 }

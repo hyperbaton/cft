@@ -4,7 +4,9 @@ import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
+import com.hyperbaton.cft.network.HomeDetectionPacket;
 import com.hyperbaton.cft.structure.home.HomeDetection;
+import com.hyperbaton.cft.structure.home.HomeDetectionReasons;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -27,7 +29,6 @@ import org.slf4j.Logger;
 import java.util.stream.Collectors;
 
 public class LeaderStaff extends Item {
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     public LeaderStaff(Properties pProperties) {
         super(pProperties);
@@ -37,7 +38,7 @@ public class LeaderStaff extends Item {
     public InteractionResult useOn(UseOnContext pContext) {
         if (!pContext.getLevel().isClientSide()) {
 
-            boolean foundHouse;
+            HomeDetectionPacket foundHouseMessage;
             Player player = pContext.getPlayer();
 
             if (clickedOnDoor(pContext)) {
@@ -54,21 +55,17 @@ public class LeaderStaff extends Item {
                 HomesData homesData = ((ServerLevel) pContext.getLevel()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
                 BlockPos finalPositionClicked = positionClicked;
                 if (homesData.getHomes().stream().anyMatch(home -> home.getEntrance().equals(finalPositionClicked))) {
-                    LOGGER.debug("House already registered.");
-                    foundHouse = false;
+                    foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.ALREADY_REGISTERED);
                 } else {
-                    foundHouse = new HomeDetection().detectAnyHouse(positionClicked, (ServerLevel) pContext.getLevel(), player.getUUID());
+                    foundHouseMessage = new HomeDetection().detectAnyHouse(positionClicked, (ServerLevel) pContext.getLevel(), player.getUUID());
                 }
 
             } else {
-                foundHouse = false;
+                foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.NOT_A_DOOR);
             }
 
-            if (!foundHouse) {
-                player.sendSystemMessage(Component.literal("No house found."));
-            } else {
-                player.sendSystemMessage(Component.literal("House found."));
-            }
+
+            CftPacketHandler.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), foundHouseMessage);
         }
 
         return InteractionResult.SUCCESS;

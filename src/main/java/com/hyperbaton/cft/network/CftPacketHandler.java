@@ -20,5 +20,6 @@ public class CftPacketHandler {
     }
     public static void init() {
         CHANNEL.registerMessage(ID.incrementAndGet(), CheckOnXoonglinPacket.class, CheckOnXoonglinPacket::encode, CheckOnXoonglinPacket::new, CheckOnXoonglinPacket::handle);
+        CHANNEL.registerMessage(ID.incrementAndGet(), HomeDetectionPacket.class, HomeDetectionPacket::encode, HomeDetectionPacket::new, HomeDetectionPacket::handle);
     }
 }
