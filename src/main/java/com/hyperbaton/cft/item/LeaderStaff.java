@@ -93,7 +93,9 @@ public class LeaderStaff extends Item {
     }
 
     private CheckOnXoonglinPacket createXoonglinInfoMessage(XoonglinEntity entity) {
-        return new CheckOnXoonglinPacket(entity.getSocialClass().getId(),
+        return new CheckOnXoonglinPacket(
+                entity.getCustomName(),
+                entity.getSocialClass().getId(),
                 entity.getHappiness(),
                 entity.getNeeds().stream().collect(Collectors
                         .toMap(needSatisfier -> needSatisfier.getNeed().getId(),
