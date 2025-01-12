@@ -9,5 +9,6 @@
     "item": "minecraft:book"
   },
   "frequency": 7,
+  "hidden": true,
   "quantity": 1
 }

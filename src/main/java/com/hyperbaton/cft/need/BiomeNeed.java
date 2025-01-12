@@ -17,14 +17,15 @@ public class BiomeNeed extends Need {
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(BiomeNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(BiomeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(BiomeNeed::getFrequency),
+            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(BiomeNeed::isHidden),
             Codec.STRING.listOf().fieldOf("biomes").forGetter(BiomeNeed::getBiomes)
     ).apply(instance, BiomeNeed::new));
 
     private List<String> biomes;
 
     public BiomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, double frequency, List<String> biomes) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency);
+                     double satisfactionThreshold, double frequency, boolean hidden, List<String> biomes) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
         this.biomes = biomes;
     }
 

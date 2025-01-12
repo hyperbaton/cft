@@ -17,6 +17,7 @@ public class HomeNeed extends Need{
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(HomeNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(HomeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(HomeNeed::getFrequency),
+            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(HomeNeed::isHidden),
             HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("floorBlocks").forGetter(HomeNeed::getFloorBlocks),
             HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("wallBlocks").forGetter(HomeNeed::getWallBlocks),
             HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("interiorBlocks").forGetter(HomeNeed::getInteriorBlocks),
@@ -27,8 +28,11 @@ public class HomeNeed extends Need{
     List<HomeValidBlock> wallBlocks;
     List<HomeValidBlock> interiorBlocks;
     List<HomeValidBlock> roofBlocks;
-    public HomeNeed(String id, double damage, double damageThreshold, double providedHappiness, double satisfactionThreshold, double frequency, List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks, List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency);
+    public HomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
+                    double satisfactionThreshold, double frequency, boolean hidden,
+                    List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks,
+                    List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
         this.floorBlocks = floorBlocks;
         this.wallBlocks = wallBlocks;
         this.interiorBlocks = interiorBlocks;

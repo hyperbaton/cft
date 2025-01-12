@@ -97,9 +97,10 @@ public class LeaderStaff extends Item {
                 entity.getCustomName(),
                 entity.getSocialClass().getId(),
                 entity.getHappiness(),
-                entity.getNeeds().stream().collect(Collectors
-                        .toMap(needSatisfier -> needSatisfier.getNeed().getId(),
-                                NeedSatisfier::getSatisfaction)));
+                entity.getNeeds().stream().filter(needSatisfier -> !needSatisfier.getNeed().isHidden())
+                        .collect(Collectors
+                                .toMap(needSatisfier -> needSatisfier.getNeed().getId(),
+                                        NeedSatisfier::getSatisfaction)));
     }
 
     private boolean clickedOnDoor(UseOnContext pContext) {

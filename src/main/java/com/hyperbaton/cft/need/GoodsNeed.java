@@ -21,6 +21,7 @@ public class GoodsNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(GoodsNeed::getSatisfactionThreshold),
             INGREDIENT_CODEC.fieldOf("item").forGetter(GoodsNeed::getIngredient),
             Codec.DOUBLE.fieldOf("frequency").forGetter(GoodsNeed::getFrequency),
+            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(GoodsNeed::isHidden),
             Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity)
     ).apply(instance, GoodsNeed::new));
     private static final String GOODS_NEED_TYPE = "cft:goods_need";
@@ -35,8 +36,8 @@ public class GoodsNeed extends Need {
     public static final String TAG_QUANTITY = "quantity";
 
     public GoodsNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, Ingredient item, double frequency, int quantity) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency);
+                     double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, int quantity) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
         this.quantity = quantity;
         this.item = item;
     }

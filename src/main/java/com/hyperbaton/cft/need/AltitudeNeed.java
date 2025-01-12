@@ -15,6 +15,7 @@ public class AltitudeNeed extends Need {
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(AltitudeNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(AltitudeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(AltitudeNeed::getFrequency),
+            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(AltitudeNeed::isHidden),
             Codec.DOUBLE.fieldOf("min_altitude").forGetter(AltitudeNeed::getMinAltitude),
             Codec.DOUBLE.fieldOf("max_altitude").forGetter(AltitudeNeed::getMaxAltitude)
     ).apply(instance, AltitudeNeed::new));
@@ -23,8 +24,8 @@ public class AltitudeNeed extends Need {
     private double maxAltitude;
 
     public AltitudeNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                        double satisfactionThreshold, double frequency, double minAltitude, double maxAltitude) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency);
+                        double satisfactionThreshold, double frequency, boolean hidden, double minAltitude, double maxAltitude) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
         this.minAltitude = minAltitude;
         this.maxAltitude = maxAltitude;
     }

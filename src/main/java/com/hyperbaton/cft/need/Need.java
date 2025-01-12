@@ -9,6 +9,7 @@ import net.minecraft.util.ExtraCodecs;
 import java.util.function.Function;
 
 public abstract class Need {
+    protected static final boolean DEFAULT_HIDDEN = false;
 
     public static final Codec<Need> NEED_CODEC = ExtraCodecs.lazyInitializedCodec(() -> CftRegistry.NEEDS_CODEC_SUPPLIER.get().getCodec()
             .dispatch(Need::needType, Function.identity()));
@@ -29,20 +30,28 @@ public abstract class Need {
      */
     private double frequency;
 
+    /**
+     * Whether or not this need should be shown to the player. It allows for "technical" needs
+     */
+    private boolean hidden;
+
     public static final String TAG_ID = "id";
     public static final String TAG_DAMAGE = "damage";
     public static final String TAG_DAMAGE_THRESHOLD = "damageThreshold";
     public static final String TAG_PROVIDED_HAPPINESS = "providedHappiness";
     public static final String TAG_SATISFACTION_THRESHOLD = "satisfactionThreshold";
     public static final String TAG_FREQUENCY = "frequency";
+    public static final String TAG_HIDDEN = "hidden";
 
-    public Need(String id, double damage, double damageThreshold, double providedHappiness, double satisfactionThreshold, double frequency) {
+    public Need(String id, double damage, double damageThreshold, double providedHappiness,
+                double satisfactionThreshold, double frequency, boolean hidden) {
         this.id = id;
         this.damage = damage;
         this.damageThreshold = damageThreshold;
         this.providedHappiness = providedHappiness;
         this.satisfactionThreshold = satisfactionThreshold;
         this.frequency = frequency;
+        this.hidden = hidden;
     }
 
     public String getId() {
@@ -91,6 +100,14 @@ public abstract class Need {
         this.frequency = frequency;
     }
 
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+
     public abstract NeedSatisfier<? extends Need> createSatisfier();
 
     public abstract NeedSatisfier<? extends Need> createSatisfier(double satisfaction, boolean isSatisfied);
@@ -103,6 +120,7 @@ public abstract class Need {
         tag.putDouble(TAG_PROVIDED_HAPPINESS, providedHappiness);
         tag.putDouble(TAG_SATISFACTION_THRESHOLD, satisfactionThreshold);
         tag.putDouble(TAG_FREQUENCY, frequency);
+        tag.putBoolean(TAG_HIDDEN, hidden);
         return tag;
     }
 }
