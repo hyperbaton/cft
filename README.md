@@ -148,7 +148,9 @@ try to get the goods from the chest whithin their home.
   "damage_threshold": 0.5,
   "provided_happiness": 10,
   "satisfaction_threshold": 0.75,
-  "item": "minecraft:bread",
+  "item": {
+    "item": "minecraft:bread"
+  },
   "frequency": 0.5,
   "quantity": 2
 }
@@ -162,9 +164,12 @@ try to get the goods from the chest whithin their home.
 is satisfied.
 - `satisfaction_threshold`: If satisfaction is above this level, the need is considered
 _satisfied_.
-- `item`: Reference to the item needed.
+- `item`: The needed item, in Ingredient format. It can be just a reference to some item or have more complex structure,
+like checking NBT tags.
 - `frequency`: In Minecraft days, how long it takes for the satisfaction of this need to
 go from 1 to 0.
+- `hidden`: An optional boolean indicating if this need should be hidden from interfaces. Its value is `false`
+by default.
 - `quantity`: How many items of the specified class are needed to satisfy the need.
 </details>
 
@@ -242,7 +247,6 @@ resting on the walls and covering the full surface of the house.
 
 ```
 
-</details>
 
 For the common fields, look at the good need example. The rest is a specification of
 the blocks a home can be built with:
@@ -261,3 +265,64 @@ fields are:
   of this type. Always in [0,1]
 
 For the interior blocks, air should always be present.
+</details>
+
+#### Altitude Need
+
+The Xoonglin needs to live in some altitude range (given by Y coordinate).
+
+<details>
+    <summary>Sample altitude need file</summary>
+
+```json
+{
+  "id": "cft:high_altitude_need",
+  "type": "cft:altitude",
+  "damage": 0.4,
+  "damage_threshold": 0.5,
+  "provided_happiness": 5,
+  "satisfaction_threshold": 0.75,
+  "frequency": 0.1,
+  "min_altitude": 100,
+  "max_altitude": 300
+}
+```
+Apart from the common fields, this need includes an altitude range:
+- `min_altitude`: The minimum altitude the Xoonglin must be at any moment for the need to be satisfied.
+- `max_altitude`: The altitude below which the Xoonglin must be at any moment for the need to be satisfied.
+</details>
+
+#### Biome Need
+
+The Xoonglin needs to live in a given biome (or a set of biomes).
+
+<details>
+    <summary>Sample biome need file</summary>
+
+```json
+{
+  "id": "cft:mountain_biomes_need",
+  "type": "cft:biome",
+  "damage": 0.4,
+  "damage_threshold": 0.5,
+  "provided_happiness": 5,
+  "satisfaction_threshold": 0.75,
+  "frequency": 0.1,
+  "biomes": [
+    "minecraft:windswept_hills",
+    "minecraft:windswept_gravelly_hills",
+    "minecraft:windswept_forest",
+    "minecraft:windswept_savanna",
+    "minecraft:meadow",
+    "minecraft:cherry_grove",
+    "minecraft:grove",
+    "minecraft:snowy_slopes",
+    "minecraft:frozen_peaks",
+    "minecraft:jagged_peaks",
+    "minecraft:stony_peaks"
+  ]
+}
+```
+Apart from the common fields, this need includes a list of biomes:
+- `biomes`: A list of biomes. The Xoonglin must be in any of them for the need to be satisfied.
+</details>
