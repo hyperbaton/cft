@@ -77,11 +77,6 @@ public class HomeNeed extends Need{
     }
 
     @Override
-    public NeedSatisfier<HomeNeed> createSatisfier() {
-        return createSatisfier(this.getSatisfactionThreshold(), false);
-    }
-
-    @Override
     public NeedSatisfier<HomeNeed> createSatisfier(double satisfaction, boolean isSatisfied) {
         return new HomeNeedSatisfier(satisfaction, isSatisfied, this);
     }

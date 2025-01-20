@@ -35,11 +35,6 @@ public class BiomeNeed extends Need {
     }
 
     @Override
-    public NeedSatisfier<? extends Need> createSatisfier() {
-        return createSatisfier(this.getSatisfactionThreshold(), false);
-    }
-
-    @Override
     public NeedSatisfier<? extends Need> createSatisfier(double satisfaction, boolean isSatisfied) {
         return new BiomeNeedSatisfier(satisfaction, isSatisfied, this);
     }

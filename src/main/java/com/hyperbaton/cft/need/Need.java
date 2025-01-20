@@ -108,7 +108,9 @@ public abstract class Need {
         this.hidden = hidden;
     }
 
-    public abstract NeedSatisfier<? extends Need> createSatisfier();
+    public NeedSatisfier<? extends Need> createSatisfier() {
+        return createSatisfier(this.getSatisfactionThreshold(), false);
+    }
 
     public abstract NeedSatisfier<? extends Need> createSatisfier(double satisfaction, boolean isSatisfied);
 
