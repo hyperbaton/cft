@@ -9,21 +9,17 @@ import com.hyperbaton.cft.network.HomeDetectionPacket;
 import com.hyperbaton.cft.world.HomesData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.apache.commons.compress.utils.Lists;
 import org.slf4j.Logger;
 import oshi.util.tuples.Pair;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,39 +63,44 @@ public class HomeDetection {
 
         // Detect the walls of the house
         Set<BlockPos> wallBlocks = Sets.newHashSet();
-        boolean foundWall = findWall(level, floorPerimeterBlocks, wallBlocks,
+        Set<BlockPos> roofCandidateBlocks = Sets.newHashSet();
+        boolean foundWall = findWall(level, floorPerimeterBlocks, wallBlocks, roofCandidateBlocks,
                 homeNeed.getWallBlocks());
         if (!foundWall
                 || !checkValidBlocks(level, wallBlocks, homeNeed.getWallBlocks())) {
             return houseNotFound(HomeDetectionReasons.INVALID_WALLS, entrance, level, homeNeed.getId());
         }
-        if(tooManyDoors(level, wallBlocks)) {
+        if (tooManyDoors(level, wallBlocks)) {
             return houseNotFound(HomeDetectionReasons.TOO_MANY_DOORS, entrance, level, homeNeed.getId());
         }
         houseBlocks.addAll(wallBlocks);
-        // Get the starting height of the roof
-        int lowestRoofHeight = 1 + wallBlocks.stream().map(Vec3i::getY).distinct().max(Comparator.naturalOrder()).orElse(entrance.getY());
 
         // Detect the indoor area of the house
         Set<BlockPos> interiorBlocks = Sets.newHashSet();
-        boolean foundInterior = findInterior(level, floorBlocks, interiorBlocks,
-                homeNeed.getInteriorBlocks());
+        boolean foundInterior = findInterior(level, floorBlocks, interiorBlocks, roofCandidateBlocks,
+                homeNeed.getInteriorBlocks(), fullFloorBlocks.size());
         if (!foundInterior
                 || !checkValidBlocks(level, interiorBlocks, homeNeed.getInteriorBlocks())) {
             return houseNotFound(HomeDetectionReasons.INVALID_INTERIOR, entrance, level, homeNeed.getId());
         }
         houseBlocks.addAll(interiorBlocks);
 
-        // Detect the roof of the house
+        // Verify the detected roof of the house is valid
         Set<BlockPos> roofBlocks = Sets.newHashSet();
-        boolean foundRoof = findRoof(level, fullFloorBlocks, roofBlocks, interiorBlocks, lowestRoofHeight,
-                homeNeed.getRoofBlocks(),
-                homeNeed.getInteriorBlocks());
+        boolean foundRoof = verifyRoofCandidates(level, roofCandidateBlocks, homeNeed.getRoofBlocks());
         if (!foundRoof
                 || !checkValidBlocks(level, roofBlocks, homeNeed.getRoofBlocks())) {
             return houseNotFound(HomeDetectionReasons.INVALID_ROOF, entrance, level, homeNeed.getId());
         }
+        roofBlocks.addAll(roofCandidateBlocks);
         houseBlocks.addAll(roofBlocks);
+
+        // Verify there are no gaps that expose the interior of the house
+        boolean checkClosure = verifyClosure(interiorBlocks, floorBlocks, wallBlocks, roofBlocks);
+
+        if (!checkClosure) {
+            return houseNotFound(HomeDetectionReasons.NO_CLOSURE, entrance, level, homeNeed.getId());
+        }
 
         // Detect the container for supplying the house
         BlockPos containerPos = findContainer(level, floorBlocks);
@@ -129,6 +130,36 @@ public class HomeDetection {
         LOGGER.debug("House size:" + houseBlocks.size());
 
         return new HomeDetectionPacket(true, homeNeed.getId(), HomeDetectionReasons.HOUSE_DETECTED);
+    }
+
+    private static boolean verifyClosure(Set<BlockPos> interiorBlocks, Set<BlockPos> floorBlocks,
+                                         Set<BlockPos> wallBlocks, Set<BlockPos> roofBlocks) {
+        return interiorBlocks.stream()
+                .allMatch(interiorBlock -> isBlockInside(interiorBlock, interiorBlocks, floorBlocks, wallBlocks, roofBlocks));
+    }
+
+    private static boolean isBlockInside(BlockPos interiorBlock, Set<BlockPos> interiorBlocks, Set<BlockPos> floorBlocks,
+                                         Set<BlockPos> wallBlocks, Set<BlockPos> roofBlocks) {
+        return topIsInside(interiorBlock.above(), interiorBlocks, roofBlocks)
+                && sideIsInside(interiorBlock.north(), interiorBlocks, wallBlocks, roofBlocks)
+                && sideIsInside(interiorBlock.east(), interiorBlocks, wallBlocks, roofBlocks)
+                && sideIsInside(interiorBlock.south(), interiorBlocks, wallBlocks, roofBlocks)
+                && sideIsInside(interiorBlock.west(), interiorBlocks, wallBlocks, roofBlocks)
+                && bottomIsInside(interiorBlock.below(), interiorBlocks, floorBlocks);
+    }
+
+    private static boolean bottomIsInside(BlockPos below, Set<BlockPos> interiorBlocks, Set<BlockPos> floorBlocks) {
+        return interiorBlocks.contains(below) || floorBlocks.contains(below);
+    }
+
+    private static boolean sideIsInside(BlockPos east, Set<BlockPos> interiorBlocks, Set<BlockPos> wallBlocks, Set<BlockPos> roofBlocks) {
+        return interiorBlocks.contains(east)
+                || wallBlocks.contains(east)
+                || roofBlocks.contains(east);
+    }
+
+    private static boolean topIsInside(BlockPos above, Set<BlockPos> interiorBlocks, Set<BlockPos> roofBlocks) {
+        return interiorBlocks.contains(above) || roofBlocks.contains(above);
     }
 
     private static boolean checkValidBlocks(ServerLevel level, Set<BlockPos> blockList, List<HomeValidBlock> validBlocks) {
@@ -237,57 +268,33 @@ public class HomeDetection {
         return count;
     }
 
-    // TODO: Improve roofs. Allow for slanted roofs.
-    private static boolean findRoof(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> roofBlocks, Set<BlockPos> interiorBlocks, int lowestRoofHeight, List<HomeValidBlock> validFloorBlocks, List<HomeValidBlock> validInteriorBlocks) {
-        Set<BlockPos> testSetOfBlocks = floorBlocks.stream()
-                .map(blockPos -> blockPos.relative(Direction.Axis.Y, lowestRoofHeight - blockPos.getY()))
-                .collect(Collectors.toSet());
-        AtomicBoolean wrongRoofFound = new AtomicBoolean(false);
-        while (!testSetOfBlocks.isEmpty() && !wrongRoofFound.get()) {
-            Set<BlockPos> nextTestSetOfBlocks = new HashSet<>();
-            testSetOfBlocks.forEach(testPos -> {
-                if (isRoof(level.getBlockState(testPos), validFloorBlocks) && testPos.getY() < CftConfig.MAX_HOUSE_HEIGHT.get()) {
-                    roofBlocks.add(testPos);
-                } else if (isInterior(level.getBlockState(testPos), validInteriorBlocks) && testPos.getY() < CftConfig.MAX_HOUSE_HEIGHT.get()) {
-                    interiorBlocks.add(testPos);
-                    nextTestSetOfBlocks.add(testPos.above());
-                } else {
-                    wrongRoofFound.set(true);
-                }
-            });
-            testSetOfBlocks.clear();
-            testSetOfBlocks.addAll(nextTestSetOfBlocks);
-        }
-        return !roofBlocks.isEmpty() && !wrongRoofFound.get();
+    private static boolean verifyRoofCandidates(Level level, Set<BlockPos> roofCandidatesBlocks, List<HomeValidBlock> validFloorBlocks) {
+        return roofCandidatesBlocks.stream().allMatch(roofBlock -> isRoof(level.getBlockState(roofBlock), validFloorBlocks));
     }
 
-    private static boolean findInterior(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> interiorBlocks, List<HomeValidBlock> validBlocks) {
+    private static boolean findInterior(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> interiorBlocks, Set<BlockPos> roofCandidateBlocks, List<HomeValidBlock> validBlocks, int fullFloorSize) {
         floorBlocks.forEach(floorPos -> {
             BlockPos testPos = floorPos.above();
-            while (isInterior(level.getBlockState(testPos), validBlocks)) {
+            while (isInterior(level.getBlockState(testPos), validBlocks) && testPos.getY() < CftConfig.MAX_HOUSE_HEIGHT.get()) {
                 interiorBlocks.add(testPos);
-                if (testPos.getY() >= CftConfig.MAX_HOUSE_HEIGHT.get()) { // TODO: This should say there is no house
-                    break;
-                } else {
-                    testPos = testPos.above();
-                }
+                testPos = testPos.above();
             }
+            roofCandidateBlocks.add(testPos);
         });
-        return true;
+        return fullFloorSize == roofCandidateBlocks.size();
     }
 
-    private static boolean findWall(Level level, Set<BlockPos> floorPerimeterBlocks, Set<BlockPos> wallBlocks, List<HomeValidBlock> validBlocks) {
-        List<Integer> heights = Lists.newArrayList();
+    private static boolean findWall(Level level, Set<BlockPos> floorPerimeterBlocks, Set<BlockPos> wallBlocks, Set<BlockPos> roofCandidateBlocks, List<HomeValidBlock> validBlocks) {
         floorPerimeterBlocks.forEach(perimeterBlockPos -> {
             BlockPos testPos = perimeterBlockPos.above();
-            while (isWall(level.getBlockState(testPos), validBlocks)) {
+            while (isWall(level.getBlockState(testPos), validBlocks) && testPos.getY() < CftConfig.MAX_HOUSE_HEIGHT.get()) {
                 wallBlocks.add(testPos);
                 testPos = testPos.above();
             }
-            heights.add(testPos.below().getY());
+            roofCandidateBlocks.add(testPos);
         });
         // Check that all wall pieces have the same size
-        return heights.stream().distinct().count() == 1;
+        return floorPerimeterBlocks.size() == roofCandidateBlocks.size();
     }
 
     private static boolean findFloor(Level level, BlockPos testPos, Set<BlockPos> floorBlocks, Set<BlockPos> floorPerimeterBlocks, List<HomeValidBlock> validBlocks) {

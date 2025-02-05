@@ -8,6 +8,7 @@ public enum HomeDetectionReasons {
     TOO_MANY_DOORS("Too many doors"),
     INVALID_INTERIOR("Invalid interior"),
     INVALID_ROOF("Invalid roof"),
+    NO_CLOSURE("There is a gap in the house"),
     NO_CONTAINER("No container present"),
     HOUSE_TOO_LARGE("House too large"),
     HOUSE_DETECTED("House found");
