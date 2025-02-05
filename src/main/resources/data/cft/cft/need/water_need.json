@@ -1,0 +1,13 @@
+{
+  "id": "cft:water_need",
+  "type": "cft:fluid",
+  "damage": 0.5,
+  "damage_threshold": 0.6,
+  "provided_happiness": 2.0,
+  "satisfaction_threshold": 0.8,
+  "frequency": 1.0,
+  "fluid_stack": {
+    "FluidName": "cft:water_need",
+    "Amount": 1000
+  }
+}
