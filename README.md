@@ -326,3 +326,32 @@ The Xoonglin needs to live in a given biome (or a set of biomes).
 Apart from the common fields, this need includes a list of biomes:
 - `biomes`: A list of biomes. The Xoonglin must be in any of them for the need to be satisfied.
 </details>
+
+#### Fluid Need
+
+It's similar to the Goods Need, but in this case the goods are fluids that are taken from a container withing the home
+of the Xoonglin. Enough fluid must be present there; if it is, the Xoonglin will go to it to retrieve the fluid and
+satisfy the need.
+
+<details>
+    <summary>Sample fluid need file</summary>
+
+```json
+{
+  "id": "cft:water_need",
+  "type": "cft:fluid",
+  "damage": 0.5,
+  "damage_threshold": 0.6,
+  "provided_happiness": 2.0,
+  "satisfaction_threshold": 0.8,
+  "frequency": 1.0,
+  "fluid_stack": {
+    "FluidName": "minecraft:water",
+    "Amount": 1000
+  }
+}
+```
+Apart from the common fields, this need includes a fluid stack object. Yes, it's in PascalCase because it uses Forge
+parsing method for FluidStack.
+- `fluid_stack`: A FluidStack object that contains the reference of the fluid and the amount in milibuckets. 
+</details>
