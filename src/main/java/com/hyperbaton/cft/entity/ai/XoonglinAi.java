@@ -33,6 +33,8 @@ public class XoonglinAi {
             CftMemoryModuleType.HOME_NEEDED.get(),
             CftMemoryModuleType.CAN_MATE.get(),
             CftMemoryModuleType.MATING_CANDIDATE.get(),
+            CftMemoryModuleType.FLUID_CONTAINER.get(),
+            CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get(),
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.LOOK_TARGET
     );
@@ -67,6 +69,9 @@ public class XoonglinAi {
                 Pair.of(1, new GetSuppliesBehavior(
                         Map.of(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), MemoryStatus.VALUE_PRESENT,
                                 CftMemoryModuleType.SUPPLIES_NEEDED.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(1, new GetFluidBehavior(
+                        Map.of(CftMemoryModuleType.FLUID_CONTAINER.get(), MemoryStatus.VALUE_PRESENT)
                 ))
         ));
     }

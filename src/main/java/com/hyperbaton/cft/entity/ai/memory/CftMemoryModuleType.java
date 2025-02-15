@@ -23,6 +23,8 @@ public class CftMemoryModuleType {
     public static final RegistryObject<MemoryModuleType<Boolean>> SUPPLY_COOLDOWN = registerMemory("supply_cooldown", Codec.BOOL);
     public static final RegistryObject<MemoryModuleType<Boolean>> CAN_MATE = registerMemory("can_mate", Codec.BOOL);
     public static final RegistryObject<MemoryModuleType<String>> MATING_CANDIDATE = registerMemory("mating_candidate", Codec.STRING);
+    public static final RegistryObject<MemoryModuleType<BlockPos>> FLUID_CONTAINER = registerMemory("fluid_container", BlockPos.CODEC);
+    public static final RegistryObject<MemoryModuleType<Boolean>> FLUID_SUPPLY_COOLDOWN = registerMemory("fluid_supply_cooldown", Codec.BOOL);
 
     public static <T> RegistryObject<MemoryModuleType<T>> registerMemory(String name)
     {

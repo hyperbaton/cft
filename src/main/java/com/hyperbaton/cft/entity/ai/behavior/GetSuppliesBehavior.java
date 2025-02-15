@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.mojang.logging.LogUtils;
@@ -18,7 +19,6 @@ import java.util.Optional;
 
 public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final double CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = 1.25;
 
     public GetSuppliesBehavior(Map pEntryCondition) {
         super(pEntryCondition);
@@ -75,7 +75,7 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
         // Once supplies are retrieved, remove the memory
         mob.getBrain().eraseMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get());
         // Add a cooldown before requesting new supplies
-        mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.SUPPLY_COOLDOWN.get(), true, 200L);
+        mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.SUPPLY_COOLDOWN.get(), true, CftConfig.SUPPLY_COOLDOWN.get());
     }
 
     /**
@@ -131,7 +131,8 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
     private boolean isCloseEnoughToContainer(XoonglinEntity mob) {
         return mob.getBrain()
                 .getMemory(homeContainerMemoryType()).map(
-                        containerPos -> mob.position().distanceTo(containerPos.getCenter()) < CLOSE_ENOUGH_DISTANCE_TO_CONTAINER
+                        containerPos -> mob.position().distanceTo(containerPos.getCenter())
+                                < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()
                 ).orElse(false);
     }
 

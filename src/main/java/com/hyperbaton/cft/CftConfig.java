@@ -30,6 +30,12 @@ public class CftConfig
     public static final ForgeConfigSpec.BooleanValue KEEP_XOONGLINS_LOADED = BUILDER
             .comment("This will force loading the chunks where a Xoonglin is present. ATTENTION: This can highly damage the performance.")
             .define("keepXoonglinsLoaded", false);
+    public static final ForgeConfigSpec.DoubleValue CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = BUILDER
+            .comment("Minimum distance at which a Xoonglin can interact with containers.")
+            .defineInRange("needs.closeEnoughDistanceToContainer", 1.25, 0.1, 5);
+    public static final ForgeConfigSpec.IntValue SUPPLY_COOLDOWN = BUILDER
+            .comment("How long to check again if supplies are not present, in ticks.")
+            .defineInRange("needs.supplyCooldown", 200, 40, 5000);
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
 
