@@ -1,10 +1,8 @@
 package com.hyperbaton.cft.network;
 
+import com.hyperbaton.cft.network.client.HomeDetectionPacketClient;
 import com.hyperbaton.cft.structure.home.HomeDetectionReasons;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
@@ -34,18 +32,13 @@ public class HomeDetectionPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {
-        final Player player = Minecraft.getInstance().player;
-        if (player != null) {
-            if(!this.homeNeed.isBlank()){
-                player.sendSystemMessage(Component.literal("Inspecting house of type ")
-                        .append(Component.translatable(this.homeNeed)));
-            } else {
-                player.sendSystemMessage(Component.literal("Looking for a home..."));
-            }
-            player.sendSystemMessage(Component.literal(this.detectionReason.getMessage()));
+        NetworkEvent.Context ctx = context.get();
+        if (ctx.getDirection().getReceptionSide().isClient()) {
+            ctx.enqueueWork(() -> HomeDetectionPacketClient.handleClient(this));
         }
-        context.get().setPacketHandled(true);
+        ctx.setPacketHandled(true);
     }
+
 
     public boolean isHomeDetected() {
         return homeDetected;

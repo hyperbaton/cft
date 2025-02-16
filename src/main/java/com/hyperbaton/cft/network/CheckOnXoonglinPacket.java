@@ -1,11 +1,8 @@
 package com.hyperbaton.cft.network;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import com.hyperbaton.cft.network.client.CheckOnXoonglinPacketClient;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.HashMap;
@@ -13,6 +10,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public class CheckOnXoonglinPacket {
+
     private final Component name;
     private final String socialClass;
     private final double happiness;
@@ -50,21 +48,26 @@ public class CheckOnXoonglinPacket {
     }
 
     public void handle(Supplier<NetworkEvent.Context> context) {
-        final Player player = Minecraft.getInstance().player;
-        if (player != null) {
-            player.sendSystemMessage(MutableComponent.create(this.name.getContents())
-                    .withStyle(ChatFormatting.BOLD)
-                    .append(Component.literal(" class: "))
-                    .append(Component.translatable(this.socialClass)));
-            player.sendSystemMessage(MutableComponent.create(this.name.getContents())
-                    .append(Component.literal(" happiness: " + String.format("%.2f", this.happiness))));
-            player.sendSystemMessage(MutableComponent.create(this.name.getContents())
-                    .append(Component.literal(" needs: ")));
-            for (Map.Entry<String, Double> entry : needsSatisfaction.entrySet()) {
-                player.sendSystemMessage(Component.translatable(entry.getKey())
-                        .append(" satisfied at " + String.format("%.2f", entry.getValue() * 100) + "%"));
-            }
+        NetworkEvent.Context ctx = context.get();
+        if (ctx.getDirection().getReceptionSide().isClient()) {
+            ctx.enqueueWork(() -> CheckOnXoonglinPacketClient.handleClient(this));
         }
-        context.get().setPacketHandled(true);
+        ctx.setPacketHandled(true);
+    }
+
+    public Component getName() {
+        return name;
+    }
+
+    public String getSocialClass() {
+        return socialClass;
+    }
+
+    public double getHappiness() {
+        return happiness;
+    }
+
+    public Map<String, Double> getNeedsSatisfaction() {
+        return needsSatisfaction;
     }
 }
