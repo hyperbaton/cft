@@ -1,8 +1,11 @@
 package com.hyperbaton.cft.client.gui;
 
 import com.hyperbaton.cft.CftMod;
+import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
 
+import com.hyperbaton.cft.network.RequestXoonglinInfoUpdatePacket;
+import com.hyperbaton.cft.network.XoonglinInfoUpdatePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,9 +21,11 @@ public class XoonglinInfoScreen extends Screen {
         new ResourceLocation(CftMod.MOD_ID, "textures/gui/check_on_xoonglin_background.png");
     private static final int MARGIN_PIXELS = 10;
     private static final int MAX_VISIBLE_NEEDS = 7;
+    private static final int UPDATE_FREQUENCY = 20; // Update every second
 
     private final int imageWidth = 176, imageHeight = 176;
-    private final CheckOnXoonglinPacket packet;
+    private CheckOnXoonglinPacket packet;
+    private int ticksUntilNextUpdate = UPDATE_FREQUENCY;
 
     private NeedsScrollPanel needsScrollPanel;
 
@@ -128,4 +133,38 @@ public class XoonglinInfoScreen extends Screen {
     public boolean isPauseScreen() {
         return false;
     }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (--ticksUntilNextUpdate <= 0) {
+            // Ask the server for an update
+            CftPacketHandler.sendToServer(new RequestXoonglinInfoUpdatePacket(packet.getXoonglinId()));
+            ticksUntilNextUpdate = UPDATE_FREQUENCY;
+        }
+    }
+
+    public void updateData(XoonglinInfoUpdatePacket updatePacket) {
+        this.packet = new CheckOnXoonglinPacket(
+                updatePacket.getName(),
+                updatePacket.getSocialClass(),
+                updatePacket.getHappiness(),
+                updatePacket.getNeedsSatisfaction(),
+                updatePacket.getXoonglinId()
+        );
+
+        // Update scroll panel if it exists
+        if (needsScrollPanel != null) {
+            needsScrollPanel = new NeedsScrollPanel(
+                    minecraft,
+                    this.font,
+                    imageWidth - (MARGIN_PIXELS * 2),
+                    15 * MAX_VISIBLE_NEEDS,
+                    (height - imageHeight) / 2 + 65,
+                    (width - imageWidth) / 2 + MARGIN_PIXELS,
+                    packet.getNeedsSatisfaction()
+            );
+        }
+    }
+
 }

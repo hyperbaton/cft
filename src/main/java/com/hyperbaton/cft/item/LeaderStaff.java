@@ -95,7 +95,9 @@ public class LeaderStaff extends Item {
                 entity.getNeeds().stream().filter(needSatisfier -> !needSatisfier.getNeed().isHidden())
                         .collect(Collectors
                                 .toMap(needSatisfier -> needSatisfier.getNeed().getId(),
-                                        NeedSatisfier::getSatisfaction)));
+                                        NeedSatisfier::getSatisfaction)),
+                entity.getUUID()
+        );
     }
 
     private boolean clickedOnDoor(UseOnContext pContext) {
