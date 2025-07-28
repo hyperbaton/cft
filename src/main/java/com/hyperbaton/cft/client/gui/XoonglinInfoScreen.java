@@ -15,10 +15,14 @@ import java.util.Map;
 public class XoonglinInfoScreen extends Screen {
 
     private static final ResourceLocation TEXTURE = 
-        new ResourceLocation(CftMod.MOD_ID, "textures/gui/background_menu_1.png");
-    public static final int MARGIN_PIXELS = 10;
+        new ResourceLocation(CftMod.MOD_ID, "textures/gui/check_on_xoonglin_background.png");
+    private static final int MARGIN_PIXELS = 10;
+    private static final int MAX_VISIBLE_NEEDS = 7;
+
     private final int imageWidth = 176, imageHeight = 176;
     private final CheckOnXoonglinPacket packet;
+
+    private NeedsScrollPanel needsScrollPanel;
 
     public XoonglinInfoScreen(Component title, CheckOnXoonglinPacket packet) {
         super(title);
@@ -29,6 +33,22 @@ public class XoonglinInfoScreen extends Screen {
     @Override
     public void init() {
         super.init();
+
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        if (packet.getNeedsSatisfaction().size() > MAX_VISIBLE_NEEDS) {
+            int scrollPanelHeight = 15 * MAX_VISIBLE_NEEDS; // Height needed for 7 needs
+            needsScrollPanel = new NeedsScrollPanel(
+                    minecraft,
+                    this.font,
+                    imageWidth - (MARGIN_PIXELS * 2),
+                    scrollPanelHeight,
+                    y + 65,
+                    x + MARGIN_PIXELS,
+                    packet.getNeedsSatisfaction()
+            );
+        }
     }
 
     @Override
@@ -39,7 +59,7 @@ public class XoonglinInfoScreen extends Screen {
         
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        
+
         this.renderBackground(graphics);
         graphics.blit(TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 176, 176);
 
@@ -67,6 +87,16 @@ public class XoonglinInfoScreen extends Screen {
         graphics.drawString(this.font, happinessValue, happinessLabelRightX, y + 45, 0x404040, false);
 
         // Render needs
+        if (packet.getNeedsSatisfaction().size() <= MAX_VISIBLE_NEEDS) {
+            renderNeedsNormally(graphics, x, y);
+        } else {
+            needsScrollPanel.render(graphics, mouseX, mouseY, delta);
+        }
+
+        super.render(graphics, mouseX, mouseY, delta);
+    }
+
+    private void renderNeedsNormally(GuiGraphics graphics, int x, int y) {
         int barY = y + 65;
         int barWidth = 50;
         int barHeight = 8;
@@ -90,8 +120,14 @@ public class XoonglinInfoScreen extends Screen {
             // Space between needs
             barY += 15;
         }
+    }
 
-        super.render(graphics, mouseX, mouseY, delta);
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (needsScrollPanel != null) {
+            return needsScrollPanel.mouseScrolled(mouseX, mouseY, delta);
+        }
+        return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
     @Override
