@@ -1,14 +1,13 @@
 package com.hyperbaton.cft.item;
 
-import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
 import com.hyperbaton.cft.network.HomeDetectionPacket;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.structure.home.HomeDetectionReasons;
 import com.hyperbaton.cft.world.HomesData;
-import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -24,7 +23,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraftforge.network.PacketDistributor;
-import org.slf4j.Logger;
 
 import java.util.stream.Collectors;
 

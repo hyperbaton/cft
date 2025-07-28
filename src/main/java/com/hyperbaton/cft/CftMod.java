@@ -3,16 +3,15 @@ package com.hyperbaton.cft;
 import com.hyperbaton.cft.creativetab.CreativeModTabs;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
+import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.ai.sensor.CftSensorTypes;
 import com.hyperbaton.cft.entity.client.XoonglinRenderer;
-import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.item.CftItems;
 import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.sound.CftSounds;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -26,7 +25,6 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file

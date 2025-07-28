@@ -42,5 +42,6 @@
   "cft.happinessladder.header": "Happiness ladder: ",
   "sounds.cft.entity.xoonglin.hurt": "Xoonglin hurt",
   "sounds.cft.entity.xoonglin.death": "Xoonglin dying",
-  "sounds.cft.entity.xoonglin.ambient": "Xoonglin babbling"
+  "sounds.cft.entity.xoonglin.ambient": "Xoonglin babbling",
+  "gui.cft.happiness": "Happiness"
 }
