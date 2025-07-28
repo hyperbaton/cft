@@ -109,13 +109,7 @@ public class XoonglinInfoScreen extends Screen {
 
             // Need bar
             int barX = x + imageWidth - MARGIN_PIXELS - barWidth;
-
-            // Bar's background
-            graphics.fill(barX, barY, barX + barWidth, barY + barHeight, 0xFF555555);
-
-            // Bar's foreground
-            int filledWidth = (int)(barWidth * need.getValue());
-            graphics.fill(barX, barY, barX + filledWidth, barY + barHeight, 0xFF00FF00);
+            NeedsBarRenderer.renderBar(graphics, barX, barY, barWidth, barHeight, need.getValue());
 
             // Space between needs
             barY += 15;

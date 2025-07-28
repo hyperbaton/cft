@@ -12,7 +12,7 @@ import java.util.Map;
 
 class NeedsScrollPanel extends ScrollPanel {
     private static final int SIDE_MARGIN = 5;
-
+    
     private final Map<String, Double> needs;
     private final int elementHeight = 15;
     private final Font font;
@@ -34,6 +34,8 @@ class NeedsScrollPanel extends ScrollPanel {
         graphics.fill(left, top, left + width, top + height, 0xFF999999);
 
         int currentY = 0;
+        int barWidth = 50;
+        int barHeight = 8;
 
         for (Map.Entry<String, Double> need : needs.entrySet()) {
             if (currentY + elementHeight >= scrollDistance && currentY <= scrollDistance + height) {
@@ -44,13 +46,8 @@ class NeedsScrollPanel extends ScrollPanel {
                 graphics.drawString(this.font, needLabel, left + SIDE_MARGIN, adjustedY, 0x404040, false);
 
                 // Render bar
-                int barWidth = 50;
-                int barHeight = 8;
                 int barX = left + width - barWidth - 2 * SIDE_MARGIN;
-                graphics.fill(barX, adjustedY, barX + barWidth, adjustedY + barHeight, 0xFF555555);
-
-                int filledWidth = (int) (barWidth * need.getValue());
-                graphics.fill(barX, adjustedY, barX + filledWidth, adjustedY + barHeight, 0xFF00FF00);
+                NeedsBarRenderer.renderBar(graphics, barX, adjustedY, barWidth, barHeight, need.getValue());
             }
             currentY += elementHeight;
         }
@@ -66,4 +63,3 @@ class NeedsScrollPanel extends ScrollPanel {
 
     }
 }
-
