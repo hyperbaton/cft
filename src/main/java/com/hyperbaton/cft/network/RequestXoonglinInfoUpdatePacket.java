@@ -1,7 +1,6 @@
 package com.hyperbaton.cft.network;
 
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,6 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.PacketDistributor;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -46,16 +46,22 @@ public class RequestXoonglinInfoUpdatePacket {
             if (xoonglin.getLeaderId() != null &&
                     xoonglin.getLeaderId().equals(player.getUUID())) {
 
+                Map<String, NeedSatisfactionData> needsData = xoonglin.getNeeds().stream()
+                        .filter(needSatisfier -> !needSatisfier.getNeed().isHidden())
+                        .collect(Collectors.toMap(
+                                needSatisfier -> needSatisfier.getNeed().getId(),
+                                needSatisfier -> new NeedSatisfactionData(
+                                        needSatisfier.getSatisfaction(),
+                                        needSatisfier.getNeed().getDamageThreshold(),
+                                        needSatisfier.getNeed().getSatisfactionThreshold()
+                                )
+                        ));
+
                 XoonglinInfoUpdatePacket updatePacket = new XoonglinInfoUpdatePacket(
                         xoonglin.getCustomName(),
                         xoonglin.getSocialClass().getId(),
                         xoonglin.getHappiness(),
-                        xoonglin.getNeeds().stream()
-                                .filter(needSatisfier -> !needSatisfier.getNeed().isHidden())
-                                .collect(Collectors.toMap(
-                                        needSatisfier -> needSatisfier.getNeed().getId(),
-                                        NeedSatisfier::getSatisfaction
-                                )),
+                        needsData,
                         xoonglin.getUUID()
                 );
 

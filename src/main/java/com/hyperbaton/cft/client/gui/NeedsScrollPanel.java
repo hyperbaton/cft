@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.client.gui;
 
+import com.hyperbaton.cft.network.NeedSatisfactionData;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -13,20 +14,22 @@ import java.util.Map;
 class NeedsScrollPanel extends ScrollPanel {
     private static final int SIDE_MARGIN = 5;
     
-    private final Map<String, Double> needs;
+    private Map<String, NeedSatisfactionData> needsData;
     private final int elementHeight = 15;
     private final Font font;
+    private Component currentTooltip = null;
+    private int tooltipX, tooltipY;
 
     public NeedsScrollPanel(Minecraft minecraft, Font font, int width, int height, int top, int left,
-                            Map<String, Double> needs) {
+                           Map<String, NeedSatisfactionData> needsData) {
         super(minecraft, width, height, top, left);
-        this.needs = needs;
+        this.needsData = needsData;
         this.font = font;
     }
 
     @Override
     protected int getContentHeight() {
-        return needs.size() * elementHeight;
+        return needsData.size() * elementHeight;
     }
 
     @Override
@@ -36,18 +39,26 @@ class NeedsScrollPanel extends ScrollPanel {
         int currentY = 0;
         int barWidth = 50;
         int barHeight = 8;
+        currentTooltip = null;
 
-        for (Map.Entry<String, Double> need : needs.entrySet()) {
+        for (Map.Entry<String, NeedSatisfactionData> need : needsData.entrySet()) {
             if (currentY + elementHeight >= scrollDistance && currentY <= scrollDistance + height) {
                 int adjustedY = top + currentY - (int) scrollDistance + SIDE_MARGIN;
 
-                // Render label
                 String needLabel = Component.translatable(need.getKey()).getString();
                 graphics.drawString(this.font, needLabel, left + SIDE_MARGIN, adjustedY, 0x404040, false);
 
-                // Render bar
                 int barX = left + width - barWidth - 2 * SIDE_MARGIN;
-                NeedsBarRenderer.renderBar(graphics, barX, adjustedY, barWidth, barHeight, need.getValue());
+                NeedSatisfactionData data = need.getValue();
+                boolean isHovered = NeedsBarRenderer.isMouseOver(mouseX, mouseY, barX, adjustedY, barWidth, barHeight);
+                NeedsBarRenderer.renderBar(graphics, barX, adjustedY, barWidth, barHeight, 
+                    data.satisfaction, data.damageThreshold, data.satisfactionThreshold, isHovered);
+
+                if (isHovered) {
+                    currentTooltip = NeedsBarRenderer.getTooltip(data.satisfaction);
+                    tooltipX = mouseX;
+                    tooltipY = mouseY;
+                }
             }
             currentY += elementHeight;
         }
@@ -62,4 +73,21 @@ class NeedsScrollPanel extends ScrollPanel {
     public void updateNarration(NarrationElementOutput pNarrationElementOutput) {
 
     }
+
+    public Component getCurrentTooltip() {
+        return currentTooltip;
+    }
+
+    public int getTooltipX() {
+        return tooltipX;
+    }
+
+    public int getTooltipY() {
+        return tooltipY;
+    }
+
+    public void updateData(Map<String, NeedSatisfactionData> newNeedsData) {
+        this.needsData = newNeedsData;
+    }
+
 }

@@ -1,10 +1,10 @@
 package com.hyperbaton.cft.item;
 
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
 import com.hyperbaton.cft.network.HomeDetectionPacket;
+import com.hyperbaton.cft.network.NeedSatisfactionData;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.structure.home.HomeDetectionReasons;
 import com.hyperbaton.cft.world.HomesData;
@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraftforge.network.PacketDistributor;
 
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class LeaderStaff extends Item {
@@ -88,17 +89,26 @@ public class LeaderStaff extends Item {
     }
 
     private CheckOnXoonglinPacket createXoonglinInfoMessage(XoonglinEntity entity) {
+        Map<String, NeedSatisfactionData> needsData = entity.getNeeds().stream()
+                .filter(needSatisfier -> !needSatisfier.getNeed().isHidden())
+                .collect(Collectors.toMap(
+                        needSatisfier -> needSatisfier.getNeed().getId(),
+                        needSatisfier -> new NeedSatisfactionData(
+                                needSatisfier.getSatisfaction(),
+                                needSatisfier.getNeed().getDamageThreshold(),
+                                needSatisfier.getNeed().getSatisfactionThreshold()
+                        )
+                ));
+
         return new CheckOnXoonglinPacket(
                 entity.getCustomName(),
                 entity.getSocialClass().getId(),
                 entity.getHappiness(),
-                entity.getNeeds().stream().filter(needSatisfier -> !needSatisfier.getNeed().isHidden())
-                        .collect(Collectors
-                                .toMap(needSatisfier -> needSatisfier.getNeed().getId(),
-                                        NeedSatisfier::getSatisfaction)),
+                needsData,
                 entity.getUUID()
         );
     }
+
 
     private boolean clickedOnDoor(UseOnContext pContext) {
         return pContext.getLevel().getBlockState(pContext.getClickedPos()).is(BlockTags.DOORS);

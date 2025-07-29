@@ -11,19 +11,18 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 public class CheckOnXoonglinPacket {
-
     private final Component name;
     private final String socialClass;
     private final double happiness;
-    private final Map<String, Double> needsSatisfaction;
-
+    private final Map<String, NeedSatisfactionData> needsData;
     private final UUID xoonglinId;
 
-    public CheckOnXoonglinPacket(Component name, String socialClass, double happiness, Map<String, Double> needsSatisfaction, UUID xoonglinId) {
+    public CheckOnXoonglinPacket(Component name, String socialClass, double happiness, 
+            Map<String, NeedSatisfactionData> needsData, UUID xoonglinId) {
         this.name = name;
         this.socialClass = socialClass;
         this.happiness = happiness;
-        this.needsSatisfaction = needsSatisfaction;
+        this.needsData = needsData;
         this.xoonglinId = xoonglinId;
     }
 
@@ -32,12 +31,14 @@ public class CheckOnXoonglinPacket {
         this.socialClass = buffer.readUtf();
         this.happiness = buffer.readDouble();
         this.xoonglinId = buffer.readUUID();
-        this.needsSatisfaction = new HashMap<>();
+        this.needsData = new HashMap<>();
         int size = buffer.readVarInt();
         for (int i = 0; i < size; i++) {
             String needName = buffer.readUtf();
-            double needSatisfaction = buffer.readDouble();
-            needsSatisfaction.put(needName, needSatisfaction);
+            double satisfaction = buffer.readDouble();
+            double damageThreshold = buffer.readDouble();
+            double satisfactionThreshold = buffer.readDouble();
+            needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold));
         }
     }
 
@@ -46,10 +47,12 @@ public class CheckOnXoonglinPacket {
         buffer.writeUtf(socialClass);
         buffer.writeDouble(happiness);
         buffer.writeUUID(xoonglinId);
-        buffer.writeVarInt(needsSatisfaction.size());
-        for (Map.Entry<String, Double> entry : needsSatisfaction.entrySet()) {
+        buffer.writeVarInt(needsData.size());
+        for (Map.Entry<String, NeedSatisfactionData> entry : needsData.entrySet()) {
             buffer.writeUtf(entry.getKey());
-            buffer.writeDouble(entry.getValue());
+            buffer.writeDouble(entry.getValue().satisfaction);
+            buffer.writeDouble(entry.getValue().damageThreshold);
+            buffer.writeDouble(entry.getValue().satisfactionThreshold);
         }
     }
 
@@ -73,8 +76,8 @@ public class CheckOnXoonglinPacket {
         return happiness;
     }
 
-    public Map<String, Double> getNeedsSatisfaction() {
-        return needsSatisfaction;
+    public Map<String, NeedSatisfactionData> getNeedsData() {
+        return needsData;
     }
 
     public UUID getXoonglinId() {

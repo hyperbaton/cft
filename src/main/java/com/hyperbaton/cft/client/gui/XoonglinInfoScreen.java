@@ -1,11 +1,8 @@
 package com.hyperbaton.cft.client.gui;
 
 import com.hyperbaton.cft.CftMod;
-import com.hyperbaton.cft.network.CftPacketHandler;
-import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
+import com.hyperbaton.cft.network.*;
 
-import com.hyperbaton.cft.network.RequestXoonglinInfoUpdatePacket;
-import com.hyperbaton.cft.network.XoonglinInfoUpdatePacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -42,8 +39,8 @@ public class XoonglinInfoScreen extends Screen {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        if (packet.getNeedsSatisfaction().size() > MAX_VISIBLE_NEEDS) {
-            int scrollPanelHeight = 15 * MAX_VISIBLE_NEEDS; // Height needed for 7 needs
+        if (packet.getNeedsData().size() > MAX_VISIBLE_NEEDS) {
+            int scrollPanelHeight = 15 * MAX_VISIBLE_NEEDS;
             needsScrollPanel = new NeedsScrollPanel(
                     minecraft,
                     this.font,
@@ -51,7 +48,7 @@ public class XoonglinInfoScreen extends Screen {
                     scrollPanelHeight,
                     y + 65,
                     x + MARGIN_PIXELS,
-                    packet.getNeedsSatisfaction()
+                    packet.getNeedsData()
             );
         }
     }
@@ -92,31 +89,46 @@ public class XoonglinInfoScreen extends Screen {
         graphics.drawString(this.font, happinessValue, happinessLabelRightX, y + 45, 0x404040, false);
 
         // Render needs
-        if (packet.getNeedsSatisfaction().size() <= MAX_VISIBLE_NEEDS) {
-            renderNeedsNormally(graphics, x, y);
+        if (packet.getNeedsData().size() <= MAX_VISIBLE_NEEDS) {
+            renderNeedsNormally(graphics, x, y, mouseX, mouseY);
         } else {
             needsScrollPanel.render(graphics, mouseX, mouseY, delta);
+
+            // Render tooltip after rendering the panel, so it's on top
+            Component tooltip = needsScrollPanel.getCurrentTooltip();
+            if (tooltip != null) {
+                graphics.renderTooltip(this.font, tooltip,
+                        needsScrollPanel.getTooltipX(),
+                        needsScrollPanel.getTooltipY());
+            }
+
         }
 
         super.render(graphics, mouseX, mouseY, delta);
     }
 
-    private void renderNeedsNormally(GuiGraphics graphics, int x, int y) {
+    private void renderNeedsNormally(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
         int barY = y + 65;
         int barWidth = 50;
         int barHeight = 8;
 
-        for (Map.Entry<String, Double> need : packet.getNeedsSatisfaction().entrySet()) {
+        for (Map.Entry<String, NeedSatisfactionData> need : packet.getNeedsData().entrySet()) {
             String needLabel = Component.translatable(need.getKey()).getString();
-
-            // Need name
             graphics.drawString(this.font, needLabel, x + MARGIN_PIXELS, barY, 0x404040, false);
 
-            // Need bar
             int barX = x + imageWidth - MARGIN_PIXELS - barWidth;
-            NeedsBarRenderer.renderBar(graphics, barX, barY, barWidth, barHeight, need.getValue());
+            NeedSatisfactionData data = need.getValue();
+            boolean isHovered = NeedsBarRenderer.isMouseOver(mouseX, mouseY, barX, barY, barWidth, barHeight);
 
-            // Space between needs
+            NeedsBarRenderer.renderBar(graphics, barX, barY, barWidth, barHeight,
+                data.satisfaction, data.damageThreshold, data.satisfactionThreshold, isHovered);
+
+            if (isHovered) {
+                graphics.renderTooltip(this.font,
+                        NeedsBarRenderer.getTooltip(data.satisfaction),
+                        mouseX, mouseY);
+            }
+
             barY += 15;
         }
     }
@@ -149,21 +161,13 @@ public class XoonglinInfoScreen extends Screen {
                 updatePacket.getName(),
                 updatePacket.getSocialClass(),
                 updatePacket.getHappiness(),
-                updatePacket.getNeedsSatisfaction(),
+                updatePacket.getNeedsData(),
                 updatePacket.getXoonglinId()
         );
 
         // Update scroll panel if it exists
         if (needsScrollPanel != null) {
-            needsScrollPanel = new NeedsScrollPanel(
-                    minecraft,
-                    this.font,
-                    imageWidth - (MARGIN_PIXELS * 2),
-                    15 * MAX_VISIBLE_NEEDS,
-                    (height - imageHeight) / 2 + 65,
-                    (width - imageWidth) / 2 + MARGIN_PIXELS,
-                    packet.getNeedsSatisfaction()
-            );
+            needsScrollPanel.updateData(packet.getNeedsData());
         }
     }
 
