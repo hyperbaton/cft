@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraftforge.network.PacketDistributor;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -54,13 +55,13 @@ public class LeaderStaff extends Item {
                 HomesData homesData = ((ServerLevel) pContext.getLevel()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
                 BlockPos finalPositionClicked = positionClicked;
                 if (homesData.getHomes().stream().anyMatch(home -> home.getEntrance().equals(finalPositionClicked))) {
-                    foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.ALREADY_REGISTERED);
+                    foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.ALREADY_REGISTERED, Collections.emptyList());
                 } else {
                     foundHouseMessage = new HomeDetection().detectAnyHouse(positionClicked, (ServerLevel) pContext.getLevel(), player.getUUID());
                 }
 
             } else {
-                foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.NOT_A_DOOR);
+                foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.NOT_A_DOOR, Collections.emptyList());
             }
 
 

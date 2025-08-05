@@ -49,11 +49,17 @@ public class HomeDetection {
         // Detect the floor of the house
         boolean foundFloor = findFloor(level, entrance.below(), floorBlocks, floorPerimeterBlocks,
                 homeNeed.getFloorBlocks());
-        if (floorBlocks.isEmpty()
-                || !checkValidBlocks(level,
+        if (floorBlocks.isEmpty()) {
+            return houseNotFound(HomeDetectionReasons.NO_FLOOR, entrance, level, homeNeed.getId(), Collections.emptyList());
+        }
+        if (!foundFloor) {
+            return houseNotFound(HomeDetectionReasons.FLOOR_TOO_BIG, entrance, level, homeNeed.getId(), Collections.emptyList());
+        }
+        List<String> floorErrors = checkValidBlocks(level,
                 Stream.of(floorBlocks, floorPerimeterBlocks).flatMap(Collection::stream).collect(Collectors.toSet()),
-                homeNeed.getFloorBlocks())) {
-            return houseNotFound(HomeDetectionReasons.INVALID_FLOOR, entrance, level, homeNeed.getId());
+                homeNeed.getFloorBlocks());
+        if (!floorErrors.isEmpty()) {
+            return houseNotFound(HomeDetectionReasons.INVALID_FLOOR, entrance, level, homeNeed.getId(), Collections.emptyList());
         }
         // The inner corners are misidentified as non perimeter blocks in the previous method.
         detectInnerCorners(level, floorBlocks, floorPerimeterBlocks);
@@ -66,12 +72,15 @@ public class HomeDetection {
         Set<BlockPos> roofCandidateBlocks = Sets.newHashSet();
         boolean foundWall = findWall(level, floorPerimeterBlocks, wallBlocks, roofCandidateBlocks,
                 homeNeed.getWallBlocks());
-        if (!foundWall
-                || !checkValidBlocks(level, wallBlocks, homeNeed.getWallBlocks())) {
-            return houseNotFound(HomeDetectionReasons.INVALID_WALLS, entrance, level, homeNeed.getId());
+        if (!foundWall || wallBlocks.isEmpty()) {
+            return houseNotFound(HomeDetectionReasons.INVALID_WALLS, entrance, level, homeNeed.getId(), Collections.emptyList());
+        }
+        List<String> wallErrors = checkValidBlocks(level, wallBlocks, homeNeed.getWallBlocks());
+        if (!wallErrors.isEmpty()) {
+            return houseNotFound(HomeDetectionReasons.INVALID_WALLS, entrance, level, homeNeed.getId(), wallErrors);
         }
         if (tooManyDoors(level, wallBlocks)) {
-            return houseNotFound(HomeDetectionReasons.TOO_MANY_DOORS, entrance, level, homeNeed.getId());
+            return houseNotFound(HomeDetectionReasons.TOO_MANY_DOORS, entrance, level, homeNeed.getId(), Collections.emptyList());
         }
         houseBlocks.addAll(wallBlocks);
 
@@ -79,18 +88,24 @@ public class HomeDetection {
         Set<BlockPos> interiorBlocks = Sets.newHashSet();
         boolean foundInterior = findInterior(level, floorBlocks, interiorBlocks, roofCandidateBlocks,
                 homeNeed.getInteriorBlocks(), fullFloorBlocks.size());
-        if (!foundInterior
-                || !checkValidBlocks(level, interiorBlocks, homeNeed.getInteriorBlocks())) {
-            return houseNotFound(HomeDetectionReasons.INVALID_INTERIOR, entrance, level, homeNeed.getId());
+        if (!foundInterior || interiorBlocks.isEmpty()) {
+            return houseNotFound(HomeDetectionReasons.INVALID_INTERIOR, entrance, level, homeNeed.getId(), Collections.emptyList());
+        }
+        List<String> interiorErrors = checkValidBlocks(level, interiorBlocks, homeNeed.getInteriorBlocks());
+        if (!interiorErrors.isEmpty()) {
+            return houseNotFound(HomeDetectionReasons.INVALID_INTERIOR, entrance, level, homeNeed.getId(), interiorErrors);
         }
         houseBlocks.addAll(interiorBlocks);
 
         // Verify the detected roof of the house is valid
         Set<BlockPos> roofBlocks = Sets.newHashSet();
         boolean foundRoof = verifyRoofCandidates(level, roofCandidateBlocks, homeNeed.getRoofBlocks());
-        if (!foundRoof
-                || !checkValidBlocks(level, roofBlocks, homeNeed.getRoofBlocks())) {
-            return houseNotFound(HomeDetectionReasons.INVALID_ROOF, entrance, level, homeNeed.getId());
+        if (!foundRoof || roofCandidateBlocks.isEmpty()) {
+            return houseNotFound(HomeDetectionReasons.INVALID_ROOF, entrance, level, homeNeed.getId(), Collections.emptyList());
+        }
+        List<String> roofErrors = checkValidBlocks(level, roofBlocks, homeNeed.getRoofBlocks());
+        if (!roofErrors.isEmpty()) {
+            return houseNotFound(HomeDetectionReasons.INVALID_ROOF, entrance, level, homeNeed.getId(), roofErrors);
         }
         roofBlocks.addAll(roofCandidateBlocks);
         houseBlocks.addAll(roofBlocks);
@@ -99,18 +114,18 @@ public class HomeDetection {
         boolean checkClosure = verifyClosure(interiorBlocks, floorBlocks, wallBlocks, roofBlocks);
 
         if (!checkClosure) {
-            return houseNotFound(HomeDetectionReasons.NO_CLOSURE, entrance, level, homeNeed.getId());
+            return houseNotFound(HomeDetectionReasons.NO_CLOSURE, entrance, level, homeNeed.getId(), Collections.emptyList());
         }
 
         // Detect the container for supplying the house
         BlockPos containerPos = findContainer(level, floorBlocks);
 
         if (containerPos == null) {
-            return houseNotFound(HomeDetectionReasons.NO_CONTAINER, entrance, level, homeNeed.getId());
+            return houseNotFound(HomeDetectionReasons.NO_CONTAINER, entrance, level, homeNeed.getId(), Collections.emptyList());
         }
 
         if (houseBlocks.size() > CftConfig.MAX_HOUSE_SIZE.get()) {
-            return houseNotFound(HomeDetectionReasons.HOUSE_TOO_LARGE, entrance, level, homeNeed.getId());
+            return houseNotFound(HomeDetectionReasons.HOUSE_TOO_LARGE, entrance, level, homeNeed.getId(), Collections.emptyList());
         }
 
         // At this point, a house has been found
@@ -129,7 +144,7 @@ public class HomeDetection {
 
         LOGGER.debug("House size:" + houseBlocks.size());
 
-        return new HomeDetectionPacket(true, homeNeed.getId(), HomeDetectionReasons.HOUSE_DETECTED);
+        return new HomeDetectionPacket(true, homeNeed.getId(), HomeDetectionReasons.HOUSE_DETECTED, Collections.emptyList());
     }
 
     private static boolean verifyClosure(Set<BlockPos> interiorBlocks, Set<BlockPos> floorBlocks,
@@ -162,23 +177,41 @@ public class HomeDetection {
         return interiorBlocks.contains(above) || roofBlocks.contains(above);
     }
 
-    private static boolean checkValidBlocks(ServerLevel level, Set<BlockPos> blockList, List<HomeValidBlock> validBlocks) {
+    private static List<String> checkValidBlocks(ServerLevel level, Set<BlockPos> blockList, List<HomeValidBlock> validBlocks) {
         return blockList.stream()
                 .map(level::getBlockState)
                 .collect(Collectors.groupingBy(blockState -> blockState.getBlock().getDescriptionId()))
                 .values().stream()
                 .map(blocks -> new Pair<>(blocks.stream().findFirst(), blocks.size()))
-                .allMatch(blockEntry -> satisfiesValidityConditions(blockEntry, validBlocks, blockList.size()));
+                .flatMap(blockEntry -> satisfiesValidityConditions(blockEntry, validBlocks, blockList.size()).stream())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
-    private static boolean satisfiesValidityConditions(Pair<Optional<BlockState>, Integer> blockEntry, List<HomeValidBlock> validBlocks, int size) {
+    private static List<String> satisfiesValidityConditions(Pair<Optional<BlockState>, Integer> blockEntry, List<HomeValidBlock> validBlocks, int size) {
         return validBlocks.stream()
                 .filter(validBlock -> blockEntry.getA().isPresent() && isValidBlock(blockEntry.getA().get(), validBlock))
-                .allMatch(validBlock -> validBlock.getMinQuantity() <= blockEntry.getB()
-                        && validBlock.getMaxQuantity() >= blockEntry.getB()
-                        && validBlock.getMinPercentage() <= BigDecimal.valueOf(blockEntry.getB().doubleValue()).divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP).doubleValue()
-                        && validBlock.getMaxPercentage() >= BigDecimal.valueOf(blockEntry.getB().doubleValue()).divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP).doubleValue()
-                );
+                .map(validBlock -> {
+                            if (validBlock.getMinQuantity() <= blockEntry.getB()) {
+                                return "There are " + validBlock.getMinQuantity() + " " + blockEntry.getA().get().getBlock().getDescriptionId() + " on the floor but the minimum required is " + validBlock.getMinQuantity() + ". ";
+                            }
+                            if (validBlock.getMaxQuantity() >= blockEntry.getB()) {
+                                return "There are " + validBlock.getMaxQuantity() + " " + blockEntry.getA().get().getBlock().getDescriptionId() + " on the floor but the maximum allowed is " + validBlock.getMaxQuantity() + ". ";
+                            }
+                            double blockPercentage = BigDecimal.valueOf(blockEntry.getB().doubleValue())
+                                    .divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP)
+                                    .doubleValue();
+                            if (validBlock.getMinPercentage() <= blockPercentage) {
+                                return "There are " + blockPercentage + "% " + blockEntry.getA().get().getBlock().getDescriptionId() + " on the floor but the minimum required is " + validBlock.getMinPercentage() + ". ";
+                            }
+                            if (validBlock.getMaxPercentage() >= blockPercentage) {
+                                return "There are " + blockPercentage + "% " + blockEntry.getA().get().getBlock().getDescriptionId() + " on the floor but the maximum allowed is " + validBlock.getMaxPercentage() + ". ";
+                            }
+                            return null;
+                        }
+                )
+                .filter(Objects::isNull)
+                .toList();
     }
 
     private static BlockPos findContainer(ServerLevel level, Set<BlockPos> floorBlocks) {
@@ -386,7 +419,7 @@ public class HomeDetection {
     /**
      * Treatment of the case a house is not found: log the reason and remove it from the stored data
      */
-    private static HomeDetectionPacket houseNotFound(HomeDetectionReasons reason, BlockPos entrance, ServerLevel level, String homeNeedId) {
+    private static HomeDetectionPacket houseNotFound(HomeDetectionReasons reason, BlockPos entrance, ServerLevel level, String homeNeedId, List<String> validationDetails) {
         LOGGER.debug("No house found. " + reason);
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
         Optional<XoonglinHome> homeToRemove = homesData.getHomes().stream().filter(home -> home.getEntrance().equals(entrance)).findFirst();
@@ -394,7 +427,7 @@ public class HomeDetection {
             homesData.getHomes().remove(homeToRemove.get());
             homesData.setDirty();
         }
-        return new HomeDetectionPacket(false, homeNeedId, reason);
+        return new HomeDetectionPacket(false, homeNeedId, reason, validationDetails);
     }
 
     private HomeDetectionPacket selectDetectionPacket(List<HomeDetectionPacket> detectedHomePackets) {

@@ -1,8 +1,12 @@
 package com.hyperbaton.cft.structure.home;
 
+import com.hyperbaton.cft.CftConfig;
+
 public enum HomeDetectionReasons {
     NOT_A_DOOR("Not a door"),
     ALREADY_REGISTERED("House already registered"),
+    NO_FLOOR("There is no floor underside the door."),
+    FLOOR_TOO_BIG("The floor exceeds the maximum size of " + CftConfig.MAX_FLOOR_SIZE.get()),
     INVALID_FLOOR("Invalid floor"),
     INVALID_WALLS("Invalid walls"),
     TOO_MANY_DOORS("Too many doors"),
