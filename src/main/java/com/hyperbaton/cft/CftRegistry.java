@@ -34,8 +34,8 @@ public class CftRegistry {
     public static final RegistryObject<Codec<GoodsNeed>> GOODS_NEED = NEEDS_CODEC.register("goods", () -> GoodsNeed.GOODS_NEED_CODEC);
     public static final RegistryObject<Codec<AltitudeNeed>> ALTITUDE_NEED = NEEDS_CODEC.register("altitude", () -> AltitudeNeed.ALTITUDE_NEED_CODEC);
     public static final RegistryObject<Codec<BiomeNeed>> BIOME_NEED = NEEDS_CODEC.register("biome", () -> BiomeNeed.BIOME_NEED_CODEC);
-
     public static final RegistryObject<Codec<FluidNeed>> FLUID_NEED = NEEDS_CODEC.register("fluid", () -> FluidNeed.FLUID_NEED_CODEC);
+    public static final RegistryObject<Codec<EnergyNeed>> ENERGY_NEED = NEEDS_CODEC.register("energy", () -> EnergyNeed.ENERGY_NEED_CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);

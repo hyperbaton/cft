@@ -1,0 +1,10 @@
+{
+  "type": "cft:energy",
+  "id": "basic_energy_need",
+  "damage": 1.0,
+  "damage_threshold": 0.2,
+  "provided_happiness": 1.0,
+  "satisfaction_threshold": 0.8,
+  "frequency": 1.0,
+  "energy_amount": 1000
+}
