@@ -17,7 +17,6 @@ public class HomeDetectionPacketClient {
             }
             player.sendSystemMessage(Component.literal(packet.getDetectionReason().getMessage()));
             if (!packet.getValidationDetails().isEmpty()) {
-                player.sendSystemMessage(Component.literal("Wrong blocks:"));
                 packet.getValidationDetails().forEach(detail -> player.sendSystemMessage(Component.literal(detail)));
             }
         }

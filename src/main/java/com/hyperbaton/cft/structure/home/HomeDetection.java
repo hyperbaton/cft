@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.structure.home;
 
 import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.need.HomeNeed;
@@ -14,6 +15,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import oshi.util.tuples.Pair;
 
@@ -59,9 +61,9 @@ public class HomeDetection {
                 Stream.of(floorBlocks, floorPerimeterBlocks).flatMap(Collection::stream).collect(Collectors.toSet()),
                 homeNeed.getFloorBlocks());
         if (!floorErrors.isEmpty()) {
-            return houseNotFound(HomeDetectionReasons.INVALID_FLOOR, entrance, level, homeNeed.getId(), Collections.emptyList());
+            return houseNotFound(HomeDetectionReasons.INVALID_FLOOR, entrance, level, homeNeed.getId(), floorErrors);
         }
-        // The inner corners are misidentified as non perimeter blocks in the previous method.
+        // The inner corners are misidentified as non-perimeter blocks in the previous method.
         detectInnerCorners(level, floorBlocks, floorPerimeterBlocks);
         fullFloorBlocks.addAll(floorBlocks);
         fullFloorBlocks.addAll(floorPerimeterBlocks);
@@ -72,7 +74,8 @@ public class HomeDetection {
         Set<BlockPos> roofCandidateBlocks = Sets.newHashSet();
         boolean foundWall = findWall(level, floorPerimeterBlocks, wallBlocks, roofCandidateBlocks,
                 homeNeed.getWallBlocks());
-        if (!foundWall || wallBlocks.isEmpty()) {
+        // A home will always have a door, which makes 2 blocks of the wall
+        if (!foundWall || wallBlocks.size() <= 2) {
             return houseNotFound(HomeDetectionReasons.INVALID_WALLS, entrance, level, homeNeed.getId(), Collections.emptyList());
         }
         List<String> wallErrors = checkValidBlocks(level, wallBlocks, homeNeed.getWallBlocks());
@@ -178,40 +181,98 @@ public class HomeDetection {
     }
 
     private static List<String> checkValidBlocks(ServerLevel level, Set<BlockPos> blockList, List<HomeValidBlock> validBlocks) {
-        return blockList.stream()
+        List<Pair<HomeValidBlock, Integer>> classifiedBlocks = blockList.stream()
                 .map(level::getBlockState)
-                .collect(Collectors.groupingBy(blockState -> blockState.getBlock().getDescriptionId()))
-                .values().stream()
-                .map(blocks -> new Pair<>(blocks.stream().findFirst(), blocks.size()))
-                .flatMap(blockEntry -> satisfiesValidityConditions(blockEntry, validBlocks, blockList.size()).stream())
+                // There will be two wall blocks that are doors, and only those two; they should not be counted
+                // Same for chests: they shall not be counted
+                .filter(blockState -> !blockState.is(BlockTags.DOORS) && !isContainer(blockState))
+                // Group the blocks by which validation they check
+                .collect(Collectors.groupingBy(
+                        blockState -> validBlocks.stream()
+                                .filter(validBlock -> isValidBlock(blockState, validBlock))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalStateException("Block not matching any HomeValidBlock"))
+                ))
+                .entrySet().stream()
+                // Count the number of blocks per validation
+                .map(validBlockSet ->
+                        new Pair<>(validBlockSet.getKey(), validBlockSet.getValue().size()))
+                .toList();
+        // For those validations which don't have any blocks, we add an entry with size 0
+        List<Pair<HomeValidBlock, Integer>> notFoundValidBlocks = validBlocks.stream()
+                .filter(validBlock -> classifiedBlocks.stream()
+                        .map(Pair::getA)
+                        .noneMatch(classifiedValidBlock -> classifiedValidBlock.equals(validBlock)))
+                .map(validBlock -> new Pair<>(validBlock, 0))
+                .toList();
+        LOGGER.trace("Found {} block validation sets. Not found: {}.", classifiedBlocks.size(), notFoundValidBlocks.size());
+        return Streams.concat(classifiedBlocks.stream(), notFoundValidBlocks.stream())
+                // Validate each group and return the errors, if any
+                .map(blockEntry ->
+                        satisfiesValidityConditions(blockEntry.getA(), blockEntry.getB(), blockList.size()))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private static List<String> satisfiesValidityConditions(Pair<Optional<BlockState>, Integer> blockEntry, List<HomeValidBlock> validBlocks, int size) {
-        return validBlocks.stream()
-                .filter(validBlock -> blockEntry.getA().isPresent() && isValidBlock(blockEntry.getA().get(), validBlock))
-                .map(validBlock -> {
-                            if (validBlock.getMinQuantity() <= blockEntry.getB()) {
-                                return "There are " + validBlock.getMinQuantity() + " " + blockEntry.getA().get().getBlock().getDescriptionId() + " on the floor but the minimum required is " + validBlock.getMinQuantity() + ". ";
-                            }
-                            if (validBlock.getMaxQuantity() >= blockEntry.getB()) {
-                                return "There are " + validBlock.getMaxQuantity() + " " + blockEntry.getA().get().getBlock().getDescriptionId() + " on the floor but the maximum allowed is " + validBlock.getMaxQuantity() + ". ";
-                            }
-                            double blockPercentage = BigDecimal.valueOf(blockEntry.getB().doubleValue())
-                                    .divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP)
-                                    .doubleValue();
-                            if (validBlock.getMinPercentage() <= blockPercentage) {
-                                return "There are " + blockPercentage + "% " + blockEntry.getA().get().getBlock().getDescriptionId() + " on the floor but the minimum required is " + validBlock.getMinPercentage() + ". ";
-                            }
-                            if (validBlock.getMaxPercentage() >= blockPercentage) {
-                                return "There are " + blockPercentage + "% " + blockEntry.getA().get().getBlock().getDescriptionId() + " on the floor but the maximum allowed is " + validBlock.getMaxPercentage() + ". ";
-                            }
-                            return null;
-                        }
-                )
-                .filter(Objects::isNull)
-                .toList();
+    private static String satisfiesValidityConditions(HomeValidBlock validBlock, int subsetSize, int totalSize) {
+        LOGGER.trace("Satisfying validity conditions for {} with {} blocks. Total blocks: {}",
+                getBlockOrTagDescription(validBlock), subsetSize, totalSize);
+        if (subsetSize < validBlock.getMinQuantity()) {
+            return "There are " + subsetSize + " " + getBlockOrTagDescription(validBlock) +
+                    " but the minimum required is " + validBlock.getMinQuantity() + ". ";
+        }
+        if (subsetSize > validBlock.getMaxQuantity()) {
+            return "There are " + subsetSize + " " + getBlockOrTagDescription(validBlock) +
+                    " but the maximum allowed is " + validBlock.getMaxQuantity() + ". ";
+        }
+        double blockPercentage = totalSize == 0 ? 0.0 : BigDecimal.valueOf(subsetSize)
+                .divide(BigDecimal.valueOf(totalSize), 2, RoundingMode.HALF_UP)
+                .doubleValue();
+        LOGGER.trace("Block percentage: {}", blockPercentage);
+        if (blockPercentage < validBlock.getMinPercentage()) {
+            return "There are " + blockPercentage * 100 + "% " + getBlockOrTagDescription(validBlock) +
+                    " but the minimum required is " + validBlock.getMinPercentage() * 100 + "%. ";
+        }
+        if (blockPercentage > validBlock.getMaxPercentage()) {
+            return "There are " + blockPercentage * 100 + "% " + getBlockOrTagDescription(validBlock) +
+                    " but the maximum allowed is " + validBlock.getMaxPercentage() * 100 + "%. ";
+        }
+        return null;
+    }
+
+    public static String of(HomeValidBlock validBlock, int quantity, int total) {
+        String description = getBlockOrTagDescription(validBlock);
+        double percentage = BigDecimal.valueOf(quantity)
+                .divide(BigDecimal.valueOf(total), 2, RoundingMode.HALF_UP)
+                .doubleValue();
+
+        if (quantity < validBlock.getMinQuantity()) {
+            return formatQuantityError(description, quantity, "minimum", validBlock.getMinQuantity());
+        }
+        if (quantity > validBlock.getMaxQuantity()) {
+            return formatQuantityError(description, quantity, "maximum", validBlock.getMaxQuantity());
+        }
+        if (percentage < validBlock.getMinPercentage()) {
+            return formatPercentageError(description, percentage, "minimum", validBlock.getMinPercentage());
+        }
+        if (percentage > validBlock.getMaxPercentage()) {
+            return formatPercentageError(description, percentage, "maximum", validBlock.getMaxPercentage());
+        }
+        return null;
+    }
+
+    private static @NotNull String getBlockOrTagDescription(HomeValidBlock validBlock) {
+        return validBlock.getBlock() != null ? validBlock.getBlock().getDescriptionId() : validBlock.getTagBlock().location().toShortLanguageKey();
+    }
+
+    private static String formatQuantityError(String blockType, int actual, String boundType, int bound) {
+        return String.format("Found %d blocks of type %s, but the %s required is %d",
+                actual, blockType, boundType, bound);
+    }
+
+    private static String formatPercentageError(String blockType, double actual, String boundType, double bound) {
+        return String.format("Found %.0f%% of blocks of type %s, but the %s required is %.0f%%",
+                actual, blockType, boundType, bound);
     }
 
     private static BlockPos findContainer(ServerLevel level, Set<BlockPos> floorBlocks) {
@@ -420,7 +481,7 @@ public class HomeDetection {
      * Treatment of the case a house is not found: log the reason and remove it from the stored data
      */
     private static HomeDetectionPacket houseNotFound(HomeDetectionReasons reason, BlockPos entrance, ServerLevel level, String homeNeedId, List<String> validationDetails) {
-        LOGGER.debug("No house found. " + reason);
+        LOGGER.debug("No house of type " + homeNeedId + " found. " + reason);
         HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
         Optional<XoonglinHome> homeToRemove = homesData.getHomes().stream().filter(home -> home.getEntrance().equals(entrance)).findFirst();
         if (homeToRemove.isPresent()) {
