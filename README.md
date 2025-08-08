@@ -355,3 +355,29 @@ Apart from the common fields, this need includes a fluid stack object. Yes, it's
 parsing method for FluidStack.
 - `fluid_stack`: A FluidStack object that contains the reference of the fluid and the amount in milibuckets. 
 </details>
+
+#### Energy Need
+
+Works very similar to the Fluid Needs, but in this case the product consumed is just Forge Energy. It can be taken from
+any block within the Xoonglin's home that implements the IEnergyStorage interface. The block must contain enough energy
+within itself and also be able to manage enough throughput: If the need requires more energy at once, the Xoonglin may
+not be able to extract it. This can be tuned by balancing amount and frequency.
+
+<details>
+    <summary>Sample fluid need file</summary>
+
+```json
+{
+  "type": "cft:energy",
+  "id": "basic_energy_need",
+  "damage": 1.0,
+  "damage_threshold": 0.2,
+  "provided_happiness": 1.0,
+  "satisfaction_threshold": 0.8,
+  "frequency": 1.0,
+  "energy_amount": 50
+}
+```
+The only specific field for this need is the energy amount.
+- `energy_amount`: The amount that must be consumed in one go to satisfy the need, in Forge Energy units.
+</details>
