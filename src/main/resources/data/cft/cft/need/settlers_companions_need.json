@@ -1,0 +1,13 @@
+{
+  "type": "cft:social",
+  "id": "cft:settlers_companions_need",
+  "damage": 0.5,
+  "damage_threshold": 0.2,
+  "provided_happiness": 1.0,
+  "satisfaction_threshold": 0.8,
+  "frequency": 0.2,
+  "hidden": false,
+  "classes": ["cft:settler"],
+  "count": 5,
+  "radius": 50
+}
