@@ -1,12 +1,10 @@
 package com.hyperbaton.cft.need;
 
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.need.satisfaction.HomeNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.SocialNeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.nbt.CompoundTag;
 
 import java.util.List;
 
@@ -20,16 +18,14 @@ public class SocialNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(SocialNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(SocialNeed::isHidden),
             Codec.STRING.listOf().fieldOf("classes").forGetter(SocialNeed::getAcceptedSocialClassIds),
-            Codec.INT.fieldOf("count").forGetter(SocialNeed::getRequiredCount),
+            Codec.INT.fieldOf("min_count").forGetter(SocialNeed::getMinCount),
+            Codec.INT.fieldOf("max_count").forGetter(SocialNeed::getMaxCount),
             Codec.INT.fieldOf("radius").forGetter(SocialNeed::getRadius)
     ).apply(instance, SocialNeed::new));
 
-    public static final String TAG_CLASSES = "classes";
-    public static final String TAG_COUNT = "count";
-    public static final String TAG_RADIUS = "radius";
-
     private final List<String> acceptedSocialClassIds;
-    private final int requiredCount;
+    private final int minCount;
+    private final int maxCount;
     private final int radius;
 
     public SocialNeed(
@@ -41,12 +37,13 @@ public class SocialNeed extends Need {
             double frequency,
             boolean hidden,
             List<String> acceptedSocialClassIds,
-            int requiredCount,
+            int minCount, int maxCount,
             int radius
     ) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
         this.acceptedSocialClassIds = List.copyOf(acceptedSocialClassIds);
-        this.requiredCount = requiredCount;
+        this.minCount = minCount;
+        this.maxCount = maxCount;
         this.radius = radius;
     }
 
@@ -54,8 +51,12 @@ public class SocialNeed extends Need {
         return acceptedSocialClassIds;
     }
 
-    public int getRequiredCount() {
-        return requiredCount;
+    public int getMinCount() {
+        return minCount;
+    }
+
+    public int getMaxCount() {
+        return maxCount;
     }
 
     public int getRadius() {

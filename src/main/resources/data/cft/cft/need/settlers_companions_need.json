@@ -8,6 +8,7 @@
   "frequency": 0.2,
   "hidden": false,
   "classes": ["cft:settler"],
-  "count": 5,
+  "min_count": 2,
+  "max_count": 30,
   "radius": 50
 }

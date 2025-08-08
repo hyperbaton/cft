@@ -2,11 +2,14 @@ package com.hyperbaton.cft.need.satisfaction;
 
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.SocialNeed;
+import com.mojang.logging.LogUtils;
 import net.minecraft.world.phys.AABB;
+import org.slf4j.Logger;
 
 import java.util.List;
 
 public class SocialNeedSatisfier extends NeedSatisfier<SocialNeed> {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public SocialNeedSatisfier(double satisfaction, boolean isSatisfied, SocialNeed need) {
         super(satisfaction, isSatisfied, need);
@@ -17,14 +20,15 @@ public class SocialNeedSatisfier extends NeedSatisfier<SocialNeed> {
         SocialNeed need = getNeed();
 
         int radius = Math.max(0, need.getRadius());
-        int required = Math.max(0, need.getRequiredCount());
+        // Resolve min/max with sensible defaults and compatibility with old "count"
+        int min = Math.max(0, need.getMinCount());
+        int max = need.getMaxCount();
+        if (max < min) {
+            max = min; // keep sane bounds
+        }
+
         List<String> acceptable = need.getAcceptedSocialClassIds();
 
-        // If nothing is required, satisfy immediately through the base class
-        if (required == 0) {
-            super.satisfy(mob);
-            return true;
-        }
 
         // Look for nearby Xoonglins within the radius, using a box centered on the mob.
         AABB area = new AABB(mob.blockPosition()).inflate(radius);
@@ -43,7 +47,9 @@ public class SocialNeedSatisfier extends NeedSatisfier<SocialNeed> {
                     return classId != null && acceptable.contains(classId);
                 }).count();
 
-        if (matching >= required) {
+        LOGGER.trace("Xoonglins found nearby {}: {}. Minimum and maximum: {}/{}", mob.getName(), matching, min, max);
+        // Satisfied only if within [min, max], inclusive
+        if (matching >= min && matching <= max) {
             super.satisfy(mob);
             return true;
         }
