@@ -1,0 +1,12 @@
+{
+  "type": "cft:lighting",
+  "id": "cft:high_lighting_need",
+  "damage": 0.4,
+  "damage_threshold": 0.2,
+  "provided_happiness": 0.8,
+  "satisfaction_threshold": 0.75,
+  "frequency": 0.2,
+  "hidden": false,
+  "min_light": 10,
+  "radius": 3
+}

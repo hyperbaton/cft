@@ -37,6 +37,7 @@ public class CftRegistry {
     public static final RegistryObject<Codec<FluidNeed>> FLUID_NEED = NEEDS_CODEC.register("fluid", () -> FluidNeed.FLUID_NEED_CODEC);
     public static final RegistryObject<Codec<EnergyNeed>> ENERGY_NEED = NEEDS_CODEC.register("energy", () -> EnergyNeed.ENERGY_NEED_CODEC);
     public static final RegistryObject<Codec<SocialNeed>> SOCIAL_NEED = NEEDS_CODEC.register("social", () -> SocialNeed.SOCIAL_NEED_CODEC);
+    public static final RegistryObject<Codec<LightingNeed>> LIGHTING_NEED = NEEDS_CODEC.register("lighting", () -> LightingNeed.LIGHTING_NEED_CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);
