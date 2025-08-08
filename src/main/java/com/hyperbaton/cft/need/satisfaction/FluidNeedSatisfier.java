@@ -4,6 +4,7 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.FluidNeed;
+import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -97,12 +98,13 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
     }
 
     private Optional<BlockPos> findFluidContainer(XoonglinEntity mob, FluidStack requiredFluid) {
-        return mob.getHome().getInteriorBlocks().stream()
-                .filter(pos -> {
-                    IFluidHandler handler = getFluidHandlerAt((ServerLevel) mob.level(), pos);
-                    return handler != null && handler.drain(requiredFluid, IFluidHandler.FluidAction.SIMULATE).isFluidEqual(requiredFluid);
-                })
-                .findFirst();
+        return Optional.ofNullable(mob.getHome())
+                .flatMap(home -> home.getInteriorBlocks().stream()
+                        .filter(pos -> {
+                            IFluidHandler handler = getFluidHandlerAt((ServerLevel) mob.level(), pos);
+                            return handler != null && handler.drain(requiredFluid, IFluidHandler.FluidAction.SIMULATE).isFluidEqual(requiredFluid);
+                        })
+                        .findFirst());
     }
 
     private IFluidHandler getFluidHandlerAt(ServerLevel level, BlockPos pos) {

@@ -6,5 +6,5 @@
   "provided_happiness": 1.0,
   "satisfaction_threshold": 0.8,
   "frequency": 1.0,
-  "energy_amount": 1000
+  "energy_amount": 50
 }
