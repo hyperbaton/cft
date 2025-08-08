@@ -27,6 +27,7 @@ public class CftMemoryModuleType {
     public static final RegistryObject<MemoryModuleType<Boolean>> FLUID_SUPPLY_COOLDOWN = registerMemory("fluid_supply_cooldown", Codec.BOOL);
     public static final RegistryObject<MemoryModuleType<BlockPos>> ENERGY_CONTAINER = registerMemory("energy_container", BlockPos.CODEC);
     public static final RegistryObject<MemoryModuleType<Boolean>> ENERGY_SUPPLY_COOLDOWN = registerMemory("energy_supply_cooldown", Codec.BOOL);
+    public static final RegistryObject<MemoryModuleType<Boolean>> MUST_WORK_AT_HOME = registerMemory("must_work_at_home", Codec.BOOL);
 
     public static <T> RegistryObject<MemoryModuleType<T>> registerMemory(String name)
     {

@@ -1,0 +1,9 @@
+{
+  "type": "cft:work_at_home",
+  "hours_per_day": 6.0,
+  "frequency_days": 0.1,
+  "output": {
+    "item": "minecraft:paper"
+  },
+  "output_count": 2
+}

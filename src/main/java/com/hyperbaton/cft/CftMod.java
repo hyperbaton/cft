@@ -41,6 +41,8 @@ public class CftMod
 
         CftRegistry.NEEDS_CODEC.register(modEventBus);
 
+        CftRegistry.JOBS_CODEC.register(modEventBus);
+
         CreativeModTabs.register(modEventBus);
 
         CftItems.register(modEventBus);
@@ -91,6 +93,7 @@ public class CftMod
     {
         CftRegistry.NEEDS = CftRegistry.getNeedsRegistry(event.getServer().registryAccess());
         CftRegistry.SOCIAL_CLASSES = CftRegistry.getSocialClassesRegistry(event.getServer().registryAccess());
+        CftRegistry.JOBS = CftRegistry.getJobsRegistry(event.getServer().registryAccess());
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

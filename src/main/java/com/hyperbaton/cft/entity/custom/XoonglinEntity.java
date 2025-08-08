@@ -3,6 +3,8 @@ package com.hyperbaton.cft.entity.custom;
 import com.google.common.collect.ImmutableList;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.job.Job;
+import com.hyperbaton.cft.job.JobState;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfierMapper;
@@ -17,6 +19,7 @@ import com.hyperbaton.cft.socialclass.SocialStructureHelper;
 import com.hyperbaton.cft.sound.CftSounds;
 import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.hyperbaton.cft.world.HomesData;
+import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -45,6 +48,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -53,6 +57,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
+    private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
     public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.STRING);
@@ -81,6 +86,9 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private double happiness = 0.0;
 
+    private ResourceLocation jobId; // null means unemployed
+    private final JobState jobState = new JobState();
+
     private int satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
     private int matingDelay = CftConfig.XOONGLIN_MATING_COOLDOWN.get();
 
@@ -91,7 +99,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private static final String KEY_NEEDS = "needs";
     private static final String KEY_SOCIAL_CLASS = "socialClass";
     private static final String KEY_HAPPINESS = "happiness";
-
+    public static final String KEY_JOB_ID = "jobId";
+    public static final String KEY_JOB_STATE = "jobState";
 
     @Override
     public void tick() {
@@ -119,6 +128,13 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
         if (this.level().isClientSide()) {
             setupAnimationStates();
+        }
+
+        if (!level().isClientSide && jobId != null) {
+            Job job = CftRegistry.JOBS.get(jobId);
+            if (job != null) {
+                job.tick(this, jobState);
+            }
         }
 
         if (!this.level().isClientSide && CftConfig.KEEP_XOONGLINS_LOADED.get()) {
@@ -329,6 +345,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
+            this.setJob(socialClass.getJob());
         }
         if (this.home != null) {
             HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
@@ -454,6 +471,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.happiness = happiness;
     }
 
+    public void setJob(ResourceLocation jobId) { this.jobId = jobId; }
+
+    public ResourceLocation getJob() { return jobId; }
+
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -476,6 +497,12 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
         tag.put(KEY_NEEDS, getNeedsTag(needs));
         tag.putDouble(KEY_HAPPINESS, happiness);
+        if (jobId != null) {
+            tag.putString(KEY_JOB_ID, jobId.toString());
+            CompoundTag js = new CompoundTag();
+            jobState.save(js);
+            tag.put(KEY_JOB_STATE, js);
+        }
     }
 
     private ListTag getNeedsTag(List<? extends NeedSatisfier<? extends Need>> needs) {
@@ -514,5 +541,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (tag.contains(KEY_HAPPINESS)) {
             setHappiness(tag.getDouble(KEY_HAPPINESS));
         }
+        if (tag.contains(KEY_JOB_ID)) jobId = new ResourceLocation(tag.getString(KEY_JOB_ID));
+        if (tag.contains(KEY_JOB_STATE)) jobState.load(tag.getCompound(KEY_JOB_STATE));
     }
 }

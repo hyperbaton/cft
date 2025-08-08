@@ -1,5 +1,7 @@
 package com.hyperbaton.cft;
 
+import com.hyperbaton.cft.job.Job;
+import com.hyperbaton.cft.job.WorkAtHomeJob;
 import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -25,6 +27,7 @@ public class CftRegistry {
 
     public static Registry<Need> NEEDS;
     public static Registry<SocialClass> SOCIAL_CLASSES;
+    public static Registry<Job> JOBS;
 
     public static final DeferredRegister<Codec<? extends Need>> NEEDS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.NEED_CODEC_KEY, CftMod.MOD_ID);
@@ -39,11 +42,23 @@ public class CftRegistry {
     public static final RegistryObject<Codec<SocialNeed>> SOCIAL_NEED = NEEDS_CODEC.register("social", () -> SocialNeed.SOCIAL_NEED_CODEC);
     public static final RegistryObject<Codec<LightingNeed>> LIGHTING_NEED = NEEDS_CODEC.register("lighting", () -> LightingNeed.LIGHTING_NEED_CODEC);
 
+    public static final DeferredRegister<Codec<? extends Job>> JOBS_CODEC =
+            DeferredRegister.create(CftDatapackRegistryEvents.JOB_CODEC_KEY, CftMod.MOD_ID);
+    public static final Supplier<IForgeRegistry<Codec<? extends Job>>> JOBS_CODEC_SUPPLIER =
+            JOBS_CODEC.makeRegistry(RegistryBuilder::new);
+
+    public static final RegistryObject<Codec<WorkAtHomeJob>> WORK_AT_HOME_JOB =
+            JOBS_CODEC.register("work_at_home", () -> WorkAtHomeJob.CODEC);
+
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);
     }
 
     public static Registry<SocialClass> getSocialClassesRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.SOCIAL_CLASS_KEY);
+    }
+
+    public static Registry<Job> getJobsRegistry(RegistryAccess registryAccess) {
+        return registryAccess.registryOrThrow(CftDatapackRegistryEvents.JOB_KEY);
     }
 }

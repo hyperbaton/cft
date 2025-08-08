@@ -36,6 +36,9 @@ public class CftConfig
     public static final ForgeConfigSpec.IntValue SUPPLY_COOLDOWN = BUILDER
             .comment("How long to check again if supplies are not present, in ticks.")
             .defineInRange("needs.supplyCooldown", 200, 40, 5000);
+    public static final ForgeConfigSpec.DoubleValue HOME_WORK_RADIUS = BUILDER
+            .comment("The distance from the home entrance that is considered near enough for working at home.")
+            .defineInRange("jobs.homeWorkRadius", 6.0, 1.0, 50.0);
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
 
