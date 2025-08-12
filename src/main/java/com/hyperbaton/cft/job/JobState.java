@@ -3,7 +3,6 @@ package com.hyperbaton.cft.job;
 import net.minecraft.nbt.CompoundTag;
 
 public class JobState {
-    // Day accounting
     public long lastDayIndex = Long.MIN_VALUE;
     public int workedTicksToday = 0;
     public int consecutiveDaysWorked = 0;

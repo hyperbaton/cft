@@ -1,7 +1,7 @@
 package com.hyperbaton.cft;
 
 import com.hyperbaton.cft.job.Job;
-import com.hyperbaton.cft.job.WorkAtHomeJob;
+import com.hyperbaton.cft.job.HomeArtisanJob;
 import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -47,8 +47,8 @@ public class CftRegistry {
     public static final Supplier<IForgeRegistry<Codec<? extends Job>>> JOBS_CODEC_SUPPLIER =
             JOBS_CODEC.makeRegistry(RegistryBuilder::new);
 
-    public static final RegistryObject<Codec<WorkAtHomeJob>> WORK_AT_HOME_JOB =
-            JOBS_CODEC.register("work_at_home", () -> WorkAtHomeJob.CODEC);
+    public static final RegistryObject<Codec<HomeArtisanJob>> HOME_ARTISAN_JOB =
+            JOBS_CODEC.register("home_artisan", () -> HomeArtisanJob.CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);

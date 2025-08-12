@@ -49,7 +49,7 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
-        LOGGER.debug("Checking container in home");
+        LOGGER.trace("Checking container in home");
         if (!mob.getBrain().hasMemoryValue(homeContainerMemoryType()) ||
                 !isCloseEnoughToContainer(mob)) {
             return;

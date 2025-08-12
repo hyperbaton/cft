@@ -9,6 +9,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -89,6 +90,13 @@ public class WorkAtHomeJob extends Job {
         // Only set this if the Xoonglin has a valid home with an entrance.
         boolean hasHome = xoonglin.getHome() != null && xoonglin.getHome().getEntrance() != null;
         Brain<XoonglinEntity> brain = xoonglin.getBrain();
+        /*brain.getMemory(MemoryModuleType.WALK_TARGET).ifPresentOrElse(
+                wt -> LOGGER.debug("[{}] WalkTarget -> {} (speed={}, closeDist={})",
+                        xoonglin.getName().getString(), wt.getTarget().currentBlockPosition(),
+                        wt.getSpeedModifier(), wt.getCloseEnoughDist()),
+                () -> LOGGER.debug("[{}] WalkTarget -> <none>", xoonglin.getName().getString())
+        );*/
+
         if (hasHome && state.workedTicksToday < neededTicks) {
             brain.setMemory(CftMemoryModuleType.MUST_WORK_AT_HOME.get(), Boolean.TRUE);
         } else {

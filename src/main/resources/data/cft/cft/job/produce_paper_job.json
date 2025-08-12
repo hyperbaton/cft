@@ -1,7 +1,7 @@
 {
-  "type": "cft:work_at_home",
+  "type": "cft:home_artisan",
   "hours_per_day": 6.0,
-  "frequency_days": 0.1,
+  "frequency_days": 2,
   "output": {
     "item": "minecraft:paper"
   },

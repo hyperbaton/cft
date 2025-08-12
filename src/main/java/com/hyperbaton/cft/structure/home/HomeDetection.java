@@ -145,7 +145,7 @@ public class HomeDetection {
                     roofBlocks.stream().toList()));
         }
 
-        LOGGER.debug("House size:" + houseBlocks.size());
+        LOGGER.trace("House size:" + houseBlocks.size());
 
         return new HomeDetectionPacket(true, homeNeed.getId(), HomeDetectionReasons.HOUSE_DETECTED, Collections.emptyList());
     }
