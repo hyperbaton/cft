@@ -8,17 +8,20 @@ import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.hyperbaton.cft.world.HomesData;
+import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
+import org.slf4j.Logger;
 import oshi.util.tuples.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class XoonglinSpawner implements CustomSpawner {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private int nextTick;
 
     @Override
@@ -94,7 +97,7 @@ public class XoonglinSpawner implements CustomSpawner {
         xoonglin.setNeeds(NeedUtils.getNeedsForClass(xoonglin.getSocialClass()));
         xoonglin.getEntityData().set(XoonglinEntity.SOCIAL_CLASS_NAME, xoonglin.getSocialClass().getId());
         xoonglin.setJob(socialClass.getJob());
-        System.out.println("Xoonglin created\n");
-        System.out.println("Home with owner id: " + home.getOwnerId() + " and leaderId: " + home.getLeaderId() + "\n");
+        LOGGER.trace("Xoonglin spawned");
+        LOGGER.trace("Home with owner id: {} and leaderId: {}", home.getOwnerId(), home.getLeaderId());
     }
 }
