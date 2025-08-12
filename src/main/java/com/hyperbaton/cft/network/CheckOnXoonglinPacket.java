@@ -3,6 +3,7 @@ package com.hyperbaton.cft.network;
 import com.hyperbaton.cft.network.client.CheckOnXoonglinPacketClient;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkEvent;
 
 import java.util.HashMap;
@@ -13,14 +14,16 @@ import java.util.function.Supplier;
 public class CheckOnXoonglinPacket {
     private final Component name;
     private final String socialClass;
+    private final ResourceLocation jobId;
     private final double happiness;
     private final Map<String, NeedSatisfactionData> needsData;
     private final UUID xoonglinId;
 
-    public CheckOnXoonglinPacket(Component name, String socialClass, double happiness, 
+    public CheckOnXoonglinPacket(Component name, String socialClass, ResourceLocation jobId, double happiness, 
             Map<String, NeedSatisfactionData> needsData, UUID xoonglinId) {
         this.name = name;
         this.socialClass = socialClass;
+        this.jobId = jobId;
         this.happiness = happiness;
         this.needsData = needsData;
         this.xoonglinId = xoonglinId;
@@ -29,6 +32,7 @@ public class CheckOnXoonglinPacket {
     public CheckOnXoonglinPacket(FriendlyByteBuf buffer) {
         this.name = buffer.readComponent();
         this.socialClass = buffer.readUtf();
+        this.jobId = buffer.readBoolean() ? buffer.readResourceLocation() : null;
         this.happiness = buffer.readDouble();
         this.xoonglinId = buffer.readUUID();
         this.needsData = new HashMap<>();
@@ -45,6 +49,10 @@ public class CheckOnXoonglinPacket {
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeComponent(name);
         buffer.writeUtf(socialClass);
+        buffer.writeBoolean(jobId != null); // NEW: Write if job exists
+        if (jobId != null) {
+            buffer.writeResourceLocation(jobId); // NEW: Write job ID
+        }
         buffer.writeDouble(happiness);
         buffer.writeUUID(xoonglinId);
         buffer.writeVarInt(needsData.size());
@@ -70,6 +78,10 @@ public class CheckOnXoonglinPacket {
 
     public String getSocialClass() {
         return socialClass;
+    }
+
+    public ResourceLocation getJobId() { // NEW
+        return jobId;
     }
 
     public double getHappiness() {

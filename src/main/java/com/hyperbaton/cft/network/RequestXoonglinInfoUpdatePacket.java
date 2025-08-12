@@ -57,13 +57,14 @@ public class RequestXoonglinInfoUpdatePacket {
                                 )
                         ));
 
-                XoonglinInfoUpdatePacket updatePacket = new XoonglinInfoUpdatePacket(
-                        xoonglin.getCustomName(),
-                        xoonglin.getSocialClass().getId(),
-                        xoonglin.getHappiness(),
-                        needsData,
-                        xoonglin.getUUID()
-                );
+            XoonglinInfoUpdatePacket updatePacket = new XoonglinInfoUpdatePacket(
+                    xoonglin.getCustomName(),
+                    xoonglin.getSocialClass().getId(),
+                    xoonglin.getJob(),
+                    xoonglin.getHappiness(),
+                    needsData,
+                    xoonglin.getUUID()
+            );
 
                 CftPacketHandler.send(PacketDistributor.PLAYER.with(() -> player), updatePacket);
             }

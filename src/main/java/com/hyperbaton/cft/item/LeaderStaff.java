@@ -104,6 +104,7 @@ public class LeaderStaff extends Item {
         return new CheckOnXoonglinPacket(
                 entity.getCustomName(),
                 entity.getSocialClass().getId(),
+                entity.getJob(),
                 entity.getHappiness(),
                 needsData,
                 entity.getUUID()

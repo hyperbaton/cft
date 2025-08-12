@@ -9,7 +9,6 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -17,15 +16,15 @@ import org.slf4j.Logger;
 
 import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
-public class WorkAtHomeJob extends Job {
+public class HomeArtisanJob extends Job {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final Codec<WorkAtHomeJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    public static final Codec<HomeArtisanJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.fieldOf("frequency_days").forGetter(j -> j.frequencyDays),
             INGREDIENT_CODEC.fieldOf("output").forGetter(j -> j.output),
             Codec.INT.fieldOf("output_count").forGetter(j -> j.outputCount)
-    ).apply(inst, WorkAtHomeJob::new));
+    ).apply(inst, HomeArtisanJob::new));
 
     private final double hoursPerDay;
     private final int frequencyDays;
@@ -34,7 +33,7 @@ public class WorkAtHomeJob extends Job {
 
     private static final int TICKS_PER_MC_HOUR = 1000;
 
-    public WorkAtHomeJob(double hoursPerDay, int frequencyDays, Ingredient output, int outputCount) {
+    public HomeArtisanJob(double hoursPerDay, int frequencyDays, Ingredient output, int outputCount) {
         this.hoursPerDay = hoursPerDay;
         this.frequencyDays = Math.max(1, frequencyDays);
         this.output = output;
@@ -61,7 +60,7 @@ public class WorkAtHomeJob extends Job {
             state.workedTicksToday = 0;
             state.lastDayIndex = dayIndex;
 
-            LOGGER.debug(
+            LOGGER.trace(
                     "Day rollover for {}: workedTicks={}, needed={}, metQuota={}, streak {}, (dayIndex={})",
                     xoonglin.getName(), state.workedTicksToday, neededTicks, state.workedTicksToday >= neededTicks, state.consecutiveDaysWorked, dayIndex
             );
@@ -69,7 +68,7 @@ public class WorkAtHomeJob extends Job {
             if (state.consecutiveDaysWorked >= frequencyDays) {
                 // Try deposit
                 ItemStack toDeposit = createOutputStack();
-                LOGGER.info(
+                LOGGER.trace(
                         "Deposit trigger for {} after {} consecutive days (threshold={}): attempting to deposit {}x {}",
                         xoonglin.getName(), state.consecutiveDaysWorked, frequencyDays, toDeposit.getCount(), toDeposit.getItem()
                 );
@@ -90,12 +89,6 @@ public class WorkAtHomeJob extends Job {
         // Only set this if the Xoonglin has a valid home with an entrance.
         boolean hasHome = xoonglin.getHome() != null && xoonglin.getHome().getEntrance() != null;
         Brain<XoonglinEntity> brain = xoonglin.getBrain();
-        /*brain.getMemory(MemoryModuleType.WALK_TARGET).ifPresentOrElse(
-                wt -> LOGGER.debug("[{}] WalkTarget -> {} (speed={}, closeDist={})",
-                        xoonglin.getName().getString(), wt.getTarget().currentBlockPosition(),
-                        wt.getSpeedModifier(), wt.getCloseEnoughDist()),
-                () -> LOGGER.debug("[{}] WalkTarget -> <none>", xoonglin.getName().getString())
-        );*/
 
         if (hasHome && state.workedTicksToday < neededTicks) {
             brain.setMemory(CftMemoryModuleType.MUST_WORK_AT_HOME.get(), Boolean.TRUE);
@@ -106,7 +99,7 @@ public class WorkAtHomeJob extends Job {
 
     @Override
     public Codec<? extends Job> jobType() {
-        return CftRegistry.WORK_AT_HOME_JOB.get();
+        return CftRegistry.HOME_ARTISAN_JOB.get();
     }
 
     private ItemStack createOutputStack() {

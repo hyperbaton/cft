@@ -73,9 +73,8 @@ public class XoonglinInfoScreen extends Screen {
 
         graphics.drawString(this.font, titleText, titleX, y + MARGIN_PIXELS, 0x4040B0, false);
 
-        // Render social class
-        String socialClass = Component.translatable(packet.getSocialClass()).getString();
-        graphics.drawString(this.font, socialClass, x + MARGIN_PIXELS, y + 30, 0x404040, false);
+        // Render social class and job on the same line
+        renderSocialClassAndJob(graphics, x, y + 30);
         
         // Render happiness
         String happinessLabel = Component.translatable("gui.cft.happiness").getString();
@@ -105,6 +104,24 @@ public class XoonglinInfoScreen extends Screen {
         }
 
         super.render(graphics, mouseX, mouseY, delta);
+    }
+
+    private void renderSocialClassAndJob(GuiGraphics graphics, int x, int y) {
+        // Render social class on the left
+        String socialClass = Component.translatable(packet.getSocialClass()).getString();
+        graphics.drawString(this.font, socialClass, x + MARGIN_PIXELS, y, 0x404040, false);
+        
+        // Render job on the right side (if present)
+        if (packet.getJobId() != null) {
+            String jobTranslationKey = "job." + packet.getJobId().getNamespace() + "." + packet.getJobId().getPath();
+            String jobName = Component.translatable(jobTranslationKey).getString();
+            
+            int jobNameWidth = this.font.width(jobName);
+            int jobNameRightX = x + imageWidth - MARGIN_PIXELS - jobNameWidth;
+            
+            // Use a different color for the job to distinguish it from social class
+            graphics.drawString(this.font, jobName, jobNameRightX, y, 0x206020, false); // Green-ish color for job
+        }
     }
 
     private void renderNeedsNormally(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
@@ -160,6 +177,7 @@ public class XoonglinInfoScreen extends Screen {
         this.packet = new CheckOnXoonglinPacket(
                 updatePacket.getName(),
                 updatePacket.getSocialClass(),
+                updatePacket.getJobId(),
                 updatePacket.getHappiness(),
                 updatePacket.getNeedsData(),
                 updatePacket.getXoonglinId()
