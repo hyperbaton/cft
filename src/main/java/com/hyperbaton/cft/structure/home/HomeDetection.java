@@ -106,7 +106,7 @@ public class HomeDetection {
         if (!foundRoof || roofCandidateBlocks.isEmpty()) {
             return houseNotFound(HomeDetectionReasons.INVALID_ROOF, entrance, level, homeNeed.getId(), Collections.emptyList());
         }
-        List<String> roofErrors = checkValidBlocks(level, roofBlocks, homeNeed.getRoofBlocks());
+        List<String> roofErrors = checkValidBlocks(level, roofCandidateBlocks, homeNeed.getRoofBlocks());
         if (!roofErrors.isEmpty()) {
             return houseNotFound(HomeDetectionReasons.INVALID_ROOF, entrance, level, homeNeed.getId(), roofErrors);
         }
@@ -387,7 +387,7 @@ public class HomeDetection {
             }
             roofCandidateBlocks.add(testPos);
         });
-        // Check that all wall pieces have the same size
+        // Check that every candidate reached the roof
         return floorPerimeterBlocks.size() == roofCandidateBlocks.size();
     }
 
