@@ -20,7 +20,7 @@ public class XoonglinInfoScreen extends Screen {
     private static final int MAX_VISIBLE_NEEDS = 7;
     private static final int UPDATE_FREQUENCY = 20; // Update every second
 
-    private final int imageWidth = 176, imageHeight = 176;
+    private final int imageWidth = 220, imageHeight = 176;
     private CheckOnXoonglinPacket packet;
     private int ticksUntilNextUpdate = UPDATE_FREQUENCY;
 
@@ -63,7 +63,7 @@ public class XoonglinInfoScreen extends Screen {
         int y = (height - imageHeight) / 2;
 
         this.renderBackground(graphics);
-        graphics.blit(TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 176, 176);
+        graphics.blit(TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 220, 176);
 
         // Render title (Xoonglin's name)
         Component titleText = Component.literal(this.title.getString()).withStyle(ChatFormatting.BOLD);
