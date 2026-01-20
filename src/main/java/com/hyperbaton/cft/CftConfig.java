@@ -39,6 +39,9 @@ public class CftConfig
     public static final ForgeConfigSpec.DoubleValue HOME_WORK_RADIUS = BUILDER
             .comment("The distance from the home entrance that is considered near enough for working at home.")
             .defineInRange("jobs.homeWorkRadius", 3.0, 1.0, 50.0);
+    public static final ForgeConfigSpec.BooleanValue USE_HUMANOID_MODEL = BUILDER
+            .comment("If true, Xoonglins will use the basic humanoid/player model instead of the custom Xoonglin model.")
+            .define("useHumanoidModel", true);
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
 
