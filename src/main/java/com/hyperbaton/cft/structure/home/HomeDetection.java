@@ -135,7 +135,7 @@ public class HomeDetection {
         // DEBUG MODE: Send particles
         //houseBlocks.forEach(blockPos -> level.sendParticles(ParticleTypes.ENTITY_EFFECT, blockPos.getX(), blockPos.getY(), blockPos.getZ(),
         //        5, 0, 0, 0, 0.1));
-        HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+        HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
         // If the home doesn't exist yet, add it to the list
         if (homesData.getHomes().stream().noneMatch(home -> home.getEntrance().equals(entrance))) {
             homesData.addHome(new XoonglinHome(entrance, containerPos, houseBlocks.size(), leaderId, null, homeNeed.getId(),
@@ -482,7 +482,7 @@ public class HomeDetection {
      */
     private static HomeDetectionPacket houseNotFound(HomeDetectionReasons reason, BlockPos entrance, ServerLevel level, String homeNeedId, List<String> validationDetails) {
         LOGGER.debug("No house of type " + homeNeedId + " found. " + reason);
-        HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+        HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
         Optional<XoonglinHome> homeToRemove = homesData.getHomes().stream().filter(home -> home.getEntrance().equals(entrance)).findFirst();
         if (homeToRemove.isPresent()) {
             homesData.getHomes().remove(homeToRemove.get());

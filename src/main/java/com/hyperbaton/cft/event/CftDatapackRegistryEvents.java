@@ -2,7 +2,6 @@ package com.hyperbaton.cft.event;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.job.Job;
-import com.hyperbaton.cft.job.JobState;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.mojang.logging.LogUtils;
@@ -10,8 +9,8 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.registries.DataPackRegistryEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import org.slf4j.Logger;
 
 public class CftDatapackRegistryEvents {
@@ -31,6 +30,6 @@ public class CftDatapackRegistryEvents {
     }
 
     private static <T> ResourceKey<Registry<T>> createRegistryKey(java.lang.String name) {
-        return ResourceKey.createRegistryKey(new ResourceLocation(CftMod.MOD_ID, name));
+        return ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, name));
     }
 }

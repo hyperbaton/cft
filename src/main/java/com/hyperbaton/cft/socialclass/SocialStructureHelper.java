@@ -42,8 +42,8 @@ public class SocialStructureHelper {
     public static Map<SocialClass, BigDecimal> computeNormalizedSocialStructureForPlayerWithUpgrade(ServerLevel level, ServerPlayer player, String fromClass, String toClass) {
         Map<SocialClass, Integer> socialStructure = computeSocialStructureForPlayer(level, player);
         int population = socialStructure.values().stream().reduce(0, Integer::sum);
-        SocialClass formerSocialClass = CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(fromClass));
-        SocialClass nextSocialClass = CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(toClass));
+        SocialClass formerSocialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(fromClass));
+        SocialClass nextSocialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(toClass));
         // Reduce the population of previous class by 1, to account for the change
         socialStructure.replace(formerSocialClass, socialStructure.get(formerSocialClass) - 1);
         // Increase the population of next class by 1, to account for the change

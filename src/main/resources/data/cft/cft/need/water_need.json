@@ -7,7 +7,7 @@
   "satisfaction_threshold": 0.8,
   "frequency": 1.0,
   "fluid_stack": {
-    "FluidName": "minecraft:water",
-    "Amount": 1000
+    "id": "minecraft:water",
+    "amount": 1000
   }
 }

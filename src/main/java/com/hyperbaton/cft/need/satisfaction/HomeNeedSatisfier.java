@@ -29,7 +29,7 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
         } else {
             if (mob.getHome() != null) {
                 if (!mob.level().isClientSide) {
-                    HomesData homesData = ((ServerLevel) mob.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+                    HomesData homesData = ((ServerLevel) mob.level()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
                     homesData.getHomes().removeIf(home -> home.getEntrance().equals(mob.getHome().getEntrance()));
                     homesData.setDirty();
                 }
@@ -63,7 +63,7 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
      */
     private HomeNeed getHomeNeedOfSocialClass(SocialClass socialClass) {
         return (HomeNeed) socialClass.getNeeds().stream()
-                .map(need -> CftRegistry.NEEDS.get(new ResourceLocation(need)))
+                .map(need -> CftRegistry.NEEDS.get(ResourceLocation.parse(need)))
                 .filter(need1 -> need1 instanceof HomeNeed).findFirst().orElseThrow();
     }
 

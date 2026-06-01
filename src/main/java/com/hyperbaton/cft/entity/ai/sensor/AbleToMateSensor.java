@@ -27,7 +27,7 @@ public class AbleToMateSensor extends Sensor<XoonglinEntity> {
     }
 
     private boolean thereIsHomeAvailable(ServerLevel serverLevel, XoonglinEntity xoonglin) {
-        return serverLevel.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData")
+        return serverLevel.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData")
                 .getHomes().stream()
                 .anyMatch(home -> home.getLeaderId().equals(xoonglin.getLeaderId()) &&
                         home.getOwnerId() == null &&

@@ -40,7 +40,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void start(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
-        HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+        HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
 
         Optional<XoonglinHome> nearestHome = findNearestHome(xoonglin.blockPosition(), xoonglin.getLeaderId(), homesData, getHomeNeed(xoonglin.getSocialClass().getNeeds()));
 
@@ -67,7 +67,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
         xoonglin.getBrain().getMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get()).ifPresent(pos -> {
             if (xoonglin.distanceToSqr(pos.getCenter()) < 10.0D) {
                 // If reached, claim the home
-                HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+                HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
                 homesData.getHomes().stream()
                         .filter(home -> home.getEntrance().equals(pos))
                         .filter(home -> home.getOwnerId() == null)
@@ -103,7 +103,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
 
     private HomeNeed getHomeNeed(List<String> needs) {
         return (HomeNeed) needs.stream()
-                .map(need -> CftRegistry.NEEDS.get(new ResourceLocation(need)))
+                .map(need -> CftRegistry.NEEDS.get(ResourceLocation.parse(need)))
                 .filter(need -> need instanceof HomeNeed)
                 .findFirst().orElseThrow();
     }

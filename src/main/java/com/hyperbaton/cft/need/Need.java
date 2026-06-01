@@ -3,16 +3,14 @@ package com.hyperbaton.cft.need;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.ExtraCodecs;
-
-import java.util.function.Function;
 
 public abstract class Need {
     protected static final boolean DEFAULT_HIDDEN = false;
 
-    public static final Codec<Need> NEED_CODEC = ExtraCodecs.lazyInitializedCodec(() -> CftRegistry.NEEDS_CODEC_SUPPLIER.get().getCodec()
-            .dispatch(Need::needType, Function.identity()));
+    public static final Codec<Need> NEED_CODEC = Codec.lazyInitialized(() -> CftRegistry.NEEDS_CODEC_REGISTRY.byNameCodec()
+            .dispatch("type", Need::needType, codec -> MapCodec.assumeMapUnsafe(codec)));
 
     private final String id;
     private double damage;

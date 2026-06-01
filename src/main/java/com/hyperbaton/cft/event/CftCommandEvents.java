@@ -4,12 +4,12 @@ import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.commands.HappinessLadderCommand;
 import com.hyperbaton.cft.commands.PopulationLadderCommand;
 import com.hyperbaton.cft.commands.SocialStructureCommand;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.server.command.ConfigCommand;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.server.command.ConfigCommand;
 
-@Mod.EventBusSubscriber(modid = CftMod.MOD_ID)
+@EventBusSubscriber(modid = CftMod.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
 public class CftCommandEvents {
 
     @SubscribeEvent

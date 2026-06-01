@@ -1,19 +1,19 @@
 package com.hyperbaton.cft.client.gui;
 
 import com.hyperbaton.cft.network.NeedSatisfactionData;
-import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.gui.widget.ScrollPanel;
+import net.neoforged.neoforge.client.gui.widget.ScrollPanel;
 
 import java.util.Map;
 
 class NeedsScrollPanel extends ScrollPanel {
     private static final int SIDE_MARGIN = 5;
-    
+
     private Map<String, NeedSatisfactionData> needsData;
     private final int elementHeight = 15;
     private final Font font;
@@ -51,7 +51,7 @@ class NeedsScrollPanel extends ScrollPanel {
                 int barX = left + width - barWidth - 2 * SIDE_MARGIN;
                 NeedSatisfactionData data = need.getValue();
                 boolean isHovered = NeedsBarRenderer.isMouseOver(mouseX, mouseY, barX, adjustedY, barWidth, barHeight);
-                NeedsBarRenderer.renderBar(graphics, barX, adjustedY, barWidth, barHeight, 
+                NeedsBarRenderer.renderBar(graphics, barX, adjustedY, barWidth, barHeight,
                     data.satisfaction, data.damageThreshold, data.satisfactionThreshold, isHovered);
 
                 if (isHovered) {

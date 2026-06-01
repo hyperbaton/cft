@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class NeedUtils {
     public static List<NeedSatisfier<? extends Need>> getNeedsForClass(SocialClass socialClass) {
         return socialClass.getNeeds().stream()
-                .map(need -> CftRegistry.NEEDS.get(new ResourceLocation(need)))
+                .map(need -> CftRegistry.NEEDS.get(ResourceLocation.parse(need)))
                 .filter(Objects::nonNull)
                 .map(Need::createSatisfier)
                 .collect(Collectors.toCollection(ArrayList::new));

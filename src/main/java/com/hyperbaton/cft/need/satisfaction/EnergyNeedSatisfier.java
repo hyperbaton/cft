@@ -8,9 +8,8 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.slf4j.Logger;
 
 import java.util.Optional;
@@ -28,7 +27,6 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
         LOGGER.trace("Xoonglin {} is attempting to satisfy energy need: {} FE",
                 mob.getCustomName().getString(), requiredEnergy);
 
-        // First, check if the Xoonglin already remembers an energy container
         Optional<BlockPos> rememberedContainer = mob.getBrain().getMemory(energyContainerMemoryType());
 
         if (rememberedContainer.isPresent()) {
@@ -96,7 +94,6 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
 
     @Override
     public void addMemoriesForSatisfaction(XoonglinEntity mob) {
-        // If the Xoonglin hasn't remembered a valid container, try finding one
         findEnergyContainer(mob, this.need.getEnergyAmount()).ifPresent(pos ->
                 mob.getBrain().setMemory(energyContainerMemoryType(), pos)
         );
@@ -124,17 +121,7 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
     }
 
     private IEnergyStorage getEnergyHandlerAt(ServerLevel level, BlockPos pos) {
-        return Optional.ofNullable(level.getBlockEntity(pos))
-                .map(blockEntity -> {
-                    LOGGER.trace("Found block entity at {}: {}", pos, blockEntity.getClass().getName());
-                    LazyOptional<IEnergyStorage> cap = blockEntity.getCapability(ForgeCapabilities.ENERGY);
-                    if (!cap.isPresent()) {
-                        LOGGER.trace("Block entity at {} does not have energy capability", pos);
-                    }
-                    return cap;
-                })
-                .flatMap(LazyOptional::resolve)
-                .orElse(null);
+        return level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, null);
     }
 
     private boolean tryExtractEnergy(XoonglinEntity mob, IEnergyStorage handler, int requiredEnergy) {

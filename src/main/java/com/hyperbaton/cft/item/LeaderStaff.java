@@ -22,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Collections;
 import java.util.Map;
@@ -45,14 +45,12 @@ public class LeaderStaff extends Item {
 
                 BlockPos positionClicked = pContext.getClickedPos();
 
-                // Make sure we point to the lower part of the door
                 DoubleBlockHalf halfOfDoor = pContext.getLevel().getBlockState(pContext.getClickedPos()).getValue(DoorBlock.HALF);
                 if (halfOfDoor.equals(DoubleBlockHalf.UPPER)) {
                     positionClicked = positionClicked.below();
                 }
 
-                // Check if there is already a house at that position
-                HomesData homesData = ((ServerLevel) pContext.getLevel()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+                HomesData homesData = ((ServerLevel) pContext.getLevel()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
                 BlockPos finalPositionClicked = positionClicked;
                 if (homesData.getHomes().stream().anyMatch(home -> home.getEntrance().equals(finalPositionClicked))) {
                     foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.ALREADY_REGISTERED, Collections.emptyList());
@@ -65,7 +63,7 @@ public class LeaderStaff extends Item {
             }
 
 
-            CftPacketHandler.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), foundHouseMessage);
+            PacketDistributor.sendToPlayer((ServerPlayer) player, foundHouseMessage);
         }
 
         return InteractionResult.SUCCESS;
@@ -77,9 +75,8 @@ public class LeaderStaff extends Item {
                 entity instanceof XoonglinEntity) {
             if (((XoonglinEntity) entity).getLeaderId() != null &&
                     ((XoonglinEntity) entity).getLeaderId().equals(playerIn.getUUID())) {
-                // Send message to client player with information about this Xoonglin
                 CheckOnXoonglinPacket message = createXoonglinInfoMessage((XoonglinEntity) entity);
-                CftPacketHandler.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) playerIn), message);
+                PacketDistributor.sendToPlayer((ServerPlayer) playerIn, message);
             } else {
                 playerIn.sendSystemMessage(Component.literal("You are not the leader of this Xoonglin."));
             }

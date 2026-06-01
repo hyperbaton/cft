@@ -29,7 +29,7 @@ public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<Xo
 
     @Override
     public ResourceLocation getTextureLocation(XoonglinEntity xoonglinEntity) {
-        return new ResourceLocation(CftMod.MOD_ID, "textures/entity/"
+        return ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "textures/entity/"
                 + xoonglinEntity.getEntityData().get(XoonglinEntity.SOCIAL_CLASS_NAME).replaceFirst("(.*?):", "")
                 + ".png");
     }
@@ -58,10 +58,10 @@ public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<Xo
     }
 
     @Override
-    protected void renderNameTag(XoonglinEntity entity, Component name, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+    protected void renderNameTag(XoonglinEntity entity, Component name, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float partialTick) {
         poseStack.pushPose();
-        poseStack.translate(0, entity.getBbHeight() * 0.6F, 0); // Move name above entity
-        super.renderNameTag(entity, name, poseStack, buffer, packedLight);
+        poseStack.translate(0, entity.getBbHeight() * 0.6F, 0);
+        super.renderNameTag(entity, name, poseStack, buffer, packedLight, partialTick);
         poseStack.popPose();
     }
 

@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.world;
 
 import com.hyperbaton.cft.structure.home.XoonglinHome;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -15,7 +16,7 @@ public class HomesData extends SavedData {
 
     List<XoonglinHome> homes = new ArrayList<>();
 
-    public static HomesData load(CompoundTag compoundTag){
+    public static HomesData load(CompoundTag compoundTag, HolderLookup.Provider registries){
         HomesData data = new HomesData();
         data.homes = new ArrayList<>();
         ListTag homeTags = compoundTag.getList(TAG_HOMES, Tag.TAG_COMPOUND);
@@ -26,8 +27,12 @@ public class HomesData extends SavedData {
         return data;
     }
 
+    public static SavedData.Factory<HomesData> factory() {
+        return new SavedData.Factory<>(HomesData::new, HomesData::load);
+    }
+
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag compoundTag, HolderLookup.@NotNull Provider registries) {
 
         ListTag homesTags = new ListTag();
         if (!this.homes.isEmpty()) {

@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 import java.util.Optional;
 
@@ -16,7 +16,7 @@ public class HomeValidBlock {
     private static final double TOP_PERCENTAGE = 100.0;
 
     public static final Codec<HomeValidBlock> HOME_VALID_BLOCK_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ForgeRegistries.BLOCKS.getCodec().optionalFieldOf("block").forGetter(validBlock -> Optional.ofNullable(validBlock.block)),
+            BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block").forGetter(validBlock -> Optional.ofNullable(validBlock.block)),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("tagBlock").forGetter(validBlock -> Optional.ofNullable(validBlock.getTagBlock())),
             Codec.INT.orElse(ZERO_QUANTITY).fieldOf("minQuantity").forGetter(HomeValidBlock::getMinQuantity),
             Codec.INT.orElse(INFINITE_QUANTITY).fieldOf("maxQuantity").forGetter(HomeValidBlock::getMaxQuantity),

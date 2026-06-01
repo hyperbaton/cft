@@ -146,8 +146,8 @@ public class XoonglinHome {
     }
 
     public static XoonglinHome fromTag(CompoundTag homeTag) {
-        BlockPos entrance = NbtUtils.readBlockPos(homeTag.getCompound(TAG_ENTRANCE));
-        BlockPos container = NbtUtils.readBlockPos(homeTag.getCompound(TAG_CONTAINER));
+        BlockPos entrance = NbtUtils.readBlockPos(homeTag, TAG_ENTRANCE).orElse(BlockPos.ZERO);
+        BlockPos container = NbtUtils.readBlockPos(homeTag, TAG_CONTAINER).orElse(BlockPos.ZERO);
         int size = homeTag.getInt(TAG_SIZE);
         UUID leaderId = homeTag.getUUID(TAG_LEADER);
         UUID owner = null;
@@ -155,24 +155,21 @@ public class XoonglinHome {
             owner = homeTag.getUUID(TAG_OWNER);
         }
         String homeClass = homeTag.getString(TAG_SATISFIED_NEED);
-        List<BlockPos> floorBlocks = new ArrayList<>();
-        for(Tag blockPosTag : homeTag.getList(TAG_FLOOR_BLOCKS, Tag.TAG_COMPOUND)){
-            floorBlocks.add(NbtUtils.readBlockPos((CompoundTag) blockPosTag));
-        }
-        List<BlockPos> wallBlocks = new ArrayList<>();
-        for(Tag blockPosTag : homeTag.getList(TAG_WALL_BLOCKS, Tag.TAG_COMPOUND)){
-            wallBlocks.add(NbtUtils.readBlockPos((CompoundTag) blockPosTag));
-        }
-        List<BlockPos> interiorBlocks = new ArrayList<>();
-        for(Tag blockPosTag : homeTag.getList(TAG_INTERIOR_BLOCKS, Tag.TAG_COMPOUND)){
-            interiorBlocks.add(NbtUtils.readBlockPos((CompoundTag) blockPosTag));
-        }
-        List<BlockPos> roofBlocks = new ArrayList<>();
-        for(Tag blockPosTag : homeTag.getList(TAG_ROOF_BLOCKS, Tag.TAG_COMPOUND)){
-            roofBlocks.add(NbtUtils.readBlockPos((CompoundTag) blockPosTag));
-        }
+        List<BlockPos> floorBlocks = readBlockPosList(homeTag, TAG_FLOOR_BLOCKS);
+        List<BlockPos> wallBlocks = readBlockPosList(homeTag, TAG_WALL_BLOCKS);
+        List<BlockPos> interiorBlocks = readBlockPosList(homeTag, TAG_INTERIOR_BLOCKS);
+        List<BlockPos> roofBlocks = readBlockPosList(homeTag, TAG_ROOF_BLOCKS);
         return new XoonglinHome(entrance, container, size, leaderId, owner, homeClass,
                 floorBlocks, wallBlocks, interiorBlocks, roofBlocks);
+    }
+
+    private static List<BlockPos> readBlockPosList(CompoundTag tag, String key) {
+        List<BlockPos> blocks = new ArrayList<>();
+        for (Tag blockPosTag : tag.getList(key, Tag.TAG_COMPOUND)) {
+            CompoundTag posTag = (CompoundTag) blockPosTag;
+            blocks.add(new BlockPos(posTag.getInt("X"), posTag.getInt("Y"), posTag.getInt("Z")));
+        }
+        return blocks;
     }
 
     public CompoundTag toTag() {

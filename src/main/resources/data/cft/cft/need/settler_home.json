@@ -9,7 +9,7 @@
   "floorBlocks": [
     {
       "tagBlock": "minecraft:planks",
-      "minQuantity": 0,
+      "minQuantity": 9,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
@@ -18,7 +18,7 @@
   "wallBlocks": [
     {
       "tagBlock": "minecraft:logs",
-      "minQuantity": 0,
+      "minQuantity": 14,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0

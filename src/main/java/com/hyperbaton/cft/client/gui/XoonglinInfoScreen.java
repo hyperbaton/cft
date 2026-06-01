@@ -2,6 +2,7 @@ package com.hyperbaton.cft.client.gui;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.network.*;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -15,7 +16,7 @@ import java.util.Map;
 public class XoonglinInfoScreen extends Screen {
 
     private static final ResourceLocation TEXTURE = 
-        new ResourceLocation(CftMod.MOD_ID, "textures/gui/check_on_xoonglin_background.png");
+        ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "textures/gui/check_on_xoonglin_background.png");
     private static final int MARGIN_PIXELS = 10;
     private static final int MAX_VISIBLE_NEEDS = 7;
     private static final int UPDATE_FREQUENCY = 20; // Update every second
@@ -62,7 +63,7 @@ public class XoonglinInfoScreen extends Screen {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        this.renderBackground(graphics);
+        this.renderBackground(graphics, mouseX, mouseY, delta);
         graphics.blit(TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 220, 176);
 
         // Render title (Xoonglin's name)
@@ -151,11 +152,11 @@ public class XoonglinInfoScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (needsScrollPanel != null) {
-            return needsScrollPanel.mouseScrolled(mouseX, mouseY, delta);
+            return needsScrollPanel.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
-        return super.mouseScrolled(mouseX, mouseY, delta);
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
@@ -168,7 +169,7 @@ public class XoonglinInfoScreen extends Screen {
         super.tick();
         if (--ticksUntilNextUpdate <= 0) {
             // Ask the server for an update
-            CftPacketHandler.sendToServer(new RequestXoonglinInfoUpdatePacket(packet.getXoonglinId()));
+            PacketDistributor.sendToServer(new RequestXoonglinInfoUpdatePacket(packet.getXoonglinId()));
             ticksUntilNextUpdate = UPDATE_FREQUENCY;
         }
     }

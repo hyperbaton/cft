@@ -4,15 +4,13 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.FluidNeed;
-import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.slf4j.Logger;
 
 import java.util.Optional;
@@ -27,9 +25,8 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
     @Override
     public boolean satisfy(XoonglinEntity mob) {
         FluidStack requiredFluid = this.need.getFluidStack();
-        LOGGER.trace("Xoonglin {} is attempting to satisfy fluid need: {} x{}", mob.getCustomName().getString(), requiredFluid.getFluid().getFluidType().getDescriptionId(), requiredFluid.getAmount());
+        LOGGER.trace("Xoonglin {} is attempting to satisfy fluid need: {} x{}", mob.getCustomName().getString(), requiredFluid.getFluidType().getDescriptionId(), requiredFluid.getAmount());
 
-        // First, check if the Xoonglin already remembers a fluid container
         Optional<BlockPos> rememberedContainer = mob.getBrain().getMemory(fluidContainerMemoryType());
 
         if (rememberedContainer.isPresent()) {
@@ -43,12 +40,12 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
                     LOGGER.trace("Fluid handler found at {} for Xoonglin {}", rememberedContainer.get(), mob.getCustomName().getString());
 
                     FluidStack drainSimulated = handler.drain(requiredFluid, IFluidHandler.FluidAction.SIMULATE);
-                    LOGGER.trace("Simulated drain result for {} x{}: {} x{}", requiredFluid.getFluid().getFluidType().getDescriptionId(),
+                    LOGGER.trace("Simulated drain result for {} x{}: {} x{}", requiredFluid.getFluidType().getDescriptionId(),
                             requiredFluid.getAmount(),
-                            drainSimulated.getFluid().getFluidType().getDescriptionId(),
+                            drainSimulated.getFluidType().getDescriptionId(),
                             drainSimulated.getAmount());
 
-                    if (drainSimulated.isFluidEqual(requiredFluid) && drainSimulated.getAmount() >= requiredFluid.getAmount()) {
+                    if (FluidStack.isSameFluidSameComponents(drainSimulated, requiredFluid) && drainSimulated.getAmount() >= requiredFluid.getAmount()) {
                         LOGGER.trace("Sufficient fluid available, executing drain.");
                         mob.getBrain().eraseMemory(fluidContainerMemoryType());
                         return tryDrainFluid(mob, handler, requiredFluid);
@@ -91,7 +88,6 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
 
     @Override
     public void addMemoriesForSatisfaction(XoonglinEntity mob) {
-        // If the Xoonglin hasn't remembered a valid container, try finding one
         findFluidContainer(mob, this.need.getFluidStack()).ifPresent(pos ->
                 mob.getBrain().setMemory(fluidContainerMemoryType(), pos)
         );
@@ -102,21 +98,19 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
                 .flatMap(home -> home.getInteriorBlocks().stream()
                         .filter(pos -> {
                             IFluidHandler handler = getFluidHandlerAt((ServerLevel) mob.level(), pos);
-                            return handler != null && handler.drain(requiredFluid, IFluidHandler.FluidAction.SIMULATE).isFluidEqual(requiredFluid);
+                            return handler != null && FluidStack.isSameFluidSameComponents(
+                                    handler.drain(requiredFluid, IFluidHandler.FluidAction.SIMULATE), requiredFluid);
                         })
                         .findFirst());
     }
 
     private IFluidHandler getFluidHandlerAt(ServerLevel level, BlockPos pos) {
-        return Optional.ofNullable(level.getBlockEntity(pos))
-                .map(blockEntity -> blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER))
-                .flatMap(LazyOptional::resolve)
-                .orElse(null);
+        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null);
     }
 
     private boolean tryDrainFluid(XoonglinEntity mob, IFluidHandler handler, FluidStack requiredFluid) {
         FluidStack drained = handler.drain(requiredFluid, IFluidHandler.FluidAction.EXECUTE);
-        if (drained.isFluidEqual(requiredFluid) && drained.getAmount() >= requiredFluid.getAmount()) {
+        if (FluidStack.isSameFluidSameComponents(drained, requiredFluid) && drained.getAmount() >= requiredFluid.getAmount()) {
             super.satisfy(mob);
             return true;
         }

@@ -47,6 +47,7 @@ public class XoonglinAi {
         initIdleActivity(pBrain);
         initInvestigateActivity(pBrain);
         initMateActivity(pBrain);
+        //initWorkActivity(pBrain);
         pBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         pBrain.setDefaultActivity(Activity.IDLE);
         pBrain.useDefaultActivity();
@@ -88,6 +89,14 @@ public class XoonglinAi {
     private static void initMateActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(CftActivities.MATE.get(), ImmutableList.of(
                 Pair.of(0, new MateBehavior(Map.of(CftMemoryModuleType.MATING_CANDIDATE.get(), MemoryStatus.VALUE_PRESENT)))
+        ));
+    }
+
+    private static void initWorkActivity(Brain<XoonglinEntity> pBrain) {
+        pBrain.addActivity(Activity.WORK, ImmutableList.of(
+                Pair.of(1, new MustWorkAtHomeBehavior(
+                        Map.of(CftMemoryModuleType.MUST_WORK_AT_HOME.get(), MemoryStatus.VALUE_PRESENT)
+                ))
         ));
     }
 }

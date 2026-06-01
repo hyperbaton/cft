@@ -66,7 +66,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         super(pEntityType, pLevel);
         ((GroundPathNavigation) this.getNavigation()).setCanPassDoors(true);
         ((GroundPathNavigation) this.getNavigation()).setCanOpenDoors(true);
-        this.setMaxUpStep(1.0F); // Allow stepping up one block
         if (!pLevel.isClientSide && !this.hasCustomName()) {
             this.setCustomName(Component.literal(XoonglinNameGenerator.generateName()));
         }
@@ -86,13 +85,12 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private double happiness = 0.0;
 
-    private ResourceLocation jobId; // null means unemployed
+    private ResourceLocation jobId;
     private final JobState jobState = new JobState();
 
     private int satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
     private int matingDelay = CftConfig.XOONGLIN_MATING_COOLDOWN.get();
 
-    // Tag keys
     private static final String KEY_LEADER_ID = "leaderId";
     private static final String KEY_INVENTORY = "inventory";
     private static final String KEY_HOME = "home";
@@ -106,7 +104,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public void tick() {
         super.tick();
 
-        // Run satisfaction of needs every 20 ticks (1 second)
         if (satisfyNeedsDelay > 0) {
             satisfyNeedsDelay--;
         } else if (needs == null) {
@@ -138,7 +135,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
 
         if (!this.level().isClientSide && CftConfig.KEEP_XOONGLINS_LOADED.get()) {
-            // Ensure the chunk is loaded
             ChunkPos chunkPos = new ChunkPos(this.blockPosition());
             ((ServerLevel) this.level()).getChunkSource().addRegionTicket(
                     CftRegistry.XOONGLIN_CHUNK_TICKET,
@@ -168,8 +164,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     @Override
     protected PathNavigation createNavigation(Level level) {
         GroundPathNavigation navigation = new GroundPathNavigation(this, level);
-        navigation.setCanOpenDoors(true);  // Allows the entity to open doors
-        navigation.setCanPassDoors(true); // Allows the pathfinder to consider doors as passable
+        navigation.setCanOpenDoors(true);
+        navigation.setCanPassDoors(true);
         return navigation;
     }
 
@@ -228,7 +224,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     @Override
     public void die(DamageSource pDamageSource) {
         if (!this.level().isClientSide) {
-            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
             Optional<XoonglinHome> mobHome = homesData.getHomes().stream().filter(
                     home -> home.getOwnerId() != null &&
                             home.getOwnerId().equals(this.uuid)
@@ -265,7 +261,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private void checkSocialClass() {
-        // TODO: Game crashed at startup because player is not yet loaded. Maybe there is a better way of loading or checking this?
         if (this.level().getPlayerByUUID(this.leaderId) == null) {
             return;
         }
@@ -341,14 +336,14 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private void changeSocialClass(String nextClass) {
-        this.socialClass = CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(nextClass));
+        this.socialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(nextClass));
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
             this.setJob(socialClass.getJob());
         }
         if (this.home != null) {
-            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
             homesData.getHomes().stream().filter(home -> home.getOwnerId() != null
                     && home.getOwnerId().equals(this.uuid)).findFirst().ifPresent(home -> home.setOwnerId(null));
             homesData.setDirty();
@@ -374,7 +369,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 .add(Attributes.ARMOR_TOUGHNESS, 0.1f)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
                 .add(Attributes.ATTACK_DAMAGE, 2f)
-                .add(Attributes.FOLLOW_RANGE, 24D);
+                .add(Attributes.FOLLOW_RANGE, 24D)
+                .add(Attributes.STEP_HEIGHT, 1.0);
     }
 
     public void decreaseHappiness(double providedHappiness, double frequency) {
@@ -401,19 +397,12 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 socialClass.getMaxHappiness());
     }
 
-    /**
-     * A xoonglin can mate if it didn't mate recently, its happiness is over the mating threshold and
-     * all its needs are satisfied
-     *
-     * @return Whether or not the xoonglin can mate
-     */
     public boolean canMate() {
         matingDelay--;
         return !this.isBaby() &&
                 matingDelay <= 0 &&
                 this.socialClass != null &&
                 this.happiness >= this.socialClass.getMatingHappinessThreshold() &&
-                // All non-luxury needs are satisfied
                 this.needs.stream()
                         .filter(needSatisfier -> needSatisfier.getNeed().getDamage() > 0.0)
                         .allMatch(NeedSatisfier::isSatisfied);
@@ -476,14 +465,14 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public ResourceLocation getJob() { return jobId; }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(SOCIAL_CLASS_NAME, "xoonglin");
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(SOCIAL_CLASS_NAME, "xoonglin");
     }
 
     @Override
-    public EntityDimensions getDimensions(Pose pose) {
-        return EntityDimensions.scalable(0.6F, 1.4F).scale(this.getScale()); // Width, Height
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        return EntityDimensions.scalable(0.6F, 1.4F).scale(this.getScale());
     }
 
     @Override
@@ -491,7 +480,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         super.addAdditionalSaveData(tag);
         tag.putString(KEY_SOCIAL_CLASS, socialClass.getId());
         tag.putUUID(KEY_LEADER_ID, leaderId);
-        tag.put(KEY_INVENTORY, inventory.createTag());
+        tag.put(KEY_INVENTORY, inventory.createTag(this.registryAccess()));
         if (home != null) {
             tag.put(KEY_HOME, home.toTag());
         }
@@ -520,14 +509,14 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public void readAdditionalSaveData(final @NotNull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         if (tag.contains(KEY_SOCIAL_CLASS, Tag.TAG_STRING)) {
-            setSocialClass(CftRegistry.SOCIAL_CLASSES.get(new ResourceLocation(tag.getString(KEY_SOCIAL_CLASS))));
+            setSocialClass(CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(tag.getString(KEY_SOCIAL_CLASS))));
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
         }
         if (tag.contains(KEY_LEADER_ID)) {
             setLeaderId(tag.getUUID(KEY_LEADER_ID));
         }
         if (tag.contains(KEY_INVENTORY)) {
-            readInventoryFromTag(tag);
+            this.inventory.fromTag(tag.getList(KEY_INVENTORY, Tag.TAG_COMPOUND), this.registryAccess());
         }
         if (tag.contains(KEY_HOME)) {
             setHome(XoonglinHome.fromTag(tag.getCompound(KEY_HOME)));
@@ -541,7 +530,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (tag.contains(KEY_HAPPINESS)) {
             setHappiness(tag.getDouble(KEY_HAPPINESS));
         }
-        if (tag.contains(KEY_JOB_ID)) jobId = new ResourceLocation(tag.getString(KEY_JOB_ID));
+        if (tag.contains(KEY_JOB_ID)) jobId = ResourceLocation.parse(tag.getString(KEY_JOB_ID));
         if (tag.contains(KEY_JOB_STATE)) jobState.load(tag.getCompound(KEY_JOB_STATE));
     }
 }

@@ -1,98 +1,91 @@
 package com.hyperbaton.cft.network;
 
+import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.network.client.CheckOnXoonglinPacketClient;
-import net.minecraft.network.FriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+
+import net.minecraft.core.UUIDUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 
-public class CheckOnXoonglinPacket {
-    private final Component name;
-    private final String socialClass;
-    private final ResourceLocation jobId;
-    private final double happiness;
-    private final Map<String, NeedSatisfactionData> needsData;
-    private final UUID xoonglinId;
+public record CheckOnXoonglinPacket(
+        Component name,
+        String socialClass,
+        ResourceLocation jobId,
+        double happiness,
+        Map<String, NeedSatisfactionData> needsData,
+        UUID xoonglinId
+) implements CustomPacketPayload {
 
-    public CheckOnXoonglinPacket(Component name, String socialClass, ResourceLocation jobId, double happiness, 
-            Map<String, NeedSatisfactionData> needsData, UUID xoonglinId) {
-        this.name = name;
-        this.socialClass = socialClass;
-        this.jobId = jobId;
-        this.happiness = happiness;
-        this.needsData = needsData;
-        this.xoonglinId = xoonglinId;
-    }
+    public static final Type<CheckOnXoonglinPacket> TYPE =
+            new Type<>(ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "check_on_xoonglin"));
 
-    public CheckOnXoonglinPacket(FriendlyByteBuf buffer) {
-        this.name = buffer.readComponent();
-        this.socialClass = buffer.readUtf();
-        this.jobId = buffer.readBoolean() ? buffer.readResourceLocation() : null;
-        this.happiness = buffer.readDouble();
-        this.xoonglinId = buffer.readUUID();
-        this.needsData = new HashMap<>();
-        int size = buffer.readVarInt();
-        for (int i = 0; i < size; i++) {
-            String needName = buffer.readUtf();
-            double satisfaction = buffer.readDouble();
-            double damageThreshold = buffer.readDouble();
-            double satisfactionThreshold = buffer.readDouble();
-            needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold));
+    public static final StreamCodec<ByteBuf, CheckOnXoonglinPacket> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public CheckOnXoonglinPacket decode(ByteBuf buf) {
+            var friendly = (net.minecraft.network.RegistryFriendlyByteBuf) buf;
+            Component name = ComponentSerialization.STREAM_CODEC.decode(friendly);
+            String socialClass = ByteBufCodecs.STRING_UTF8.decode(buf);
+            boolean hasJob = ByteBufCodecs.BOOL.decode(buf);
+            ResourceLocation jobId = hasJob ? ResourceLocation.STREAM_CODEC.decode(buf) : null;
+            double happiness = buf.readDouble();
+            UUID xoonglinId = UUIDUtil.STREAM_CODEC.decode(buf);
+            int size = ByteBufCodecs.VAR_INT.decode(buf);
+            Map<String, NeedSatisfactionData> needsData = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                String needName = ByteBufCodecs.STRING_UTF8.decode(buf);
+                double satisfaction = buf.readDouble();
+                double damageThreshold = buf.readDouble();
+                double satisfactionThreshold = buf.readDouble();
+                needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold));
+            }
+            return new CheckOnXoonglinPacket(name, socialClass, jobId, happiness, needsData, xoonglinId);
         }
-    }
 
-    public void encode(FriendlyByteBuf buffer) {
-        buffer.writeComponent(name);
-        buffer.writeUtf(socialClass);
-        buffer.writeBoolean(jobId != null); // NEW: Write if job exists
-        if (jobId != null) {
-            buffer.writeResourceLocation(jobId); // NEW: Write job ID
+        @Override
+        public void encode(ByteBuf buf, CheckOnXoonglinPacket packet) {
+            var friendly = (net.minecraft.network.RegistryFriendlyByteBuf) buf;
+            ComponentSerialization.STREAM_CODEC.encode(friendly, packet.name);
+            ByteBufCodecs.STRING_UTF8.encode(buf, packet.socialClass);
+            ByteBufCodecs.BOOL.encode(buf, packet.jobId != null);
+            if (packet.jobId != null) {
+                ResourceLocation.STREAM_CODEC.encode(buf, packet.jobId);
+            }
+            buf.writeDouble(packet.happiness);
+            UUIDUtil.STREAM_CODEC.encode(buf, packet.xoonglinId);
+            ByteBufCodecs.VAR_INT.encode(buf, packet.needsData.size());
+            for (Map.Entry<String, NeedSatisfactionData> entry : packet.needsData.entrySet()) {
+                ByteBufCodecs.STRING_UTF8.encode(buf, entry.getKey());
+                buf.writeDouble(entry.getValue().satisfaction);
+                buf.writeDouble(entry.getValue().damageThreshold);
+                buf.writeDouble(entry.getValue().satisfactionThreshold);
+            }
         }
-        buffer.writeDouble(happiness);
-        buffer.writeUUID(xoonglinId);
-        buffer.writeVarInt(needsData.size());
-        for (Map.Entry<String, NeedSatisfactionData> entry : needsData.entrySet()) {
-            buffer.writeUtf(entry.getKey());
-            buffer.writeDouble(entry.getValue().satisfaction);
-            buffer.writeDouble(entry.getValue().damageThreshold);
-            buffer.writeDouble(entry.getValue().satisfactionThreshold);
-        }
+    };
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> context) {
-        NetworkEvent.Context ctx = context.get();
-        if (ctx.getDirection().getReceptionSide().isClient()) {
-            ctx.enqueueWork(() -> CheckOnXoonglinPacketClient.handleClient(this));
-        }
-        ctx.setPacketHandled(true);
+    public static void handle(CheckOnXoonglinPacket packet, IPayloadContext context) {
+        context.enqueueWork(() -> CheckOnXoonglinPacketClient.handleClient(packet));
     }
 
-    public Component getName() {
-        return name;
-    }
-
-    public String getSocialClass() {
-        return socialClass;
-    }
-
-    public ResourceLocation getJobId() { // NEW
-        return jobId;
-    }
-
-    public double getHappiness() {
-        return happiness;
-    }
-
-    public Map<String, NeedSatisfactionData> getNeedsData() {
-        return needsData;
-    }
-
-    public UUID getXoonglinId() {
-        return xoonglinId;
-    }
+    public Component getName() { return name; }
+    public String getSocialClass() { return socialClass; }
+    public ResourceLocation getJobId() { return jobId; }
+    public double getHappiness() { return happiness; }
+    public Map<String, NeedSatisfactionData> getNeedsData() { return needsData; }
+    public UUID getXoonglinId() { return xoonglinId; }
 }

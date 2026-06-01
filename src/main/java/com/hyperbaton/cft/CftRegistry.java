@@ -9,14 +9,12 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.server.level.TicketType;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.RegistryBuilder;
 
 import java.util.Comparator;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 
 public class CftRegistry {
@@ -29,25 +27,28 @@ public class CftRegistry {
     public static Registry<SocialClass> SOCIAL_CLASSES;
     public static Registry<Job> JOBS;
 
+    public static final Registry<Codec<? extends Need>> NEEDS_CODEC_REGISTRY =
+            new RegistryBuilder<>(CftDatapackRegistryEvents.NEED_CODEC_KEY).create();
+
+    public static final Registry<Codec<? extends Job>> JOBS_CODEC_REGISTRY =
+            new RegistryBuilder<>(CftDatapackRegistryEvents.JOB_CODEC_KEY).create();
+
     public static final DeferredRegister<Codec<? extends Need>> NEEDS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.NEED_CODEC_KEY, CftMod.MOD_ID);
-    public static final Supplier<IForgeRegistry<Codec<? extends Need>>> NEEDS_CODEC_SUPPLIER = NEEDS_CODEC.makeRegistry(RegistryBuilder::new);
 
-    public static final RegistryObject<Codec<HomeNeed>> HOME_NEED = NEEDS_CODEC.register("home", () -> HomeNeed.HOME_NEED_CODEC);
-    public static final RegistryObject<Codec<GoodsNeed>> GOODS_NEED = NEEDS_CODEC.register("goods", () -> GoodsNeed.GOODS_NEED_CODEC);
-    public static final RegistryObject<Codec<AltitudeNeed>> ALTITUDE_NEED = NEEDS_CODEC.register("altitude", () -> AltitudeNeed.ALTITUDE_NEED_CODEC);
-    public static final RegistryObject<Codec<BiomeNeed>> BIOME_NEED = NEEDS_CODEC.register("biome", () -> BiomeNeed.BIOME_NEED_CODEC);
-    public static final RegistryObject<Codec<FluidNeed>> FLUID_NEED = NEEDS_CODEC.register("fluid", () -> FluidNeed.FLUID_NEED_CODEC);
-    public static final RegistryObject<Codec<EnergyNeed>> ENERGY_NEED = NEEDS_CODEC.register("energy", () -> EnergyNeed.ENERGY_NEED_CODEC);
-    public static final RegistryObject<Codec<SocialNeed>> SOCIAL_NEED = NEEDS_CODEC.register("social", () -> SocialNeed.SOCIAL_NEED_CODEC);
-    public static final RegistryObject<Codec<LightingNeed>> LIGHTING_NEED = NEEDS_CODEC.register("lighting", () -> LightingNeed.LIGHTING_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<HomeNeed>> HOME_NEED = NEEDS_CODEC.register("home", () -> HomeNeed.HOME_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<GoodsNeed>> GOODS_NEED = NEEDS_CODEC.register("goods", () -> GoodsNeed.GOODS_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<AltitudeNeed>> ALTITUDE_NEED = NEEDS_CODEC.register("altitude", () -> AltitudeNeed.ALTITUDE_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<BiomeNeed>> BIOME_NEED = NEEDS_CODEC.register("biome", () -> BiomeNeed.BIOME_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<FluidNeed>> FLUID_NEED = NEEDS_CODEC.register("fluid", () -> FluidNeed.FLUID_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<EnergyNeed>> ENERGY_NEED = NEEDS_CODEC.register("energy", () -> EnergyNeed.ENERGY_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<SocialNeed>> SOCIAL_NEED = NEEDS_CODEC.register("social", () -> SocialNeed.SOCIAL_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<LightingNeed>> LIGHTING_NEED = NEEDS_CODEC.register("lighting", () -> LightingNeed.LIGHTING_NEED_CODEC);
 
     public static final DeferredRegister<Codec<? extends Job>> JOBS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.JOB_CODEC_KEY, CftMod.MOD_ID);
-    public static final Supplier<IForgeRegistry<Codec<? extends Job>>> JOBS_CODEC_SUPPLIER =
-            JOBS_CODEC.makeRegistry(RegistryBuilder::new);
 
-    public static final RegistryObject<Codec<HomeArtisanJob>> HOME_ARTISAN_JOB =
+    public static final DeferredHolder<Codec<? extends Job>, Codec<HomeArtisanJob>> HOME_ARTISAN_JOB =
             JOBS_CODEC.register("home_artisan", () -> HomeArtisanJob.CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {

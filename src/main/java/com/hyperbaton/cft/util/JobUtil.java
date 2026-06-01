@@ -5,10 +5,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import java.util.Optional;
 
@@ -42,20 +41,17 @@ public final class JobUtil {
         if (mob.getHome() != null) {
             BlockPos chestPos = mob.getHome().getContainerPos();
             if (chestPos != null) {
-                BlockEntity be = level.getBlockEntity(chestPos);
-                if (be != null) {
-                    return be.getCapability(ForgeCapabilities.ITEM_HANDLER).resolve();
+                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, chestPos, null);
+                if (handler != null) {
+                    return Optional.of(handler);
                 }
             }
-            // Fallback: look for any inventory near home center
             BlockPos center = mob.getHome().getEntrance();
             if (center != null) {
                 int r = 5;
                 for (BlockPos p : BlockPos.betweenClosed(center.offset(-r, -1, -r), center.offset(r, 1, r))) {
-                    BlockEntity be = level.getBlockEntity(p);
-                    if (be == null) continue;
-                    Optional<IItemHandler> cap = be.getCapability(ForgeCapabilities.ITEM_HANDLER).resolve();
-                    if (cap.isPresent()) return cap;
+                    IItemHandler cap = level.getCapability(Capabilities.ItemHandler.BLOCK, p, null);
+                    if (cap != null) return Optional.of(cap);
                 }
             }
         }

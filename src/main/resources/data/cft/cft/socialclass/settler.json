@@ -2,11 +2,14 @@
   "id": "cft:settler",
   "maxHappiness": 100.0,
   "matingHappinessThreshold": 5.0,
-  "spontaneouslySpawnPopulation": 3,
+  "spontaneouslySpawnPopulation": 30,
+  "job": "cft:produce_paper_job",
   "needs": [
+    "cft:settler_home",
+    "cft:water_need",
     "cft:potato_need",
     "cft:wood_logs_need",
-    "cft:settler_home"
+    "cft:bread_need"
   ],
   "upgrades": [
     {

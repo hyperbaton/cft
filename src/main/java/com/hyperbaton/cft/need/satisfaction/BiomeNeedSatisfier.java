@@ -27,7 +27,7 @@ public class BiomeNeedSatisfier extends NeedSatisfier<BiomeNeed> {
     }
 
     private boolean isNeededBiome(Holder<Biome> biome, List<String> neededBiomes) {
-        return neededBiomes.stream().anyMatch(neededBiome -> biome.is(new ResourceLocation(neededBiome)));
+        return neededBiomes.stream().anyMatch(neededBiome -> biome.is(ResourceLocation.parse(neededBiome)));
     }
 
     @Override

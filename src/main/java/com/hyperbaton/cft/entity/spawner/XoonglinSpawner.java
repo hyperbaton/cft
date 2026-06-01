@@ -15,7 +15,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
 import org.slf4j.Logger;
-import oshi.util.tuples.Pair;
+import java.util.AbstractMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,7 +33,7 @@ public class XoonglinSpawner implements CustomSpawner {
         } else {
             this.nextTick += (60 + randomSource.nextInt(60) * 20);
 
-            HomesData homesData = serverLevel.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData");
+            HomesData homesData = serverLevel.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
             for (Player player : serverLevel.players()) {
 
                 // Initialize map with all social classes and values set to 0
@@ -58,10 +58,9 @@ public class XoonglinSpawner implements CustomSpawner {
                                                 home.getOwnerId() == null &&
                                                         home.getLeaderId().equals(player.getUUID()) &&
                                                         homeMeetsNeed(home, socialClass))
-                                        .map(home -> new Pair<>(socialClass, home)))
+                                        .map(home -> new AbstractMap.SimpleEntry<>(socialClass, home)))
                         .findAny()
-                        // Spawn the xoonglin in the found home
-                        .map(pair -> spawnXoonglin(serverLevel, pair.getB(), pair.getA(), player.getUUID()))
+                        .map(pair -> spawnXoonglin(serverLevel, pair.getValue(), pair.getKey(), player.getUUID()))
                         .ifPresent(didSpawn -> {
                             if (didSpawn) {
                                 homesData.setDirty();

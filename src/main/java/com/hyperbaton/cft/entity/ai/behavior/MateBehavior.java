@@ -76,7 +76,7 @@ public class MateBehavior extends Behavior<XoonglinEntity> {
         if (offspring != null) {
             offspring.setBaby(true);
             XoonglinSpawner.updateSpawnedXoonglin(offspring, home.get(), xoonglin.getSocialClass(), xoonglin.getLeaderId());
-            level.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData").setDirty();
+            level.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData").setDirty();
         }
         xoonglin.resetMatingDelay();
         xoonglin.getBrain().eraseMemory(CftMemoryModuleType.CAN_MATE.get());
@@ -100,7 +100,7 @@ public class MateBehavior extends Behavior<XoonglinEntity> {
     }
 
     private Optional<XoonglinHome> findAvailableHome(ServerLevel serverLevel, XoonglinEntity xoonglin) {
-        return serverLevel.getDataStorage().computeIfAbsent(HomesData::load, HomesData::new, "homesData")
+        return serverLevel.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData")
                 .getHomes().stream()
                 .filter(home -> home.getLeaderId().equals(xoonglin.getLeaderId()) &&
                         home.getOwnerId() == null &&
