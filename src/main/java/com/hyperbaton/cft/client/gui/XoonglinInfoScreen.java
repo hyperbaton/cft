@@ -55,6 +55,11 @@ public class XoonglinInfoScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        // Skip default blur/darkening — we draw our own background texture
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         if (this.minecraft == null) {
             this.minecraft = Minecraft.getInstance();
@@ -63,7 +68,6 @@ public class XoonglinInfoScreen extends Screen {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        this.renderBackground(graphics, mouseX, mouseY, delta);
         graphics.blit(TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 220, 176);
 
         // Render title (Xoonglin's name)
