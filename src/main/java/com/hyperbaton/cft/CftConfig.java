@@ -38,7 +38,7 @@ public class CftConfig
             .defineInRange("jobs.homeWorkRadius", 3.0, 1.0, 50.0);
     public static final ModConfigSpec.BooleanValue USE_HUMANOID_MODEL = BUILDER
             .comment("If true, Xoonglins will use the basic humanoid/player model instead of the custom Xoonglin model.")
-            .define("useHumanoidModel", true);
+            .define("useHumanoidModel", false);
     static final ModConfigSpec SPEC = BUILDER.build();
 
 
