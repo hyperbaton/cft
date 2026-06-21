@@ -1,12 +1,14 @@
 package com.hyperbaton.cft.event;
 
 import com.hyperbaton.cft.CftMod;
+import com.hyperbaton.cft.client.keybind.CftKeyBindings;
 import com.hyperbaton.cft.entity.client.CftModelLayers;
 import com.hyperbaton.cft.entity.client.XoonglinModel;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 
 @EventBusSubscriber(modid = CftMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class CftEventBusClientEvents {
@@ -14,5 +16,10 @@ public class CftEventBusClientEvents {
     @SubscribeEvent
     public static void registerLayer(EntityRenderersEvent.RegisterLayerDefinitions event){
         event.registerLayerDefinition(CftModelLayers.XOONGLIN_LAYER, XoonglinModel::createBodyLayer);
+    }
+
+    @SubscribeEvent
+    public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
+        event.register(CftKeyBindings.OPEN_SOCIAL_CLASS_BROWSER);
     }
 }
