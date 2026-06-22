@@ -13,6 +13,7 @@ public class GraphLayoutEngine {
     private static final int NODE_PADDING_X = 10;
     private static final int LAYER_SPACING = 50;
     private static final int NODE_SPACING = 15;
+    private static final int COMPONENT_SPACING = 40;
     private static final int MARGIN = 20;
 
     public record LayoutResult(
@@ -32,12 +33,15 @@ public class GraphLayoutEngine {
             classById.put(sc.getId(), sc);
         }
 
-        // Build adjacency from upgrade edges (A upgrades to B means edge A → B)
+        // Build adjacency from upgrade edges
         Map<String, Set<String>> upgradeTargets = new HashMap<>();
         Map<String, Set<String>> upgradeSourcesOf = new HashMap<>();
+        // Undirected adjacency for component detection (includes both upgrades and downgrades)
+        Map<String, Set<String>> undirectedAdj = new HashMap<>();
         for (SocialClass sc : classes) {
             upgradeTargets.put(sc.getId(), new HashSet<>());
             upgradeSourcesOf.put(sc.getId(), new HashSet<>());
+            undirectedAdj.put(sc.getId(), new HashSet<>());
         }
         for (SocialClass sc : classes) {
             for (SocialClassUpdate upgrade : sc.getUpgrades()) {
@@ -45,25 +49,21 @@ public class GraphLayoutEngine {
                 if (classById.containsKey(targetId)) {
                     upgradeTargets.get(sc.getId()).add(targetId);
                     upgradeSourcesOf.get(targetId).add(sc.getId());
+                    undirectedAdj.get(sc.getId()).add(targetId);
+                    undirectedAdj.get(targetId).add(sc.getId());
+                }
+            }
+            for (SocialClassUpdate downgrade : sc.getDowngrades()) {
+                String targetId = downgrade.getNextClass();
+                if (classById.containsKey(targetId)) {
+                    undirectedAdj.get(sc.getId()).add(targetId);
+                    undirectedAdj.get(targetId).add(sc.getId());
                 }
             }
         }
 
-        // Assign layers via longest path from roots
-        Map<String, Integer> layerAssignment = assignLayers(classes, upgradeTargets, upgradeSourcesOf);
-
-        // Group by layer
-        int maxLayer = layerAssignment.values().stream().mapToInt(Integer::intValue).max().orElse(0);
-        List<List<String>> layers = new ArrayList<>();
-        for (int i = 0; i <= maxLayer; i++) {
-            layers.add(new ArrayList<>());
-        }
-        for (Map.Entry<String, Integer> entry : layerAssignment.entrySet()) {
-            layers.get(entry.getValue()).add(entry.getKey());
-        }
-
-        // Order within layers using barycenter heuristic
-        orderWithinLayers(layers, upgradeTargets, upgradeSourcesOf);
+        // Find connected components
+        List<List<String>> components = findConnectedComponents(classes, undirectedAdj);
 
         // Compute display names and node widths
         Map<String, String> displayNames = new HashMap<>();
@@ -74,36 +74,88 @@ public class GraphLayoutEngine {
             nodeWidths.put(sc.getId(), font.width(name) + NODE_PADDING_X * 2);
         }
 
-        // Compute pixel positions
-        // Layers are bottom-to-top: layer 0 at the bottom (roots/starters), highest layer at the top
-        int totalLayerHeight = (maxLayer + 1) * (NODE_HEIGHT + LAYER_SPACING) - LAYER_SPACING + MARGIN * 2;
+        // Lay out each component independently, then place side by side
+        int globalMaxLayer = 0;
+        List<ComponentLayout> componentLayouts = new ArrayList<>();
+
+        for (List<String> component : components) {
+            List<SocialClass> compClasses = component.stream().map(classById::get).toList();
+            Map<String, Integer> layerAssignment = assignLayers(compClasses, upgradeTargets, upgradeSourcesOf);
+
+            int maxLayer = layerAssignment.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+            globalMaxLayer = Math.max(globalMaxLayer, maxLayer);
+
+            List<List<String>> layers = new ArrayList<>();
+            for (int i = 0; i <= maxLayer; i++) {
+                layers.add(new ArrayList<>());
+            }
+            for (Map.Entry<String, Integer> entry : layerAssignment.entrySet()) {
+                layers.get(entry.getValue()).add(entry.getKey());
+            }
+
+            orderWithinLayers(layers, upgradeTargets, upgradeSourcesOf);
+
+            // Compute width of this component
+            int compWidth = 0;
+            for (List<String> layer : layers) {
+                int layerWidth = 0;
+                for (String id : layer) {
+                    layerWidth += nodeWidths.get(id);
+                }
+                layerWidth += Math.max(0, layer.size() - 1) * NODE_SPACING;
+                compWidth = Math.max(compWidth, layerWidth);
+            }
+
+            componentLayouts.add(new ComponentLayout(layers, maxLayer, compWidth));
+        }
+
+        // Compute total width and position each component
+        int totalComponentsWidth = 0;
+        for (ComponentLayout cl : componentLayouts) {
+            totalComponentsWidth += cl.width;
+        }
+        totalComponentsWidth += Math.max(0, componentLayouts.size() - 1) * COMPONENT_SPACING;
+
+        int totalLayerHeight = (globalMaxLayer + 1) * (NODE_HEIGHT + LAYER_SPACING) - LAYER_SPACING + MARGIN * 2;
         int contentHeight = Math.max(totalLayerHeight, panelHeight);
 
         Map<String, SocialClassNode> nodeMap = new HashMap<>();
         int contentWidth = 0;
+        int componentStartX = Math.max(MARGIN, (panelWidth - totalComponentsWidth) / 2);
 
-        for (int layerIdx = 0; layerIdx <= maxLayer; layerIdx++) {
-            List<String> layer = layers.get(layerIdx);
-            int totalWidth = 0;
-            for (String id : layer) {
-                totalWidth += nodeWidths.get(id);
+        for (ComponentLayout cl : componentLayouts) {
+            // Pad layers to globalMaxLayer so all components align vertically
+            while (cl.layers.size() <= globalMaxLayer) {
+                cl.layers.add(new ArrayList<>());
             }
-            totalWidth += (layer.size() - 1) * NODE_SPACING;
 
-            int startX = Math.max(MARGIN, (panelWidth - totalWidth) / 2);
-            // Layer 0 at bottom, higher layers go up
-            int y = contentHeight - MARGIN - NODE_HEIGHT - layerIdx * (NODE_HEIGHT + LAYER_SPACING);
+            for (int layerIdx = 0; layerIdx <= globalMaxLayer; layerIdx++) {
+                List<String> layer = cl.layers.get(layerIdx);
+                if (layer.isEmpty()) continue;
 
-            int x = startX;
-            for (String id : layer) {
-                int w = nodeWidths.get(id);
-                SocialClassNode node = new SocialClassNode(
-                        classById.get(id), x, y, w, NODE_HEIGHT, displayNames.get(id)
-                );
-                nodeMap.put(id, node);
-                x += w + NODE_SPACING;
+                int layerWidth = 0;
+                for (String id : layer) {
+                    layerWidth += nodeWidths.get(id);
+                }
+                layerWidth += (layer.size() - 1) * NODE_SPACING;
+
+                // Center this layer within the component's column
+                int layerStartX = componentStartX + (cl.width - layerWidth) / 2;
+                int y = contentHeight - MARGIN - NODE_HEIGHT - layerIdx * (NODE_HEIGHT + LAYER_SPACING);
+
+                int x = layerStartX;
+                for (String id : layer) {
+                    int w = nodeWidths.get(id);
+                    SocialClassNode node = new SocialClassNode(
+                            classById.get(id), x, y, w, NODE_HEIGHT, displayNames.get(id)
+                    );
+                    nodeMap.put(id, node);
+                    x += w + NODE_SPACING;
+                }
+                contentWidth = Math.max(contentWidth, x + MARGIN);
             }
-            contentWidth = Math.max(contentWidth, x + MARGIN);
+
+            componentStartX += cl.width + COMPONENT_SPACING;
         }
 
         // Build edge list
@@ -130,6 +182,41 @@ public class GraphLayoutEngine {
         return new LayoutResult(nodeList, edgeList, contentWidth, contentHeight);
     }
 
+    private static List<List<String>> findConnectedComponents(
+            List<SocialClass> classes,
+            Map<String, Set<String>> undirectedAdj
+    ) {
+        Set<String> visited = new HashSet<>();
+        List<List<String>> components = new ArrayList<>();
+
+        for (SocialClass sc : classes) {
+            String id = sc.getId();
+            if (visited.contains(id)) continue;
+
+            List<String> component = new ArrayList<>();
+            Queue<String> queue = new LinkedList<>();
+            queue.add(id);
+            visited.add(id);
+
+            while (!queue.isEmpty()) {
+                String current = queue.poll();
+                component.add(current);
+                for (String neighbor : undirectedAdj.get(current)) {
+                    if (!visited.contains(neighbor)) {
+                        visited.add(neighbor);
+                        queue.add(neighbor);
+                    }
+                }
+            }
+
+            components.add(component);
+        }
+
+        // Sort components by size descending so the largest hierarchy is on the left
+        components.sort((a, b) -> Integer.compare(b.size(), a.size()));
+        return components;
+    }
+
     private static Map<String, Integer> assignLayers(
             List<SocialClass> classes,
             Map<String, Set<String>> upgradeTargets,
@@ -137,7 +224,6 @@ public class GraphLayoutEngine {
     ) {
         Map<String, Integer> layers = new HashMap<>();
 
-        // Find roots: nodes with no incoming upgrade edges
         Set<String> roots = new HashSet<>();
         for (SocialClass sc : classes) {
             if (upgradeSourcesOf.get(sc.getId()).isEmpty()) {
@@ -145,7 +231,6 @@ public class GraphLayoutEngine {
             }
         }
 
-        // If no roots found (all in cycles), pick the node with the fewest incoming edges
         if (roots.isEmpty()) {
             String minIncoming = classes.get(0).getId();
             int minCount = Integer.MAX_VALUE;
@@ -159,8 +244,6 @@ public class GraphLayoutEngine {
             roots.add(minIncoming);
         }
 
-        // BFS longest path from any root
-        // Initialize all to -1
         for (SocialClass sc : classes) {
             layers.put(sc.getId(), -1);
         }
@@ -175,14 +258,13 @@ public class GraphLayoutEngine {
             int currentLayer = layers.get(current);
 
             for (String target : upgradeTargets.get(current)) {
-                if (layers.get(target) < currentLayer + 1) {
+                if (layers.containsKey(target) && layers.get(target) < currentLayer + 1) {
                     layers.put(target, currentLayer + 1);
                     queue.add(target);
                 }
             }
         }
 
-        // Assign unvisited nodes (disconnected or in cycles) to layer 0
         for (Map.Entry<String, Integer> entry : layers.entrySet()) {
             if (entry.getValue() < 0) {
                 entry.setValue(0);
@@ -197,7 +279,6 @@ public class GraphLayoutEngine {
             Map<String, Set<String>> upgradeTargets,
             Map<String, Set<String>> upgradeSourcesOf
     ) {
-        // Build position index for barycenter computation
         Map<String, Integer> positionInLayer = new HashMap<>();
         for (List<String> layer : layers) {
             for (int i = 0; i < layer.size(); i++) {
@@ -205,15 +286,12 @@ public class GraphLayoutEngine {
             }
         }
 
-        // Run barycenter passes: top-down then bottom-up, repeat 3 times
         for (int pass = 0; pass < 3; pass++) {
-            // Top-down (from highest layer down)
             for (int layerIdx = layers.size() - 1; layerIdx >= 0; layerIdx--) {
                 sortLayerByBarycenter(layers.get(layerIdx), upgradeTargets, positionInLayer);
                 updatePositions(layers.get(layerIdx), positionInLayer);
             }
 
-            // Bottom-up (from lowest layer up)
             for (int layerIdx = 0; layerIdx < layers.size(); layerIdx++) {
                 sortLayerByBarycenter(layers.get(layerIdx), upgradeSourcesOf, positionInLayer);
                 updatePositions(layers.get(layerIdx), positionInLayer);
@@ -250,6 +328,18 @@ public class GraphLayoutEngine {
     private static void updatePositions(List<String> layer, Map<String, Integer> positionInLayer) {
         for (int i = 0; i < layer.size(); i++) {
             positionInLayer.put(layer.get(i), i);
+        }
+    }
+
+    private static class ComponentLayout {
+        final List<List<String>> layers;
+        final int maxLayer;
+        final int width;
+
+        ComponentLayout(List<List<String>> layers, int maxLayer, int width) {
+            this.layers = layers;
+            this.maxLayer = maxLayer;
+            this.width = width;
         }
     }
 }

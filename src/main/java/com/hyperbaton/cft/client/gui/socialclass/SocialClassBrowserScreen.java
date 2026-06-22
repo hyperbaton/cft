@@ -33,6 +33,10 @@ public class SocialClassBrowserScreen extends Screen {
     private int graphContentHeight;
     private int graphContentWidth;
 
+    private boolean dragging = false;
+    private double dragLastX;
+    private double dragLastY;
+
     public SocialClassBrowserScreen() {
         super(Component.translatable("gui.cft.social_class_browser"));
     }
@@ -123,8 +127,9 @@ public class SocialClassBrowserScreen extends Screen {
                     return true;
                 }
             }
-            selectedNode = null;
-            detailPanel.setSelectedClass(null);
+            dragging = true;
+            dragLastX = mouseX;
+            dragLastY = mouseY;
             return true;
         }
 
@@ -136,14 +141,33 @@ public class SocialClassBrowserScreen extends Screen {
     }
 
     @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0 && dragging) {
+            dragging = false;
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+        if (dragging && button == 0) {
+            graphScrollX = clampScrollX(graphScrollX - (mouseX - dragLastX));
+            graphScrollY = clampScrollY(graphScrollY - (mouseY - dragLastY));
+            dragLastX = mouseX;
+            dragLastY = mouseY;
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (mouseX < graphPanelWidth) {
             if (Screen.hasShiftDown()) {
-                graphScrollX = Math.max(0, Math.min(graphScrollX - scrollY * 10,
-                        Math.max(0, graphContentWidth - graphPanelWidth)));
+                graphScrollX = clampScrollX(graphScrollX - scrollY * 10);
             } else {
-                graphScrollY = Math.max(0, Math.min(graphScrollY - scrollY * 10,
-                        Math.max(0, graphContentHeight - this.height)));
+                graphScrollY = clampScrollY(graphScrollY - scrollY * 10);
             }
             return true;
         }
@@ -153,6 +177,14 @@ public class SocialClassBrowserScreen extends Screen {
         }
 
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    private double clampScrollX(double value) {
+        return Math.max(0, Math.min(value, Math.max(0, graphContentWidth - graphPanelWidth)));
+    }
+
+    private double clampScrollY(double value) {
+        return Math.max(0, Math.min(value, Math.max(0, graphContentHeight - this.height)));
     }
 
     @Override
