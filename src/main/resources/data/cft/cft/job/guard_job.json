@@ -1,0 +1,6 @@
+{
+  "type": "cft:guard",
+  "hours_per_day": 8.0,
+  "patrol_radius": 12,
+  "detection_radius": 16
+}

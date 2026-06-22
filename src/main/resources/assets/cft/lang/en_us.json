@@ -94,5 +94,8 @@
   "gui.cft.home_label.occupied": "%s's Home",
   "gui.cft.job_gathering": "Gathering",
   "gui.cft.job_status.gathering": "Gathering",
-  "job.cft.gather_flowers_job": "Flower Gatherer"
+  "job.cft.gather_flowers_job": "Flower Gatherer",
+  "gui.cft.job_status.patrolling": "Patrolling",
+  "gui.cft.job_status.fighting": "Fighting!",
+  "job.cft.guard_job": "Guard"
 }

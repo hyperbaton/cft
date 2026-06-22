@@ -29,6 +29,7 @@ public class CftMemoryModuleType {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> ENERGY_SUPPLY_COOLDOWN = registerMemory("energy_supply_cooldown", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_WORK_AT_HOME = registerMemory("must_work_at_home", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_GATHER = registerMemory("must_gather", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_GUARD = registerMemory("must_guard", Codec.BOOL);
 
     public static <T> DeferredHolder<MemoryModuleType<?>, MemoryModuleType<T>> registerMemory(String name)
     {
