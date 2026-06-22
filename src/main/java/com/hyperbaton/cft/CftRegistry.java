@@ -1,6 +1,7 @@
 package com.hyperbaton.cft;
 
 import com.hyperbaton.cft.job.Job;
+import com.hyperbaton.cft.job.GathererJob;
 import com.hyperbaton.cft.job.HomeArtisanJob;
 import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
@@ -52,6 +53,9 @@ public class CftRegistry {
 
     public static final DeferredHolder<Codec<? extends Job>, Codec<HomeArtisanJob>> HOME_ARTISAN_JOB =
             JOBS_CODEC.register("home_artisan", () -> HomeArtisanJob.CODEC);
+
+    public static final DeferredHolder<Codec<? extends Job>, Codec<GathererJob>> GATHERER_JOB =
+            JOBS_CODEC.register("gatherer", () -> GathererJob.CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);

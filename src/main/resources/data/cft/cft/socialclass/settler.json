@@ -3,7 +3,7 @@
   "maxHappiness": 100.0,
   "matingHappinessThreshold": 5.0,
   "spontaneouslySpawnPopulation": 30,
-  "job": "cft:produce_paper_job",
+  "job": "cft:gather_flowers_job",
   "needs": [
     "cft:settler_home",
     "cft:water_need",

@@ -1,0 +1,6 @@
+{
+  "type": "cft:gatherer",
+  "hours_per_day": 4.0,
+  "gather_radius": 16,
+  "block_tag": "minecraft:flowers"
+}

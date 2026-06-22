@@ -38,6 +38,7 @@ public class XoonglinAi {
             CftMemoryModuleType.ENERGY_CONTAINER.get(),
             CftMemoryModuleType.ENERGY_SUPPLY_COOLDOWN.get(),
             CftMemoryModuleType.MUST_WORK_AT_HOME.get(),
+            CftMemoryModuleType.MUST_GATHER.get(),
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.LOOK_TARGET
     );
@@ -82,6 +83,9 @@ public class XoonglinAi {
                 )),
                 Pair.of(2, new MustWorkAtHomeBehavior(
                         Map.of(CftMemoryModuleType.MUST_WORK_AT_HOME.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new GatherBlocksBehavior(
+                        Map.of(CftMemoryModuleType.MUST_GATHER.get(), MemoryStatus.VALUE_PRESENT)
                 ))
         ));
     }
