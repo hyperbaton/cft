@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 
 public class LightingNeed extends Need {
 
@@ -21,7 +22,8 @@ public class LightingNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(LightingNeed::getFrequency),
             Codec.BOOL.fieldOf("hidden").forGetter(LightingNeed::isHidden),
             Codec.INT.fieldOf("min_light").forGetter(LightingNeed::getMinLight),
-            Codec.INT.optionalFieldOf("radius", 0).forGetter(LightingNeed::getRadius)
+            Codec.INT.optionalFieldOf("radius", 0).forGetter(LightingNeed::getRadius),
+            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(LightingNeed::getIcon)
     ).apply(instance, LightingNeed::new));
 
     private final int minLight; // 0..15
@@ -36,9 +38,10 @@ public class LightingNeed extends Need {
             double frequency,
             boolean hidden,
             int minLight,
-            int radius
+            int radius,
+            Optional<ResourceLocation> icon
     ) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.minLight = Math.max(0, Math.min(15, minLight));
         this.radius = Math.max(0, radius);
     }

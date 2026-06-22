@@ -15,6 +15,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
@@ -29,7 +30,8 @@ public class GoodsNeed extends Need {
             INGREDIENT_CODEC.fieldOf("item").forGetter(GoodsNeed::getIngredient),
             Codec.DOUBLE.fieldOf("frequency").forGetter(GoodsNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(GoodsNeed::isHidden),
-            Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity)
+            Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity),
+            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(GoodsNeed::getIcon)
     ).apply(instance, GoodsNeed::new));
     private static final String GOODS_NEED_TYPE = "cft:goods_need";
 
@@ -43,8 +45,9 @@ public class GoodsNeed extends Need {
     public static final String TAG_QUANTITY = "quantity";
 
     public GoodsNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, int quantity) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
+                     double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, int quantity,
+                     Optional<ResourceLocation> icon) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.quantity = quantity;
         this.item = item;
     }

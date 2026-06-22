@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 
 public class SocialNeed extends Need {
     public static final Codec<SocialNeed> SOCIAL_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -22,7 +23,8 @@ public class SocialNeed extends Need {
             Codec.STRING.listOf().fieldOf("classes").forGetter(SocialNeed::getAcceptedSocialClassIds),
             Codec.INT.fieldOf("min_count").forGetter(SocialNeed::getMinCount),
             Codec.INT.fieldOf("max_count").forGetter(SocialNeed::getMaxCount),
-            Codec.INT.fieldOf("radius").forGetter(SocialNeed::getRadius)
+            Codec.INT.fieldOf("radius").forGetter(SocialNeed::getRadius),
+            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(SocialNeed::getIcon)
     ).apply(instance, SocialNeed::new));
 
     private final List<String> acceptedSocialClassIds;
@@ -40,9 +42,10 @@ public class SocialNeed extends Need {
             boolean hidden,
             List<String> acceptedSocialClassIds,
             int minCount, int maxCount,
-            int radius
+            int radius,
+            Optional<ResourceLocation> icon
     ) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.acceptedSocialClassIds = List.copyOf(acceptedSocialClassIds);
         this.minCount = minCount;
         this.maxCount = maxCount;

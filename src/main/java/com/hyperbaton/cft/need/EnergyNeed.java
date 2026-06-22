@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 
 public class EnergyNeed extends Need {
     public static final Codec<EnergyNeed> ENERGY_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -20,7 +21,8 @@ public class EnergyNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(EnergyNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(EnergyNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(EnergyNeed::isHidden),
-            Codec.INT.fieldOf("energy_amount").forGetter(EnergyNeed::getEnergyAmount)
+            Codec.INT.fieldOf("energy_amount").forGetter(EnergyNeed::getEnergyAmount),
+            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(EnergyNeed::getIcon)
     ).apply(instance, EnergyNeed::new));
 
     private final int energyAmount;
@@ -29,8 +31,8 @@ public class EnergyNeed extends Need {
 
     public EnergyNeed(String id, double damage, double damageThreshold, double providedHappiness,
                       double satisfactionThreshold, double frequency, boolean hidden,
-                      int energyAmount) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
+                      int energyAmount, Optional<ResourceLocation> icon) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.energyAmount = energyAmount;
     }
 

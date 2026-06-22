@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PetNeed extends Need {
     public static final Codec<PetNeed> PET_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -22,7 +23,8 @@ public class PetNeed extends Need {
             ResourceLocation.CODEC.listOf().fieldOf("entity_types").forGetter(PetNeed::getEntityTypes),
             Codec.INT.fieldOf("min_count").forGetter(PetNeed::getMinCount),
             Codec.INT.fieldOf("max_count").forGetter(PetNeed::getMaxCount),
-            Codec.INT.fieldOf("radius").forGetter(PetNeed::getRadius)
+            Codec.INT.fieldOf("radius").forGetter(PetNeed::getRadius),
+            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(PetNeed::getIcon)
     ).apply(instance, PetNeed::new));
 
     private final List<ResourceLocation> entityTypes;
@@ -32,8 +34,9 @@ public class PetNeed extends Need {
 
     public PetNeed(String id, double damage, double damageThreshold, double providedHappiness,
                    double satisfactionThreshold, double frequency, boolean hidden,
-                   List<ResourceLocation> entityTypes, int minCount, int maxCount, int radius) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
+                   List<ResourceLocation> entityTypes, int minCount, int maxCount, int radius,
+                   Optional<ResourceLocation> icon) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.entityTypes = List.copyOf(entityTypes);
         this.minCount = minCount;
         this.maxCount = maxCount;

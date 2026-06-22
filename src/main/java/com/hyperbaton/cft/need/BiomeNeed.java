@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BiomeNeed extends Need {
 
@@ -20,14 +21,16 @@ public class BiomeNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(BiomeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(BiomeNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(BiomeNeed::isHidden),
-            Codec.STRING.listOf().fieldOf("biomes").forGetter(BiomeNeed::getBiomes)
+            Codec.STRING.listOf().fieldOf("biomes").forGetter(BiomeNeed::getBiomes),
+            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(BiomeNeed::getIcon)
     ).apply(instance, BiomeNeed::new));
 
     private List<String> biomes;
 
     public BiomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, double frequency, boolean hidden, List<String> biomes) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
+                     double satisfactionThreshold, double frequency, boolean hidden, List<String> biomes,
+                     Optional<ResourceLocation> icon) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.biomes = biomes;
     }
 

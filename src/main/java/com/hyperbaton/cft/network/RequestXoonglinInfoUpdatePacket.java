@@ -50,7 +50,7 @@ public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements Custom
                                                 needSatisfier.getSatisfaction(),
                                                 needSatisfier.getNeed().getDamageThreshold(),
                                                 needSatisfier.getNeed().getSatisfactionThreshold(),
-                                                needSatisfier.getNeed().getDefaultIcons()
+                                                needSatisfier.getNeed().getIcons()
                                         )
                                 ));
 

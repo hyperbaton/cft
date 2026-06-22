@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 
 public class AltitudeNeed extends Need {
 
@@ -21,15 +22,17 @@ public class AltitudeNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(AltitudeNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(AltitudeNeed::isHidden),
             Codec.DOUBLE.fieldOf("min_altitude").forGetter(AltitudeNeed::getMinAltitude),
-            Codec.DOUBLE.fieldOf("max_altitude").forGetter(AltitudeNeed::getMaxAltitude)
+            Codec.DOUBLE.fieldOf("max_altitude").forGetter(AltitudeNeed::getMaxAltitude),
+            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(AltitudeNeed::getIcon)
     ).apply(instance, AltitudeNeed::new));
 
     private double minAltitude;
     private double maxAltitude;
 
     public AltitudeNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                        double satisfactionThreshold, double frequency, boolean hidden, double minAltitude, double maxAltitude) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
+                        double satisfactionThreshold, double frequency, boolean hidden, double minAltitude,
+                        double maxAltitude, Optional<ResourceLocation> icon) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.minAltitude = minAltitude;
         this.maxAltitude = maxAltitude;
     }

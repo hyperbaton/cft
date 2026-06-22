@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 
 public class HomeNeed extends Need{
 
@@ -23,7 +24,8 @@ public class HomeNeed extends Need{
             HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("floorBlocks").forGetter(HomeNeed::getFloorBlocks),
             HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("wallBlocks").forGetter(HomeNeed::getWallBlocks),
             HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("interiorBlocks").forGetter(HomeNeed::getInteriorBlocks),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("roofBlocks").forGetter(HomeNeed::getRoofBlocks)
+            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("roofBlocks").forGetter(HomeNeed::getRoofBlocks),
+            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(HomeNeed::getIcon)
     ).apply(instance, HomeNeed::new));
 
     List<HomeValidBlock> floorBlocks;
@@ -33,8 +35,9 @@ public class HomeNeed extends Need{
     public HomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
                     double satisfactionThreshold, double frequency, boolean hidden,
                     List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks,
-                    List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
+                    List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks,
+                    Optional<ResourceLocation> icon) {
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.floorBlocks = floorBlocks;
         this.wallBlocks = wallBlocks;
         this.interiorBlocks = interiorBlocks;

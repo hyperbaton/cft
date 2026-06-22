@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class Need {
     protected static final boolean DEFAULT_HIDDEN = false;
@@ -36,6 +37,8 @@ public abstract class Need {
      */
     private boolean hidden;
 
+    private final ResourceLocation icon;
+
     public static final String TAG_ID = "id";
     public static final String TAG_DAMAGE = "damage";
     public static final String TAG_DAMAGE_THRESHOLD = "damageThreshold";
@@ -45,7 +48,8 @@ public abstract class Need {
     public static final String TAG_HIDDEN = "hidden";
 
     public Need(String id, double damage, double damageThreshold, double providedHappiness,
-                double satisfactionThreshold, double frequency, boolean hidden) {
+                double satisfactionThreshold, double frequency, boolean hidden,
+                Optional<ResourceLocation> icon) {
         this.id = id;
         this.damage = damage;
         this.damageThreshold = damageThreshold;
@@ -53,6 +57,7 @@ public abstract class Need {
         this.satisfactionThreshold = satisfactionThreshold;
         this.frequency = frequency;
         this.hidden = hidden;
+        this.icon = icon.orElse(null);
     }
 
     public String getId() {
@@ -116,6 +121,17 @@ public abstract class Need {
     public abstract NeedSatisfier<? extends Need> createSatisfier(double satisfaction, boolean isSatisfied);
 
     public abstract List<ResourceLocation> getDefaultIcons();
+
+    public Optional<ResourceLocation> getIcon() {
+        return Optional.ofNullable(icon);
+    }
+
+    public List<ResourceLocation> getIcons() {
+        if (icon != null) {
+            return List.of(icon);
+        }
+        return getDefaultIcons();
+    }
 
     public abstract String getTypeName();
 
