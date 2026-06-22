@@ -16,7 +16,9 @@ public class SocialClass {
             Codec.STRING.listOf().fieldOf("needs").forGetter(SocialClass::getNeeds),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("upgrades").forGetter(SocialClass::getUpgrades),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("downgrades").forGetter(SocialClass::getDowngrades),
-            ResourceLocation.CODEC.optionalFieldOf("job").forGetter(socialClass -> Optional.ofNullable(socialClass.getJob()))
+            ResourceLocation.CODEC.optionalFieldOf("job").forGetter(socialClass -> Optional.ofNullable(socialClass.getJob())),
+            Codec.BOOL.optionalFieldOf("canUpgradeAsBaby", false).forGetter(SocialClass::canUpgradeAsBaby),
+            Codec.BOOL.optionalFieldOf("canDowngradeAsBaby", true).forGetter(SocialClass::canDowngradeAsBaby)
     ).apply(instance, SocialClass::new));
 
     /**
@@ -33,9 +35,12 @@ public class SocialClass {
     private final ResourceLocation job;
     private List<SocialClassUpdate> upgrades;
     private List<SocialClassUpdate> downgrades;
+    private final boolean canUpgradeAsBaby;
+    private final boolean canDowngradeAsBaby;
 
     public SocialClass(String id, double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
-                       List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades, Optional<ResourceLocation> job) {
+                       List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades,
+                       Optional<ResourceLocation> job, boolean canUpgradeAsBaby, boolean canDowngradeAsBaby) {
         this.id = id;
         this.maxHappiness = maxHappiness;
         this.matingHappinessThreshold = matingHappinessThreshold;
@@ -44,6 +49,8 @@ public class SocialClass {
         this.job = job.orElse(null);
         this.upgrades = upgrades;
         this.downgrades = downgrades;
+        this.canUpgradeAsBaby = canUpgradeAsBaby;
+        this.canDowngradeAsBaby = canDowngradeAsBaby;
     }
 
     public String getId() {
@@ -104,5 +111,13 @@ public class SocialClass {
 
     public ResourceLocation getJob() {
         return job;
+    }
+
+    public boolean canUpgradeAsBaby() {
+        return canUpgradeAsBaby;
+    }
+
+    public boolean canDowngradeAsBaby() {
+        return canDowngradeAsBaby;
     }
 }

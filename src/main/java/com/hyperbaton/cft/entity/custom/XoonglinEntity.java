@@ -277,7 +277,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private boolean appliesForUpgrade(SocialClassUpdate socialClassUpdate) {
-        return !this.isBaby()
+        return (!this.isBaby() || this.socialClass.canUpgradeAsBaby())
                 && socialClassUpdate.getRequiredHappiness() < this.happiness
                 && socialClassUpdate.getRequiredNeeds().stream().allMatch(needRequirement ->
                 this.getNeeds().stream()
@@ -305,12 +305,13 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private boolean appliesForDowngrade(SocialClassUpdate socialClassUpdate) {
-        return (socialClassUpdate.getRequiredHappiness() > this.happiness
+        return (!this.isBaby() || this.socialClass.canDowngradeAsBaby())
+                && ((socialClassUpdate.getRequiredHappiness() > this.happiness
                 && socialClassUpdate.getRequiredNeeds().stream().anyMatch(needRequirement ->
                 this.getNeeds().stream()
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
                         .anyMatch(need -> need.getSatisfaction() < needRequirement.getSatisfactionThreshold())))
-                || checkSocialStructureForDowngrade(getNormalizedSocialStructure(), socialClassUpdate);
+                || checkSocialStructureForDowngrade(getNormalizedSocialStructure(), socialClassUpdate));
     }
 
     private boolean checkSocialStructureForDowngrade(Map<String, BigDecimal> socialStructure, SocialClassUpdate socialClassUpdate) {
