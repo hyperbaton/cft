@@ -136,6 +136,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             Job job = CftRegistry.JOBS.get(jobId);
             if (job != null) {
                 job.tick(this, jobState);
+            } else {
+                LOGGER.warn("Xoonglin {} has invalid job ID '{}', clearing it", getName().getString(), jobId);
+                jobId = null;
+                jobState.reset();
             }
         }
 
@@ -347,6 +351,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
             this.setJob(socialClass.getJob());
+            this.jobState.reset();
             resetMatingDelay();
         }
         if (this.home != null) {
@@ -404,7 +409,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 socialClass.getMaxHappiness());
     }
 
-    private boolean allDamagingNeedsSatisfied() {
+    public boolean allDamagingNeedsSatisfied() {
         return needs != null && needs.stream()
                 .filter(needSatisfier -> needSatisfier.getNeed().getDamage() > 0.0)
                 .allMatch(NeedSatisfier::isSatisfied);

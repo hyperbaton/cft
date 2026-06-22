@@ -7,6 +7,12 @@ public class JobState {
     public int workedTicksToday = 0;
     public int consecutiveDaysWorked = 0;
 
+    public void reset() {
+        lastDayIndex = Long.MIN_VALUE;
+        workedTicksToday = 0;
+        consecutiveDaysWorked = 0;
+    }
+
     public void save(CompoundTag tag) {
         tag.putLong("lastDay", lastDayIndex);
         tag.putInt("workedToday", workedTicksToday);

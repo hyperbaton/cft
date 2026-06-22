@@ -52,18 +52,20 @@ public class HomeArtisanJob extends Job {
             state.lastDayIndex = dayIndex;
         } else if (dayIndex != state.lastDayIndex) {
             // End-of-day check
-            if (state.workedTicksToday >= neededTicks) {
+            boolean metQuota = state.workedTicksToday >= neededTicks;
+
+            LOGGER.trace(
+                    "Day rollover for {}: workedTicks={}, needed={}, metQuota={}, streak {}, (dayIndex={})",
+                    xoonglin.getName(), state.workedTicksToday, neededTicks, metQuota, state.consecutiveDaysWorked, dayIndex
+            );
+
+            if (metQuota) {
                 state.consecutiveDaysWorked++;
             } else {
                 state.consecutiveDaysWorked = 0;
             }
             state.workedTicksToday = 0;
             state.lastDayIndex = dayIndex;
-
-            LOGGER.trace(
-                    "Day rollover for {}: workedTicks={}, needed={}, metQuota={}, streak {}, (dayIndex={})",
-                    xoonglin.getName(), state.workedTicksToday, neededTicks, state.workedTicksToday >= neededTicks, state.consecutiveDaysWorked, dayIndex
-            );
 
             if (state.consecutiveDaysWorked >= frequencyDays) {
                 // Try deposit
@@ -80,8 +82,9 @@ public class HomeArtisanJob extends Job {
             }
         }
 
-        // Count work tick if at home
-        if (JobUtil.isAtHome(xoonglin, CftConfig.HOME_WORK_RADIUS.get())) {
+        // Count work tick if at home and basic needs are met
+        if (JobUtil.isAtHome(xoonglin, CftConfig.HOME_WORK_RADIUS.get())
+                && xoonglin.allDamagingNeedsSatisfied()) {
             state.workedTicksToday++;
         }
 
