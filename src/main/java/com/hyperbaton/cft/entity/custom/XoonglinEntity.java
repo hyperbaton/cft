@@ -342,6 +342,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
             this.setJob(socialClass.getJob());
+            resetMatingDelay();
         }
         if (this.home != null) {
             HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
@@ -410,7 +411,9 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     public void resetMatingDelay() {
-        matingDelay = CftConfig.XOONGLIN_MATING_COOLDOWN.get();
+        matingDelay = socialClass != null
+                ? socialClass.getMatingDelay()
+                : CftConfig.XOONGLIN_MATING_COOLDOWN.get();
     }
 
     public UUID getLeaderId() {
