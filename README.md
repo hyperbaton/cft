@@ -22,8 +22,8 @@ home where to live and some items to be periodically delivered to their homes.
 needs. If their needs are satisfied and their happiness increases, they can upgrade to
 higher classes; however, if they get unhappy, they can demote to a lower class.
 - The **leader staff** can be used to designate a home (by right clicking on doors while
-crouching) or know current state of a xungui.
-- The first Xoonglins will spawn spontanously, but from then on, they will mate to increase
+crouching) or know current state of a Xoonglin.
+- The first Xoonglins will spawn spontaneously, but from then on, they will mate to increase
 their population. However, they will always respect a given social structure (a relation
 on the amount of Xoonglins of each class).
 - You can compete with other players for getting the biggest and happiest Xoonglin
@@ -31,6 +31,11 @@ population. The commands `\happinessLadder`, `\populationLadder` and `\socialstr
 rankings and information on your Xoonglins.
 - The social classes and needs are fully configurable and customizable via datapacks,
 so it's possible to build a tailored experience for any modpack.
+- **Social Class Browser**: Press `V` to open an interactive screen showing the full social
+class hierarchy as a visual graph, with clickable nodes to view each class's needs,
+stats, and upgrade/downgrade conditions.
+- **Jobs**: Xoonglins can be assigned jobs through their social class. Jobs define what a
+Xoonglin does during the day, with work quotas and daily progress tracking.
 
 ## Datapacks
 
@@ -60,6 +65,8 @@ The datapack documentation is presented below.
     "cft:pork_need",
     "cft:patrician_home"
   ],
+  "job": "cft:produce_paper_job",
+  "maxHealth": 20.0,
   "upgrades": [
     {
       "nextClass": "cft:noble",
@@ -105,6 +112,16 @@ The datapack documentation is presented below.
   spawn (per player) if homes are available. Apart from these, they need to mate or come
   from other classes.
 - `needs`: The list of needs, as references, for this class.
+- `job`: _(Optional)_ A reference to a job definition for this class. Xoonglins of this
+  class will perform the specified job.
+- `maxHealth`: _(Optional, default: 20.0)_ The max health for Xoonglins of this class.
+  Useful for making combat-oriented classes tougher.
+- `canUpgradeAsBaby`: _(Optional, default: false)_ Whether baby Xoonglins of this class
+  can upgrade.
+- `canDowngradeAsBaby`: _(Optional, default: true)_ Whether baby Xoonglins of this class
+  can downgrade.
+- `matingDelay`: _(Optional, default: -1)_ Custom mating cooldown in ticks for this class.
+  If -1, uses the global config value.
 - `upgrades`: A list of ways a Xoonglin can become a higher class.
     - `nextClass`: Reference to next class.
     - `requiredHappiness`: Minimum happiness level to consider upgrading.
@@ -112,7 +129,7 @@ The datapack documentation is presented below.
       to be possible.
     - `socialStructureRequirements`: A list of such requirements. Each social class mentioned
       must represent a percentage lower or equal to this one. Always in the range [0,1].
-- `downgrade`: A list of ways a Xoonglin can become a lower class.
+- `downgrades`: A list of ways a Xoonglin can become a lower class.
     - `nextClass`: Reference to next class.
     - `requiredHappiness`: If happiness gets lower than this, the Xoonglin will downgrade.
     - `requiredNeeds`: These needs have to be satisfied at the given value or the Xoonglin will
@@ -380,4 +397,199 @@ not be able to extract it. This can be tuned by balancing amount and frequency.
 ```
 The only specific field for this need is the energy amount.
 - `energy_amount`: The amount that must be consumed in one go to satisfy the need, in Forge Energy units.
+</details>
+
+#### Social Need
+
+The Xoonglin needs companions of a specific social class nearby.
+
+<details>
+    <summary>Sample social need file</summary>
+
+```json
+{
+  "type": "cft:social",
+  "id": "cft:settlers_companions_need",
+  "damage": 0.5,
+  "damage_threshold": 0.2,
+  "provided_happiness": 1.0,
+  "satisfaction_threshold": 0.8,
+  "frequency": 0.2,
+  "hidden": false,
+  "classes": ["cft:settler"],
+  "min_count": 2,
+  "max_count": 30,
+  "radius": 50
+}
+```
+- `classes`: A list of social class IDs. Xoonglins of these classes count as companions.
+- `min_count`: Minimum number of companions needed.
+- `max_count`: Maximum number of companions that count toward satisfaction.
+- `radius`: How far to search for companions.
+</details>
+
+#### Pet Need
+
+The Xoonglin needs a tamed pet of a given type nearby.
+
+<details>
+    <summary>Sample pet need file</summary>
+
+```json
+{
+  "type": "cft:pet",
+  "id": "cft:cat_companion_need",
+  "damage": 0.5,
+  "damage_threshold": 0.2,
+  "provided_happiness": 3.0,
+  "satisfaction_threshold": 0.8,
+  "frequency": 1.0,
+  "hidden": false,
+  "entity_types": ["minecraft:cat"],
+  "min_count": 1,
+  "max_count": 5,
+  "radius": 16
+}
+```
+- `entity_types`: A list of entity type IDs that count as valid pets.
+- `min_count`: Minimum number of matching pets needed.
+- `max_count`: Maximum number of pets that count toward satisfaction.
+- `radius`: How far to search for pets.
+</details>
+
+#### Lighting Need
+
+The Xoonglin needs a certain light level in their home.
+
+<details>
+    <summary>Sample lighting need file</summary>
+
+```json
+{
+  "type": "cft:lighting",
+  "id": "cft:well_lit_need",
+  "damage": 0.3,
+  "damage_threshold": 0.5,
+  "provided_happiness": 2.0,
+  "satisfaction_threshold": 0.75,
+  "frequency": 0.5,
+  "hidden": true,
+  "min_light": 8,
+  "radius": 3
+}
+```
+- `min_light`: Minimum light level (0-15) required for the need to be satisfied.
+- `radius`: _(Optional, default: 0)_ Sampling radius around the Xoonglin's position.
+  If 0, only the block at the Xoonglin's position is checked.
+</details>
+
+#### Decoration Need
+
+The Xoonglin needs specific decorative blocks placed near their home.
+
+<details>
+    <summary>Sample decoration need file</summary>
+
+```json
+{
+  "id": "cft:flower_garden_need",
+  "type": "cft:decoration",
+  "damage": 0.2,
+  "damage_threshold": 0.5,
+  "provided_happiness": 5.0,
+  "satisfaction_threshold": 0.75,
+  "frequency": 1.0,
+  "block_tag": "minecraft:flowers",
+  "min_count": 6,
+  "radius": 8,
+  "min_spread": 0.3
+}
+```
+- `block` or `block_tag`: The decorative block or tag of blocks to look for.
+- `min_count`: Minimum number of matching blocks required.
+- `radius`: Search radius around the home entrance.
+- `min_spread`: _(Optional, default: 0.0)_ Minimum spatial spread of the blocks (0 to 1).
+</details>
+
+### Jobs
+
+Jobs define what Xoonglins do during the day. They are assigned via the `job` field in
+a social class definition. A Xoonglin with a job will work a configurable number of hours
+per Minecraft day, tracked through a daily tick quota.
+
+Job progress can be viewed in the **Job tab** of the Xoonglin info screen (accessed via
+the leader staff).
+
+#### Home Artisan
+
+The Xoonglin works at home and produces items periodically.
+
+<details>
+    <summary>Sample home artisan job file</summary>
+
+```json
+{
+  "type": "cft:home_artisan",
+  "hours_per_day": 6.0,
+  "frequency_days": 2,
+  "output": {
+    "item": "minecraft:paper"
+  },
+  "output_count": 2
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `frequency_days`: How many consecutive days of meeting the quota are needed before
+  producing output.
+- `output`: The item to produce, in Ingredient format.
+- `output_count`: How many items to produce each cycle.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
+#### Gatherer
+
+The Xoonglin wanders near home, breaks matching blocks, and deposits the drops in the
+home container.
+
+<details>
+    <summary>Sample gatherer job file</summary>
+
+```json
+{
+  "type": "cft:gatherer",
+  "hours_per_day": 4.0,
+  "gather_radius": 16,
+  "block_tag": "minecraft:flowers"
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `gather_radius`: How far from home the Xoonglin will search for blocks.
+- `block`: _(Optional)_ A specific block to gather.
+- `block_tag`: _(Optional)_ A block tag; any block in the tag will be gathered.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
+#### Guard
+
+The Xoonglin patrols around their home and attacks hostile mobs that come nearby.
+
+<details>
+    <summary>Sample guard job file</summary>
+
+```json
+{
+  "type": "cft:guard",
+  "hours_per_day": 8.0,
+  "patrol_radius": 12,
+  "detection_radius": 16
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to patrol each day.
+- `patrol_radius`: How far from home the Xoonglin will patrol.
+- `detection_radius`: _(Optional, default: 16)_ How far the Xoonglin can detect hostile
+  mobs.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
 </details>
