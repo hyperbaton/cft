@@ -218,6 +218,7 @@ public class SocialClassDetailPanel {
         if (need instanceof EnergyNeed) return Component.translatable("gui.cft.need_type.energy").getString();
         if (need instanceof LightingNeed) return Component.translatable("gui.cft.need_type.lighting").getString();
         if (need instanceof SocialNeed) return Component.translatable("gui.cft.need_type.social").getString();
+        if (need instanceof PetNeed) return Component.translatable("gui.cft.need_type.pet").getString();
         return "Unknown";
     }
 

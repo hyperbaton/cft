@@ -1,0 +1,14 @@
+{
+  "type": "cft:pet",
+  "id": "cft:cat_companion_need",
+  "damage": 0.5,
+  "damage_threshold": 0.2,
+  "provided_happiness": 3.0,
+  "satisfaction_threshold": 0.8,
+  "frequency": 1.0,
+  "hidden": false,
+  "entity_types": ["minecraft:cat"],
+  "min_count": 1,
+  "max_count": 5,
+  "radius": 16
+}

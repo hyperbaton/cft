@@ -37,6 +37,7 @@
   "cft:high_altitude_need": "High Altitude",
   "cft:mountain_biomes_need": "Mountain Biome",
   "cft:settlers_companions_need": "Settler companions",
+  "cft:cat_companion_need": "Cat Companion",
   "cft:water_need": "Water",
   "cft:basic_energy_need": "Energy",
   "job.cft.produce_paper_job": "Paper Maker",
@@ -76,6 +77,7 @@
   "gui.cft.need_type.energy": "Energy",
   "gui.cft.need_type.lighting": "Lighting",
   "gui.cft.need_type.social": "Social",
+  "gui.cft.need_type.pet": "Pet",
   "key.cft.open_social_browser": "Open Social Class Browser",
   "key.categories.cft": "Care For Them"
 }

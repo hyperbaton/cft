@@ -7,7 +7,8 @@
     "cft:gold_nugget_need",
     "cft:book_need",
     "cft:pork_need",
-    "cft:patrician_home"
+    "cft:patrician_home",
+    "cft:cat_companion_need"
   ],
   "upgrades": [
     {
