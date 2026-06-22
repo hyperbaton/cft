@@ -8,9 +8,12 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
 import java.util.Map;
 
 public class XoonglinInfoScreen extends Screen {
@@ -19,11 +22,14 @@ public class XoonglinInfoScreen extends Screen {
         ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "textures/gui/check_on_xoonglin_background.png");
     private static final int MARGIN_PIXELS = 10;
     private static final int MAX_VISIBLE_NEEDS = 7;
-    private static final int UPDATE_FREQUENCY = 20; // Update every second
+    private static final int UPDATE_FREQUENCY = 20;
+    private static final int ICON_ROTATE_TICKS = 40;
+    private static final int ICON_SIZE = 16;
 
     private final int imageWidth = 220, imageHeight = 176;
     private CheckOnXoonglinPacket packet;
     private int ticksUntilNextUpdate = UPDATE_FREQUENCY;
+    private int tickCounter = 0;
 
     private NeedsScrollPanel needsScrollPanel;
 
@@ -135,11 +141,19 @@ public class XoonglinInfoScreen extends Screen {
         int barHeight = 8;
 
         for (Map.Entry<String, NeedSatisfactionData> need : packet.getNeedsData().entrySet()) {
+            NeedSatisfactionData data = need.getValue();
+            int textX = x + MARGIN_PIXELS;
+
+            if (!data.icons.isEmpty()) {
+                ItemStack iconStack = getIconStack(data.icons);
+                graphics.renderItem(iconStack, textX, barY - 4);
+                textX += ICON_SIZE + 2;
+            }
+
             String needLabel = Component.translatable(need.getKey()).getString();
-            graphics.drawString(this.font, needLabel, x + MARGIN_PIXELS, barY, 0x404040, false);
+            graphics.drawString(this.font, needLabel, textX, barY, 0x404040, false);
 
             int barX = x + imageWidth - MARGIN_PIXELS - barWidth;
-            NeedSatisfactionData data = need.getValue();
             boolean isHovered = NeedsBarRenderer.isMouseOver(mouseX, mouseY, barX, barY, barWidth, barHeight);
 
             NeedsBarRenderer.renderBar(graphics, barX, barY, barWidth, barHeight,
@@ -151,8 +165,13 @@ public class XoonglinInfoScreen extends Screen {
                         mouseX, mouseY);
             }
 
-            barY += 15;
+            barY += 18;
         }
+    }
+
+    private ItemStack getIconStack(List<ResourceLocation> icons) {
+        int index = icons.size() > 1 ? (tickCounter / ICON_ROTATE_TICKS) % icons.size() : 0;
+        return new ItemStack(BuiltInRegistries.ITEM.get(icons.get(index)));
     }
 
     @Override
@@ -171,6 +190,10 @@ public class XoonglinInfoScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+        tickCounter++;
+        if (needsScrollPanel != null) {
+            needsScrollPanel.tick();
+        }
         if (--ticksUntilNextUpdate <= 0) {
             // Ask the server for an update
             PacketDistributor.sendToServer(new RequestXoonglinInfoUpdatePacket(packet.getXoonglinId()));

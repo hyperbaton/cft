@@ -5,9 +5,15 @@ import com.hyperbaton.cft.need.satisfaction.ConsumeItemNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
@@ -70,6 +76,13 @@ public class GoodsNeed extends Need {
     @Override
     public NeedSatisfier<GoodsNeed> createSatisfier(double satisfaction, boolean isSatisfied) {
         return new ConsumeItemNeedSatisfier(satisfaction, isSatisfied, this);
+    }
+
+    @Override
+    public List<ResourceLocation> getDefaultIcons() {
+        return Arrays.stream(item.getItems())
+                .map(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()))
+                .toList();
     }
 
     @Override

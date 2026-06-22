@@ -5,6 +5,7 @@ import com.hyperbaton.cft.need.satisfaction.HomeNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
@@ -69,6 +70,11 @@ public class HomeNeed extends Need{
 
     public void setRoofBlocks(List<HomeValidBlock> roofBlocks) {
         this.roofBlocks = roofBlocks;
+    }
+
+    @Override
+    public List<ResourceLocation> getDefaultIcons() {
+        return List.of(ResourceLocation.withDefaultNamespace("oak_door"));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.hyperbaton.cft.need.satisfaction.BiomeNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
@@ -27,6 +28,11 @@ public class BiomeNeed extends Need {
                      double satisfactionThreshold, double frequency, boolean hidden, List<String> biomes) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden);
         this.biomes = biomes;
+    }
+
+    @Override
+    public List<ResourceLocation> getDefaultIcons() {
+        return List.of(ResourceLocation.withDefaultNamespace("grass_block"));
     }
 
     @Override

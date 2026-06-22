@@ -94,7 +94,8 @@ public class LeaderStaff extends Item {
                         needSatisfier -> new NeedSatisfactionData(
                                 needSatisfier.getSatisfaction(),
                                 needSatisfier.getNeed().getDamageThreshold(),
-                                needSatisfier.getNeed().getSatisfactionThreshold()
+                                needSatisfier.getNeed().getSatisfactionThreshold(),
+                                needSatisfier.getNeed().getDefaultIcons()
                         )
                 ));
 

@@ -13,7 +13,9 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import net.minecraft.core.UUIDUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,7 +49,12 @@ public record CheckOnXoonglinPacket(
                 double satisfaction = buf.readDouble();
                 double damageThreshold = buf.readDouble();
                 double satisfactionThreshold = buf.readDouble();
-                needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold));
+                int iconCount = ByteBufCodecs.VAR_INT.decode(buf);
+                List<ResourceLocation> icons = new ArrayList<>();
+                for (int j = 0; j < iconCount; j++) {
+                    icons.add(ResourceLocation.STREAM_CODEC.decode(buf));
+                }
+                needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold, icons));
             }
             return new CheckOnXoonglinPacket(name, socialClass, jobId, happiness, needsData, xoonglinId);
         }
@@ -69,6 +76,10 @@ public record CheckOnXoonglinPacket(
                 buf.writeDouble(entry.getValue().satisfaction);
                 buf.writeDouble(entry.getValue().damageThreshold);
                 buf.writeDouble(entry.getValue().satisfactionThreshold);
+                ByteBufCodecs.VAR_INT.encode(buf, entry.getValue().icons.size());
+                for (ResourceLocation icon : entry.getValue().icons) {
+                    ResourceLocation.STREAM_CODEC.encode(buf, icon);
+                }
             }
         }
     };

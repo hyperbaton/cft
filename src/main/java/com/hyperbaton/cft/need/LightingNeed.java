@@ -5,6 +5,9 @@ import com.hyperbaton.cft.need.satisfaction.LightingNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
 
 public class LightingNeed extends Need {
 
@@ -45,6 +48,11 @@ public class LightingNeed extends Need {
 
     public int getRadius() {
         return radius;
+    }
+
+    @Override
+    public List<ResourceLocation> getDefaultIcons() {
+        return List.of(ResourceLocation.withDefaultNamespace("torch"));
     }
 
     @Override

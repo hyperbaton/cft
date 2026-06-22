@@ -5,7 +5,11 @@ import com.hyperbaton.cft.need.satisfaction.FluidNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.fluids.FluidStack;
+
+import java.util.List;
 
 public class FluidNeed extends Need {
     public static final Codec<FluidNeed> FLUID_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -47,4 +51,13 @@ public class FluidNeed extends Need {
         return fluidStack;
     }
 
+    @Override
+    public List<ResourceLocation> getDefaultIcons() {
+        ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(fluidStack.getFluid());
+        ResourceLocation bucketId = ResourceLocation.fromNamespaceAndPath(fluidId.getNamespace(), fluidId.getPath() + "_bucket");
+        if (BuiltInRegistries.ITEM.containsKey(bucketId)) {
+            return List.of(bucketId);
+        }
+        return List.of(fluidId);
+    }
 }

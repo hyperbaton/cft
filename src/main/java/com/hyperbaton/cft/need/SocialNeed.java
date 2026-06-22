@@ -5,6 +5,7 @@ import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.SocialNeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
@@ -61,6 +62,11 @@ public class SocialNeed extends Need {
 
     public int getRadius() {
         return radius;
+    }
+
+    @Override
+    public List<ResourceLocation> getDefaultIcons() {
+        return List.of(ResourceLocation.withDefaultNamespace("player_head"));
     }
 
     @Override

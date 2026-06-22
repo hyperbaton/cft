@@ -5,6 +5,9 @@ import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
 
 public abstract class Need {
     protected static final boolean DEFAULT_HIDDEN = false;
@@ -111,6 +114,8 @@ public abstract class Need {
     }
 
     public abstract NeedSatisfier<? extends Need> createSatisfier(double satisfaction, boolean isSatisfied);
+
+    public abstract List<ResourceLocation> getDefaultIcons();
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
