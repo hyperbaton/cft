@@ -1,0 +1,13 @@
+{
+  "type": "cft:decoration",
+  "id": "cft:flower_garden_need",
+  "damage": 0.0,
+  "damage_threshold": 0.3,
+  "provided_happiness": 5.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 1.0,
+  "block_tag": "minecraft:flowers",
+  "min_count": 12,
+  "radius": 10,
+  "min_spread": 0.3
+}

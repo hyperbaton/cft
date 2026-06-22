@@ -78,6 +78,8 @@
   "gui.cft.need_type.lighting": "Lighting",
   "gui.cft.need_type.social": "Social",
   "gui.cft.need_type.pet": "Pet",
+  "gui.cft.need_type.decoration": "Decoration",
+  "cft:flower_garden_need": "Flower Garden",
   "key.cft.open_social_browser": "Open Social Class Browser",
   "key.categories.cft": "Care For Them"
 }

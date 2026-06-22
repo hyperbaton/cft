@@ -7,7 +7,8 @@
     "cft:cake_need",
     "cft:diamond_need",
     "cft:beef_need",
-    "cft:noble_home"
+    "cft:noble_home",
+    "cft:flower_garden_need"
   ],
   "upgrades": [],
   "downgrades": [
