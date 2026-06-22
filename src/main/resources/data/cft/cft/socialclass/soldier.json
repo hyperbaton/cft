@@ -3,6 +3,7 @@
   "maxHappiness": 750.0,
   "matingHappinessThreshold": 600.0,
   "spontaneouslySpawnPopulation": 0,
+  "maxHealth": 40.0,
   "needs": [
     "cft:flint_need",
     "cft:iron_sword_need",

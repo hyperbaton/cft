@@ -96,6 +96,7 @@ public class XoonglinSpawner implements CustomSpawner {
         xoonglin.setNeeds(NeedUtils.getNeedsForClass(xoonglin.getSocialClass()));
         xoonglin.getEntityData().set(XoonglinEntity.SOCIAL_CLASS_NAME, xoonglin.getSocialClass().getId());
         xoonglin.setJob(socialClass.getJob());
+        xoonglin.applyClassMaxHealth();
         LOGGER.trace("Xoonglin spawned");
         LOGGER.trace("Home with owner id: {} and leaderId: {}", home.getOwnerId(), home.getLeaderId());
     }

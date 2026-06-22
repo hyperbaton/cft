@@ -356,6 +356,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             this.setJob(socialClass.getJob());
             this.jobState.reset();
             resetMatingDelay();
+            applyClassMaxHealth();
         }
         if (this.home != null) {
             HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
@@ -365,6 +366,14 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             this.home = null;
             this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
             this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
+        }
+    }
+
+    public void applyClassMaxHealth() {
+        if (this.socialClass == null) return;
+        this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.socialClass.getMaxHealth());
+        if (this.getHealth() > this.getMaxHealth()) {
+            this.setHealth(this.getMaxHealth());
         }
     }
 
@@ -534,6 +543,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (tag.contains(KEY_SOCIAL_CLASS, Tag.TAG_STRING)) {
             setSocialClass(CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(tag.getString(KEY_SOCIAL_CLASS))));
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
+            applyClassMaxHealth();
         }
         if (tag.contains(KEY_LEADER_ID)) {
             setLeaderId(tag.getUUID(KEY_LEADER_ID));
