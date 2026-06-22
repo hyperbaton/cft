@@ -160,7 +160,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
         brain.tick((ServerLevel) level(), this);
         if (brain.getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).isEmpty()
-                || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())) {
+                || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
         } else if (brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).isPresent() &&
                 brain.getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).isPresent()) {
@@ -381,7 +382,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 .add(Attributes.ARMOR_TOUGHNESS, 0.1f)
                 .add(Attributes.ATTACK_KNOCKBACK, 0.5f)
                 .add(Attributes.ATTACK_DAMAGE, 2f)
-                .add(Attributes.FOLLOW_RANGE, 24D)
+                .add(Attributes.FOLLOW_RANGE, 48D)
                 .add(Attributes.STEP_HEIGHT, 1.0);
     }
 
