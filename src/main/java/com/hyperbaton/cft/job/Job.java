@@ -2,23 +2,49 @@ package com.hyperbaton.cft.job;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
+
+import java.util.List;
 
 public abstract class Job {
 
     public static final Codec<Job> JOB_CODEC = Codec.lazyInitialized(() -> CftRegistry.JOBS_CODEC_REGISTRY.byNameCodec()
             .dispatch("type", Job::jobType, codec -> MapCodec.assumeMapUnsafe(codec)));
-    // Called from the entity’s server tick
+
+    private final List<String> requiredNeeds;
+
+    protected Job(List<String> requiredNeeds) {
+        this.requiredNeeds = requiredNeeds != null ? List.copyOf(requiredNeeds) : List.of();
+    }
+
     public abstract void tick(XoonglinEntity xoonglin, JobState state);
 
-    // Optional: small title used for UI/debug
     String idHint() { return getClass().getSimpleName(); }
 
     public abstract Codec<? extends Job> jobType();
 
-    // Per-entity save/load helpers for job-specific state if needed
+    public List<String> getRequiredNeeds() {
+        return requiredNeeds;
+    }
+
+    public boolean canWork(XoonglinEntity xoonglin) {
+        if (!xoonglin.allDamagingNeedsSatisfied()) return false;
+
+        if (!requiredNeeds.isEmpty() && xoonglin.getNeeds() != null) {
+            for (String needId : requiredNeeds) {
+                boolean satisfied = xoonglin.getNeeds().stream()
+                        .filter(ns -> ns.getNeed().getId().equals(needId))
+                        .anyMatch(NeedSatisfier::isSatisfied);
+                if (!satisfied) return false;
+            }
+        }
+
+        return true;
+    }
+
     void saveExtra(CompoundTag tag) {}
     void loadExtra(CompoundTag tag) {}
 }

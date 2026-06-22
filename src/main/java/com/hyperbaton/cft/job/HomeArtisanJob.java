@@ -14,6 +14,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 
+import java.util.List;
+
 import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
 public class HomeArtisanJob extends Job {
@@ -23,7 +25,8 @@ public class HomeArtisanJob extends Job {
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.fieldOf("frequency_days").forGetter(j -> j.frequencyDays),
             INGREDIENT_CODEC.fieldOf("output").forGetter(j -> j.output),
-            Codec.INT.fieldOf("output_count").forGetter(j -> j.outputCount)
+            Codec.INT.fieldOf("output_count").forGetter(j -> j.outputCount),
+            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds)
     ).apply(inst, HomeArtisanJob::new));
 
     private final double hoursPerDay;
@@ -33,7 +36,9 @@ public class HomeArtisanJob extends Job {
 
     private static final int TICKS_PER_MC_HOUR = 1000;
 
-    public HomeArtisanJob(double hoursPerDay, int frequencyDays, Ingredient output, int outputCount) {
+    public HomeArtisanJob(double hoursPerDay, int frequencyDays, Ingredient output, int outputCount,
+                          List<String> requiredNeeds) {
+        super(requiredNeeds);
         this.hoursPerDay = hoursPerDay;
         this.frequencyDays = Math.max(1, frequencyDays);
         this.output = output;
@@ -82,9 +87,9 @@ public class HomeArtisanJob extends Job {
             }
         }
 
-        // Count work tick if at home and basic needs are met
+        // Count work tick if at home and required needs are met
         if (JobUtil.isAtHome(xoonglin, CftConfig.HOME_WORK_RADIUS.get())
-                && xoonglin.allDamagingNeedsSatisfied()) {
+                && canWork(xoonglin)) {
             state.workedTicksToday++;
         }
 
