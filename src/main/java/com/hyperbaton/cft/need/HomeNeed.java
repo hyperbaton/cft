@@ -5,6 +5,7 @@ import com.hyperbaton.cft.need.satisfaction.HomeNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -70,6 +71,11 @@ public class HomeNeed extends Need{
 
     public void setRoofBlocks(List<HomeValidBlock> roofBlocks) {
         this.roofBlocks = roofBlocks;
+    }
+
+    @Override
+    public String getTypeName() {
+        return Component.translatable("gui.cft.need_type.home").getString();
     }
 
     @Override

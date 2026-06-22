@@ -6,6 +6,7 @@ import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -49,6 +50,11 @@ public class FluidNeed extends Need {
 
     public FluidStack getFluidStack() {
         return fluidStack;
+    }
+
+    @Override
+    public String getTypeName() {
+        return Component.translatable("gui.cft.need_type.fluid").getString();
     }
 
     @Override

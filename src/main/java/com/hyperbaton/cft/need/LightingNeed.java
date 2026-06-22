@@ -5,6 +5,7 @@ import com.hyperbaton.cft.need.satisfaction.LightingNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -48,6 +49,11 @@ public class LightingNeed extends Need {
 
     public int getRadius() {
         return radius;
+    }
+
+    @Override
+    public String getTypeName() {
+        return Component.translatable("gui.cft.need_type.lighting").getString();
     }
 
     @Override

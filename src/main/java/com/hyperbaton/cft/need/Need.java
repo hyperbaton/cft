@@ -117,6 +117,8 @@ public abstract class Need {
 
     public abstract List<ResourceLocation> getDefaultIcons();
 
+    public abstract String getTypeName();
+
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.putString(TAG_ID, id);

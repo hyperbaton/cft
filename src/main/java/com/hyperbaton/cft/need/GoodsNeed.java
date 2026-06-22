@@ -8,6 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -76,6 +77,11 @@ public class GoodsNeed extends Need {
     @Override
     public NeedSatisfier<GoodsNeed> createSatisfier(double satisfaction, boolean isSatisfied) {
         return new ConsumeItemNeedSatisfier(satisfaction, isSatisfied, this);
+    }
+
+    @Override
+    public String getTypeName() {
+        return Component.translatable("gui.cft.need_type.goods").getString();
     }
 
     @Override

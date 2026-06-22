@@ -210,16 +210,7 @@ public class SocialClassDetailPanel {
     }
 
     private String getNeedTypeName(Need need) {
-        if (need instanceof GoodsNeed) return Component.translatable("gui.cft.need_type.goods").getString();
-        if (need instanceof HomeNeed) return Component.translatable("gui.cft.need_type.home").getString();
-        if (need instanceof AltitudeNeed) return Component.translatable("gui.cft.need_type.altitude").getString();
-        if (need instanceof BiomeNeed) return Component.translatable("gui.cft.need_type.biome").getString();
-        if (need instanceof FluidNeed) return Component.translatable("gui.cft.need_type.fluid").getString();
-        if (need instanceof EnergyNeed) return Component.translatable("gui.cft.need_type.energy").getString();
-        if (need instanceof LightingNeed) return Component.translatable("gui.cft.need_type.lighting").getString();
-        if (need instanceof SocialNeed) return Component.translatable("gui.cft.need_type.social").getString();
-        if (need instanceof PetNeed) return Component.translatable("gui.cft.need_type.pet").getString();
-        return "Unknown";
+        return need.getTypeName();
     }
 
     private interface DetailLine {
