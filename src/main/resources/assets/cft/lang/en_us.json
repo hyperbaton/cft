@@ -81,5 +81,14 @@
   "gui.cft.need_type.decoration": "Decoration",
   "cft:flower_garden_need": "Flower Garden",
   "key.cft.open_social_browser": "Open Social Class Browser",
-  "key.categories.cft": "Care For Them"
+  "key.categories.cft": "Care For Them",
+  "gui.cft.tab_info": "Info",
+  "gui.cft.tab_job": "Job",
+  "gui.cft.job_status.working": "Working",
+  "gui.cft.job_status.resting": "Resting",
+  "gui.cft.job_status.cant_work": "Can't Work",
+  "gui.cft.job_status.traveling": "Traveling Home",
+  "gui.cft.job_today": "Today's Work",
+  "gui.cft.job_streak": "Streak",
+  "gui.cft.job_output": "Output"
 }

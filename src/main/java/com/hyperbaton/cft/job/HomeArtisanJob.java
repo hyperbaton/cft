@@ -4,16 +4,20 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.network.JobDisplayEntry;
+import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
@@ -103,6 +107,42 @@ public class HomeArtisanJob extends Job {
         } else {
             brain.eraseMemory(CftMemoryModuleType.MUST_WORK_AT_HOME.get());
         }
+    }
+
+    @Override
+    public JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state) {
+        int neededTicks = (int) Math.round(hoursPerDay * TICKS_PER_MC_HOUR);
+        boolean atHome = JobUtil.isAtHome(xoonglin, CftConfig.HOME_WORK_RADIUS.get());
+        boolean canDoWork = canWork(xoonglin);
+        boolean doneForDay = state.workedTicksToday >= neededTicks;
+
+        String statusKey;
+        int statusColor;
+        if (!canDoWork) {
+            statusKey = "gui.cft.job_status.cant_work";
+            statusColor = 0xDD4040;
+        } else if (doneForDay) {
+            statusKey = "gui.cft.job_status.resting";
+            statusColor = 0xDDAA00;
+        } else if (atHome) {
+            statusKey = "gui.cft.job_status.working";
+            statusColor = 0x40AA40;
+        } else {
+            statusKey = "gui.cft.job_status.traveling";
+            statusColor = 0x4080DD;
+        }
+
+        List<JobDisplayEntry> entries = new ArrayList<>();
+        entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks));
+        entries.add(JobDisplayEntry.progress("gui.cft.job_streak", state.consecutiveDaysWorked, frequencyDays));
+
+        ItemStack[] matches = output.getItems();
+        if (matches.length > 0) {
+            entries.add(JobDisplayEntry.item("gui.cft.job_output",
+                    BuiltInRegistries.ITEM.getKey(matches[0].getItem()), outputCount));
+        }
+
+        return new JobInfoData(statusKey, statusColor, entries);
     }
 
     @Override

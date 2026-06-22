@@ -482,6 +482,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     public ResourceLocation getJob() { return jobId; }
 
+    public JobState getJobState() { return jobState; }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);

@@ -1,6 +1,9 @@
 package com.hyperbaton.cft.util;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.job.Job;
+import com.hyperbaton.cft.network.JobInfoData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +16,13 @@ import java.util.Optional;
 
 public final class JobUtil {
     private JobUtil() {}
+
+    public static JobInfoData buildJobInfo(XoonglinEntity xoonglin) {
+        if (xoonglin.getJob() == null) return null;
+        Job job = CftRegistry.JOBS.get(xoonglin.getJob());
+        if (job == null) return null;
+        return job.getDisplayInfo(xoonglin, xoonglin.getJobState());
+    }
 
     public static boolean isAtHome(XoonglinEntity mob, double radius) {
         if (mob.getHome() == null) return false;

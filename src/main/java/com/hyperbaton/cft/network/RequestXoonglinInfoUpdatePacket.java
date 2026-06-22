@@ -2,6 +2,7 @@ package com.hyperbaton.cft.network;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.util.JobUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -60,7 +61,8 @@ public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements Custom
                                 xoonglin.getJob(),
                                 xoonglin.getHappiness(),
                                 needsData,
-                                xoonglin.getUUID()
+                                xoonglin.getUUID(),
+                                JobUtil.buildJobInfo(xoonglin)
                         );
 
                         PacketDistributor.sendToPlayer(player, updatePacket);

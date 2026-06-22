@@ -3,6 +3,7 @@ package com.hyperbaton.cft.job;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
+import com.hyperbaton.cft.network.JobInfoData;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +22,8 @@ public abstract class Job {
     }
 
     public abstract void tick(XoonglinEntity xoonglin, JobState state);
+
+    public abstract JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state);
 
     String idHint() { return getClass().getSimpleName(); }
 

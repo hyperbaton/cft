@@ -5,6 +5,7 @@ import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
 import com.hyperbaton.cft.network.HomeDetectionPacket;
 import com.hyperbaton.cft.network.NeedSatisfactionData;
+import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.structure.home.HomeDetectionReasons;
 import com.hyperbaton.cft.world.HomesData;
@@ -105,7 +106,8 @@ public class LeaderStaff extends Item {
                 entity.getJob(),
                 entity.getHappiness(),
                 needsData,
-                entity.getUUID()
+                entity.getUUID(),
+                JobUtil.buildJobInfo(entity)
         );
     }
 

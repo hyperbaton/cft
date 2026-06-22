@@ -26,7 +26,8 @@ public record XoonglinInfoUpdatePacket(
         ResourceLocation jobId,
         double happiness,
         Map<String, NeedSatisfactionData> needsData,
-        UUID xoonglinId
+        UUID xoonglinId,
+        JobInfoData jobInfo
 ) implements CustomPacketPayload {
 
     public static final Type<XoonglinInfoUpdatePacket> TYPE =
@@ -56,7 +57,9 @@ public record XoonglinInfoUpdatePacket(
                 }
                 needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold, icons));
             }
-            return new XoonglinInfoUpdatePacket(name, socialClass, jobId, happiness, needsData, xoonglinId);
+            boolean hasJobInfo = ByteBufCodecs.BOOL.decode(buf);
+            JobInfoData jobInfo = hasJobInfo ? JobInfoData.decode(buf) : null;
+            return new XoonglinInfoUpdatePacket(name, socialClass, jobId, happiness, needsData, xoonglinId, jobInfo);
         }
 
         @Override
@@ -81,6 +84,10 @@ public record XoonglinInfoUpdatePacket(
                     ResourceLocation.STREAM_CODEC.encode(buf, icon);
                 }
             }
+            ByteBufCodecs.BOOL.encode(buf, packet.jobInfo != null);
+            if (packet.jobInfo != null) {
+                JobInfoData.encode(buf, packet.jobInfo);
+            }
         }
     };
 
@@ -103,4 +110,5 @@ public record XoonglinInfoUpdatePacket(
     public double getHappiness() { return happiness; }
     public Map<String, NeedSatisfactionData> getNeedsData() { return needsData; }
     public UUID getXoonglinId() { return xoonglinId; }
+    public JobInfoData getJobInfo() { return jobInfo; }
 }
