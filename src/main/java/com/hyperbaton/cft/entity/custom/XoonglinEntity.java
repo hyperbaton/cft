@@ -411,7 +411,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     public void resetMatingDelay() {
-        matingDelay = socialClass != null
+        matingDelay = (socialClass != null && socialClass.getMatingDelay() >= 0)
                 ? socialClass.getMatingDelay()
                 : CftConfig.XOONGLIN_MATING_COOLDOWN.get();
     }

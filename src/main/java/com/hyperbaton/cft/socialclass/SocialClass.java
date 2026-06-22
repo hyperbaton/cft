@@ -1,6 +1,5 @@
 package com.hyperbaton.cft.socialclass;
 
-import com.hyperbaton.cft.CftConfig;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +19,7 @@ public class SocialClass {
             ResourceLocation.CODEC.optionalFieldOf("job").forGetter(socialClass -> Optional.ofNullable(socialClass.getJob())),
             Codec.BOOL.optionalFieldOf("canUpgradeAsBaby", false).forGetter(SocialClass::canUpgradeAsBaby),
             Codec.BOOL.optionalFieldOf("canDowngradeAsBaby", true).forGetter(SocialClass::canDowngradeAsBaby),
-            Codec.INT.optionalFieldOf("matingDelay", CftConfig.XOONGLIN_MATING_COOLDOWN.get()).forGetter(SocialClass::getMatingDelay)
+            Codec.INT.optionalFieldOf("matingDelay", -1).forGetter(SocialClass::getMatingDelay)
     ).apply(instance, SocialClass::new));
 
     /**
