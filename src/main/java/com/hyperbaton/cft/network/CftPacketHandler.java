@@ -49,6 +49,18 @@ public class CftPacketHandler {
                 PopulationUpdatePacket.STREAM_CODEC,
                 PopulationUpdatePacket::handle
         );
+
+        registrar.playToServer(
+                RequestHomeLabelsPacket.TYPE,
+                RequestHomeLabelsPacket.STREAM_CODEC,
+                RequestHomeLabelsPacket::handle
+        );
+
+        registrar.playToClient(
+                HomeLabelsPacket.TYPE,
+                HomeLabelsPacket.STREAM_CODEC,
+                HomeLabelsPacket::handle
+        );
     }
 
     public static void sendToServer(Object message) {

@@ -90,5 +90,6 @@
   "gui.cft.job_status.traveling": "Traveling Home",
   "gui.cft.job_today": "Today's Work",
   "gui.cft.job_streak": "Streak",
-  "gui.cft.job_output": "Output"
+  "gui.cft.job_output": "Output",
+  "gui.cft.home_label.occupied": "%s's Home"
 }
