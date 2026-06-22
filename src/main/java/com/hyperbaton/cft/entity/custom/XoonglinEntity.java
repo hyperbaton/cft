@@ -60,6 +60,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
+    private static final int FULL_HEAL_TICKS = 24000;
     public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.STRING);
 
     public XoonglinEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
@@ -118,6 +119,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                     increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                 }
                 currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
+            }
+            if (allDamagingNeedsSatisfied()) {
+                float healAmount = getMaxHealth() * DELAY_BETWEEN_NEEDS_CHECKS / (float) FULL_HEAL_TICKS;
+                heal(healAmount);
             }
             checkSocialClass();
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
@@ -399,15 +404,19 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 socialClass.getMaxHappiness());
     }
 
+    private boolean allDamagingNeedsSatisfied() {
+        return needs != null && needs.stream()
+                .filter(needSatisfier -> needSatisfier.getNeed().getDamage() > 0.0)
+                .allMatch(NeedSatisfier::isSatisfied);
+    }
+
     public boolean canMate() {
         matingDelay--;
         return !this.isBaby() &&
                 matingDelay <= 0 &&
                 this.socialClass != null &&
                 this.happiness >= this.socialClass.getMatingHappinessThreshold() &&
-                this.needs.stream()
-                        .filter(needSatisfier -> needSatisfier.getNeed().getDamage() > 0.0)
-                        .allMatch(NeedSatisfier::isSatisfied);
+                allDamagingNeedsSatisfied();
     }
 
     public void resetMatingDelay() {
