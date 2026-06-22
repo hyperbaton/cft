@@ -37,6 +37,18 @@ public class CftPacketHandler {
                 XoonglinInfoUpdatePacket.STREAM_CODEC,
                 XoonglinInfoUpdatePacket::handle
         );
+
+        registrar.playToServer(
+                RequestPopulationPacket.TYPE,
+                RequestPopulationPacket.STREAM_CODEC,
+                RequestPopulationPacket::handle
+        );
+
+        registrar.playToClient(
+                PopulationUpdatePacket.TYPE,
+                PopulationUpdatePacket.STREAM_CODEC,
+                PopulationUpdatePacket::handle
+        );
     }
 
     public static void sendToServer(Object message) {

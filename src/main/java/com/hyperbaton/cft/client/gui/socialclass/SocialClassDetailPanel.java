@@ -8,7 +8,9 @@ import com.hyperbaton.cft.socialclass.SocialStructureRequirement;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -155,7 +157,8 @@ public class SocialClassDetailPanel {
         String needName = Component.translatable(need.getId()).getString();
         String typeName = getNeedTypeName(need);
         String line = needName + " (" + typeName + ")";
-        cachedLines.add(new StaticLine(line, VALUE_COLOR, 4, LINE_HEIGHT, false));
+        List<ResourceLocation> icons = need.getIcons();
+        cachedLines.add(new IconNeedLine(line, VALUE_COLOR, 4, icons));
 
         double freq = need.getFrequency();
         String freqText = (freq % 1 == 0) ? String.format("%.0f", freq) : String.format("%.1f", freq);
@@ -246,6 +249,25 @@ public class SocialClassDetailPanel {
         @Override
         public int lineHeight() {
             return LINE_HEIGHT;
+        }
+    }
+
+    private record IconNeedLine(String text, int color, int indent, List<ResourceLocation> icons) implements DetailLine {
+        private static final int ICON_SIZE = 16;
+
+        @Override
+        public void render(GuiGraphics graphics, Font font, int x, int y, int tickCounter) {
+            if (!icons.isEmpty()) {
+                int index = icons.size() > 1 ? (tickCounter / TAG_ROTATE_TICKS) % icons.size() : 0;
+                ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(icons.get(index)));
+                graphics.renderItem(stack, x, y - 1);
+            }
+            graphics.drawString(font, text, x + ICON_SIZE + 2, y + 3, color, false);
+        }
+
+        @Override
+        public int lineHeight() {
+            return Math.max(LINE_HEIGHT, ICON_SIZE + 2);
         }
     }
 }

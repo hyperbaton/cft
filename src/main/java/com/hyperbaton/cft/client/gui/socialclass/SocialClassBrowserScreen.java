@@ -2,6 +2,8 @@ package com.hyperbaton.cft.client.gui.socialclass;
 
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.need.Need;
+import com.hyperbaton.cft.network.CftPacketHandler;
+import com.hyperbaton.cft.network.RequestPopulationPacket;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,7 +13,9 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SocialClassBrowserScreen extends Screen {
 
@@ -32,6 +36,8 @@ public class SocialClassBrowserScreen extends Screen {
     private double graphScrollX = 0;
     private int graphContentHeight;
     private int graphContentWidth;
+
+    private Map<String, Integer> populationData = new HashMap<>();
 
     private boolean dragging = false;
     private double dragLastX;
@@ -67,6 +73,12 @@ public class SocialClassBrowserScreen extends Screen {
         this.detailPanel = new SocialClassDetailPanel(
                 detailPanelX, 0, detailPanelWidth, this.height, this.font, needRegistry
         );
+
+        CftPacketHandler.sendToServer(new RequestPopulationPacket());
+    }
+
+    public void updatePopulation(Map<String, Integer> population) {
+        this.populationData = population;
     }
 
     @Override
@@ -100,7 +112,8 @@ public class SocialClassBrowserScreen extends Screen {
         for (SocialClassNode node : nodes) {
             boolean hovered = isMouseOverNode(node, mouseX, mouseY);
             boolean selected = node == selectedNode;
-            node.render(graphics, this.font, offsetX, offsetY, hovered, selected);
+            int pop = populationData.getOrDefault(node.socialClass().getId(), 0);
+            node.render(graphics, this.font, offsetX, offsetY, hovered, selected, pop);
         }
 
         graphics.disableScissor();

@@ -20,8 +20,9 @@ public record SocialClassNode(
     private static final int BORDER_COLOR = 0xFF6A6A8A;
     private static final int BORDER_SELECTED = 0xFFAA88DD;
     private static final int TEXT_COLOR = 0xFFE0E0E0;
+    private static final int POP_COLOR = 0xFFAADD88;
 
-    public void render(GuiGraphics graphics, Font font, int offsetX, int offsetY, boolean hovered, boolean selected) {
+    public void render(GuiGraphics graphics, Font font, int offsetX, int offsetY, boolean hovered, boolean selected, int population) {
         int rx = x + offsetX;
         int ry = y + offsetY;
 
@@ -32,8 +33,13 @@ public record SocialClassNode(
         graphics.fill(rx, ry, rx + width, ry + height, bg);
 
         int textX = rx + (width - font.width(displayName)) / 2;
-        int textY = ry + (height - font.lineHeight) / 2 + 1;
-        graphics.drawString(font, displayName, textX, textY, TEXT_COLOR, false);
+        int nameY = ry + (height - font.lineHeight * 2 - 1) / 2 + 1;
+        graphics.drawString(font, displayName, textX, nameY, TEXT_COLOR, false);
+
+        String popText = String.valueOf(population);
+        int popX = rx + (width - font.width(popText)) / 2;
+        int popY = nameY + font.lineHeight + 1;
+        graphics.drawString(font, popText, popX, popY, POP_COLOR, false);
     }
 
     public int centerX() {

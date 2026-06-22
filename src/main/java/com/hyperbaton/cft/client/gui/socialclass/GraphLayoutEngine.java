@@ -9,7 +9,7 @@ import java.util.*;
 
 public class GraphLayoutEngine {
 
-    private static final int NODE_HEIGHT = 20;
+    private static final int NODE_HEIGHT = 30;
     private static final int NODE_PADDING_X = 10;
     private static final int LAYER_SPACING = 50;
     private static final int NODE_SPACING = 15;
