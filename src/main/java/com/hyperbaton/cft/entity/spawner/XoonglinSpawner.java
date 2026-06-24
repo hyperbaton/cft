@@ -6,8 +6,9 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.socialclass.SocialClass;
-import com.hyperbaton.cft.structure.home.XoonglinHome;
-import com.hyperbaton.cft.world.HomesData;
+import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.structure.home.HouseStructure;
+import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -15,7 +16,6 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
 import org.slf4j.Logger;
-import java.util.AbstractMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,7 +33,7 @@ public class XoonglinSpawner implements CustomSpawner {
         } else {
             this.nextTick += (60 + randomSource.nextInt(60) * 20);
 
-            HomesData homesData = serverLevel.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
+            StructuresData structuresData = serverLevel.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
             for (Player player : serverLevel.players()) {
 
                 // Initialize map with all social classes and values set to 0
@@ -53,17 +53,16 @@ public class XoonglinSpawner implements CustomSpawner {
                         .map(Map.Entry::getKey)
                         // Now find a home in which a new Xoonglin can spawn
                         .flatMap(socialClass ->
-                                homesData.getHomes().stream()
-                                        .filter(home ->
-                                                home.getOwnerId() == null &&
-                                                        home.getLeaderId().equals(player.getUUID()) &&
-                                                        homeMeetsNeed(home, socialClass))
-                                        .map(home -> new AbstractMap.SimpleEntry<>(socialClass, home)))
+                                structuresData.getStructures().stream()
+                                        .filter(Structure::hasCapacity)
+                                        .filter(s -> s.getLeaderId().equals(player.getUUID()))
+                                        .filter(s -> houseMeetsNeed(s, socialClass))
+                                        .map(s -> new AbstractMap.SimpleEntry<>(socialClass, s)))
                         .findAny()
                         .map(pair -> spawnXoonglin(serverLevel, pair.getValue(), pair.getKey(), player.getUUID()))
                         .ifPresent(didSpawn -> {
                             if (didSpawn) {
-                                homesData.setDirty();
+                                structuresData.setDirty();
                             }
                         });
             }
@@ -71,33 +70,30 @@ public class XoonglinSpawner implements CustomSpawner {
         return 1;
     }
 
-    /**
-     * Returns whether or not this home satisfies the home need of the given socialClass
-     */
-    private boolean homeMeetsNeed(XoonglinHome home, SocialClass socialClass) {
-        return socialClass.getNeeds().stream().anyMatch(need -> need.equals(home.getSatisfiedNeed()));
+    private boolean houseMeetsNeed(Structure structure, SocialClass socialClass) {
+        return NeedUtils.classMeetsStructureType(socialClass, structure.getStructureTypeId());
     }
 
-    private boolean spawnXoonglin(ServerLevel serverLevel, XoonglinHome home, SocialClass socialClass, UUID leaderId) {
-        XoonglinEntity xoonglin = CftEntities.XOONGLIN.get().spawn(serverLevel, home.getEntrance(), MobSpawnType.TRIGGERED);
+    private boolean spawnXoonglin(ServerLevel serverLevel, Structure house, SocialClass socialClass, UUID leaderId) {
+        XoonglinEntity xoonglin = CftEntities.XOONGLIN.get().spawn(serverLevel, house.getKeyBlockPos(), MobSpawnType.TRIGGERED);
         if (xoonglin != null) {
-            updateSpawnedXoonglin(xoonglin, home, socialClass, leaderId);
+            updateSpawnedXoonglin(xoonglin, house, socialClass, leaderId);
             return true;
         }
         return false;
     }
 
-    public static void updateSpawnedXoonglin(XoonglinEntity xoonglin, XoonglinHome home, SocialClass socialClass, UUID leaderId) {
-        home.setOwnerId(xoonglin.getUUID());
+    public static void updateSpawnedXoonglin(XoonglinEntity xoonglin, Structure house, SocialClass socialClass, UUID leaderId) {
+        house.addUser(xoonglin.getUUID());
         xoonglin.setLeaderId(leaderId);
-        xoonglin.setHome(home);
-        xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
+        xoonglin.setHome(HouseStructure.of(house));
+        xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), house.getContainerPos());
         xoonglin.setSocialClass(socialClass);
         xoonglin.setNeeds(NeedUtils.getNeedsForClass(xoonglin.getSocialClass()));
         xoonglin.getEntityData().set(XoonglinEntity.SOCIAL_CLASS_NAME, xoonglin.getSocialClass().getId());
         xoonglin.setJob(socialClass.getJob());
         xoonglin.applyClassMaxHealth();
         LOGGER.trace("Xoonglin spawned");
-        LOGGER.trace("Home with owner id: {} and leaderId: {}", home.getOwnerId(), home.getLeaderId());
+        LOGGER.trace("Home house {} with owner and leaderId: {}", house.getStructureTypeId(), house.getLeaderId());
     }
 }

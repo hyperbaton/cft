@@ -25,11 +25,11 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
         StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
 
         if (need.isRequiresUsage()) {
-            BlockPos assignedPos = mob.getAssignedStructurePos(need.getStructureType());
+            BlockPos assignedPos = mob.getAssignedStructurePos(need.getRequiredStructure());
             if (assignedPos != null) {
                 boolean structureExists = data.getStructures().stream()
                         .anyMatch(s -> s.getKeyBlockPos().equals(assignedPos)
-                                && s.getStructureTypeId().equals(need.getStructureType())
+                                && s.getStructureTypeId().equals(need.getRequiredStructure())
                                 && s.isUser(mob.getUUID()));
                 if (structureExists) {
                     super.satisfy(mob);
@@ -45,7 +45,7 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
             // Only requires presence within search radius
             BlockPos homePos = mob.getHome() != null ? mob.getHome().getEntrance() : mob.blockPosition();
             boolean found = data.getStructures().stream()
-                    .filter(s -> s.getStructureTypeId().equals(need.getStructureType()))
+                    .filter(s -> s.getStructureTypeId().equals(need.getRequiredStructure()))
                     .filter(s -> s.getLeaderId().equals(mob.getLeaderId()))
                     .anyMatch(s -> s.getKeyBlockPos().distManhattan(homePos) <= need.getSearchRadius());
 
@@ -62,6 +62,6 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
 
     @Override
     public void addMemoriesForSatisfaction(XoonglinEntity mob) {
-        mob.getBrain().setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), true);
+        mob.getBrain().setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), need.getRequiredStructure());
     }
 }

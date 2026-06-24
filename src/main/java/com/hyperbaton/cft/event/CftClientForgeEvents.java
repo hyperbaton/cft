@@ -3,7 +3,6 @@ package com.hyperbaton.cft.event;
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.client.gui.socialclass.SocialClassBrowserScreen;
 import com.hyperbaton.cft.client.keybind.CftKeyBindings;
-import com.hyperbaton.cft.client.render.HomeLabelRenderer;
 import com.hyperbaton.cft.client.render.StructureLabelRenderer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
@@ -24,14 +23,12 @@ public class CftClientForgeEvents {
             }
         }
 
-        HomeLabelRenderer.onClientTick();
         StructureLabelRenderer.onClientTick();
     }
 
     @SubscribeEvent
     public static void onRenderLevel(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) return;
-        HomeLabelRenderer.onRenderLevel(event.getPoseStack(), event.getCamera());
         StructureLabelRenderer.onRenderLevel(event.getPoseStack(), event.getCamera());
     }
 }

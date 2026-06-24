@@ -18,8 +18,7 @@ import com.hyperbaton.cft.socialclass.SocialClassUpdate;
 import com.hyperbaton.cft.socialclass.SocialStructureHelper;
 import com.hyperbaton.cft.sound.CftSounds;
 import com.hyperbaton.cft.structure.Structure;
-import com.hyperbaton.cft.structure.home.XoonglinHome;
-import com.hyperbaton.cft.world.HomesData;
+import com.hyperbaton.cft.structure.home.HouseStructure;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
@@ -82,7 +81,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private UUID leaderId;
     private final SimpleContainer inventory = new SimpleContainer(27);
 
-    private XoonglinHome home;
+    private HouseStructure home;
 
     private List<NeedSatisfier<? extends Need>> needs;
 
@@ -244,14 +243,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     @Override
     public void die(DamageSource pDamageSource) {
         if (!this.level().isClientSide) {
-            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
-            Optional<XoonglinHome> mobHome = homesData.getHomes().stream().filter(
-                    home -> home.getOwnerId() != null &&
-                            home.getOwnerId().equals(this.uuid)
-            ).findFirst();
-            mobHome.ifPresent(xoonglinHome -> xoonglinHome.setOwnerId(null));
-            homesData.setDirty();
-
             removeFromAllStructures();
         }
         super.die(pDamageSource);
@@ -369,10 +360,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             applyClassMaxHealth();
         }
         if (this.home != null) {
-            HomesData homesData = ((ServerLevel) this.level()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
-            homesData.getHomes().stream().filter(home -> home.getOwnerId() != null
-                    && home.getOwnerId().equals(this.uuid)).findFirst().ifPresent(home -> home.setOwnerId(null));
-            homesData.setDirty();
             this.home = null;
             this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
             this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
@@ -488,11 +475,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.leaderId = leaderId;
     }
 
-    public XoonglinHome getHome() {
+    public HouseStructure getHome() {
         return home;
     }
 
-    public void setHome(XoonglinHome home) {
+    public void setHome(HouseStructure home) {
         this.home = home;
     }
 
@@ -597,7 +584,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             this.inventory.fromTag(tag.getList(KEY_INVENTORY, Tag.TAG_COMPOUND), this.registryAccess());
         }
         if (tag.contains(KEY_HOME)) {
-            setHome(XoonglinHome.fromTag(tag.getCompound(KEY_HOME)));
+            setHome(HouseStructure.fromTag(tag.getCompound(KEY_HOME)));
         }
         if (tag.contains(KEY_NEEDS)) {
             needs = new ArrayList<>();
@@ -618,4 +605,5 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             }
         }
     }
+
 }

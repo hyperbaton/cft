@@ -7,7 +7,7 @@
   "satisfaction_threshold": 0.9,
   "frequency": 1.0,
   "hidden": false,
-  "structure_type": "cft:smithy",
+  "required_structure": "cft:smithy",
   "requires_usage": true,
   "search_radius": 64
 }

@@ -21,28 +21,28 @@ public class StructureNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(StructureNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(StructureNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(StructureNeed::isHidden),
-            Codec.STRING.fieldOf("structure_type").forGetter(StructureNeed::getStructureType),
+            Codec.STRING.fieldOf("required_structure").forGetter(StructureNeed::getRequiredStructure),
             Codec.BOOL.optionalFieldOf("requires_usage", false).forGetter(StructureNeed::isRequiresUsage),
             Codec.INT.optionalFieldOf("search_radius", 64).forGetter(StructureNeed::getSearchRadius),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(StructureNeed::getIcon)
     ).apply(instance, StructureNeed::new));
 
-    private final String structureType;
+    private final String requiredStructure;
     private final boolean requiresUsage;
     private final int searchRadius;
 
     public StructureNeed(String id, double damage, double damageThreshold, double providedHappiness,
                          double satisfactionThreshold, double frequency, boolean hidden,
-                         String structureType, boolean requiresUsage, int searchRadius,
+                         String requiredStructure, boolean requiresUsage, int searchRadius,
                          Optional<ResourceLocation> icon) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
-        this.structureType = structureType;
+        this.requiredStructure = requiredStructure;
         this.requiresUsage = requiresUsage;
         this.searchRadius = searchRadius;
     }
 
-    public String getStructureType() {
-        return structureType;
+    public String getRequiredStructure() {
+        return requiredStructure;
     }
 
     public boolean isRequiresUsage() {

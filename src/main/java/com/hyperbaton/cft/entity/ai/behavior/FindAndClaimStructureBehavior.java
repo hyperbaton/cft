@@ -20,7 +20,6 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
     private static final int MAX_SEARCHING_TIME = 2000;
 
     private int currentSearchingTime;
-    private String targetStructureTypeId;
 
     public FindAndClaimStructureBehavior() {
         super(ImmutableMap.of(CftMemoryModuleType.STRUCTURE_NEEDED.get(), MemoryStatus.VALUE_PRESENT));
@@ -33,16 +32,16 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void start(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
-        StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
+        xoonglin.getBrain().getMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get()).ifPresent(targetTypeId -> {
+            StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
 
-        Optional<Structure> nearest = findNearestClaimableStructure(xoonglin, data);
-
-        nearest.ifPresent(structure -> {
-            if (xoonglin.getNavigation().createPath(structure.getKeyBlockPos(), 0) != null) {
-                xoonglin.getBrain().setMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get(),
-                        structure.getKeyBlockPos());
-                targetStructureTypeId = structure.getStructureTypeId();
-            }
+            Optional<Structure> nearest = findNearestClaimableStructure(xoonglin, data, targetTypeId);
+            nearest.ifPresent(structure -> {
+                if (xoonglin.getNavigation().createPath(structure.getKeyBlockPos(), 0) != null) {
+                    xoonglin.getBrain().setMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get(),
+                            structure.getKeyBlockPos());
+                }
+            });
         });
 
         currentSearchingTime = 0;
@@ -58,20 +57,23 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
     protected void tick(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
         xoonglin.getBrain().getMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get()).ifPresent(pos -> {
             if (xoonglin.distanceToSqr(pos.getCenter()) < 10.0D) {
-                StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
-                data.getStructures().stream()
-                        .filter(s -> s.getKeyBlockPos().equals(pos))
-                        .filter(Structure::hasCapacity)
-                        .findFirst()
-                        .ifPresent(structure -> {
-                            structure.addUser(xoonglin.getUUID());
-                            xoonglin.assignStructure(structure.getStructureTypeId(), structure.getKeyBlockPos());
-                            xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get());
-                            xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
-                            data.setDirty();
-                            LOGGER.debug("Xoonglin {} claimed structure {} at {}",
-                                    xoonglin.getName().getString(), structure.getStructureTypeId(), pos);
-                        });
+                xoonglin.getBrain().getMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get()).ifPresent(targetTypeId -> {
+                    StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
+                    data.getStructures().stream()
+                            .filter(s -> s.getKeyBlockPos().equals(pos))
+                            .filter(s -> s.getStructureTypeId().equals(targetTypeId))
+                            .filter(Structure::hasCapacity)
+                            .findFirst()
+                            .ifPresent(structure -> {
+                                structure.addUser(xoonglin.getUUID());
+                                xoonglin.assignStructure(structure.getStructureTypeId(), structure.getKeyBlockPos());
+                                xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get());
+                                xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
+                                data.setDirty();
+                                LOGGER.debug("Xoonglin {} claimed structure {} at {}",
+                                        xoonglin.getName().getString(), structure.getStructureTypeId(), pos);
+                            });
+                });
             } else {
                 xoonglin.getNavigation().moveTo(xoonglin.getNavigation().createPath(pos, 1), 1);
             }
@@ -84,9 +86,10 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
         xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get());
     }
 
-    private Optional<Structure> findNearestClaimableStructure(XoonglinEntity xoonglin, StructuresData data) {
+    private Optional<Structure> findNearestClaimableStructure(XoonglinEntity xoonglin, StructuresData data, String targetTypeId) {
         BlockPos xoonglinPos = xoonglin.blockPosition();
         return data.getStructures().stream()
+                .filter(s -> s.getStructureTypeId().equals(targetTypeId))
                 .filter(Structure::hasCapacity)
                 .filter(s -> s.getLeaderId().equals(xoonglin.getLeaderId()))
                 .filter(s -> !s.isUser(xoonglin.getUUID()))

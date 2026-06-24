@@ -24,7 +24,7 @@ public class EnclosedBuildingDetector implements StructureDetector {
         Set<BlockPos> floorBlockSet = Sets.newHashSet();
         Set<BlockPos> floorPerimeterBlocks = Sets.newHashSet();
 
-        // No skip predicate — all blocks are validated through their HomeValidBlock entries
+        // No skip predicate — all blocks are validated through their ValidBlock entries
         Predicate<BlockState> noSkip = bs -> false;
 
         // Floor detection: start below the key block
@@ -118,10 +118,10 @@ public class EnclosedBuildingDetector implements StructureDetector {
 
         // Build block position groups
         Map<String, List<BlockPos>> blockPositions = new HashMap<>();
-        blockPositions.put("floor", new ArrayList<>(fullFloorBlocks));
-        blockPositions.put("wall", new ArrayList<>(wallBlockSet));
-        blockPositions.put("interior", new ArrayList<>(interiorBlockSet));
-        blockPositions.put("roof", new ArrayList<>(roofBlockSet));
+        blockPositions.put(EnclosedBuildingBlockGroup.FLOOR.getKey(), new ArrayList<>(fullFloorBlocks));
+        blockPositions.put(EnclosedBuildingBlockGroup.WALL.getKey(), new ArrayList<>(wallBlockSet));
+        blockPositions.put(EnclosedBuildingBlockGroup.INTERIOR.getKey(), new ArrayList<>(interiorBlockSet));
+        blockPositions.put(EnclosedBuildingBlockGroup.ROOF.getKey(), new ArrayList<>(roofBlockSet));
 
         Structure structure = new Structure(
                 keyBlockPos, containerPos, allBlocks.size(), leaderId,

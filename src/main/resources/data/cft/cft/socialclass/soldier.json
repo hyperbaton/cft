@@ -8,7 +8,8 @@
     "cft:flint_need",
     "cft:iron_sword_need",
     "cft:chicken_need",
-    "cft:soldier_home"
+    "cft:soldier_home",
+    "cft:smithy_access_need"
   ],
   "upgrades": [],
   "downgrades": [

@@ -11,7 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.Optional;
 
-public class HomeNeed extends Need{
+public class HomeNeed extends Need {
 
     public static final Codec<HomeNeed> HOME_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(HomeNeed::getId),
@@ -21,59 +21,21 @@ public class HomeNeed extends Need{
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(HomeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(HomeNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(HomeNeed::isHidden),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("floorBlocks").forGetter(HomeNeed::getFloorBlocks),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("wallBlocks").forGetter(HomeNeed::getWallBlocks),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("interiorBlocks").forGetter(HomeNeed::getInteriorBlocks),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("roofBlocks").forGetter(HomeNeed::getRoofBlocks),
+            Codec.STRING.fieldOf("required_structure").forGetter(HomeNeed::getRequiredStructure),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(HomeNeed::getIcon)
     ).apply(instance, HomeNeed::new));
 
-    List<HomeValidBlock> floorBlocks;
-    List<HomeValidBlock> wallBlocks;
-    List<HomeValidBlock> interiorBlocks;
-    List<HomeValidBlock> roofBlocks;
+    private final String requiredStructure;
+
     public HomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
                     double satisfactionThreshold, double frequency, boolean hidden,
-                    List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks,
-                    List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks,
-                    Optional<ResourceLocation> icon) {
+                    String requiredStructure, Optional<ResourceLocation> icon) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
-        this.floorBlocks = floorBlocks;
-        this.wallBlocks = wallBlocks;
-        this.interiorBlocks = interiorBlocks;
-        this.roofBlocks = roofBlocks;
+        this.requiredStructure = requiredStructure;
     }
 
-    public List<HomeValidBlock> getFloorBlocks() {
-        return floorBlocks;
-    }
-
-    public void setFloorBlocks(List<HomeValidBlock> floorBlocks) {
-        this.floorBlocks = floorBlocks;
-    }
-
-    public List<HomeValidBlock> getWallBlocks() {
-        return wallBlocks;
-    }
-
-    public void setWallBlocks(List<HomeValidBlock> wallBlocks) {
-        this.wallBlocks = wallBlocks;
-    }
-
-    public List<HomeValidBlock> getInteriorBlocks() {
-        return interiorBlocks;
-    }
-
-    public void setInteriorBlocks(List<HomeValidBlock> interiorBlocks) {
-        this.interiorBlocks = interiorBlocks;
-    }
-
-    public List<HomeValidBlock> getRoofBlocks() {
-        return roofBlocks;
-    }
-
-    public void setRoofBlocks(List<HomeValidBlock> roofBlocks) {
-        this.roofBlocks = roofBlocks;
+    public String getRequiredStructure() {
+        return requiredStructure;
     }
 
     @Override
@@ -87,7 +49,7 @@ public class HomeNeed extends Need{
     }
 
     @Override
-    public Codec<?extends Need> needType() {
+    public Codec<? extends Need> needType() {
         return CftRegistry.HOME_NEED.get();
     }
 

@@ -9,6 +9,7 @@ import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.type.EnclosedBuildingStructureType;
+import com.hyperbaton.cft.structure.type.HouseStructureType;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -73,6 +74,9 @@ public class CftRegistry {
 
     public static final DeferredHolder<Codec<? extends StructureType>, Codec<EnclosedBuildingStructureType>> ENCLOSED_BUILDING_STRUCTURE_TYPE =
             STRUCTURE_TYPE_CODECS.register("enclosed_building", () -> EnclosedBuildingStructureType.CODEC);
+
+    public static final DeferredHolder<Codec<? extends StructureType>, Codec<HouseStructureType>> HOUSE_STRUCTURE_TYPE =
+            STRUCTURE_TYPE_CODECS.register("house", () -> HouseStructureType.CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);

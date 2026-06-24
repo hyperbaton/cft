@@ -3,7 +3,6 @@ package com.hyperbaton.cft.structure;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.need.HomeValidBlock;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -24,7 +23,7 @@ public class BuildingDetectionUtils {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static boolean findFloor(Level level, BlockPos testPos, Set<BlockPos> floorBlocks,
-                                    Set<BlockPos> floorPerimeterBlocks, List<HomeValidBlock> validBlocks,
+                                    Set<BlockPos> floorPerimeterBlocks, List<ValidBlock> validBlocks,
                                     int maxFloorSize) {
         if (floorBlocks.size() + floorPerimeterBlocks.size() > maxFloorSize) {
             return false;
@@ -72,7 +71,7 @@ public class BuildingDetectionUtils {
     }
 
     public static boolean findWalls(Level level, Set<BlockPos> floorPerimeterBlocks, Set<BlockPos> wallBlocks,
-                                    Set<BlockPos> roofCandidateBlocks, List<HomeValidBlock> validBlocks,
+                                    Set<BlockPos> roofCandidateBlocks, List<ValidBlock> validBlocks,
                                     Predicate<BlockState> passthrough, int maxHeight) {
         floorPerimeterBlocks.forEach(perimeterBlockPos -> {
             BlockPos testPos = perimeterBlockPos.above();
@@ -86,14 +85,14 @@ public class BuildingDetectionUtils {
     }
 
     public static boolean findInterior(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> interiorBlocks,
-                                       Set<BlockPos> roofCandidateBlocks, List<HomeValidBlock> validBlocks,
+                                       Set<BlockPos> roofCandidateBlocks, List<ValidBlock> validBlocks,
                                        int fullFloorSize, int maxHeight) {
         return findInterior(level, floorBlocks, interiorBlocks, roofCandidateBlocks, validBlocks,
                 fullFloorSize, maxHeight, bs -> false);
     }
 
     public static boolean findInterior(Level level, Set<BlockPos> floorBlocks, Set<BlockPos> interiorBlocks,
-                                       Set<BlockPos> roofCandidateBlocks, List<HomeValidBlock> validBlocks,
+                                       Set<BlockPos> roofCandidateBlocks, List<ValidBlock> validBlocks,
                                        int fullFloorSize, int maxHeight, Predicate<BlockState> passthrough) {
         floorBlocks.forEach(floorPos -> {
             BlockPos testPos = floorPos.above();
@@ -106,7 +105,7 @@ public class BuildingDetectionUtils {
         return fullFloorSize == roofCandidateBlocks.size();
     }
 
-    public static boolean verifyRoof(Level level, Set<BlockPos> roofCandidateBlocks, List<HomeValidBlock> validBlocks) {
+    public static boolean verifyRoof(Level level, Set<BlockPos> roofCandidateBlocks, List<ValidBlock> validBlocks) {
         return roofCandidateBlocks.stream()
                 .allMatch(roofBlock -> isValidBlock(level.getBlockState(roofBlock), validBlocks));
     }
@@ -131,22 +130,22 @@ public class BuildingDetectionUtils {
     }
 
     public static List<String> checkValidBlocks(ServerLevel level, Set<BlockPos> blockList,
-                                                List<HomeValidBlock> validBlocks,
+                                                List<ValidBlock> validBlocks,
                                                 Predicate<BlockState> skipPredicate) {
-        List<Pair<HomeValidBlock, Integer>> classifiedBlocks = blockList.stream()
+        List<Pair<ValidBlock, Integer>> classifiedBlocks = blockList.stream()
                 .map(level::getBlockState)
                 .filter(blockState -> !skipPredicate.test(blockState))
                 .collect(Collectors.groupingBy(
                         blockState -> validBlocks.stream()
                                 .filter(validBlock -> isValidBlock(blockState, validBlock))
                                 .findFirst()
-                                .orElseThrow(() -> new IllegalStateException("Block not matching any HomeValidBlock"))
+                                .orElseThrow(() -> new IllegalStateException("Block not matching any ValidBlock"))
                 ))
                 .entrySet().stream()
                 .map(entry -> new Pair<>(entry.getKey(), entry.getValue().size()))
                 .toList();
 
-        List<Pair<HomeValidBlock, Integer>> notFoundValidBlocks = validBlocks.stream()
+        List<Pair<ValidBlock, Integer>> notFoundValidBlocks = validBlocks.stream()
                 .filter(validBlock -> classifiedBlocks.stream()
                         .map(Pair::getA)
                         .noneMatch(classified -> classified.equals(validBlock)))
@@ -159,26 +158,26 @@ public class BuildingDetectionUtils {
                 .toList();
     }
 
-    public static boolean isValidBlock(BlockState blockState, List<HomeValidBlock> validBlocks) {
+    public static boolean isValidBlock(BlockState blockState, List<ValidBlock> validBlocks) {
         return validBlocks.stream().anyMatch(validBlock -> isValidBlock(blockState, validBlock));
     }
 
-    public static boolean isValidBlock(BlockState blockState, HomeValidBlock validBlock) {
+    public static boolean isValidBlock(BlockState blockState, ValidBlock validBlock) {
         if (validBlock.getTagBlock() != null) {
             return blockState.is(validBlock.getTagBlock());
         } else if (validBlock.getBlock() != null) {
             return blockState.is(validBlock.getBlock());
         } else {
-            throw new IllegalArgumentException("HomeValidBlock doesn't have a valid block nor tag");
+            throw new IllegalArgumentException("ValidBlock doesn't have a valid block nor tag");
         }
     }
 
-    private static boolean isWallBlock(BlockState blockState, List<HomeValidBlock> validBlocks,
+    private static boolean isWallBlock(BlockState blockState, List<ValidBlock> validBlocks,
                                        Predicate<BlockState> passthrough) {
         return passthrough.test(blockState) || isValidBlock(blockState, validBlocks);
     }
 
-    private static boolean isInteriorBlock(BlockState blockState, List<HomeValidBlock> validBlocks,
+    private static boolean isInteriorBlock(BlockState blockState, List<ValidBlock> validBlocks,
                                               Predicate<BlockState> passthrough) {
         return passthrough.test(blockState) || isValidBlock(blockState, validBlocks);
     }
@@ -199,7 +198,7 @@ public class BuildingDetectionUtils {
         return interiorBlocks.contains(pos) || wallBlocks.contains(pos) || roofBlocks.contains(pos);
     }
 
-    private static int countFloorNeighbours(Level level, BlockPos testPos, List<HomeValidBlock> validBlocks) {
+    private static int countFloorNeighbours(Level level, BlockPos testPos, List<ValidBlock> validBlocks) {
         int count = 0;
         if (isValidBlock(level.getBlockState(testPos.north()), validBlocks)) count++;
         if (isValidBlock(level.getBlockState(testPos.south()), validBlocks)) count++;
@@ -234,7 +233,7 @@ public class BuildingDetectionUtils {
         return count;
     }
 
-    private static String satisfiesValidityConditions(HomeValidBlock validBlock, int subsetSize, int totalSize) {
+    private static String satisfiesValidityConditions(ValidBlock validBlock, int subsetSize, int totalSize) {
         if (subsetSize < validBlock.getMinQuantity()) {
             return String.format("Found %d blocks of type %s, but the minimum required is %d",
                     subsetSize, getBlockDescription(validBlock), validBlock.getMinQuantity());
@@ -257,7 +256,7 @@ public class BuildingDetectionUtils {
         return null;
     }
 
-    private static String getBlockDescription(HomeValidBlock validBlock) {
+    private static String getBlockDescription(ValidBlock validBlock) {
         return validBlock.getBlock() != null
                 ? validBlock.getBlock().getDescriptionId()
                 : validBlock.getTagBlock().location().toShortLanguageKey();

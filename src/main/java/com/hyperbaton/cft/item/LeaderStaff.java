@@ -2,9 +2,7 @@ package com.hyperbaton.cft.item;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
-import com.hyperbaton.cft.network.HomeDetectionPacket;
 import com.hyperbaton.cft.network.NeedSatisfactionData;
 import com.hyperbaton.cft.network.StructureDetectionPacket;
 import com.hyperbaton.cft.structure.StructureDetectionReasons;
@@ -12,15 +10,11 @@ import com.hyperbaton.cft.structure.StructureDetectionResult;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.JobUtil;
-import com.hyperbaton.cft.structure.home.HomeDetection;
-import com.hyperbaton.cft.structure.home.HomeDetectionReasons;
-import com.hyperbaton.cft.world.HomesData;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -48,32 +42,22 @@ public class LeaderStaff extends Item {
             Player player = pContext.getPlayer();
             ServerLevel serverLevel = (ServerLevel) pContext.getLevel();
 
-            if (clickedOnDoor(pContext)) {
-                HomeDetectionPacket foundHouseMessage;
-                BlockPos positionClicked = pContext.getClickedPos();
-
-                DoubleBlockHalf halfOfDoor = pContext.getLevel().getBlockState(pContext.getClickedPos()).getValue(DoorBlock.HALF);
-                if (halfOfDoor.equals(DoubleBlockHalf.UPPER)) {
-                    positionClicked = positionClicked.below();
+            if (clickedOnKeyBlock(pContext)) {
+                BlockPos clickedPos = pContext.getClickedPos();
+                BlockState clickedState = serverLevel.getBlockState(clickedPos);
+                if (clickedState.getBlock() instanceof DoorBlock) {
+                    DoubleBlockHalf half = clickedState.getValue(DoorBlock.HALF);
+                    if (half == DoubleBlockHalf.UPPER) {
+                        clickedPos = clickedPos.below();
+                    }
                 }
 
-                HomesData homesData = serverLevel.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
-                BlockPos finalPositionClicked = positionClicked;
-                if (homesData.getHomes().stream().anyMatch(home -> home.getEntrance().equals(finalPositionClicked))) {
-                    foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.ALREADY_REGISTERED, Collections.emptyList());
-                } else {
-                    foundHouseMessage = new HomeDetection().detectAnyHouse(positionClicked, serverLevel, player.getUUID());
-                }
-
-                PacketDistributor.sendToPlayer((ServerPlayer) player, foundHouseMessage);
-
-            } else if (clickedOnKeyBlock(pContext)) {
-                StructureDetectionPacket structureMessage = detectStructure(pContext.getClickedPos(), serverLevel, player.getUUID());
+                StructureDetectionPacket structureMessage = detectStructure(clickedPos, serverLevel, player.getUUID());
                 PacketDistributor.sendToPlayer((ServerPlayer) player, structureMessage);
-
             } else {
-                HomeDetectionPacket foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.NOT_A_DOOR, Collections.emptyList());
-                PacketDistributor.sendToPlayer((ServerPlayer) player, foundHouseMessage);
+                StructureDetectionPacket message = new StructureDetectionPacket(
+                        false, "", StructureDetectionReasons.NOT_A_KEY_BLOCK, Collections.emptyList());
+                PacketDistributor.sendToPlayer((ServerPlayer) player, message);
             }
         }
 
@@ -122,10 +106,6 @@ public class LeaderStaff extends Item {
     }
 
 
-    private boolean clickedOnDoor(UseOnContext pContext) {
-        return pContext.getLevel().getBlockState(pContext.getClickedPos()).is(BlockTags.DOORS);
-    }
-
     private boolean clickedOnKeyBlock(UseOnContext pContext) {
         if (CftRegistry.STRUCTURES == null) return false;
         BlockState clickedState = pContext.getLevel().getBlockState(pContext.getClickedPos());
@@ -151,6 +131,7 @@ public class LeaderStaff extends Item {
             StructureDetectionResult result = structureType.createDetector().detect(clickedPos, level, leaderId, structureType);
             if (result.success()) {
                 structuresData.addStructure(result.structure());
+
                 return new StructureDetectionPacket(true, structureType.getId(),
                         StructureDetectionReasons.STRUCTURE_DETECTED, Collections.emptyList());
             }
@@ -165,4 +146,5 @@ public class LeaderStaff extends Item {
 
         return new StructureDetectionPacket(false, "", StructureDetectionReasons.NOT_A_KEY_BLOCK, Collections.emptyList());
     }
+
 }

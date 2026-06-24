@@ -41,9 +41,9 @@ public class Structure {
         this.blockPositions = blockPositions;
     }
 
-    private Structure(BlockPos keyBlockPos, BlockPos containerPos, int size, UUID leaderId,
-                      String structureTypeId, int maxUsers, List<UUID> userIds,
-                      Map<String, List<BlockPos>> blockPositions) {
+    protected Structure(BlockPos keyBlockPos, BlockPos containerPos, int size, UUID leaderId,
+                        String structureTypeId, int maxUsers, List<UUID> userIds,
+                        Map<String, List<BlockPos>> blockPositions) {
         this.keyBlockPos = keyBlockPos;
         this.containerPos = containerPos;
         this.size = size;

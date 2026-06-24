@@ -6,40 +6,5 @@
   "provided_happiness": 10,
   "satisfaction_threshold": 0.9,
   "frequency": 1.0,
-  "floorBlocks": [
-    {
-      "block": "minecraft:stone",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
-    }
-  ],
-  "wallBlocks": [
-    {
-      "block": "minecraft:cobblestone",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
-    }
-  ],
-  "interiorBlocks": [
-    {
-      "block": "minecraft:air",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
-    }
-  ],
-  "roofBlocks": [
-    {
-      "block": "minecraft:stone_bricks",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
-    }
-  ]
+  "required_structure": "cft:citizen_house"
 }

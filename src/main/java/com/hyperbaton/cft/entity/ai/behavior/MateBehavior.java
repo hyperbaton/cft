@@ -4,8 +4,9 @@ import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.spawner.XoonglinSpawner;
-import com.hyperbaton.cft.structure.home.XoonglinHome;
-import com.hyperbaton.cft.world.HomesData;
+import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -67,8 +68,7 @@ public class MateBehavior extends Behavior<XoonglinEntity> {
                         .distanceTo(mate.get().getEyePosition()) <= MIN_DISTANCE_FOR_MATING)) {
             return;
         }
-        Optional<XoonglinHome> home = findAvailableHome(level, xoonglin);
-        // Only mate if the child will have a home to go to.
+        Optional<Structure> home = findAvailableHome(level, xoonglin);
         if (home.isEmpty()) {
             return;
         }
@@ -76,7 +76,7 @@ public class MateBehavior extends Behavior<XoonglinEntity> {
         if (offspring != null) {
             offspring.setBaby(true);
             XoonglinSpawner.updateSpawnedXoonglin(offspring, home.get(), xoonglin.getSocialClass(), xoonglin.getLeaderId());
-            level.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData").setDirty();
+            level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData").setDirty();
         }
         xoonglin.resetMatingDelay();
         xoonglin.getBrain().eraseMemory(CftMemoryModuleType.CAN_MATE.get());
@@ -99,13 +99,13 @@ public class MateBehavior extends Behavior<XoonglinEntity> {
         }
     }
 
-    private Optional<XoonglinHome> findAvailableHome(ServerLevel serverLevel, XoonglinEntity xoonglin) {
-        return serverLevel.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData")
-                .getHomes().stream()
-                .filter(home -> home.getLeaderId().equals(xoonglin.getLeaderId()) &&
-                        home.getOwnerId() == null &&
-                        xoonglin.getSocialClass().getNeeds().contains(home.getSatisfiedNeed()))
-                .min(Comparator.comparingDouble(home -> Vec3.atCenterOf(home.getEntrance()).distanceToSqr(xoonglin.getEyePosition())));
+    private Optional<Structure> findAvailableHome(ServerLevel serverLevel, XoonglinEntity xoonglin) {
+        return serverLevel.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData")
+                .getStructures().stream()
+                .filter(Structure::hasCapacity)
+                .filter(s -> s.getLeaderId().equals(xoonglin.getLeaderId()))
+                .filter(s -> NeedUtils.classMeetsStructureType(xoonglin.getSocialClass(), s.getStructureTypeId()))
+                .min(Comparator.comparingDouble(s -> Vec3.atCenterOf(s.getKeyBlockPos()).distanceToSqr(xoonglin.getEyePosition())));
     }
 
     /**

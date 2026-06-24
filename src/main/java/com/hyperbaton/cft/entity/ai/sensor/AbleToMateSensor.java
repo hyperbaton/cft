@@ -3,7 +3,9 @@ package com.hyperbaton.cft.entity.ai.sensor;
 import com.google.common.collect.ImmutableSet;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
-import com.hyperbaton.cft.world.HomesData;
+import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
@@ -27,10 +29,10 @@ public class AbleToMateSensor extends Sensor<XoonglinEntity> {
     }
 
     private boolean thereIsHomeAvailable(ServerLevel serverLevel, XoonglinEntity xoonglin) {
-        return serverLevel.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData")
-                .getHomes().stream()
-                .anyMatch(home -> home.getLeaderId().equals(xoonglin.getLeaderId()) &&
-                        home.getOwnerId() == null &&
-                        xoonglin.getSocialClass().getNeeds().contains(home.getSatisfiedNeed()));
+        return serverLevel.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData")
+                .getStructures().stream()
+                .filter(Structure::hasCapacity)
+                .filter(s -> s.getLeaderId().equals(xoonglin.getLeaderId()))
+                .anyMatch(s -> NeedUtils.classMeetsStructureType(xoonglin.getSocialClass(), s.getStructureTypeId()));
     }
 }

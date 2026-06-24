@@ -100,5 +100,12 @@
   "job.cft.guard_job": "Guard",
   "gui.cft.need_type.structure": "Structure",
   "cft:smithy_access_need": "Smithy Access",
-  "cft:smithy": "Smithy"
+  "cft:smithy": "Smithy",
+  "cft:settler_house": "Settler's Home",
+  "cft:citizen_house": "Citizen's Home",
+  "cft:artisan_house": "Artisan's Home",
+  "cft:soldier_house": "Soldier's Barracks",
+  "cft:patrician_house": "Patrician's Villa",
+  "cft:noble_house": "Noble's Manor",
+  "cft:mountain_dweller_house": "Mountain Dweller's Hut"
 }

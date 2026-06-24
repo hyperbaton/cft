@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.structure.type;
 
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.need.HomeValidBlock;
+import com.hyperbaton.cft.structure.ValidBlock;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.detector.EnclosedBuildingDetector;
 import com.hyperbaton.cft.structure.detector.StructureDetector;
@@ -24,21 +24,21 @@ public class EnclosedBuildingStructureType extends StructureType {
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("floorBlocks").forGetter(EnclosedBuildingStructureType::getFloorBlocks),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("wallBlocks").forGetter(EnclosedBuildingStructureType::getWallBlocks),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("interiorBlocks").forGetter(EnclosedBuildingStructureType::getInteriorBlocks),
-            HomeValidBlock.HOME_VALID_BLOCK_CODEC.listOf().fieldOf("roofBlocks").forGetter(EnclosedBuildingStructureType::getRoofBlocks)
+            ValidBlock.CODEC.listOf().fieldOf("floorBlocks").forGetter(EnclosedBuildingStructureType::getFloorBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("wallBlocks").forGetter(EnclosedBuildingStructureType::getWallBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("interiorBlocks").forGetter(EnclosedBuildingStructureType::getInteriorBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("roofBlocks").forGetter(EnclosedBuildingStructureType::getRoofBlocks)
     ).apply(inst, EnclosedBuildingStructureType::new));
 
-    private final List<HomeValidBlock> floorBlocks;
-    private final List<HomeValidBlock> wallBlocks;
-    private final List<HomeValidBlock> interiorBlocks;
-    private final List<HomeValidBlock> roofBlocks;
+    private final List<ValidBlock> floorBlocks;
+    private final List<ValidBlock> wallBlocks;
+    private final List<ValidBlock> interiorBlocks;
+    private final List<ValidBlock> roofBlocks;
 
     public EnclosedBuildingStructureType(String id, Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
                                          int maxUsers, boolean requiresContainer, int priority,
-                                         List<HomeValidBlock> floorBlocks, List<HomeValidBlock> wallBlocks,
-                                         List<HomeValidBlock> interiorBlocks, List<HomeValidBlock> roofBlocks) {
+                                         List<ValidBlock> floorBlocks, List<ValidBlock> wallBlocks,
+                                         List<ValidBlock> interiorBlocks, List<ValidBlock> roofBlocks) {
         super(id, keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
         this.floorBlocks = floorBlocks;
         this.wallBlocks = wallBlocks;
@@ -56,19 +56,19 @@ public class EnclosedBuildingStructureType extends StructureType {
         return CftRegistry.ENCLOSED_BUILDING_STRUCTURE_TYPE.get();
     }
 
-    public List<HomeValidBlock> getFloorBlocks() {
+    public List<ValidBlock> getFloorBlocks() {
         return floorBlocks;
     }
 
-    public List<HomeValidBlock> getWallBlocks() {
+    public List<ValidBlock> getWallBlocks() {
         return wallBlocks;
     }
 
-    public List<HomeValidBlock> getInteriorBlocks() {
+    public List<ValidBlock> getInteriorBlocks() {
         return interiorBlocks;
     }
 
-    public List<HomeValidBlock> getRoofBlocks() {
+    public List<ValidBlock> getRoofBlocks() {
         return roofBlocks;
     }
 }

@@ -20,12 +20,6 @@ public class CftPacketHandler {
                 CheckOnXoonglinPacket::handle
         );
 
-        registrar.playToClient(
-                HomeDetectionPacket.TYPE,
-                HomeDetectionPacket.STREAM_CODEC,
-                HomeDetectionPacket::handle
-        );
-
         registrar.playToServer(
                 RequestXoonglinInfoUpdatePacket.TYPE,
                 RequestXoonglinInfoUpdatePacket.STREAM_CODEC,
@@ -48,18 +42,6 @@ public class CftPacketHandler {
                 PopulationUpdatePacket.TYPE,
                 PopulationUpdatePacket.STREAM_CODEC,
                 PopulationUpdatePacket::handle
-        );
-
-        registrar.playToServer(
-                RequestHomeLabelsPacket.TYPE,
-                RequestHomeLabelsPacket.STREAM_CODEC,
-                RequestHomeLabelsPacket::handle
-        );
-
-        registrar.playToClient(
-                HomeLabelsPacket.TYPE,
-                HomeLabelsPacket.STREAM_CODEC,
-                HomeLabelsPacket::handle
         );
 
         registrar.playToClient(

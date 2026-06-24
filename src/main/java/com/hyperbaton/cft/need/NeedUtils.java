@@ -18,4 +18,14 @@ public class NeedUtils {
                 .map(Need::createSatisfier)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
+
+    public static boolean classMeetsStructureType(SocialClass socialClass, String structureTypeId) {
+        if (CftRegistry.NEEDS == null) return false;
+        return socialClass.getNeeds().stream()
+                .map(needId -> CftRegistry.NEEDS.get(ResourceLocation.parse(needId)))
+                .filter(Objects::nonNull)
+                .filter(need -> need instanceof HomeNeed)
+                .map(need -> (HomeNeed) need)
+                .anyMatch(homeNeed -> homeNeed.getRequiredStructure().equals(structureTypeId));
+    }
 }

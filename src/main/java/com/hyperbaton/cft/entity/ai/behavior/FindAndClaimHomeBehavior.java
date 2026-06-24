@@ -5,8 +5,9 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.need.HomeNeed;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
-import com.hyperbaton.cft.structure.home.XoonglinHome;
-import com.hyperbaton.cft.world.HomesData;
+import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.structure.home.HouseStructure;
+import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +25,6 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int MAX_SEARCHING_TIME = 2000;
-    // A timer to limit how long the xoonglins spends looking for a home
     private int currentSearchingTime;
 
     public FindAndClaimHomeBehavior() {
@@ -33,23 +33,19 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        LOGGER.trace("Starting behavior for finding a home");
-        // Only start if the Xoonglin doesn't have a home
         return entity.getHome() == null;
     }
 
     @Override
     protected void start(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
-        HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
+        StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
 
-        Optional<XoonglinHome> nearestHome = findNearestHome(xoonglin.blockPosition(), xoonglin.getLeaderId(), homesData, getHomeNeed(xoonglin.getSocialClass().getNeeds()));
+        String targetStructureTypeId = getTargetStructureTypeId(xoonglin);
+        Optional<Structure> nearest = findNearestAvailableHouse(xoonglin.blockPosition(), xoonglin.getLeaderId(), data, targetStructureTypeId);
 
-        nearestHome.ifPresent(home -> {
-            if (xoonglin.getNavigation().createPath(home.getEntrance(), 0) != null) {
-                xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get(), home.getEntrance());
-            } else {
-                // Forget unreachable home
-                homesData.getHomes().remove(home);
+        nearest.ifPresent(structure -> {
+            if (xoonglin.getNavigation().createPath(structure.getKeyBlockPos(), 0) != null) {
+                xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get(), structure.getKeyBlockPos());
             }
         });
 
@@ -66,22 +62,22 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
     protected void tick(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
         xoonglin.getBrain().getMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get()).ifPresent(pos -> {
             if (xoonglin.distanceToSqr(pos.getCenter()) < 10.0D) {
-                // If reached, claim the home
-                HomesData homesData = level.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
-                homesData.getHomes().stream()
-                        .filter(home -> home.getEntrance().equals(pos))
-                        .filter(home -> home.getOwnerId() == null)
+                StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
+                data.getStructures().stream()
+                        .filter(s -> s.getKeyBlockPos().equals(pos))
+                        .filter(Structure::hasCapacity)
                         .findFirst()
-                        .ifPresent(home -> {
-                            home.setOwnerId(xoonglin.getUUID());
-                            xoonglin.setHome(home);
-                            xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), home.getContainerPos());
+                        .ifPresent(structure -> {
+                            structure.addUser(xoonglin.getUUID());
+                            xoonglin.setHome(HouseStructure.of(structure));
+                            xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), structure.getContainerPos());
                             xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
-                            xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), false);
-                            homesData.setDirty();
+                            xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_NEEDED.get());
+                            data.setDirty();
+                            LOGGER.debug("Xoonglin {} claimed home {} at {}",
+                                    xoonglin.getName().getString(), structure.getStructureTypeId(), pos);
                         });
             } else {
-                // Continue navigation to the target home
                 xoonglin.getNavigation().moveTo(xoonglin.getNavigation().createPath(pos, 1), 1);
             }
         });
@@ -93,18 +89,19 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
         xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
     }
 
-    private Optional<XoonglinHome> findNearestHome(BlockPos blockPos, UUID leaderId, HomesData homesData, HomeNeed homeNeed) {
-        return homesData.getHomes().stream()
-                .filter(home -> home.getOwnerId() == null)  // Empty homes
-                .filter(home -> home.getLeaderId().equals(leaderId))    // Owned by the leader of the mob
-                .filter(home -> home.getSatisfiedNeed().equals(homeNeed.getId()))   // That satisfy their need
-                .min(Comparator.comparingInt(home -> home.getEntrance().distManhattan(blockPos)));  // Nearest one
+    private Optional<Structure> findNearestAvailableHouse(BlockPos blockPos, UUID leaderId, StructuresData data, String targetStructureTypeId) {
+        return data.getStructures().stream()
+                .filter(Structure::hasCapacity)
+                .filter(s -> s.getLeaderId().equals(leaderId))
+                .filter(s -> s.getStructureTypeId().equals(targetStructureTypeId))
+                .min(Comparator.comparingInt(s -> s.getKeyBlockPos().distManhattan(blockPos)));
     }
 
-    private HomeNeed getHomeNeed(List<String> needs) {
-        return (HomeNeed) needs.stream()
+    private String getTargetStructureTypeId(XoonglinEntity xoonglin) {
+        HomeNeed homeNeed = (HomeNeed) xoonglin.getSocialClass().getNeeds().stream()
                 .map(need -> CftRegistry.NEEDS.get(ResourceLocation.parse(need)))
                 .filter(need -> need instanceof HomeNeed)
                 .findFirst().orElseThrow();
+        return homeNeed.getRequiredStructure();
     }
 }
