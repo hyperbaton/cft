@@ -61,6 +61,24 @@ public class CftPacketHandler {
                 HomeLabelsPacket.STREAM_CODEC,
                 HomeLabelsPacket::handle
         );
+
+        registrar.playToClient(
+                StructureDetectionPacket.TYPE,
+                StructureDetectionPacket.STREAM_CODEC,
+                StructureDetectionPacket::handle
+        );
+
+        registrar.playToServer(
+                RequestStructureLabelsPacket.TYPE,
+                RequestStructureLabelsPacket.STREAM_CODEC,
+                RequestStructureLabelsPacket::handle
+        );
+
+        registrar.playToClient(
+                StructureLabelsPacket.TYPE,
+                StructureLabelsPacket.STREAM_CODEC,
+                StructureLabelsPacket::handle
+        );
     }
 
     public static void sendToServer(Object message) {

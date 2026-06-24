@@ -7,6 +7,8 @@ import com.hyperbaton.cft.job.HomeArtisanJob;
 import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
+import com.hyperbaton.cft.structure.StructureType;
+import com.hyperbaton.cft.structure.type.EnclosedBuildingStructureType;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -28,12 +30,16 @@ public class CftRegistry {
     public static Registry<Need> NEEDS;
     public static Registry<SocialClass> SOCIAL_CLASSES;
     public static Registry<Job> JOBS;
+    public static Registry<StructureType> STRUCTURES;
 
     public static final Registry<Codec<? extends Need>> NEEDS_CODEC_REGISTRY =
             new RegistryBuilder<>(CftDatapackRegistryEvents.NEED_CODEC_KEY).create();
 
     public static final Registry<Codec<? extends Job>> JOBS_CODEC_REGISTRY =
             new RegistryBuilder<>(CftDatapackRegistryEvents.JOB_CODEC_KEY).create();
+
+    public static final Registry<Codec<? extends StructureType>> STRUCTURE_TYPE_CODEC_REGISTRY =
+            new RegistryBuilder<>(CftDatapackRegistryEvents.STRUCTURE_TYPE_CODEC_KEY).create();
 
     public static final DeferredRegister<Codec<? extends Need>> NEEDS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.NEED_CODEC_KEY, CftMod.MOD_ID);
@@ -48,6 +54,7 @@ public class CftRegistry {
     public static final DeferredHolder<Codec<? extends Need>, Codec<LightingNeed>> LIGHTING_NEED = NEEDS_CODEC.register("lighting", () -> LightingNeed.LIGHTING_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<PetNeed>> PET_NEED = NEEDS_CODEC.register("pet", () -> PetNeed.PET_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<DecorationNeed>> DECORATION_NEED = NEEDS_CODEC.register("decoration", () -> DecorationNeed.DECORATION_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<StructureNeed>> STRUCTURE_NEED = NEEDS_CODEC.register("structure", () -> StructureNeed.STRUCTURE_NEED_CODEC);
 
     public static final DeferredRegister<Codec<? extends Job>> JOBS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.JOB_CODEC_KEY, CftMod.MOD_ID);
@@ -61,6 +68,12 @@ public class CftRegistry {
     public static final DeferredHolder<Codec<? extends Job>, Codec<GuardJob>> GUARD_JOB =
             JOBS_CODEC.register("guard", () -> GuardJob.CODEC);
 
+    public static final DeferredRegister<Codec<? extends StructureType>> STRUCTURE_TYPE_CODECS =
+            DeferredRegister.create(CftDatapackRegistryEvents.STRUCTURE_TYPE_CODEC_KEY, CftMod.MOD_ID);
+
+    public static final DeferredHolder<Codec<? extends StructureType>, Codec<EnclosedBuildingStructureType>> ENCLOSED_BUILDING_STRUCTURE_TYPE =
+            STRUCTURE_TYPE_CODECS.register("enclosed_building", () -> EnclosedBuildingStructureType.CODEC);
+
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);
     }
@@ -71,5 +84,9 @@ public class CftRegistry {
 
     public static Registry<Job> getJobsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.JOB_KEY);
+    }
+
+    public static Registry<StructureType> getStructureTypesRegistry(RegistryAccess registryAccess) {
+        return registryAccess.registryOrThrow(CftDatapackRegistryEvents.STRUCTURE_TYPE_KEY);
     }
 }

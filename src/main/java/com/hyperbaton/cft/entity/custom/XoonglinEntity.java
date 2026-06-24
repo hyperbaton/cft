@@ -17,12 +17,16 @@ import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
 import com.hyperbaton.cft.socialclass.SocialStructureHelper;
 import com.hyperbaton.cft.sound.CftSounds;
+import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.home.XoonglinHome;
 import com.hyperbaton.cft.world.HomesData;
+import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -89,6 +93,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private ResourceLocation jobId;
     private final JobState jobState = new JobState();
 
+    private final Map<String, BlockPos> assignedStructurePositions = new HashMap<>();
+
     private int satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
     private int matingDelay = CftConfig.XOONGLIN_MATING_COOLDOWN.get();
 
@@ -100,6 +106,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private static final String KEY_HAPPINESS = "happiness";
     public static final String KEY_JOB_ID = "jobId";
     public static final String KEY_JOB_STATE = "jobState";
+    private static final String KEY_ASSIGNED_STRUCTURES = "assignedStructures";
 
     @Override
     public void tick() {
@@ -163,7 +170,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GATHER.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_GUARD.get())) {
+                || brain.hasMemoryValue(CftMemoryModuleType.MUST_GUARD.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get())) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
         } else if (brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).isPresent() &&
                 brain.getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).isPresent()) {
@@ -243,6 +251,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             ).findFirst();
             mobHome.ifPresent(xoonglinHome -> xoonglinHome.setOwnerId(null));
             homesData.setDirty();
+
+            removeFromAllStructures();
         }
         super.die(pDamageSource);
     }
@@ -367,6 +377,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
             this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
         }
+        removeFromAllStructures();
     }
 
     public void applyClassMaxHealth() {
@@ -375,6 +386,33 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (this.getHealth() > this.getMaxHealth()) {
             this.setHealth(this.getMaxHealth());
         }
+    }
+
+    private void removeFromAllStructures() {
+        if (this.level().isClientSide) return;
+        StructuresData structuresData = ((ServerLevel) this.level()).getDataStorage()
+                .computeIfAbsent(StructuresData.factory(), "structuresData");
+        for (Structure structure : structuresData.getStructures()) {
+            structure.removeUser(this.getUUID());
+        }
+        structuresData.setDirty();
+        assignedStructurePositions.clear();
+    }
+
+    public Map<String, BlockPos> getAssignedStructurePositions() {
+        return assignedStructurePositions;
+    }
+
+    public void assignStructure(String structureTypeId, BlockPos keyBlockPos) {
+        assignedStructurePositions.put(structureTypeId, keyBlockPos);
+    }
+
+    public void unassignStructure(String structureTypeId) {
+        assignedStructurePositions.remove(structureTypeId);
+    }
+
+    public BlockPos getAssignedStructurePos(String structureTypeId) {
+        return assignedStructurePositions.get(structureTypeId);
     }
 
     private void setupAnimationStates() {
@@ -524,6 +562,13 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             jobState.save(js);
             tag.put(KEY_JOB_STATE, js);
         }
+        if (!assignedStructurePositions.isEmpty()) {
+            CompoundTag structuresTag = new CompoundTag();
+            for (Map.Entry<String, BlockPos> entry : assignedStructurePositions.entrySet()) {
+                structuresTag.put(entry.getKey(), NbtUtils.writeBlockPos(entry.getValue()));
+            }
+            tag.put(KEY_ASSIGNED_STRUCTURES, structuresTag);
+        }
     }
 
     private ListTag getNeedsTag(List<? extends NeedSatisfier<? extends Need>> needs) {
@@ -565,5 +610,12 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
         if (tag.contains(KEY_JOB_ID)) jobId = ResourceLocation.parse(tag.getString(KEY_JOB_ID));
         if (tag.contains(KEY_JOB_STATE)) jobState.load(tag.getCompound(KEY_JOB_STATE));
+        if (tag.contains(KEY_ASSIGNED_STRUCTURES)) {
+            assignedStructurePositions.clear();
+            CompoundTag structuresTag = tag.getCompound(KEY_ASSIGNED_STRUCTURES);
+            for (String key : structuresTag.getAllKeys()) {
+                NbtUtils.readBlockPos(structuresTag, key).ifPresent(pos -> assignedStructurePositions.put(key, pos));
+            }
+        }
     }
 }

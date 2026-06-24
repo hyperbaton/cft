@@ -97,5 +97,8 @@
   "job.cft.gather_flowers_job": "Flower Gatherer",
   "gui.cft.job_status.patrolling": "Patrolling",
   "gui.cft.job_status.fighting": "Fighting!",
-  "job.cft.guard_job": "Guard"
+  "job.cft.guard_job": "Guard",
+  "gui.cft.need_type.structure": "Structure",
+  "cft:smithy_access_need": "Smithy Access",
+  "cft:smithy": "Smithy"
 }

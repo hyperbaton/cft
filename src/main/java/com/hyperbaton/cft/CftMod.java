@@ -40,6 +40,8 @@ public class CftMod
 
         CftRegistry.JOBS_CODEC.register(modEventBus);
 
+        CftRegistry.STRUCTURE_TYPE_CODECS.register(modEventBus);
+
         CreativeModTabs.register(modEventBus);
 
         CftItems.register(modEventBus);
@@ -69,6 +71,7 @@ public class CftMod
     private void registerRegistries(NewRegistryEvent event) {
         event.register(CftRegistry.NEEDS_CODEC_REGISTRY);
         event.register(CftRegistry.JOBS_CODEC_REGISTRY);
+        event.register(CftRegistry.STRUCTURE_TYPE_CODEC_REGISTRY);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -86,6 +89,7 @@ public class CftMod
         CftRegistry.NEEDS = CftRegistry.getNeedsRegistry(event.getServer().registryAccess());
         CftRegistry.SOCIAL_CLASSES = CftRegistry.getSocialClassesRegistry(event.getServer().registryAccess());
         CftRegistry.JOBS = CftRegistry.getJobsRegistry(event.getServer().registryAccess());
+        CftRegistry.STRUCTURES = CftRegistry.getStructureTypesRegistry(event.getServer().registryAccess());
     }
 
     @SubscribeEvent

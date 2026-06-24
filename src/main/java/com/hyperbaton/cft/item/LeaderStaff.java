@@ -1,14 +1,21 @@
 package com.hyperbaton.cft.item;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
 import com.hyperbaton.cft.network.HomeDetectionPacket;
 import com.hyperbaton.cft.network.NeedSatisfactionData;
+import com.hyperbaton.cft.network.StructureDetectionPacket;
+import com.hyperbaton.cft.structure.StructureDetectionReasons;
+import com.hyperbaton.cft.structure.StructureDetectionResult;
+import com.hyperbaton.cft.structure.StructureType;
+import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.structure.home.HomeDetection;
 import com.hyperbaton.cft.structure.home.HomeDetectionReasons;
 import com.hyperbaton.cft.world.HomesData;
+import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -22,11 +29,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class LeaderStaff extends Item {
@@ -38,12 +45,11 @@ public class LeaderStaff extends Item {
     @Override
     public InteractionResult useOn(UseOnContext pContext) {
         if (!pContext.getLevel().isClientSide()) {
-
-            HomeDetectionPacket foundHouseMessage;
             Player player = pContext.getPlayer();
+            ServerLevel serverLevel = (ServerLevel) pContext.getLevel();
 
             if (clickedOnDoor(pContext)) {
-
+                HomeDetectionPacket foundHouseMessage;
                 BlockPos positionClicked = pContext.getClickedPos();
 
                 DoubleBlockHalf halfOfDoor = pContext.getLevel().getBlockState(pContext.getClickedPos()).getValue(DoorBlock.HALF);
@@ -51,20 +57,24 @@ public class LeaderStaff extends Item {
                     positionClicked = positionClicked.below();
                 }
 
-                HomesData homesData = ((ServerLevel) pContext.getLevel()).getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
+                HomesData homesData = serverLevel.getDataStorage().computeIfAbsent(HomesData.factory(), "homesData");
                 BlockPos finalPositionClicked = positionClicked;
                 if (homesData.getHomes().stream().anyMatch(home -> home.getEntrance().equals(finalPositionClicked))) {
                     foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.ALREADY_REGISTERED, Collections.emptyList());
                 } else {
-                    foundHouseMessage = new HomeDetection().detectAnyHouse(positionClicked, (ServerLevel) pContext.getLevel(), player.getUUID());
+                    foundHouseMessage = new HomeDetection().detectAnyHouse(positionClicked, serverLevel, player.getUUID());
                 }
 
+                PacketDistributor.sendToPlayer((ServerPlayer) player, foundHouseMessage);
+
+            } else if (clickedOnKeyBlock(pContext)) {
+                StructureDetectionPacket structureMessage = detectStructure(pContext.getClickedPos(), serverLevel, player.getUUID());
+                PacketDistributor.sendToPlayer((ServerPlayer) player, structureMessage);
+
             } else {
-                foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.NOT_A_DOOR, Collections.emptyList());
+                HomeDetectionPacket foundHouseMessage = new HomeDetectionPacket(false, "", HomeDetectionReasons.NOT_A_DOOR, Collections.emptyList());
+                PacketDistributor.sendToPlayer((ServerPlayer) player, foundHouseMessage);
             }
-
-
-            PacketDistributor.sendToPlayer((ServerPlayer) player, foundHouseMessage);
         }
 
         return InteractionResult.SUCCESS;
@@ -114,5 +124,45 @@ public class LeaderStaff extends Item {
 
     private boolean clickedOnDoor(UseOnContext pContext) {
         return pContext.getLevel().getBlockState(pContext.getClickedPos()).is(BlockTags.DOORS);
+    }
+
+    private boolean clickedOnKeyBlock(UseOnContext pContext) {
+        if (CftRegistry.STRUCTURES == null) return false;
+        BlockState clickedState = pContext.getLevel().getBlockState(pContext.getClickedPos());
+        return CftRegistry.STRUCTURES.stream().anyMatch(structureType -> structureType.matchesKeyBlock(clickedState));
+    }
+
+    private StructureDetectionPacket detectStructure(BlockPos clickedPos, ServerLevel level, UUID leaderId) {
+        StructuresData structuresData = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
+
+        if (structuresData.getStructures().stream().anyMatch(s -> s.getKeyBlockPos().equals(clickedPos))) {
+            return new StructureDetectionPacket(false, "", StructureDetectionReasons.ALREADY_REGISTERED, Collections.emptyList());
+        }
+
+        BlockState clickedState = level.getBlockState(clickedPos);
+        List<StructureType> matchingTypes = CftRegistry.STRUCTURES.stream()
+                .filter(st -> st.matchesKeyBlock(clickedState))
+                .sorted(Comparator.comparingInt(StructureType::getPriority).reversed())
+                .toList();
+
+        StructureDetectionResult bestFailure = null;
+
+        for (StructureType structureType : matchingTypes) {
+            StructureDetectionResult result = structureType.createDetector().detect(clickedPos, level, leaderId, structureType);
+            if (result.success()) {
+                structuresData.addStructure(result.structure());
+                return new StructureDetectionPacket(true, structureType.getId(),
+                        StructureDetectionReasons.STRUCTURE_DETECTED, Collections.emptyList());
+            }
+            if (bestFailure == null || result.reason().ordinal() > bestFailure.reason().ordinal()) {
+                bestFailure = result;
+            }
+        }
+
+        if (bestFailure != null) {
+            return new StructureDetectionPacket(false, "", bestFailure.reason(), bestFailure.validationDetails());
+        }
+
+        return new StructureDetectionPacket(false, "", StructureDetectionReasons.NOT_A_KEY_BLOCK, Collections.emptyList());
     }
 }

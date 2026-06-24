@@ -9,7 +9,8 @@
     "cft:water_need",
     "cft:potato_need",
     "cft:wood_logs_need",
-    "cft:bread_need"
+    "cft:bread_need",
+    "cft:smithy_access_need"
   ],
   "upgrades": [
     {

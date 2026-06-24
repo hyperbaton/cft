@@ -1,0 +1,13 @@
+{
+  "type": "cft:structure",
+  "id": "cft:smithy_access_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 5.0,
+  "satisfaction_threshold": 0.9,
+  "frequency": 1.0,
+  "hidden": false,
+  "structure_type": "cft:smithy",
+  "requires_usage": true,
+  "search_radius": 64
+}
