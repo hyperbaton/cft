@@ -99,6 +99,7 @@
   "gui.cft.job_status.fighting": "Fighting!",
   "job.cft.guard_job": "Guard",
   "gui.cft.need_type.structure": "Structure",
+  "gui.cft.need_type.equipment": "Equipment",
   "cft:smithy_access_need": "Smithy Access",
   "cft:smithy": "Smithy",
   "cft:settler_house": "Settler's Home",

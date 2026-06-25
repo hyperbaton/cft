@@ -2,6 +2,7 @@ package com.hyperbaton.cft.structure;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
@@ -128,9 +129,11 @@ public class Structure {
 
     private static List<BlockPos> readBlockPosList(CompoundTag tag, String key) {
         List<BlockPos> blocks = new ArrayList<>();
-        for (Tag blockPosTag : tag.getList(key, Tag.TAG_COMPOUND)) {
-            CompoundTag posTag = (CompoundTag) blockPosTag;
-            blocks.add(new BlockPos(posTag.getInt("X"), posTag.getInt("Y"), posTag.getInt("Z")));
+        for (Tag blockPosTag : tag.getList(key, Tag.TAG_INT_ARRAY)) {
+            int[] arr = ((IntArrayTag) blockPosTag).getAsIntArray();
+            if (arr.length == 3) {
+                blocks.add(new BlockPos(arr[0], arr[1], arr[2]));
+            }
         }
         return blocks;
     }

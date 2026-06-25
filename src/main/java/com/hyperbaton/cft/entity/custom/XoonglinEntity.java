@@ -165,7 +165,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         Brain<XoonglinEntity> brain = this.getBrain();
 
         brain.tick((ServerLevel) level(), this);
-        if (brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
+        if (brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GATHER.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GUARD.get())
@@ -243,8 +244,26 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public void die(DamageSource pDamageSource) {
         if (!this.level().isClientSide) {
             removeFromAllStructures();
+            dropEquipmentAndInventory();
         }
         super.die(pDamageSource);
+    }
+
+    private void dropEquipmentAndInventory() {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack equipped = getItemBySlot(slot);
+            if (!equipped.isEmpty()) {
+                spawnAtLocation(equipped);
+                setItemSlot(slot, ItemStack.EMPTY);
+            }
+        }
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (!stack.isEmpty()) {
+                spawnAtLocation(stack);
+                inventory.removeItemNoUpdate(i);
+            }
+        }
     }
 
     @Override

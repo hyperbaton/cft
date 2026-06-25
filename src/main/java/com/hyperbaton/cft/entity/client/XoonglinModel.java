@@ -7,14 +7,17 @@ import com.hyperbaton.cft.entity.animations.XoonglinAnimations;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 
-public class XoonglinModel<T extends Entity> extends HierarchicalModel<T> {
+public class XoonglinModel<T extends Entity> extends HierarchicalModel<T> implements ArmedModel {
     private final ModelPart torso;
     private final ModelPart left_shoulder;
     private final ModelPart right_shoulder;
@@ -118,5 +121,14 @@ public class XoonglinModel<T extends Entity> extends HierarchicalModel<T> {
     @Override
     public ModelPart root() {
         return torso;
+    }
+
+    @Override
+    public void translateToHand(HumanoidArm arm, PoseStack poseStack) {
+        ModelPart shoulder = arm == HumanoidArm.RIGHT ? this.right_shoulder : this.left_shoulder;
+        shoulder.translateAndRotate(poseStack);
+        float side = arm == HumanoidArm.RIGHT ? 1.0F : -1.0F;
+        poseStack.translate(0.7F, 0.4025F, side - 1.25F /** 0.206F*/);
+        poseStack.mulPose(Axis.XP.rotationDegrees(-45.0F));
     }
 }

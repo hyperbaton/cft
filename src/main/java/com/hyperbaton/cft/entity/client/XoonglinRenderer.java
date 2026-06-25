@@ -25,6 +25,7 @@ public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<Xo
               0.5f);
         this.customModel = new XoonglinModel<>(pContext.bakeLayer(CftModelLayers.XOONGLIN_LAYER));
         this.humanoidModel = new HumanoidModel<>(pContext.bakeLayer(ModelLayers.PLAYER));
+        this.addLayer(new XoonglinItemInHandLayer(this, pContext.getItemInHandRenderer()));
     }
 
     @Override
