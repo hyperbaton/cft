@@ -1,0 +1,51 @@
+{
+  "type": "cft:monument",
+  "id": "cft:obelisk",
+  "key_block": "minecraft:chiseled_quartz_block",
+  "max_users": 0,
+  "requires_container": false,
+  "priority": 0,
+  "min_height": 5,
+  "max_height": 15,
+  "layerRules": [
+    {
+      "from": 0,
+      "to": 0,
+      "blocks": [
+        {
+          "block": "minecraft:chiseled_quartz_block",
+          "minQuantity": 1,
+          "maxQuantity": 1,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:quartz_block",
+          "minQuantity": 0,
+          "maxQuantity": 8,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ]
+    },
+    {
+      "from": 1,
+      "to": 14,
+      "blocks": [
+        {
+          "block": "minecraft:quartz_block",
+          "minQuantity": 1,
+          "maxQuantity": 9,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ]
+    }
+  ],
+  "identicalLayerGroups": [
+    {
+      "from": 1,
+      "to": 14
+    }
+  ]
+}

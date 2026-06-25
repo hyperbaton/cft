@@ -18,6 +18,10 @@ public enum StructureDetectionReasons {
     INVALID_SURFACE("Surface blocks do not meet requirements"),
     SURFACE_TOO_BIG("Surface exceeds maximum size"),
     NO_SKY_ACCESS("Surface blocks must be open to the sky"),
+    INVALID_MONUMENT_LAYER("Monument layer blocks do not meet requirements"),
+    MONUMENT_TOO_SHORT("Monument does not reach the minimum height"),
+    MONUMENT_TOO_TALL("Monument exceeds the maximum height"),
+    LAYERS_NOT_IDENTICAL("Layers required to be identical differ in shape or block types"),
     STRUCTURE_DETECTED("Structure detected successfully");
 
     private final String message;
