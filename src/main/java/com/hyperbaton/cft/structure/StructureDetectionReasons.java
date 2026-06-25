@@ -12,6 +12,12 @@ public enum StructureDetectionReasons {
     NO_CLOSURE("There is a gap in the structure"),
     NO_CONTAINER("No container found (required by structure type)"),
     STRUCTURE_TOO_LARGE("Structure exceeds maximum size"),
+    INVALID_BORDER("Border does not form a valid perimeter"),
+    BORDER_NOT_CLOSED("Border is not a closed one-block-wide loop"),
+    INVALID_GROUND_PERIMETER("Ground perimeter blocks do not meet requirements"),
+    INVALID_SURFACE("Surface blocks do not meet requirements"),
+    SURFACE_TOO_BIG("Surface exceeds maximum size"),
+    NO_SKY_ACCESS("Surface blocks must be open to the sky"),
     STRUCTURE_DETECTED("Structure detected successfully");
 
     private final String message;

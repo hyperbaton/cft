@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 import com.hyperbaton.cft.CftConfig;
 import com.mojang.logging.LogUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -257,8 +258,9 @@ public class BuildingDetectionUtils {
     }
 
     private static String getBlockDescription(ValidBlock validBlock) {
-        return validBlock.getBlock() != null
-                ? validBlock.getBlock().getDescriptionId()
-                : validBlock.getTagBlock().location().toShortLanguageKey();
+        if (validBlock.getBlock() != null) {
+            return Component.translatable(validBlock.getBlock().getDescriptionId()).getString();
+        }
+        return "#" + validBlock.getTagBlock().location();
     }
 }

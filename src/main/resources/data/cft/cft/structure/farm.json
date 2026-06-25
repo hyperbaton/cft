@@ -1,0 +1,64 @@
+{
+  "type": "cft:open_air_platform",
+  "id": "cft:farm",
+  "key_block_tag": "minecraft:fence_gates",
+  "max_users": 1,
+  "requires_container": false,
+  "priority": 0,
+  "wall_height": 1,
+  "borderBlocks": [
+    {
+      "tagBlock": "minecraft:fences",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "tagBlock": "minecraft:fence_gates",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "groundPerimeterBlocks": [
+    {
+      "tagBlock": "minecraft:dirt",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:grass_block",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "surfaceBlocks": [
+    {
+      "block": "minecraft:farmland",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.5,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:water",
+      "minQuantity": 1,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 0.25
+    },
+    {
+      "tagBlock": "minecraft:dirt",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 0.25
+    }
+  ]
+}

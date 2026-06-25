@@ -107,5 +107,6 @@
   "cft:soldier_house": "Soldier's Barracks",
   "cft:patrician_house": "Patrician's Villa",
   "cft:noble_house": "Noble's Manor",
-  "cft:mountain_dweller_house": "Mountain Dweller's Hut"
+  "cft:mountain_dweller_house": "Mountain Dweller's Hut",
+  "cft:farm": "Farm"
 }
