@@ -24,6 +24,10 @@ public record JobInfoData(String statusKey, int statusColor, List<JobDisplayEntr
                 case JobDisplayEntry.PROGRESS -> {
                     ByteBufCodecs.VAR_INT.encode(buf, entry.intA());
                     ByteBufCodecs.VAR_INT.encode(buf, entry.intB());
+                    buf.writeBoolean(entry.textValue() != null);
+                    if (entry.textValue() != null) {
+                        ByteBufCodecs.STRING_UTF8.encode(buf, entry.textValue());
+                    }
                 }
                 case JobDisplayEntry.ITEM -> {
                     ResourceLocation.STREAM_CODEC.encode(buf, entry.icon());
@@ -50,7 +54,8 @@ public record JobInfoData(String statusKey, int statusColor, List<JobDisplayEntr
                 case JobDisplayEntry.PROGRESS -> {
                     int current = ByteBufCodecs.VAR_INT.decode(buf);
                     int max = ByteBufCodecs.VAR_INT.decode(buf);
-                    entries.add(JobDisplayEntry.progress(labelKey, current, max));
+                    String displayText = buf.readBoolean() ? ByteBufCodecs.STRING_UTF8.decode(buf) : null;
+                    entries.add(JobDisplayEntry.progress(labelKey, current, max, displayText));
                 }
                 case JobDisplayEntry.ITEM -> {
                     ResourceLocation icon = ResourceLocation.STREAM_CODEC.decode(buf);

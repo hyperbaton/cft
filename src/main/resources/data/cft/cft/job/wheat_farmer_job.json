@@ -1,0 +1,15 @@
+{
+  "type": "cft:farmer",
+  "hours_per_day": 8.0,
+  "structure_type": "cft:farm",
+  "seed": {
+    "item": "minecraft:wheat_seeds"
+  },
+  "product": {
+    "item": "minecraft:wheat"
+  },
+  "crop_block": "minecraft:wheat",
+  "ripe_state": {
+    "age": "7"
+  }
+}

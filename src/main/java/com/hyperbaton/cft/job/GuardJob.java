@@ -28,7 +28,7 @@ public class GuardJob extends Job {
     private final int patrolRadius;
     private final int detectionRadius;
 
-    private static final int TICKS_PER_MC_HOUR = 1000;
+
 
     public GuardJob(double hoursPerDay, int patrolRadius, int detectionRadius, List<String> requiredNeeds) {
         super(requiredNeeds);
@@ -51,7 +51,7 @@ public class GuardJob extends Job {
         if (level.isClientSide) return;
 
         long dayIndex = Math.floorDiv(level.getDayTime(), 24000L);
-        int neededTicks = (int) Math.round(hoursPerDay * TICKS_PER_MC_HOUR);
+        int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
 
         if (state.lastDayIndex == Long.MIN_VALUE) {
             state.lastDayIndex = dayIndex;
@@ -83,7 +83,7 @@ public class GuardJob extends Job {
 
     @Override
     public JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state) {
-        int neededTicks = (int) Math.round(hoursPerDay * TICKS_PER_MC_HOUR);
+        int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
         boolean nearHome = JobUtil.isAtHome(xoonglin, patrolRadius);
         boolean canDoWork = canWork(xoonglin);
         boolean doneForDay = state.workedTicksToday >= neededTicks;
@@ -109,7 +109,8 @@ public class GuardJob extends Job {
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();
-        entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks));
+        entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks,
+                JobUtil.formatWorkTime(state.workedTicksToday, hoursPerDay)));
 
         return new JobInfoData(statusKey, statusColor, entries);
     }

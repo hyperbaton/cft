@@ -15,6 +15,10 @@ public record JobDisplayEntry(byte type, String labelKey, String textValue, int 
         return new JobDisplayEntry(PROGRESS, labelKey, null, current, max, null);
     }
 
+    public static JobDisplayEntry progress(String labelKey, int current, int max, String displayText) {
+        return new JobDisplayEntry(PROGRESS, labelKey, displayText, current, max, null);
+    }
+
     public static JobDisplayEntry item(String labelKey, ResourceLocation icon, int count) {
         return new JobDisplayEntry(ITEM, labelKey, null, count, 0, icon);
     }

@@ -192,7 +192,7 @@ public class XoonglinInfoScreen extends Screen {
                     int barX = x + imageWidth - MARGIN_PIXELS - PROGRESS_BAR_WIDTH;
                     renderProgressBar(graphics, barX, contentY, entry.intA(), entry.intB());
 
-                    String valueText = entry.intA() + " / " + entry.intB();
+                    String valueText = entry.textValue() != null ? entry.textValue() : entry.intA() + " / " + entry.intB();
                     int valueWidth = this.font.width(valueText);
                     graphics.drawString(this.font, valueText,
                             barX + (PROGRESS_BAR_WIDTH - valueWidth) / 2, contentY, 0xFFFFFF, true);

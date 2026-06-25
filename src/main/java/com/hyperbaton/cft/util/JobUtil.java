@@ -17,6 +17,15 @@ import java.util.Optional;
 public final class JobUtil {
     private JobUtil() {}
 
+    public static final int TICKS_PER_MC_HOUR = 1000;
+
+    public static String formatWorkTime(int workedTicks, double hoursPerDay) {
+        int workedHours = workedTicks / TICKS_PER_MC_HOUR;
+        int workedMinutes = (workedTicks % TICKS_PER_MC_HOUR) * 60 / TICKS_PER_MC_HOUR;
+        int neededHours = (int) Math.round(hoursPerDay);
+        return String.format("%d:%02d / %d", workedHours, workedMinutes, neededHours);
+    }
+
     public static JobInfoData buildJobInfo(XoonglinEntity xoonglin) {
         if (xoonglin.getJob() == null) return null;
         Job job = CftRegistry.JOBS.get(xoonglin.getJob());

@@ -36,7 +36,7 @@ public class GathererJob extends Job {
     private final Block block;
     private final TagKey<Block> blockTag;
 
-    private static final int TICKS_PER_MC_HOUR = 1000;
+
 
     public GathererJob(double hoursPerDay, int gatherRadius, Optional<Block> block,
                        Optional<TagKey<Block>> blockTag, List<String> requiredNeeds) {
@@ -63,7 +63,7 @@ public class GathererJob extends Job {
         if (level.isClientSide) return;
 
         long dayIndex = Math.floorDiv(level.getDayTime(), 24000L);
-        int neededTicks = (int) Math.round(hoursPerDay * TICKS_PER_MC_HOUR);
+        int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
 
         if (state.lastDayIndex == Long.MIN_VALUE) {
             state.lastDayIndex = dayIndex;
@@ -94,7 +94,7 @@ public class GathererJob extends Job {
 
     @Override
     public JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state) {
-        int neededTicks = (int) Math.round(hoursPerDay * TICKS_PER_MC_HOUR);
+        int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
         boolean atHome = JobUtil.isAtHome(xoonglin, gatherRadius);
         boolean canDoWork = canWork(xoonglin);
         boolean doneForDay = state.workedTicksToday >= neededTicks;
@@ -116,7 +116,8 @@ public class GathererJob extends Job {
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();
-        entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks));
+        entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks,
+                JobUtil.formatWorkTime(state.workedTicksToday, hoursPerDay)));
         entries.add(JobDisplayEntry.progress("gui.cft.job_streak", state.consecutiveDaysWorked, 1));
 
         if (block != null) {

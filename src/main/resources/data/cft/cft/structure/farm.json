@@ -20,6 +20,13 @@
       "maxQuantity": 1,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:chest",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
     }
   ],
   "groundPerimeterBlocks": [
