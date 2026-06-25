@@ -103,12 +103,8 @@ public class EnclosedBuildingDetector implements StructureDetector {
         }
 
         // Container detection
-        BlockPos containerPos = null;
-        if (structureType.isRequiresContainer()) {
-            containerPos = BuildingDetectionUtils.findContainer(level, fullFloorBlocks);
-            if (containerPos == null) {
-                return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
-            }
+        if (structureType.isRequiresContainer() && !BuildingDetectionUtils.hasContainers(level, fullFloorBlocks)) {
+            return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
 
         // Size check
@@ -124,7 +120,7 @@ public class EnclosedBuildingDetector implements StructureDetector {
         blockPositions.put(EnclosedBuildingBlockGroup.ROOF.getKey(), new ArrayList<>(roofBlockSet));
 
         Structure structure = new Structure(
-                keyBlockPos, containerPos, allBlocks.size(), leaderId,
+                keyBlockPos, allBlocks.size(), leaderId,
                 structureType.getId(), structureType.getMaxUsers(), blockPositions
         );
 

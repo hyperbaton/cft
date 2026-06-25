@@ -49,19 +49,10 @@ public final class JobUtil {
     private static Optional<IItemHandler> findHomeInventory(XoonglinEntity mob) {
         Level level = mob.level();
         if (mob.getHome() != null) {
-            BlockPos chestPos = mob.getHome().getContainerPos();
-            if (chestPos != null) {
-                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, chestPos, null);
+            for (BlockPos pos : mob.getHome().getInteriorBlocks()) {
+                IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
                 if (handler != null) {
                     return Optional.of(handler);
-                }
-            }
-            BlockPos center = mob.getHome().getEntrance();
-            if (center != null) {
-                int r = 5;
-                for (BlockPos p : BlockPos.betweenClosed(center.offset(-r, -1, -r), center.offset(r, 1, r))) {
-                    IItemHandler cap = level.getCapability(Capabilities.ItemHandler.BLOCK, p, null);
-                    if (cap != null) return Optional.of(cap);
                 }
             }
         }

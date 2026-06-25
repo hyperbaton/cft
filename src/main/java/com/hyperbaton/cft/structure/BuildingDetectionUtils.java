@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.Container;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import oshi.util.tuples.Pair;
@@ -117,17 +117,14 @@ public class BuildingDetectionUtils {
                 .allMatch(block -> isBlockEnclosed(block, interiorBlocks, floorBlocks, wallBlocks, roofBlocks));
     }
 
-    public static BlockPos findContainer(ServerLevel level, Set<BlockPos> floorBlocks) {
-        Set<BlockPos> containers = Sets.newHashSet();
+    public static boolean hasContainers(ServerLevel level, Set<BlockPos> floorBlocks) {
         for (BlockPos pos : floorBlocks) {
-            if (level.getBlockState(pos.above()).getBlock() instanceof ChestBlock) {
-                containers.add(pos.above());
+            BlockPos above = pos.above();
+            if (level.getBlockEntity(above) instanceof Container) {
+                return true;
             }
         }
-        if (containers.size() == 1) {
-            return containers.stream().findFirst().orElse(null);
-        }
-        return null;
+        return false;
     }
 
     public static List<String> checkValidBlocks(ServerLevel level, Set<BlockPos> blockList,

@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.slf4j.Logger;
@@ -20,67 +21,59 @@ import java.util.Optional;
 public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public GetSuppliesBehavior(Map pEntryCondition) {
+    public GetSuppliesBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
         super(pEntryCondition);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity mob) {
         LOGGER.trace("Starting behavior for getting supplies");
-        // Only start if the Xoonglin has a home with a container
-        return mob.getBrain().hasMemoryValue(homeContainerMemoryType()) &&
+        return mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER.get()) &&
                 !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
     }
 
     @Override
     protected void start(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
-        mob.getNavigation().moveTo(
-                mob.getNavigation().createPath(mob.getBrain().getMemory(homeContainerMemoryType()).get(),
-                        1),
-                1);
+        mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER.get()).ifPresent(pos -> {
+            LOGGER.trace("Xoonglin {} is moving towards supply container at {}", mob.getCustomName().getString(), pos);
+            mob.getNavigation().moveTo(pos.getX(), pos.getY(), pos.getZ(), 1.0);
+        });
     }
 
     @Override
     protected void tick(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
         if (isCloseEnoughToContainer(mob)) {
-            mob.getNavigation().stop(); // Stop moving once close
+            mob.getNavigation().stop();
         }
     }
 
     @Override
     protected void stop(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
         LOGGER.trace("Checking container in home");
-        if (!mob.getBrain().hasMemoryValue(homeContainerMemoryType()) ||
-                !isCloseEnoughToContainer(mob)) {
+        Optional<BlockPos> containerPos = mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER.get());
+        if (containerPos.isEmpty() || !isCloseEnoughToContainer(mob)) {
+            mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.SUPPLY_COOLDOWN.get(), true, CftConfig.SUPPLY_COOLDOWN.get());
             return;
         }
 
-        Optional<Container> container = mob.getBrain().getMemory(homeContainerMemoryType())
-                .map(blockPos -> (Container) mob.level().getBlockEntity(blockPos));
-
-        if (container.isEmpty()) {
-            // If the home container is missing, forget about it
-            mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
+        if (!(mob.level().getBlockEntity(containerPos.get()) instanceof Container container)) {
+            mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
             return;
         }
 
         Optional<List<Ingredient>> neededSupplies = mob.getBrain().getMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get());
         if (neededSupplies.isEmpty()) {
+            mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
             return;
         }
 
-        List<Ingredient> ingredientsNeeded = neededSupplies.get();
-        retrieveSupplies(mob, container.get(), ingredientsNeeded);
+        retrieveSupplies(mob, container, neededSupplies.get());
 
-        // Once supplies are retrieved, remove the memory
         mob.getBrain().eraseMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get());
-        // Add a cooldown before requesting new supplies
+        mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.SUPPLY_COOLDOWN.get(), true, CftConfig.SUPPLY_COOLDOWN.get());
     }
 
-    /**
-     * Tries to retrieve the needed supplies from the container.
-     */
     private void retrieveSupplies(XoonglinEntity mob, Container container, List<Ingredient> neededSupplies) {
         for (Ingredient ingredient : neededSupplies) {
             if (!canStoreItem(mob, ingredient)) {
@@ -98,59 +91,33 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
                     ItemStack takenStack = container.removeItem(i, takenAmount);
                     mob.getInventory().addItem(takenStack);
 
-                    // Stop looking for this supply if we got enough
                     break;
                 }
             }
         }
     }
 
-    /**
-     * Checks if the Xoonglin has space for the given ingredient.
-     */
     private boolean canStoreItem(XoonglinEntity mob, Ingredient ingredient) {
-        return mob.getInventory().canAddItem(ingredient.getItems()[0]); // Check using first matching item
+        return mob.getInventory().canAddItem(ingredient.getItems()[0]);
     }
 
-    /**
-     * Determines how much of an ingredient the Xoonglin needs.
-     * (This method could be extended if we want different amounts per ingredient.)
-     */
     private int getNeededQuantity(XoonglinEntity mob, Ingredient ingredient) {
-        return 1; // Defaulting to 1 for now; can be adjusted dynamically.
+        return 1;
     }
 
     @Override
     protected boolean canStillUse(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
         return mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
-                && mob.getBrain().hasMemoryValue(homeContainerMemoryType())
+                && mob.getBrain().hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER.get())
                 && !isCloseEnoughToContainer(mob)
                 && !mob.getBrain().hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
     }
 
     private boolean isCloseEnoughToContainer(XoonglinEntity mob) {
         return mob.getBrain()
-                .getMemory(homeContainerMemoryType()).map(
+                .getMemory(CftMemoryModuleType.HOME_CONTAINER.get()).map(
                         containerPos -> mob.position().distanceTo(containerPos.getCenter())
                                 < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()
                 ).orElse(false);
-    }
-
-    private Optional<Integer> findItemPositionInContainer(Container container, ItemStack itemToRetrieve) {
-        for (int i = 0; i < container.getContainerSize(); i++) {
-            ItemStack stack = container.getItem(i);
-            if (stack.is(itemToRetrieve.getItem()) && stack.getCount() >= itemToRetrieve.getCount()) {
-                return Optional.of(i);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private MemoryModuleType<List<Ingredient>> suppliesNeededMemoryType() {
-        return CftMemoryModuleType.SUPPLIES_NEEDED.get();
-    }
-
-    private MemoryModuleType<BlockPos> homeContainerMemoryType() {
-        return CftMemoryModuleType.HOME_CONTAINER_POSITION.get();
     }
 }

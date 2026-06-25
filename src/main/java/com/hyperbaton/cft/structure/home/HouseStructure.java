@@ -9,15 +9,15 @@ import java.util.*;
 
 public class HouseStructure extends Structure {
 
-    private HouseStructure(BlockPos keyBlockPos, BlockPos containerPos, int size, UUID leaderId,
+    private HouseStructure(BlockPos keyBlockPos, int size, UUID leaderId,
                            String structureTypeId, int maxUsers, List<UUID> userIds,
                            Map<String, List<BlockPos>> blockPositions) {
-        super(keyBlockPos, containerPos, size, leaderId, structureTypeId, maxUsers, userIds, blockPositions);
+        super(keyBlockPos, size, leaderId, structureTypeId, maxUsers, userIds, blockPositions);
     }
 
     public static HouseStructure of(Structure structure) {
         return new HouseStructure(
-                structure.getKeyBlockPos(), structure.getContainerPos(), structure.getSize(),
+                structure.getKeyBlockPos(), structure.getSize(),
                 structure.getLeaderId(), structure.getStructureTypeId(), structure.getMaxUsers(),
                 structure.getUserIds(), structure.getBlockPositions()
         );

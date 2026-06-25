@@ -165,8 +165,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         Brain<XoonglinEntity> brain = this.getBrain();
 
         brain.tick((ServerLevel) level(), this);
-        if (brain.getMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get()).isEmpty()
-                || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
+        if (brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GATHER.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GUARD.get())
@@ -361,7 +360,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
         if (this.home != null) {
             this.home = null;
-            this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get());
+            this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
             this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
         }
         removeFromAllStructures();

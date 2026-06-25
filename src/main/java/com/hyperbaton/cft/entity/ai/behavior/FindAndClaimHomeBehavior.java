@@ -70,7 +70,6 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
                         .ifPresent(structure -> {
                             structure.addUser(xoonglin.getUUID());
                             xoonglin.setHome(HouseStructure.of(structure));
-                            xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), structure.getContainerPos());
                             xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
                             xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_NEEDED.get());
                             data.setDirty();

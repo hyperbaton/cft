@@ -26,7 +26,7 @@ public class XoonglinAi {
     );
 
     public static final ImmutableList<? extends MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
-            CftMemoryModuleType.HOME_CONTAINER_POSITION.get(),
+            CftMemoryModuleType.HOME_CONTAINER.get(),
             CftMemoryModuleType.SUPPLIES_NEEDED.get(),
             CftMemoryModuleType.HOME_CANDIDATE_POSITION.get(),
             CftMemoryModuleType.SUPPLY_COOLDOWN.get(),
@@ -75,7 +75,7 @@ public class XoonglinAi {
         pBrain.addActivity(Activity.INVESTIGATE, ImmutableList.of(
                 Pair.of(0, new FindAndClaimHomeBehavior()),
                 Pair.of(1, new GetSuppliesBehavior(
-                        Map.of(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), MemoryStatus.VALUE_PRESENT,
+                        Map.of(CftMemoryModuleType.HOME_CONTAINER.get(), MemoryStatus.VALUE_PRESENT,
                                 CftMemoryModuleType.SUPPLIES_NEEDED.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(1, new GetFluidBehavior(

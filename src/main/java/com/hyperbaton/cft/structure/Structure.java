@@ -11,7 +11,6 @@ import java.util.*;
 public class Structure {
 
     private static final String TAG_KEY_BLOCK_POS = "keyBlockPos";
-    private static final String TAG_CONTAINER_POS = "containerPos";
     private static final String TAG_SIZE = "size";
     private static final String TAG_LEADER_ID = "leaderId";
     private static final String TAG_STRUCTURE_TYPE_ID = "structureTypeId";
@@ -20,7 +19,6 @@ public class Structure {
     private static final String TAG_BLOCK_GROUPS = "blockGroups";
 
     private final BlockPos keyBlockPos;
-    private BlockPos containerPos;
     private int size;
     private UUID leaderId;
     private final String structureTypeId;
@@ -28,11 +26,10 @@ public class Structure {
     private final List<UUID> userIds;
     private final Map<String, List<BlockPos>> blockPositions;
 
-    public Structure(BlockPos keyBlockPos, BlockPos containerPos, int size, UUID leaderId,
+    public Structure(BlockPos keyBlockPos, int size, UUID leaderId,
                      String structureTypeId, int maxUsers,
                      Map<String, List<BlockPos>> blockPositions) {
         this.keyBlockPos = keyBlockPos;
-        this.containerPos = containerPos;
         this.size = size;
         this.leaderId = leaderId;
         this.structureTypeId = structureTypeId;
@@ -41,11 +38,10 @@ public class Structure {
         this.blockPositions = blockPositions;
     }
 
-    protected Structure(BlockPos keyBlockPos, BlockPos containerPos, int size, UUID leaderId,
+    protected Structure(BlockPos keyBlockPos, int size, UUID leaderId,
                         String structureTypeId, int maxUsers, List<UUID> userIds,
                         Map<String, List<BlockPos>> blockPositions) {
         this.keyBlockPos = keyBlockPos;
-        this.containerPos = containerPos;
         this.size = size;
         this.leaderId = leaderId;
         this.structureTypeId = structureTypeId;
@@ -75,9 +71,6 @@ public class Structure {
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         tag.put(TAG_KEY_BLOCK_POS, NbtUtils.writeBlockPos(keyBlockPos));
-        if (containerPos != null) {
-            tag.put(TAG_CONTAINER_POS, NbtUtils.writeBlockPos(containerPos));
-        }
         tag.putInt(TAG_SIZE, size);
         tag.putUUID(TAG_LEADER_ID, leaderId);
         tag.putString(TAG_STRUCTURE_TYPE_ID, structureTypeId);
@@ -102,9 +95,6 @@ public class Structure {
 
     public static Structure fromTag(CompoundTag tag) {
         BlockPos keyBlockPos = NbtUtils.readBlockPos(tag, TAG_KEY_BLOCK_POS).orElse(BlockPos.ZERO);
-        BlockPos containerPos = tag.contains(TAG_CONTAINER_POS)
-                ? NbtUtils.readBlockPos(tag, TAG_CONTAINER_POS).orElse(null)
-                : null;
         int size = tag.getInt(TAG_SIZE);
         UUID leaderId = tag.getUUID(TAG_LEADER_ID);
         String structureTypeId = tag.getString(TAG_STRUCTURE_TYPE_ID);
@@ -124,7 +114,7 @@ public class Structure {
             }
         }
 
-        return new Structure(keyBlockPos, containerPos, size, leaderId,
+        return new Structure(keyBlockPos, size, leaderId,
                 structureTypeId, maxUsers, userIds, blockPositions);
     }
 
@@ -147,10 +137,6 @@ public class Structure {
 
     public BlockPos getKeyBlockPos() {
         return keyBlockPos;
-    }
-
-    public BlockPos getContainerPos() {
-        return containerPos;
     }
 
     public int getSize() {

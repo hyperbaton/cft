@@ -78,12 +78,8 @@ public class OpenAirPlatformDetector implements StructureDetector {
             }
         }
 
-        BlockPos containerPos = null;
-        if (structureType.isRequiresContainer()) {
-            containerPos = BuildingDetectionUtils.findContainer(level, surfaceBlocks);
-            if (containerPos == null) {
-                return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
-            }
+        if (structureType.isRequiresContainer() && !BuildingDetectionUtils.hasContainers(level, surfaceBlocks)) {
+            return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
 
         Set<BlockPos> allBlocks = Sets.newHashSet();
@@ -101,7 +97,7 @@ public class OpenAirPlatformDetector implements StructureDetector {
         blockPositions.put(OpenAirPlatformBlockGroup.SURFACE.getKey(), new ArrayList<>(surfaceBlocks));
 
         Structure structure = new Structure(
-                keyBlockPos, containerPos, allBlocks.size(), leaderId,
+                keyBlockPos, allBlocks.size(), leaderId,
                 structureType.getId(), structureType.getMaxUsers(), blockPositions
         );
 

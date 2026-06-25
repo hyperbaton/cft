@@ -3,7 +3,7 @@ package com.hyperbaton.cft.entity.spawner;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+
 import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.Structure;
@@ -87,7 +87,6 @@ public class XoonglinSpawner implements CustomSpawner {
         house.addUser(xoonglin.getUUID());
         xoonglin.setLeaderId(leaderId);
         xoonglin.setHome(HouseStructure.of(house));
-        xoonglin.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER_POSITION.get(), house.getContainerPos());
         xoonglin.setSocialClass(socialClass);
         xoonglin.setNeeds(NeedUtils.getNeedsForClass(xoonglin.getSocialClass()));
         xoonglin.getEntityData().set(XoonglinEntity.SOCIAL_CLASS_NAME, xoonglin.getSocialClass().getId());
