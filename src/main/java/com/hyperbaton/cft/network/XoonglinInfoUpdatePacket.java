@@ -28,7 +28,8 @@ public record XoonglinInfoUpdatePacket(
         Map<String, NeedSatisfactionData> needsData,
         UUID xoonglinId,
         JobInfoData jobInfo,
-        List<InventorySlotData> inventoryData
+        List<InventorySlotData> inventoryData,
+        List<ResourceLocation> availableJobs
 ) implements CustomPacketPayload {
 
     public static final Type<XoonglinInfoUpdatePacket> TYPE =
@@ -67,7 +68,12 @@ public record XoonglinInfoUpdatePacket(
                 int count = ByteBufCodecs.VAR_INT.decode(buf);
                 inventoryData.add(new InventorySlotData(item, count));
             }
-            return new XoonglinInfoUpdatePacket(name, socialClass, jobId, happiness, needsData, xoonglinId, jobInfo, inventoryData);
+            int jobsSize = ByteBufCodecs.VAR_INT.decode(buf);
+            List<ResourceLocation> availableJobs = new ArrayList<>();
+            for (int i = 0; i < jobsSize; i++) {
+                availableJobs.add(ResourceLocation.STREAM_CODEC.decode(buf));
+            }
+            return new XoonglinInfoUpdatePacket(name, socialClass, jobId, happiness, needsData, xoonglinId, jobInfo, inventoryData, availableJobs);
         }
 
         @Override
@@ -101,6 +107,10 @@ public record XoonglinInfoUpdatePacket(
                 ResourceLocation.STREAM_CODEC.encode(buf, slot.item());
                 ByteBufCodecs.VAR_INT.encode(buf, slot.count());
             }
+            ByteBufCodecs.VAR_INT.encode(buf, packet.availableJobs.size());
+            for (ResourceLocation jobId : packet.availableJobs) {
+                ResourceLocation.STREAM_CODEC.encode(buf, jobId);
+            }
         }
     };
 
@@ -125,4 +135,5 @@ public record XoonglinInfoUpdatePacket(
     public UUID getXoonglinId() { return xoonglinId; }
     public JobInfoData getJobInfo() { return jobInfo; }
     public List<InventorySlotData> getInventoryData() { return inventoryData; }
+    public List<ResourceLocation> getAvailableJobs() { return availableJobs; }
 }

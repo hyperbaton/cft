@@ -108,9 +108,15 @@ public class SocialClassDetailPanel {
         String className = Component.translatable(selectedClass.getId()).getString();
         cachedLines.add(new StaticLine(className, HEADER_COLOR, 0, LINE_HEIGHT + 4, true));
 
-        if (selectedClass.getJob() != null) {
-            String jobKey = "job." + selectedClass.getJob().getNamespace() + "." + selectedClass.getJob().getPath();
-            addStat("gui.cft.job", Component.translatable(jobKey).getString());
+        if (!selectedClass.getJobs().isEmpty()) {
+            StringBuilder jobNames = new StringBuilder();
+            for (int i = 0; i < selectedClass.getJobs().size(); i++) {
+                ResourceLocation jobId = selectedClass.getJobs().get(i);
+                String jobKey = "job." + jobId.getNamespace() + "." + jobId.getPath();
+                if (i > 0) jobNames.append(", ");
+                jobNames.append(Component.translatable(jobKey).getString());
+            }
+            addStat("gui.cft.job", jobNames.toString());
         }
 
         cachedLines.add(new StaticLine("", 0, 0, SECTION_SPACING, false));

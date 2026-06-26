@@ -1,7 +1,7 @@
 {
   "type": "cft:farmer",
   "hours_per_day": 8.0,
-  "structure_type": "cft:farm",
+  "required_structure": "cft:farm",
   "seed": {
     "item": "minecraft:wheat_seeds"
   },

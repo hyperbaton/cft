@@ -3,6 +3,7 @@ package com.hyperbaton.cft.socialclass;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,25 +17,19 @@ public class SocialClass {
             Codec.STRING.listOf().fieldOf("needs").forGetter(SocialClass::getNeeds),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("upgrades").forGetter(SocialClass::getUpgrades),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("downgrades").forGetter(SocialClass::getDowngrades),
-            ResourceLocation.CODEC.optionalFieldOf("job").forGetter(socialClass -> Optional.ofNullable(socialClass.getJob())),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("jobs", List.of()).forGetter(SocialClass::getJobs),
             Codec.BOOL.optionalFieldOf("canUpgradeAsBaby", false).forGetter(SocialClass::canUpgradeAsBaby),
             Codec.BOOL.optionalFieldOf("canDowngradeAsBaby", true).forGetter(SocialClass::canDowngradeAsBaby),
             Codec.INT.optionalFieldOf("matingDelay", -1).forGetter(SocialClass::getMatingDelay),
             Codec.DOUBLE.optionalFieldOf("maxHealth", 20.0).forGetter(SocialClass::getMaxHealth)
     ).apply(instance, SocialClass::new));
 
-    /**
-     * Identifier in the format of a resource location. It must coincide with the placement of the social class file
-     * to be properly loaded.
-     * Example: "cft:citizen"
-     */
     private String id;
     private double maxHappiness;
-
     private double matingHappinessThreshold;
     private int spontaneouslySpawnPopulation;
     private List<String> needs;
-    private final ResourceLocation job;
+    private final List<ResourceLocation> jobs;
     private List<SocialClassUpdate> upgrades;
     private List<SocialClassUpdate> downgrades;
     private final boolean canUpgradeAsBaby;
@@ -44,14 +39,14 @@ public class SocialClass {
 
     public SocialClass(String id, double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
                        List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades,
-                       Optional<ResourceLocation> job, boolean canUpgradeAsBaby, boolean canDowngradeAsBaby,
+                       List<ResourceLocation> jobs, boolean canUpgradeAsBaby, boolean canDowngradeAsBaby,
                        int matingDelay, double maxHealth) {
         this.id = id;
         this.maxHappiness = maxHappiness;
         this.matingHappinessThreshold = matingHappinessThreshold;
         this.spontaneouslySpawnPopulation = spontaneouslySpawnPopulation;
         this.needs = needs;
-        this.job = job.orElse(null);
+        this.jobs = jobs != null ? List.copyOf(jobs) : List.of();
         this.upgrades = upgrades;
         this.downgrades = downgrades;
         this.canUpgradeAsBaby = canUpgradeAsBaby;
@@ -116,8 +111,13 @@ public class SocialClass {
         this.downgrades = downgrades;
     }
 
-    public ResourceLocation getJob() {
-        return job;
+    public List<ResourceLocation> getJobs() {
+        return jobs;
+    }
+
+    public ResourceLocation getRandomJob(RandomSource random) {
+        if (jobs.isEmpty()) return null;
+        return jobs.get(random.nextInt(jobs.size()));
     }
 
     public boolean canUpgradeAsBaby() {

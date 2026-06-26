@@ -37,6 +37,8 @@ public class XoonglinInfoScreen extends Screen {
     private static final int PROGRESS_BAR_WIDTH = 60;
     private static final int PROGRESS_BAR_HEIGHT = 8;
 
+    private static final int ARROW_SIZE = 12;
+
     private final int imageWidth = 220, imageHeight = 176;
     private CheckOnXoonglinPacket packet;
     private int ticksUntilNextUpdate = UPDATE_FREQUENCY;
@@ -96,15 +98,11 @@ public class XoonglinInfoScreen extends Screen {
 
         switch (currentTab) {
             case TAB_INFO -> renderInfoTab(graphics, x, y, mouseX, mouseY, delta);
-            case TAB_JOB -> renderJobTab(graphics, x, y);
+            case TAB_JOB -> renderJobTab(graphics, x, y, mouseX, mouseY);
             case TAB_ITEMS -> renderItemsTab(graphics, x, y, mouseX, mouseY);
         }
 
         super.render(graphics, mouseX, mouseY, delta);
-    }
-
-    private int getTabCount() {
-        return packet.getJobInfo() != null ? 3 : 2;
     }
 
     private void renderTabs(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
@@ -166,16 +164,37 @@ public class XoonglinInfoScreen extends Screen {
         }
     }
 
-    private void renderJobTab(GuiGraphics graphics, int x, int y) {
+    private void renderJobTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
         JobInfoData jobInfo = packet.getJobInfo();
         if (jobInfo == null) return;
 
         int contentY = y + CONTENT_Y_OFFSET;
 
         if (packet.getJobId() != null) {
+            List<ResourceLocation> availableJobs = packet.getAvailableJobs();
+            boolean canSwitch = availableJobs.size() > 1;
+
             String jobTranslationKey = "job." + packet.getJobId().getNamespace() + "." + packet.getJobId().getPath();
             Component jobName = Component.translatable(jobTranslationKey).withStyle(ChatFormatting.BOLD);
-            graphics.drawString(this.font, jobName, x + MARGIN_PIXELS, contentY, 0x206020, false);
+
+            if (canSwitch) {
+                int arrowLeftX = x + MARGIN_PIXELS;
+                int arrowRightX = x + imageWidth - MARGIN_PIXELS - ARROW_SIZE;
+                int textAreaLeft = arrowLeftX + ARROW_SIZE + 4;
+                int textAreaRight = arrowRightX - 4;
+                int textAreaWidth = textAreaRight - textAreaLeft;
+                int jobNameWidth = this.font.width(jobName);
+                int jobNameX = textAreaLeft + (textAreaWidth - jobNameWidth) / 2;
+
+                graphics.drawString(this.font, jobName, jobNameX, contentY + 2, 0x206020, false);
+
+                boolean leftHovered = isInBounds(mouseX, mouseY, arrowLeftX, contentY, ARROW_SIZE, ARROW_SIZE);
+                boolean rightHovered = isInBounds(mouseX, mouseY, arrowRightX, contentY, ARROW_SIZE, ARROW_SIZE);
+                renderArrowButton(graphics, arrowLeftX, contentY, true, leftHovered);
+                renderArrowButton(graphics, arrowRightX, contentY, false, rightHovered);
+            } else {
+                graphics.drawString(this.font, jobName, x + MARGIN_PIXELS, contentY, 0x206020, false);
+            }
             contentY += 14;
         }
 
@@ -219,6 +238,15 @@ public class XoonglinInfoScreen extends Screen {
                 }
             }
         }
+    }
+
+    private void renderArrowButton(GuiGraphics graphics, int x, int y, boolean left, boolean hovered) {
+        int bg = hovered ? 0xFF606060 : 0xFF404040;
+        int fg = hovered ? 0xFFFFFF : 0xC0C0C0;
+        graphics.fill(x, y, x + ARROW_SIZE, y + ARROW_SIZE, bg);
+        String arrow = left ? "<" : ">";
+        int textWidth = this.font.width(arrow);
+        graphics.drawString(this.font, arrow, x + (ARROW_SIZE - textWidth) / 2, y + 2, fg, false);
     }
 
     private void renderItemsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
@@ -337,6 +365,8 @@ public class XoonglinInfoScreen extends Screen {
         if (button == 0) {
             int x = (width - imageWidth) / 2;
             int y = (height - imageHeight) / 2;
+
+            // Tab clicks
             int tabY = y + TAB_Y_OFFSET;
             int tabX = x + MARGIN_PIXELS;
 
@@ -358,8 +388,40 @@ public class XoonglinInfoScreen extends Screen {
                 currentTab = TAB_ITEMS;
                 return true;
             }
+
+            // Job arrow clicks
+            if (currentTab == TAB_JOB && packet.getJobId() != null) {
+                List<ResourceLocation> availableJobs = packet.getAvailableJobs();
+                if (availableJobs.size() > 1) {
+                    int contentY = y + CONTENT_Y_OFFSET;
+                    int arrowLeftX = x + MARGIN_PIXELS;
+                    int arrowRightX = x + imageWidth - MARGIN_PIXELS - ARROW_SIZE;
+
+                    if (isInBounds(mouseX, mouseY, arrowLeftX, contentY, ARROW_SIZE, ARROW_SIZE)) {
+                        switchJob(-1);
+                        return true;
+                    }
+                    if (isInBounds(mouseX, mouseY, arrowRightX, contentY, ARROW_SIZE, ARROW_SIZE)) {
+                        switchJob(1);
+                        return true;
+                    }
+                }
+            }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void switchJob(int direction) {
+        List<ResourceLocation> availableJobs = packet.getAvailableJobs();
+        if (availableJobs.size() <= 1 || packet.getJobId() == null) return;
+
+        int currentIndex = availableJobs.indexOf(packet.getJobId());
+        if (currentIndex < 0) currentIndex = 0;
+
+        int newIndex = (currentIndex + direction + availableJobs.size()) % availableJobs.size();
+        ResourceLocation newJobId = availableJobs.get(newIndex);
+
+        PacketDistributor.sendToServer(new ChangeXoonglinJobPacket(packet.getXoonglinId(), newJobId));
     }
 
     private boolean isInBounds(double mx, double my, int x, int y, int w, int h) {
@@ -401,7 +463,8 @@ public class XoonglinInfoScreen extends Screen {
                 updatePacket.getNeedsData(),
                 updatePacket.getXoonglinId(),
                 updatePacket.getJobInfo(),
-                updatePacket.getInventoryData()
+                updatePacket.getInventoryData(),
+                updatePacket.getAvailableJobs()
         );
 
         if (needsScrollPanel != null) {

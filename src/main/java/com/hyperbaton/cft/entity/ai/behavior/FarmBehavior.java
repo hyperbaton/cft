@@ -403,7 +403,7 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
     private Structure findAssignedStructure(ServerLevel level, XoonglinEntity entity) {
         FarmerJob job = getFarmerJob(entity);
         if (job == null) return null;
-        BlockPos structurePos = entity.getAssignedStructurePos(job.getStructureType());
+        BlockPos structurePos = entity.getAssignedStructurePos(job.getRequiredStructureType());
         if (structurePos == null) return null;
 
         StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");

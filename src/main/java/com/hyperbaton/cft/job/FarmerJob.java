@@ -30,7 +30,7 @@ public class FarmerJob extends Job {
 
     public static final Codec<FarmerJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
-            Codec.STRING.fieldOf("structure_type").forGetter(j -> j.structureType),
+            Codec.STRING.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             INGREDIENT_CODEC.fieldOf("seed").forGetter(j -> j.seed),
             INGREDIENT_CODEC.fieldOf("product").forGetter(j -> j.product),
             BuiltInRegistries.BLOCK.byNameCodec().fieldOf("crop_block").forGetter(j -> j.cropBlock),
@@ -39,25 +39,26 @@ public class FarmerJob extends Job {
     ).apply(inst, FarmerJob::new));
 
     private final double hoursPerDay;
-    private final String structureType;
+    private final String requiredStructure;
     private final Ingredient seed;
     private final Ingredient product;
     private final Block cropBlock;
     private final Map<String, String> ripeState;
 
-    public FarmerJob(double hoursPerDay, String structureType, Ingredient seed, Ingredient product,
+    public FarmerJob(double hoursPerDay, String requiredStructure, Ingredient seed, Ingredient product,
                      Block cropBlock, Map<String, String> ripeState, List<String> requiredNeeds) {
         super(requiredNeeds);
         this.hoursPerDay = hoursPerDay;
-        this.structureType = structureType;
+        this.requiredStructure = requiredStructure;
         this.seed = seed;
         this.product = product;
         this.cropBlock = cropBlock;
         this.ripeState = ripeState;
     }
 
-    public String getStructureType() {
-        return structureType;
+    @Override
+    public String getRequiredStructureType() {
+        return requiredStructure;
     }
 
     public Ingredient getSeed() {
@@ -99,7 +100,7 @@ public class FarmerJob extends Job {
             state.lastDayIndex = dayIndex;
         }
 
-        BlockPos structurePos = xoonglin.getAssignedStructurePos(structureType);
+        BlockPos structurePos = xoonglin.getAssignedStructurePos(requiredStructure);
 
         if (structurePos != null && isAtStructure(xoonglin, structurePos) && canWork(xoonglin)) {
             state.workedTicksToday++;
@@ -108,7 +109,7 @@ public class FarmerJob extends Job {
         Brain<XoonglinEntity> brain = xoonglin.getBrain();
 
         if (structurePos == null) {
-            brain.setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), structureType);
+            brain.setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), requiredStructure);
             brain.eraseMemory(CftMemoryModuleType.MUST_FARM.get());
         } else if (state.workedTicksToday < neededTicks && canWork(xoonglin)) {
             brain.setMemory(CftMemoryModuleType.MUST_FARM.get(), Boolean.TRUE);
@@ -126,7 +127,7 @@ public class FarmerJob extends Job {
     @Override
     public JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state) {
         int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
-        BlockPos structurePos = xoonglin.getAssignedStructurePos(structureType);
+        BlockPos structurePos = xoonglin.getAssignedStructurePos(requiredStructure);
         boolean atStructure = structurePos != null && isAtStructure(xoonglin, structurePos);
         boolean canDoWork = canWork(xoonglin);
         boolean doneForDay = state.workedTicksToday >= neededTicks;

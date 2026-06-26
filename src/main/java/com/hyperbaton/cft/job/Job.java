@@ -48,6 +48,8 @@ public abstract class Job {
         return true;
     }
 
-    void saveExtra(CompoundTag tag) {}
-    void loadExtra(CompoundTag tag) {}
+    public String getRequiredStructureType() {
+        return null;
+    }
+
 }

@@ -102,7 +102,8 @@ public class LeaderStaff extends Item {
                 needsData,
                 entity.getUUID(),
                 JobUtil.buildJobInfo(entity),
-                JobUtil.buildInventoryData(entity)
+                JobUtil.buildInventoryData(entity),
+                entity.getSocialClass().getJobs()
         );
     }
 

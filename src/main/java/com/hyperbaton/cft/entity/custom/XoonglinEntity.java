@@ -373,7 +373,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
-            this.setJob(socialClass.getJob());
+            this.setJob(socialClass.getRandomJob(this.getRandom()));
             this.jobState.reset();
             resetMatingDelay();
             applyClassMaxHealth();
@@ -403,6 +403,26 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
         structuresData.setDirty();
         assignedStructurePositions.clear();
+    }
+
+    public void removeFromJobStructures() {
+        if (this.level().isClientSide) return;
+        if (this.jobId == null) return;
+        Job job = CftRegistry.JOBS.get(this.jobId);
+        if (job == null) return;
+        String structureType = job.getRequiredStructureType();
+        if (structureType == null) return;
+        BlockPos pos = assignedStructurePositions.remove(structureType);
+        if (pos == null) return;
+        StructuresData structuresData = ((ServerLevel) this.level()).getDataStorage()
+                .computeIfAbsent(StructuresData.factory(), "structuresData");
+        for (Structure structure : structuresData.getStructures()) {
+            if (structure.getKeyBlockPos().equals(pos)) {
+                structure.removeUser(this.getUUID());
+                break;
+            }
+        }
+        structuresData.setDirty();
     }
 
     public Map<String, BlockPos> getAssignedStructurePositions() {
