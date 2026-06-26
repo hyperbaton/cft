@@ -22,25 +22,32 @@ home where to live and some items to be periodically delivered to their homes.
 needs. If their needs are satisfied and their happiness increases, they can upgrade to
 higher classes; however, if they get unhappy, they can demote to a lower class.
 - The **leader staff** can be used to designate a home (by right clicking on doors while
-crouching) or know current state of a Xoonglin.
+crouching), detect structures (by right clicking on a structure's key block) or know
+current state of a Xoonglin.
 - The first Xoonglins will spawn spontaneously, but from then on, they will mate to increase
 their population. However, they will always respect a given social structure (a relation
 on the amount of Xoonglins of each class).
 - You can compete with other players for getting the biggest and happiest Xoonglin
 population. The commands `\happinessLadder`, `\populationLadder` and `\socialstructure` give
 rankings and information on your Xoonglins.
-- The social classes and needs are fully configurable and customizable via datapacks,
-so it's possible to build a tailored experience for any modpack.
+- The social classes, needs, structures and jobs are fully configurable and customizable via
+datapacks, so it's possible to build a tailored experience for any modpack.
 - **Social Class Browser**: Press `V` to open an interactive screen showing the full social
 class hierarchy as a visual graph, with clickable nodes to view each class's needs,
 stats, and upgrade/downgrade conditions.
-- **Jobs**: Xoonglins can be assigned jobs through their social class. Jobs define what a
-Xoonglin does during the day, with work quotas and daily progress tracking.
+- **Jobs**: Xoonglins can be assigned jobs through their social class. Each social class can
+have multiple possible jobs, and each Xoonglin will randomly pick one. The player can manually
+change the job of a Xoonglin among the available ones.
+- **Structures**: Buildings in the world can be recognized and validated by the mod. Homes
+are a special type of structure, but other structure types (workshops, farms, monuments)
+can also be defined and used by jobs and needs.
+- **Equipment**: Xoonglins can wear items and armor in any equipment slot, driven by
+equipment needs.
 
 ## Datapacks
 
-It is possible to configure the social classes and needs of Xoonglins via datapacks, and
-any aspect of them can be configured.
+It is possible to configure the social classes, needs, structures and jobs of Xoonglins
+via datapacks, and any aspect of them can be configured.
 
 Some sample classes and needs come packaged with the mod, but they are only intended
 as examples for the possibilities of the mod. It is strongly advised to create a
@@ -55,49 +62,37 @@ The datapack documentation is presented below.
 
 ```json
 {
-  "id": "cft:patrician",
-  "maxHappiness": 4000.0,
-  "matingHappinessThreshold": 800.0,
-  "spontaneouslySpawnPopulation": 0,
+  "id": "cft:settler",
+  "maxHappiness": 100.0,
+  "matingHappinessThreshold": 5.0,
+  "spontaneouslySpawnPopulation": 3,
   "needs": [
-    "cft:gold_nugget_need",
-    "cft:book_need",
-    "cft:pork_need",
-    "cft:patrician_home"
+    "cft:settler_home",
+    "cft:water_need",
+    "cft:potato_need",
+    "cft:wood_logs_need",
+    "cft:bread_need"
   ],
-  "job": "cft:produce_paper_job",
-  "maxHealth": 20.0,
+  "jobs": ["cft:wheat_farmer_job", "cft:gather_flowers_job"],
   "upgrades": [
     {
-      "nextClass": "cft:noble",
-      "requiredHappiness": 1000,
+      "nextClass": "cft:citizen",
+      "requiredHappiness": 20,
       "requiredNeeds": [
         {
-          "need": "cft:gold_nugget_need",
-          "satisfactionThreshold": 0.85
+          "need": "cft:potato_need",
+          "satisfactionThreshold": 0.70
         }
       ],
       "socialStructureRequirements": [
         {
-          "socialClass": "cft:patrician",
-          "percentage": 0.06
+          "socialClass": "cft:settler",
+          "percentage": 0.30
         }
       ]
     }
   ],
-  "downgrades": [
-    {
-      "nextClass": "cft:citizen",
-      "requiredHappiness": 60,
-      "requiredNeeds": [
-        {
-          "need": "cft:gold_nugget_need",
-          "satisfactionThreshold": 0.40
-        }
-      ],
-      "socialStructureRequirements": []
-    }
-  ]
+  "downgrades": []
 }
 ```
 
@@ -112,8 +107,8 @@ The datapack documentation is presented below.
   spawn (per player) if homes are available. Apart from these, they need to mate or come
   from other classes.
 - `needs`: The list of needs, as references, for this class.
-- `job`: _(Optional)_ A reference to a job definition for this class. Xoonglins of this
-  class will perform the specified job.
+- `jobs`: _(Optional)_ A list of job references for this class. Each Xoonglin will randomly
+  pick one of the listed jobs. If empty or omitted, the Xoonglin has no job.
 - `maxHealth`: _(Optional, default: 20.0)_ The max health for Xoonglins of this class.
   Useful for making combat-oriented classes tougher.
 - `canUpgradeAsBaby`: _(Optional, default: false)_ Whether baby Xoonglins of this class
@@ -146,13 +141,15 @@ fields and they will work differently.
 All needs are checked every second for all Xoonglins. They have an internal value of
 satisfaction that goes from 0 to 1. If it's above the `satisfaction_threshold`, it is
 considered satisfied. In that case, happiness is increased and satisfaction is reduced.
-If it is unsatisfied, Xoonglin will try to initiate 
+If it is unsatisfied, Xoonglin will try to initiate
 some action for satisfying the need. If it fails, happiness will decrease.
 
 #### Goods Need
 
 A Xoonglin needs to consume some item or block for this need to be satisfied. They will
-try to get the goods from the chest whithin their home.
+try to get the goods from the container within their home. When resupplying, the Xoonglin
+will take up to the `hoarding` amount from the container so it doesn't need to resupply
+as often.
 
 <details>
     <summary>Sample goods need file</summary>
@@ -169,7 +166,8 @@ try to get the goods from the chest whithin their home.
     "item": "minecraft:bread"
   },
   "frequency": 0.5,
-  "quantity": 2
+  "quantity": 2,
+  "hoarding": 10
 }
 ```
 
@@ -185,103 +183,108 @@ _satisfied_.
 like checking NBT tags.
 - `frequency`: In Minecraft days, how long it takes for the satisfaction of this need to
 go from 1 to 0.
-- `hidden`: An optional boolean indicating if this need should be hidden from interfaces. Its value is `false`
-by default.
-- `quantity`: How many items of the specified class are needed to satisfy the need.
+- `hidden`: _(Optional, default: false)_ Whether this need should be hidden from interfaces.
+- `quantity`: How many items of the specified type are consumed each time the need is satisfied.
+- `hoarding`: _(Optional)_ How many items the Xoonglin will take from the container when
+resupplying. If omitted or set to 0, defaults to `quantity`. Setting this higher than
+`quantity` means the Xoonglin will stock up and won't need to visit the container as often.
 </details>
 
 #### Home Need
 
-A home consists of four parts: floor, walls, interior and roof. In a home need, it is
-specified which blocks can be used for each of these parts, and in which quantity.
-Breaking any of these rules will make a house invalid.
+A Xoonglin needs a home of a specific structure type. The home need references a house
+structure type (defined in the Structures section), which specifies the building rules.
 
-Once built, right clicking with the **Leader Staff** on the door of a house will check if it's valid.
-A message will appear in chat informing if it is or not.
-
-All houses must have one chest and one wooden door. Else, they are invalid.
-
-The floor can take any shape. Then, walls are built over the most exterior part of the
-floor upwards. The walls must be all of the same height. Then, the roof must be built
-resting on the walls and covering the full surface of the house.
+Once built, right clicking with the **Leader Staff** on the door of a house will check
+if it's valid. A message will appear in chat informing if it is or not.
 
 <details>
     <summary>Sample home need file</summary>
 
 ```json
 {
-  "id": "cft:soldier_home",
+  "id": "cft:settler_home",
   "type": "cft:home",
   "damage": 0.0,
   "damage_threshold": 0.0,
-  "provided_happiness": 20,
-  "satisfaction_threshold": 0.9,
+  "provided_happiness": 8,
+  "satisfaction_threshold": 0.95,
   "frequency": 1.0,
-  "floorBlocks": [
-    {
-      "tagBlock": "minecraft:planks",
-      "minQuantity": 16,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
-    }
-  ],
-  "wallBlocks": [
-    {
-      "block": "minecraft:iron_bars",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.05,
-      "maxPercentage": 0.20
-    },
-    {
-      "block": "minecraft:stone_bricks",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
-    }
-  ],
-  "interiorBlocks": [
-    {
-      "block": "minecraft:air",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
-    }
-  ],
-  "roofBlocks": [
-    {
-      "block": "minecraft:stone_brick_slab",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
-    }
-  ]
+  "required_structure": "cft:settler_house"
 }
-
 ```
 
+For the common fields, look at the goods need example. The specific field for home needs is:
 
-For the common fields, look at the good need example. The rest is a specification of
-the blocks a home can be built with:
+- `required_structure`: A reference to a house structure type ID (e.g. `"cft:settler_house"`).
+  The Xoonglin's home must match this structure type to satisfy the need.
+</details>
 
-- `floorBlocks`: A list of possible blocks for the floor. It works in the same way for
-the rest of home parts (wall, interior and roof). It is a list of elements whose
-fields are:
-  - `block`: A reference to a block that can be used for this part of the house.
-  - `tagBlock`: **Alternatively**, a tag can be provided so all blocks that belong to the 
-  tag will be taken into consideration.
-  - `minQuantity`: At least, this amount of blocks of this type must be present.
-  - `minQuantity`: No more than this amount of blocks of this type must be present.
-  - `minPercentage`: This part of the home must have at least this percentage of blocks
-  of this type. Always in [0,1]
-  - `maxPercentage`: This part of the home can't have more than this percentage of blocks
-  of this type. Always in [0,1]
+#### Equipment Need
 
-For the interior blocks, air should always be present.
+A Xoonglin needs to wear a specific item in an equipment slot. The Xoonglin will look for
+the item in its inventory and equip it automatically. If the item is not available, the
+Xoonglin will try to get it from the container in its home. Equipment items take damage
+over time and will eventually need to be replaced.
+
+<details>
+    <summary>Sample equipment need file</summary>
+
+```json
+{
+  "id": "cft:citizen_iron_sword_need",
+  "type": "cft:equipment",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 0.0,
+  "satisfaction_threshold": 0.5,
+  "item": {
+    "item": "minecraft:iron_sword"
+  },
+  "frequency": 7,
+  "hidden": true,
+  "slot": "mainhand"
+}
+```
+
+For the common fields, look at the goods need example. The specific fields for equipment needs are:
+
+- `item`: The equipment item, in Ingredient format.
+- `slot`: _(Optional, default: "mainhand")_ The equipment slot where the item should be worn.
+  Valid values: `"mainhand"`, `"offhand"`, `"head"`, `"chest"`, `"legs"`, `"feet"`.
+</details>
+
+#### Structure Need
+
+A Xoonglin needs access to a specific structure type nearby. This is used when a Xoonglin
+requires a workplace or facility (e.g. a smithy) without it being their home.
+
+<details>
+    <summary>Sample structure need file</summary>
+
+```json
+{
+  "type": "cft:structure",
+  "id": "cft:smithy_access_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 5.0,
+  "satisfaction_threshold": 0.9,
+  "frequency": 1.0,
+  "hidden": false,
+  "required_structure": "cft:smithy",
+  "requires_usage": true,
+  "search_radius": 64
+}
+```
+
+For the common fields, look at the goods need example. The specific fields for structure needs are:
+
+- `required_structure`: A reference to a structure type ID that the Xoonglin needs access to.
+- `requires_usage`: _(Optional, default: false)_ If true, the Xoonglin must actively visit
+  and interact with the structure; if false, the structure just needs to exist nearby.
+- `search_radius`: _(Optional, default: 64)_ How far (in blocks) the Xoonglin will search
+  for the required structure.
 </details>
 
 #### Altitude Need
@@ -346,7 +349,7 @@ Apart from the common fields, this need includes a list of biomes:
 
 #### Fluid Need
 
-It's similar to the Goods Need, but in this case the goods are fluids that are taken from a container withing the home
+It's similar to the Goods Need, but in this case the goods are fluids that are taken from a container within the home
 of the Xoonglin. Enough fluid must be present there; if it is, the Xoonglin will go to it to retrieve the fluid and
 satisfy the need.
 
@@ -368,20 +371,20 @@ satisfy the need.
   }
 }
 ```
-Apart from the common fields, this need includes a fluid stack object. Yes, it's in PascalCase because it uses Forge
+Apart from the common fields, this need includes a fluid stack object. Yes, it's in PascalCase because it uses NeoForge
 parsing method for FluidStack.
-- `fluid_stack`: A FluidStack object that contains the reference of the fluid and the amount in milibuckets. 
+- `fluid_stack`: A FluidStack object that contains the reference of the fluid and the amount in millibuckets.
 </details>
 
 #### Energy Need
 
-Works very similar to the Fluid Needs, but in this case the product consumed is just Forge Energy. It can be taken from
+Works very similar to the Fluid Needs, but in this case the product consumed is just NeoForge Energy. It can be taken from
 any block within the Xoonglin's home that implements the IEnergyStorage interface. The block must contain enough energy
 within itself and also be able to manage enough throughput: If the need requires more energy at once, the Xoonglin may
 not be able to extract it. This can be tuned by balancing amount and frequency.
 
 <details>
-    <summary>Sample fluid need file</summary>
+    <summary>Sample energy need file</summary>
 
 ```json
 {
@@ -396,7 +399,7 @@ not be able to extract it. This can be tuned by balancing amount and frequency.
 }
 ```
 The only specific field for this need is the energy amount.
-- `energy_amount`: The amount that must be consumed in one go to satisfy the need, in Forge Energy units.
+- `energy_amount`: The amount that must be consumed in one go to satisfy the need, in NeoForge Energy units.
 </details>
 
 #### Social Need
@@ -430,7 +433,8 @@ The Xoonglin needs companions of a specific social class nearby.
 
 #### Pet Need
 
-The Xoonglin needs a tamed pet of a given type nearby.
+The Xoonglin needs some mobs of specific types to be around (or to be absent: this
+need can also be used for limiting the presence of some mobs, e.g. hostile ones).
 
 <details>
     <summary>Sample pet need file</summary>
@@ -459,7 +463,7 @@ The Xoonglin needs a tamed pet of a given type nearby.
 
 #### Lighting Need
 
-The Xoonglin needs a certain light level in their home.
+The Xoonglin needs a certain light level around them.
 
 <details>
     <summary>Sample lighting need file</summary>
@@ -513,9 +517,10 @@ The Xoonglin needs specific decorative blocks placed near their home.
 
 ### Jobs
 
-Jobs define what Xoonglins do during the day. They are assigned via the `job` field in
-a social class definition. A Xoonglin with a job will work a configurable number of hours
-per Minecraft day, tracked through a daily tick quota.
+Jobs define what Xoonglins do during the day. They are assigned via the `jobs` field in
+a social class definition. Each social class can list multiple jobs, and each Xoonglin
+will randomly pick one from the list. A Xoonglin with a job will work a configurable
+number of hours per Minecraft day, tracked through a daily tick quota.
 
 Job progress can be viewed in the **Job tab** of the Xoonglin info screen (accessed via
 the leader staff).
@@ -592,4 +597,417 @@ The Xoonglin patrols around their home and attacks hostile mobs that come nearby
   mobs.
 - `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
   Xoonglin to be able to work.
+</details>
+
+#### Farmer
+
+The Xoonglin works at a farm structure, planting seeds and harvesting crops when they
+are ripe. The farmer needs a farm structure (open air platform) to work at, and will
+plant seeds on farmland blocks within the farm, then harvest the crop when it reaches
+the ripe state.
+
+<details>
+    <summary>Sample farmer job file</summary>
+
+```json
+{
+  "type": "cft:farmer",
+  "hours_per_day": 8.0,
+  "required_structure": "cft:farm",
+  "seed": {
+    "item": "minecraft:wheat_seeds"
+  },
+  "product": {
+    "item": "minecraft:wheat"
+  },
+  "crop_block": "minecraft:wheat",
+  "ripe_state": {
+    "age": "7"
+  }
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: A reference to a structure type ID where the farmer will work
+  (e.g. `"cft:farm"`).
+- `seed`: The seed item, in Ingredient format.
+- `product`: The harvested product, in Ingredient format.
+- `crop_block`: The block ID of the crop that grows from the seed.
+- `ripe_state`: A map of block state properties that indicate the crop is ready to harvest
+  (e.g. `{"age": "7"}` for fully grown wheat).
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
+
+
+### Structures
+
+Structures define building types that the mod can recognize and validate in the world.
+Each structure type specifies which blocks are valid for its different parts, and how
+the building should be shaped. Structures are detected by right clicking their **key block**
+with the **Leader Staff**.
+
+All structure types share these base fields:
+
+- `type`: The structure type discriminator (e.g. `"cft:house"`, `"cft:enclosed_building"`,
+  `"cft:open_air_platform"`, `"cft:monument"`).
+- `id`: Identifier of this structure type.
+- `key_block`: _(Optional)_ A specific block that identifies the structure. Right clicking
+  this block with the leader staff will trigger detection.
+- `key_block_tag`: _(Optional)_ A block tag; any block in the tag can serve as the key block.
+  One of `key_block` or `key_block_tag` should be provided.
+- `max_users`: _(Optional, default: 1)_ Maximum number of Xoonglins that can use this structure
+  at the same time. Set to 0 for structures with no user limit (e.g. monuments).
+- `requires_container`: _(Optional, default: false)_ Whether the structure must contain a
+  container block (e.g. a chest). Houses that need to store supplies should set this to `true`.
+- `priority`: _(Optional, default: 0)_ Priority for structure selection. Higher values are
+  preferred when multiple structures of the same category are available.
+
+Block rules are specified using `ValidBlock` objects with these fields:
+
+- `block`: A reference to a specific block (e.g. `"minecraft:stone_bricks"`).
+- `tagBlock`: **Alternatively**, a block tag (e.g. `"minecraft:planks"`) so all blocks
+  belonging to the tag are accepted.
+- `minQuantity`: At least this many blocks of this type must be present.
+- `maxQuantity`: No more than this many blocks of this type can be present.
+- `minPercentage`: This part of the structure must have at least this percentage of
+  blocks of this type. Always in [0,1].
+- `maxPercentage`: This part of the structure can't have more than this percentage of
+  blocks of this type. Always in [0,1].
+
+#### House
+
+Houses are enclosed buildings that serve as homes for Xoonglins. They are a specialized
+form of enclosed buildings with doors as key blocks. A house consists of four parts:
+floor, walls, interior and roof.
+
+The floor can take any shape. Walls are built over the most exterior part of the floor
+upwards and must all be of the same height. The roof must be built resting on the walls
+and covering the full surface of the house.
+
+Houses that need to store supplies for their Xoonglin should declare `"requires_container": true`
+and include the container block (e.g. a chest) in the `interiorBlocks` list.
+
+<details>
+    <summary>Sample house structure file</summary>
+
+```json
+{
+  "type": "cft:house",
+  "id": "cft:settler_house",
+  "key_block_tag": "minecraft:doors",
+  "max_users": 1,
+  "requires_container": true,
+  "priority": 0,
+  "floorBlocks": [
+    {
+      "tagBlock": "minecraft:planks",
+      "minQuantity": 9,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "wallBlocks": [
+    {
+      "tagBlock": "minecraft:logs",
+      "minQuantity": 14,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "tagBlock": "minecraft:planks",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "tagBlock": "minecraft:doors",
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "interiorBlocks": [
+    {
+      "block": "minecraft:air",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:chest",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "roofBlocks": [
+    {
+      "tagBlock": "minecraft:wooden_stairs",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ]
+}
+```
+
+- `floorBlocks`: A list of valid block rules for the floor.
+- `wallBlocks`: A list of valid block rules for the walls. Doors should be included here.
+- `interiorBlocks`: A list of valid block rules for the interior. Air should always be present.
+  Include the container block (e.g. chest) if the house requires one.
+- `roofBlocks`: A list of valid block rules for the roof.
+</details>
+
+#### Enclosed Building
+
+Enclosed buildings follow the same structure as houses (floor, walls, interior, roof) but
+are not homes. They are used as workplaces or other facilities (e.g. a smithy).
+
+<details>
+    <summary>Sample enclosed building structure file</summary>
+
+```json
+{
+  "type": "cft:enclosed_building",
+  "id": "cft:smithy",
+  "key_block": "minecraft:anvil",
+  "max_users": 2,
+  "requires_container": true,
+  "priority": 0,
+  "floorBlocks": [
+    {
+      "tagBlock": "minecraft:stone_bricks",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "wallBlocks": [
+    {
+      "tagBlock": "minecraft:stone_bricks",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:oak_door",
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "interiorBlocks": [
+    {
+      "block": "minecraft:air",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:chest",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:anvil",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "roofBlocks": [
+    {
+      "block": "minecraft:oak_planks",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ]
+}
+```
+
+The fields are identical to house structures. The key difference is that enclosed buildings
+use a specific `key_block` (like an anvil) instead of doors, and they are not used as homes.
+</details>
+
+#### Open Air Platform
+
+Open air platforms are flat structures surrounded by a border, such as farms or pens.
+They don't have a roof or enclosed walls — instead they have a border (like fences), a
+ground perimeter, and a surface.
+
+<details>
+    <summary>Sample open air platform structure file</summary>
+
+```json
+{
+  "type": "cft:open_air_platform",
+  "id": "cft:farm",
+  "key_block_tag": "minecraft:fence_gates",
+  "max_users": 1,
+  "requires_container": false,
+  "priority": 0,
+  "wall_height": 1,
+  "borderBlocks": [
+    {
+      "tagBlock": "minecraft:fences",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "tagBlock": "minecraft:fence_gates",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:chest",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "groundPerimeterBlocks": [
+    {
+      "tagBlock": "minecraft:dirt",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:grass_block",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "surfaceBlocks": [
+    {
+      "block": "minecraft:farmland",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.5,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:water",
+      "minQuantity": 1,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 0.25
+    },
+    {
+      "tagBlock": "minecraft:dirt",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 0.25
+    }
+  ]
+}
+```
+
+- `wall_height`: _(Optional, default: 1)_ Height of the border/wall around the platform.
+- `borderBlocks`: A list of valid block rules for the border surrounding the platform
+  (e.g. fences, fence gates).
+- `groundPerimeterBlocks`: A list of valid block rules for the ground below the border.
+- `surfaceBlocks`: A list of valid block rules for the interior surface of the platform
+  (e.g. farmland, water).
+</details>
+
+#### Monument
+
+Monuments are vertical structures validated layer by layer, such as obelisks or towers.
+Each layer is a horizontal slice of blocks, and rules can specify which blocks are valid
+at different height ranges.
+
+<details>
+    <summary>Sample monument structure file</summary>
+
+```json
+{
+  "type": "cft:monument",
+  "id": "cft:obelisk",
+  "key_block": "minecraft:chiseled_quartz_block",
+  "max_users": 0,
+  "requires_container": false,
+  "priority": 0,
+  "min_height": 5,
+  "max_height": 15,
+  "layerRules": [
+    {
+      "from": 0,
+      "to": 0,
+      "blocks": [
+        {
+          "block": "minecraft:chiseled_quartz_block",
+          "minQuantity": 1,
+          "maxQuantity": 1,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:quartz_block",
+          "minQuantity": 0,
+          "maxQuantity": 8,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ]
+    },
+    {
+      "from": 1,
+      "to": 14,
+      "blocks": [
+        {
+          "block": "minecraft:quartz_block",
+          "minQuantity": 1,
+          "maxQuantity": 9,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ]
+    }
+  ],
+  "identicalLayerGroups": [
+    {
+      "from": 1,
+      "to": 14
+    }
+  ]
+}
+```
+
+- `min_height`: Minimum height of the monument in blocks.
+- `max_height`: Maximum height of the monument in blocks.
+- `layerRules`: A list of rules, each applying to a range of layers (from bottom to top).
+  Layer 0 is the base.
+  - `from`: First layer index this rule applies to (inclusive).
+  - `to`: Last layer index this rule applies to (inclusive).
+  - `blocks`: A list of valid block rules for layers in this range.
+- `identicalLayerGroups`: _(Optional)_ Groups of layers that must be identical to each other.
+  - `from`: First layer index of the group (inclusive).
+  - `to`: Last layer index of the group (inclusive).
 </details>
