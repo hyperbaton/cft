@@ -9,5 +9,6 @@
     "item": "minecraft:bread"
   },
   "frequency": 0.5,
-  "quantity": 2
+  "quantity": 2,
+  "hoarding": 10
 }

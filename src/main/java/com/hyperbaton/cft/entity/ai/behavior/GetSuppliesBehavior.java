@@ -3,6 +3,8 @@ package com.hyperbaton.cft.entity.ai.behavior;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.need.GoodsNeed;
+import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -76,33 +78,48 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
 
     private void retrieveSupplies(XoonglinEntity mob, Container container, List<Ingredient> neededSupplies) {
         for (Ingredient ingredient : neededSupplies) {
-            if (!canStoreItem(mob, ingredient)) {
-                LOGGER.warn("Xoonglin's inventory is full, cannot retrieve supplies.");
-                return;
-            }
+            int neededAmount = getNeededQuantity(mob, ingredient);
+            if (neededAmount <= 0) continue;
 
-            for (int i = 0; i < container.getContainerSize(); i++) {
+            for (int i = 0; i < container.getContainerSize() && neededAmount > 0; i++) {
                 ItemStack stack = container.getItem(i);
+                if (!ingredient.test(stack) || stack.isEmpty()) continue;
+                if (!mob.getInventory().canAddItem(stack)) break;
 
-                if (ingredient.test(stack) && !stack.isEmpty()) {
-                    int neededAmount = getNeededQuantity(mob, ingredient);
-                    int takenAmount = Math.min(neededAmount, stack.getCount());
-
-                    ItemStack takenStack = container.removeItem(i, takenAmount);
-                    mob.getInventory().addItem(takenStack);
-
-                    break;
-                }
+                int takenAmount = Math.min(neededAmount, stack.getCount());
+                ItemStack takenStack = container.removeItem(i, takenAmount);
+                mob.getInventory().addItem(takenStack);
+                neededAmount -= takenAmount;
             }
         }
     }
 
-    private boolean canStoreItem(XoonglinEntity mob, Ingredient ingredient) {
-        return mob.getInventory().canAddItem(ingredient.getItems()[0]);
+    private int getNeededQuantity(XoonglinEntity mob, Ingredient ingredient) {
+        int hoarding = findHoardingAmount(mob, ingredient);
+        int currentCount = countInInventory(mob, ingredient);
+        return Math.max(hoarding - currentCount, 0);
     }
 
-    private int getNeededQuantity(XoonglinEntity mob, Ingredient ingredient) {
+    private int findHoardingAmount(XoonglinEntity mob, Ingredient ingredient) {
+        if (mob.getNeeds() == null) return 1;
+        for (NeedSatisfier<?> satisfier : mob.getNeeds()) {
+            if (satisfier.getNeed() instanceof GoodsNeed goodsNeed
+                    && goodsNeed.getIngredient().equals(ingredient)) {
+                return goodsNeed.getHoarding();
+            }
+        }
         return 1;
+    }
+
+    private int countInInventory(XoonglinEntity mob, Ingredient ingredient) {
+        int count = 0;
+        for (int i = 0; i < mob.getInventory().getContainerSize(); i++) {
+            ItemStack stack = mob.getInventory().getItem(i);
+            if (!stack.isEmpty() && ingredient.test(stack)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
     }
 
     @Override

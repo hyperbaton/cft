@@ -31,24 +31,25 @@ public class GoodsNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(GoodsNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(GoodsNeed::isHidden),
             Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity),
+            Codec.INT.optionalFieldOf("hoarding", 0).forGetter(GoodsNeed::getHoarding),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(GoodsNeed::getIcon)
     ).apply(instance, GoodsNeed::new));
     private static final String GOODS_NEED_TYPE = "cft:goods_need";
 
     private Ingredient item;
-    /**
-     * How many items need to be consumed every frequency days for this to be satisfied
-     */
     private int quantity;
+    private int hoarding;
 
     public static final String TAG_ITEM = "item";
     public static final String TAG_QUANTITY = "quantity";
+    public static final String TAG_HOARDING = "hoarding";
 
     public GoodsNeed(String id, double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, int quantity,
-                     Optional<ResourceLocation> icon) {
+                     int hoarding, Optional<ResourceLocation> icon) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
         this.quantity = quantity;
+        this.hoarding = hoarding > 0 ? hoarding : quantity;
         this.item = item;
     }
 
@@ -70,6 +71,10 @@ public class GoodsNeed extends Need {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public int getHoarding() {
+        return hoarding;
     }
 
     @Override
@@ -102,6 +107,7 @@ public class GoodsNeed extends Need {
                 .orElseThrow());
         tag.putDouble(TAG_FREQUENCY, getFrequency());
         tag.putInt(TAG_QUANTITY, quantity);
+        tag.putInt(TAG_HOARDING, hoarding);
         return tag;
     }
 
