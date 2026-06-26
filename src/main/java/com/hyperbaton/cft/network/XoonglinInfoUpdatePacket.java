@@ -27,7 +27,8 @@ public record XoonglinInfoUpdatePacket(
         double happiness,
         Map<String, NeedSatisfactionData> needsData,
         UUID xoonglinId,
-        JobInfoData jobInfo
+        JobInfoData jobInfo,
+        List<InventorySlotData> inventoryData
 ) implements CustomPacketPayload {
 
     public static final Type<XoonglinInfoUpdatePacket> TYPE =
@@ -59,7 +60,14 @@ public record XoonglinInfoUpdatePacket(
             }
             boolean hasJobInfo = ByteBufCodecs.BOOL.decode(buf);
             JobInfoData jobInfo = hasJobInfo ? JobInfoData.decode(buf) : null;
-            return new XoonglinInfoUpdatePacket(name, socialClass, jobId, happiness, needsData, xoonglinId, jobInfo);
+            int invSize = ByteBufCodecs.VAR_INT.decode(buf);
+            List<InventorySlotData> inventoryData = new ArrayList<>();
+            for (int i = 0; i < invSize; i++) {
+                ResourceLocation item = ResourceLocation.STREAM_CODEC.decode(buf);
+                int count = ByteBufCodecs.VAR_INT.decode(buf);
+                inventoryData.add(new InventorySlotData(item, count));
+            }
+            return new XoonglinInfoUpdatePacket(name, socialClass, jobId, happiness, needsData, xoonglinId, jobInfo, inventoryData);
         }
 
         @Override
@@ -88,6 +96,11 @@ public record XoonglinInfoUpdatePacket(
             if (packet.jobInfo != null) {
                 JobInfoData.encode(buf, packet.jobInfo);
             }
+            ByteBufCodecs.VAR_INT.encode(buf, packet.inventoryData.size());
+            for (InventorySlotData slot : packet.inventoryData) {
+                ResourceLocation.STREAM_CODEC.encode(buf, slot.item());
+                ByteBufCodecs.VAR_INT.encode(buf, slot.count());
+            }
         }
     };
 
@@ -111,4 +124,5 @@ public record XoonglinInfoUpdatePacket(
     public Map<String, NeedSatisfactionData> getNeedsData() { return needsData; }
     public UUID getXoonglinId() { return xoonglinId; }
     public JobInfoData getJobInfo() { return jobInfo; }
+    public List<InventorySlotData> getInventoryData() { return inventoryData; }
 }

@@ -28,6 +28,7 @@ public class XoonglinInfoScreen extends Screen {
 
     private static final int TAB_INFO = 0;
     private static final int TAB_JOB = 1;
+    private static final int TAB_ITEMS = 2;
     private static final int TAB_WIDTH = 60;
     private static final int TAB_HEIGHT = 14;
     private static final int TAB_Y_OFFSET = 22;
@@ -91,27 +92,34 @@ public class XoonglinInfoScreen extends Screen {
         int titleX = x + (imageWidth / 2) - (titleWidth / 2);
         graphics.drawString(this.font, titleText, titleX, y + MARGIN_PIXELS, 0x4040B0, false);
 
-        boolean hasJob = packet.getJobInfo() != null;
-        if (hasJob) {
-            renderTabs(graphics, x, y, mouseX, mouseY);
-        }
+        renderTabs(graphics, x, y, mouseX, mouseY);
 
-        if (currentTab == TAB_INFO || !hasJob) {
-            renderInfoTab(graphics, x, y, mouseX, mouseY, delta);
-        } else {
-            renderJobTab(graphics, x, y);
+        switch (currentTab) {
+            case TAB_INFO -> renderInfoTab(graphics, x, y, mouseX, mouseY, delta);
+            case TAB_JOB -> renderJobTab(graphics, x, y);
+            case TAB_ITEMS -> renderItemsTab(graphics, x, y, mouseX, mouseY);
         }
 
         super.render(graphics, mouseX, mouseY, delta);
     }
 
+    private int getTabCount() {
+        return packet.getJobInfo() != null ? 3 : 2;
+    }
+
     private void renderTabs(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
         int tabY = y + TAB_Y_OFFSET;
-        int tab1X = x + MARGIN_PIXELS;
-        int tab2X = tab1X + TAB_WIDTH + 4;
+        int tabX = x + MARGIN_PIXELS;
 
-        renderTab(graphics, tab1X, tabY, Component.translatable("gui.cft.tab_info"), currentTab == TAB_INFO);
-        renderTab(graphics, tab2X, tabY, Component.translatable("gui.cft.tab_job"), currentTab == TAB_JOB);
+        renderTab(graphics, tabX, tabY, Component.translatable("gui.cft.tab_info"), currentTab == TAB_INFO);
+        tabX += TAB_WIDTH + 4;
+
+        if (packet.getJobInfo() != null) {
+            renderTab(graphics, tabX, tabY, Component.translatable("gui.cft.tab_job"), currentTab == TAB_JOB);
+            tabX += TAB_WIDTH + 4;
+        }
+
+        renderTab(graphics, tabX, tabY, Component.translatable("gui.cft.tab_items"), currentTab == TAB_ITEMS);
     }
 
     private void renderTab(GuiGraphics graphics, int x, int y, Component label, boolean selected) {
@@ -133,7 +141,7 @@ public class XoonglinInfoScreen extends Screen {
     }
 
     private void renderInfoTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY, float delta) {
-        int contentY = packet.getJobInfo() != null ? y + CONTENT_Y_OFFSET : y + 30;
+        int contentY = y + CONTENT_Y_OFFSET;
 
         renderSocialClassAndJob(graphics, x, contentY);
 
@@ -213,6 +221,52 @@ public class XoonglinInfoScreen extends Screen {
         }
     }
 
+    private void renderItemsTab(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
+        int contentY = y + CONTENT_Y_OFFSET;
+        List<InventorySlotData> inventory = packet.getInventoryData();
+
+        if (inventory.isEmpty()) {
+            String emptyText = Component.translatable("gui.cft.inventory_empty").getString();
+            int textWidth = this.font.width(emptyText);
+            graphics.drawString(this.font, emptyText,
+                    x + (imageWidth - textWidth) / 2, contentY + 10, 0x808080, false);
+            return;
+        }
+
+        int columns = 9;
+        int slotSize = 18;
+        int gridWidth = columns * slotSize;
+        int gridX = x + (imageWidth - gridWidth) / 2;
+
+        for (int i = 0; i < inventory.size(); i++) {
+            InventorySlotData slot = inventory.get(i);
+            int col = i % columns;
+            int row = i / columns;
+            int slotX = gridX + col * slotSize;
+            int slotY = contentY + row * slotSize;
+
+            graphics.fill(slotX, slotY, slotX + slotSize, slotY + slotSize, 0xFF8B8B8B);
+            graphics.fill(slotX + 1, slotY + 1, slotX + slotSize - 1, slotY + slotSize - 1, 0xFF373737);
+
+            ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(slot.item()), slot.count());
+            graphics.renderItem(stack, slotX + 1, slotY + 1);
+            graphics.renderItemDecorations(this.font, stack, slotX + 1, slotY + 1);
+        }
+
+        for (int i = 0; i < inventory.size(); i++) {
+            InventorySlotData slot = inventory.get(i);
+            int col = i % columns;
+            int row = i / columns;
+            int slotX = gridX + col * slotSize;
+            int slotY = contentY + row * slotSize;
+
+            if (mouseX >= slotX && mouseX < slotX + slotSize && mouseY >= slotY && mouseY < slotY + slotSize) {
+                ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(slot.item()), slot.count());
+                graphics.renderTooltip(this.font, stack, mouseX, mouseY);
+            }
+        }
+    }
+
     private void renderProgressBar(GuiGraphics graphics, int x, int y, int current, int max) {
         graphics.fill(x, y, x + PROGRESS_BAR_WIDTH, y + PROGRESS_BAR_HEIGHT, 0xFF303030);
         if (max > 0) {
@@ -280,19 +334,28 @@ public class XoonglinInfoScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && packet.getJobInfo() != null) {
+        if (button == 0) {
             int x = (width - imageWidth) / 2;
             int y = (height - imageHeight) / 2;
             int tabY = y + TAB_Y_OFFSET;
-            int tab1X = x + MARGIN_PIXELS;
-            int tab2X = tab1X + TAB_WIDTH + 4;
+            int tabX = x + MARGIN_PIXELS;
 
-            if (isInBounds(mouseX, mouseY, tab1X, tabY, TAB_WIDTH, TAB_HEIGHT)) {
+            if (isInBounds(mouseX, mouseY, tabX, tabY, TAB_WIDTH, TAB_HEIGHT)) {
                 currentTab = TAB_INFO;
                 return true;
             }
-            if (isInBounds(mouseX, mouseY, tab2X, tabY, TAB_WIDTH, TAB_HEIGHT)) {
-                currentTab = TAB_JOB;
+            tabX += TAB_WIDTH + 4;
+
+            if (packet.getJobInfo() != null) {
+                if (isInBounds(mouseX, mouseY, tabX, tabY, TAB_WIDTH, TAB_HEIGHT)) {
+                    currentTab = TAB_JOB;
+                    return true;
+                }
+                tabX += TAB_WIDTH + 4;
+            }
+
+            if (isInBounds(mouseX, mouseY, tabX, tabY, TAB_WIDTH, TAB_HEIGHT)) {
+                currentTab = TAB_ITEMS;
                 return true;
             }
         }
@@ -337,7 +400,8 @@ public class XoonglinInfoScreen extends Screen {
                 updatePacket.getHappiness(),
                 updatePacket.getNeedsData(),
                 updatePacket.getXoonglinId(),
-                updatePacket.getJobInfo()
+                updatePacket.getJobInfo(),
+                updatePacket.getInventoryData()
         );
 
         if (needsScrollPanel != null) {

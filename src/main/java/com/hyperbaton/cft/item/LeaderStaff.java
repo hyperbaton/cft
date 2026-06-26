@@ -101,7 +101,8 @@ public class LeaderStaff extends Item {
                 entity.getHappiness(),
                 needsData,
                 entity.getUUID(),
-                JobUtil.buildJobInfo(entity)
+                JobUtil.buildJobInfo(entity),
+                JobUtil.buildInventoryData(entity)
         );
     }
 

@@ -3,15 +3,20 @@ package com.hyperbaton.cft.util;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.Job;
+import com.hyperbaton.cft.network.InventorySlotData;
 import com.hyperbaton.cft.network.JobInfoData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public final class JobUtil {
@@ -31,6 +36,23 @@ public final class JobUtil {
         Job job = CftRegistry.JOBS.get(xoonglin.getJob());
         if (job == null) return null;
         return job.getDisplayInfo(xoonglin, xoonglin.getJobState());
+    }
+
+    public static List<InventorySlotData> buildInventoryData(XoonglinEntity xoonglin) {
+        List<InventorySlotData> slots = new ArrayList<>();
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack stack = xoonglin.getItemBySlot(slot);
+            if (!stack.isEmpty()) {
+                slots.add(new InventorySlotData(BuiltInRegistries.ITEM.getKey(stack.getItem()), stack.getCount()));
+            }
+        }
+        for (int i = 0; i < xoonglin.getInventory().getContainerSize(); i++) {
+            ItemStack stack = xoonglin.getInventory().getItem(i);
+            if (!stack.isEmpty()) {
+                slots.add(new InventorySlotData(BuiltInRegistries.ITEM.getKey(stack.getItem()), stack.getCount()));
+            }
+        }
+        return slots;
     }
 
     public static boolean isAtHome(XoonglinEntity mob, double radius) {

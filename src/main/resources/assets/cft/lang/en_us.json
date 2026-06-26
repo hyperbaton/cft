@@ -84,6 +84,8 @@
   "key.categories.cft": "Care For Them",
   "gui.cft.tab_info": "Info",
   "gui.cft.tab_job": "Job",
+  "gui.cft.tab_items": "Items",
+  "gui.cft.inventory_empty": "No items",
   "gui.cft.job_status.working": "Working",
   "gui.cft.job_status.resting": "Resting",
   "gui.cft.job_status.cant_work": "Can't Work",

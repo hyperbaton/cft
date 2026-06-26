@@ -62,7 +62,8 @@ public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements Custom
                                 xoonglin.getHappiness(),
                                 needsData,
                                 xoonglin.getUUID(),
-                                JobUtil.buildJobInfo(xoonglin)
+                                JobUtil.buildJobInfo(xoonglin),
+                                JobUtil.buildInventoryData(xoonglin)
                         );
 
                         PacketDistributor.sendToPlayer(player, updatePacket);
