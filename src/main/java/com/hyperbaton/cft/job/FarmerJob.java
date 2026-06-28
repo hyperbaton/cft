@@ -154,8 +154,6 @@ public class FarmerJob extends Job {
         List<JobDisplayEntry> entries = new ArrayList<>();
         entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks,
                 JobUtil.formatWorkTime(state.workedTicksToday, hoursPerDay)));
-        entries.add(JobDisplayEntry.progress("gui.cft.job_streak", state.consecutiveDaysWorked, 1));
-
         boolean seedAndProductSame = isSameItem(seed, product);
         if (seedAndProductSame) {
             int count = countIngredient(xoonglin, seed);

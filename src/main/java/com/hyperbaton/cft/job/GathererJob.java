@@ -118,8 +118,6 @@ public class GathererJob extends Job {
         List<JobDisplayEntry> entries = new ArrayList<>();
         entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks,
                 JobUtil.formatWorkTime(state.workedTicksToday, hoursPerDay)));
-        entries.add(JobDisplayEntry.progress("gui.cft.job_streak", state.consecutiveDaysWorked, 1));
-
         if (block != null) {
             entries.add(JobDisplayEntry.item("gui.cft.job_gathering",
                     BuiltInRegistries.BLOCK.getKey(block), 0));

@@ -8,6 +8,10 @@ import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.level.Level;
 
@@ -99,9 +103,36 @@ public class HaulerJob extends Job {
         List<JobDisplayEntry> entries = new ArrayList<>();
         entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks,
                 JobUtil.formatWorkTime(state.workedTicksToday, hoursPerDay)));
-        entries.add(JobDisplayEntry.progress("gui.cft.job_streak", state.consecutiveDaysWorked, 1));
+
+        SimpleContainer inventory = xoonglin.getInventory();
+        for (HaulerErrand errand : errands) {
+            for (HaulerErrand.HaulerItem haulerItem : errand.items()) {
+                int count = countIngredient(inventory, haulerItem.ingredient());
+                if (count > 0) {
+                    entries.add(JobDisplayEntry.item("gui.cft.job_carrying",
+                            getIngredientIcon(haulerItem.ingredient()), count));
+                }
+            }
+        }
 
         return new JobInfoData(statusKey, statusColor, entries);
+    }
+
+    private int countIngredient(SimpleContainer inventory, Ingredient ingredient) {
+        int count = 0;
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (!stack.isEmpty() && ingredient.test(stack)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
+    }
+
+    private net.minecraft.resources.ResourceLocation getIngredientIcon(Ingredient ingredient) {
+        ItemStack[] items = ingredient.getItems();
+        if (items.length == 0) return net.minecraft.resources.ResourceLocation.withDefaultNamespace("air");
+        return BuiltInRegistries.ITEM.getKey(items[0].getItem());
     }
 
     @Override
