@@ -1,0 +1,9 @@
+{
+  "type": "cft:builder",
+  "hours_per_day": 8.0,
+  "storage_structure": "cft:settler_house",
+  "build_radius": 48,
+  "buildable_structures": [
+    "cft:settler_house"
+  ]
+}

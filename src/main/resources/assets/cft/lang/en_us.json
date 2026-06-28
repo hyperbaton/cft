@@ -106,6 +106,7 @@
   "gui.cft.job_product": "Product",
   "gui.cft.job_inventory": "Inventory",
   "gui.cft.job_carrying": "Carrying",
+  "gui.cft.job_carrying_blocks": "Carrying Blocks",
   "gui.cft.job_status.no_structure": "No Structure",
   "gui.cft.need_type.structure": "Structure",
   "gui.cft.need_type.equipment": "Equipment",

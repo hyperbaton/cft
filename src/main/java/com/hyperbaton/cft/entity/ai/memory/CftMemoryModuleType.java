@@ -32,6 +32,7 @@ public class CftMemoryModuleType {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_GUARD = registerMemory("must_guard", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_FARM = registerMemory("must_farm", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_HAUL = registerMemory("must_haul", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_BUILD = registerMemory("must_build", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<String>> STRUCTURE_NEEDED = registerMemory("structure_needed", Codec.STRING);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> STRUCTURE_CANDIDATE_POSITION = registerMemory("structure_candidate_position", BlockPos.CODEC);
 

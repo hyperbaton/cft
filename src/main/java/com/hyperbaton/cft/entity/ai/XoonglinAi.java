@@ -42,6 +42,7 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_GUARD.get(),
             CftMemoryModuleType.MUST_FARM.get(),
             CftMemoryModuleType.MUST_HAUL.get(),
+            CftMemoryModuleType.MUST_BUILD.get(),
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
             CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get(),
             MemoryModuleType.WALK_TARGET,
@@ -100,6 +101,9 @@ public class XoonglinAi {
                 )),
                 Pair.of(2, new HaulBehavior(
                         Map.of(CftMemoryModuleType.MUST_HAUL.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new BuildBehavior(
+                        Map.of(CftMemoryModuleType.MUST_BUILD.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(3, new FindAndClaimStructureBehavior())
         ));
