@@ -137,6 +137,7 @@ public class BuildingDetectionUtils {
                         blockState -> validBlocks.stream()
                                 .filter(validBlock -> isValidBlock(blockState, validBlock))
                                 .findFirst()
+                                // TODO: properly catch this and send message to player
                                 .orElseThrow(() -> new IllegalStateException("Block not matching any ValidBlock"))
                 ))
                 .entrySet().stream()

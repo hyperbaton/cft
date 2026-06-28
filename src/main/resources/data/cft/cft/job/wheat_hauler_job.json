@@ -1,0 +1,19 @@
+{
+  "type": "cft:hauler",
+  "hours_per_day": 6.0,
+  "radius": 64,
+  "errands": [
+    {
+      "origin_structure": "cft:farm",
+      "destination_structure": "cft:settler_house",
+      "items": [
+        {
+          "item": {
+            "item": "minecraft:wheat"
+          },
+          "quantity": 32
+        }
+      ]
+    }
+  ]
+}

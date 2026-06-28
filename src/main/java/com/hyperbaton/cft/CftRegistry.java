@@ -4,6 +4,7 @@ import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.FarmerJob;
 import com.hyperbaton.cft.job.GathererJob;
 import com.hyperbaton.cft.job.GuardJob;
+import com.hyperbaton.cft.job.HaulerJob;
 import com.hyperbaton.cft.job.HomeArtisanJob;
 import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
@@ -75,6 +76,9 @@ public class CftRegistry {
 
     public static final DeferredHolder<Codec<? extends Job>, Codec<FarmerJob>> FARMER_JOB =
             JOBS_CODEC.register("farmer", () -> FarmerJob.CODEC);
+
+    public static final DeferredHolder<Codec<? extends Job>, Codec<HaulerJob>> HAULER_JOB =
+            JOBS_CODEC.register("hauler", () -> HaulerJob.CODEC);
 
     public static final DeferredRegister<Codec<? extends StructureType>> STRUCTURE_TYPE_CODECS =
             DeferredRegister.create(CftDatapackRegistryEvents.STRUCTURE_TYPE_CODEC_KEY, CftMod.MOD_ID);
