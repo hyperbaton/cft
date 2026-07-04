@@ -8,7 +8,9 @@ import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.world.StructuresData;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import org.slf4j.Logger;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -27,9 +29,17 @@ import java.util.*;
 
 public class BuildBehavior extends Behavior<XoonglinEntity> {
 
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final int REPATH_INTERVAL = 40;
     private static final double REACH = 3.0;
     private static final int BLOCKS_PER_SITE_SCAN = 4096;
+    // Ticks to spend trying to step off a placement target before deferring it
+    private static final int MAX_OCCUPY_TICKS = 60;
+    // Ticks to wait before re-checking storage when it lacks needed materials
+    private static final int FETCH_RETRY_COOLDOWN = 600;
+    // Consecutive plan rebuilds without progress before abandoning the site
+    private static final int MAX_STALLED_REBUILDS = 2;
 
     private enum State {
         FINDING_SITE, PLANNING, FETCHING_RESOURCES,
@@ -49,6 +59,11 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
     private int repathTimer;
     private int placeCooldown;
     private int navFailures;
+    private int occupyTicks;
+    private int fetchWait;
+    private int lastRemainingCount;
+    private int stalledRebuilds;
+    private final Set<BlockPos> abandonedSites = new HashSet<>();
 
     public BuildBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
         super(pEntryCondition, 2400);
@@ -70,6 +85,11 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         repathTimer = 0;
         placeCooldown = 0;
         navFailures = 0;
+        occupyTicks = 0;
+        fetchWait = 0;
+        lastRemainingCount = Integer.MAX_VALUE;
+        stalledRebuilds = 0;
+        abandonedSites.clear();
     }
 
     @Override
@@ -126,6 +146,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
 
                     if (existingBlocks.contains(normalizedPos)) continue;
                     if (!normalizedPos.equals(pos) && existingBlocks.contains(pos)) continue;
+                    if (abandonedSites.contains(normalizedPos)) continue;
 
                     for (String typeId : job.getBuildableStructures()) {
                         StructureType structureType = findStructureType(typeId);
@@ -156,6 +177,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
 
         Structure template = findClosestTemplate(data, entity, buildStructureTypeId);
         if (template == null) {
+            abandonedSites.add(buildSiteKeyBlock);
             state = State.FINDING_SITE;
             buildSiteKeyBlock = null;
             return;
@@ -165,18 +187,25 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         buildPlanIndex = 0;
 
         if (buildPlan.isEmpty()) {
+            // Structure is already fully built (even if the player hasn't detected it yet)
+            abandonedSites.add(buildSiteKeyBlock);
             state = State.FINDING_SITE;
             buildSiteKeyBlock = null;
+            buildPlan = null;
             return;
         }
 
         storageContainerPos = findStorageContainer(level, data, entity, job);
         if (storageContainerPos == null) {
+            abandonedSites.add(buildSiteKeyBlock);
             state = State.FINDING_SITE;
             buildSiteKeyBlock = null;
+            buildPlan = null;
             return;
         }
 
+        lastRemainingCount = buildPlan.size();
+        stalledRebuilds = 0;
         state = State.FETCHING_RESOURCES;
         repathTimer = 0;
         navigateTo(entity, storageContainerPos);
@@ -185,6 +214,11 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
     private void tickFetchingResources(ServerLevel level, XoonglinEntity entity, BuilderJob job) {
         if (storageContainerPos == null) {
             state = State.FINDING_SITE;
+            return;
+        }
+
+        if (fetchWait > 0) {
+            fetchWait--;
             return;
         }
 
@@ -199,11 +233,13 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
             takeNeededBlocks(entity, container);
             container.setChanged();
 
-            boolean hasBlocks = hasAnyBuildBlocks(entity);
+            boolean hasBlocks = hasUsableBuildBlocks(level, entity);
             if (hasBlocks) {
                 state = State.TRAVELING_TO_SITE;
                 repathTimer = 0;
                 navigateTo(entity, buildSiteKeyBlock);
+            } else {
+                fetchWait = FETCH_RETRY_COOLDOWN;
             }
             return;
         }
@@ -264,6 +300,21 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
                 buildPlan = null;
                 return;
             }
+            if (remaining.size() >= lastRemainingCount) {
+                stalledRebuilds++;
+            } else {
+                stalledRebuilds = 0;
+            }
+            lastRemainingCount = remaining.size();
+            if (stalledRebuilds > MAX_STALLED_REBUILDS) {
+                LOGGER.warn("[Build] {} abandoning site {}: {} blocks unplaceable after {} stalled rebuilds",
+                        entity.getName().getString(), buildSiteKeyBlock, remaining.size(), stalledRebuilds);
+                abandonedSites.add(buildSiteKeyBlock);
+                state = State.FINDING_SITE;
+                buildSiteKeyBlock = null;
+                buildPlan = null;
+                return;
+            }
             buildPlan = remaining;
             buildPlanIndex = 0;
             return;
@@ -289,6 +340,11 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
             int invSlot = findItemInInventory(entity, neededItem);
 
             if (invSlot < 0) {
+                if (hasUsableBuildBlocks(level, entity)) {
+                    // Missing this item but can still place others; defer it for later
+                    buildPlanIndex++;
+                    continue;
+                }
                 if (hasRemainingWork(level)) {
                     state = State.FETCHING_RESOURCES;
                     repathTimer = 0;
@@ -302,6 +358,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
             }
 
             if (entity.position().distanceTo(Vec3.atCenterOf(placement.target)) > REACH) {
+                occupyTicks = 0;
                 if (entity.getNavigation().isDone()) {
                     navFailures++;
                     if (navFailures >= MAX_NAV_FAILURES) {
@@ -321,17 +378,33 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
             navFailures = 0;
 
             if (entityOccupies(entity, placement.target)) {
-                BlockPos safePos = findSafePosition(level, entity, placement.target);
-                if (safePos != null) {
-                    if (entity.getNavigation().isDone()) {
-                        navigateTo(entity, safePos);
-                    }
-                    return;
+                occupyTicks++;
+                if (occupyTicks > MAX_OCCUPY_TICKS) {
+                    // Couldn't step aside in time; defer this block and continue with the rest
+                    occupyTicks = 0;
+                    buildPlanIndex++;
+                    continue;
                 }
+                BlockPos safePos = findSafePosition(level, entity, placement.target);
+                if (safePos == null) {
+                    // Nowhere to step; defer immediately rather than suffocating ourselves
+                    occupyTicks = 0;
+                    buildPlanIndex++;
+                    continue;
+                }
+                if (entity.getNavigation().isDone()) {
+                    navigateTo(entity, safePos);
+                }
+                return;
             }
 
+            occupyTicks = 0;
             entity.getNavigation().stop();
             level.setBlock(placement.target, placement.state, 3);
+            if (placement.state.getBlock() instanceof DoorBlock) {
+                level.setBlock(placement.target.above(),
+                        placement.state.setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER), 3);
+            }
             entity.getInventory().removeItem(invSlot, 1);
             buildPlanIndex++;
             placeCooldown = job.getBuildSpeed();
@@ -372,40 +445,42 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         List<String> buildOrder = List.of("floor", "ground_perimeter", "wall", "border",
                 "surface", "interior", "roof");
 
+        boolean siteKeyIsDoor = level.getBlockState(siteKeyBlock).getBlock() instanceof DoorBlock;
+
         for (String group : buildOrder) {
-            List<BlockPos> positions = template.getBlockPositions().getOrDefault(group, List.of());
-            for (BlockPos templatePos : positions) {
-                BlockState templateState = level.getBlockState(templatePos);
-                if (templateState.isAir() || templateState.liquid()) continue;
-                if (templateState.getBlock().asItem() == net.minecraft.world.item.Items.AIR) continue;
-
-                BlockPos targetPos = templatePos.offset(dx, dy, dz);
-                if (targetPos.equals(siteKeyBlock)) continue;
-
-                if (!level.getBlockState(targetPos).equals(templateState)) {
-                    plan.add(new BuildPlacement(targetPos, templateState));
-                }
+            for (BlockPos templatePos : template.getBlockPositions().getOrDefault(group, List.of())) {
+                addPlacement(level, plan, templatePos, siteKeyBlock, siteKeyIsDoor, dx, dy, dz);
             }
         }
 
         for (String group : template.getBlockPositions().keySet()) {
             if (buildOrder.contains(group)) continue;
-            List<BlockPos> positions = template.getBlockPositions().get(group);
-            for (BlockPos templatePos : positions) {
-                BlockState templateState = level.getBlockState(templatePos);
-                if (templateState.isAir() || templateState.liquid()) continue;
-                if (templateState.getBlock().asItem() == net.minecraft.world.item.Items.AIR) continue;
-
-                BlockPos targetPos = templatePos.offset(dx, dy, dz);
-                if (targetPos.equals(siteKeyBlock)) continue;
-
-                if (!level.getBlockState(targetPos).equals(templateState)) {
-                    plan.add(new BuildPlacement(targetPos, templateState));
-                }
+            for (BlockPos templatePos : template.getBlockPositions().get(group)) {
+                addPlacement(level, plan, templatePos, siteKeyBlock, siteKeyIsDoor, dx, dy, dz);
             }
         }
 
         return plan;
+    }
+
+    private void addPlacement(ServerLevel level, List<BuildPlacement> plan, BlockPos templatePos,
+                              BlockPos siteKeyBlock, boolean siteKeyIsDoor, int dx, int dy, int dz) {
+        BlockState templateState = level.getBlockState(templatePos);
+        if (templateState.isAir() || templateState.liquid()) return;
+        if (templateState.getBlock().asItem() == net.minecraft.world.item.Items.AIR) return;
+        // Upper door halves are placed together with their lower half
+        if (templateState.getBlock() instanceof DoorBlock
+                && templateState.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER) return;
+
+        BlockPos targetPos = templatePos.offset(dx, dy, dz);
+        // The key block already exists at the site (both halves, if it is a door),
+        // even if its orientation differs from the template's
+        if (targetPos.equals(siteKeyBlock)) return;
+        if (siteKeyIsDoor && targetPos.equals(siteKeyBlock.above())) return;
+
+        if (!level.getBlockState(targetPos).equals(templateState)) {
+            plan.add(new BuildPlacement(targetPos, templateState));
+        }
     }
 
     private BlockPos findStorageContainer(ServerLevel level, StructuresData data,
@@ -431,6 +506,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         return data.getStructures().stream()
                 .filter(s -> s.getStructureTypeId().equals(storageTypeId))
                 .filter(s -> s.getLeaderId().equals(entity.getLeaderId()))
+                .filter(s -> s.isUser(entity.getUUID()))
                 .sorted(Comparator.comparingInt(s -> s.getKeyBlockPos().distManhattan(entityPos)))
                 .map(s -> findContainerInStructure(level, s))
                 .filter(Objects::nonNull)
@@ -485,11 +561,16 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         }
     }
 
-    private boolean hasAnyBuildBlocks(XoonglinEntity entity) {
-        SimpleContainer inventory = entity.getInventory();
-        for (int i = 0; i < inventory.getContainerSize(); i++) {
-            ItemStack stack = inventory.getItem(i);
-            if (!stack.isEmpty() && stack.getItem() instanceof BlockItem) {
+    /**
+     * True if the inventory holds an item usable for at least one remaining placement.
+     * Holding unrelated blocks does not count — that caused fetch/place ping-pong loops.
+     */
+    private boolean hasUsableBuildBlocks(ServerLevel level, XoonglinEntity entity) {
+        if (buildPlan == null) return false;
+        for (int i = buildPlanIndex; i < buildPlan.size(); i++) {
+            BuildPlacement p = buildPlan.get(i);
+            if (level.getBlockState(p.target).equals(p.state)) continue;
+            if (findItemInInventory(entity, p.state.getBlock().asItem()) >= 0) {
                 return true;
             }
         }
@@ -504,6 +585,31 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
             }
         }
         return false;
+    }
+
+    private String describeMissingItems(ServerLevel level, XoonglinEntity entity) {
+        if (buildPlan == null) return "?";
+        Map<Item, Integer> missing = new HashMap<>();
+        for (int i = buildPlanIndex; i < buildPlan.size(); i++) {
+            BuildPlacement p = buildPlan.get(i);
+            if (level.getBlockState(p.target).equals(p.state)) continue;
+            missing.merge(p.state.getBlock().asItem(), 1, Integer::sum);
+        }
+        SimpleContainer inventory = entity.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (!stack.isEmpty()) {
+                missing.merge(stack.getItem(), -stack.getCount(), Integer::sum);
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        missing.forEach((item, count) -> {
+            if (count > 0) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(count).append("x ").append(item.getDescription().getString());
+            }
+        });
+        return sb.length() > 0 ? sb.toString() : "nothing";
     }
 
     private int findItemInInventory(XoonglinEntity entity, Item item) {
@@ -530,16 +636,51 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
                 pos.getX() + 1.0, pos.getY() + 1.0, pos.getZ() + 1.0);
     }
 
+    /**
+     * Finds a standable position near the entity that does not intersect the block
+     * about to be placed. Prefers positions that are not themselves pending build
+     * targets, to avoid oscillating between two cells that both need blocks.
+     */
     private BlockPos findSafePosition(ServerLevel level, XoonglinEntity entity, BlockPos avoid) {
-        for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.Plane.HORIZONTAL) {
-            BlockPos candidate = avoid.relative(dir);
-            if (level.getBlockState(candidate).isAir()
-                    && level.getBlockState(candidate.above()).isAir()
-                    && !level.getBlockState(candidate.below()).isAir()) {
-                return candidate;
+        BlockPos feet = entity.blockPosition();
+        Set<BlockPos> pending = new HashSet<>();
+        if (buildPlan != null) {
+            for (int i = buildPlanIndex; i < buildPlan.size(); i++) {
+                pending.add(buildPlan.get(i).target);
             }
         }
-        return null;
+
+        BlockPos bestNonPending = null;
+        int bestNonPendingDist = Integer.MAX_VALUE;
+        BlockPos bestAny = null;
+        int bestAnyDist = Integer.MAX_VALUE;
+
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dz = -2; dz <= 2; dz++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    if (dx == 0 && dz == 0 && dy == 0) continue;
+                    BlockPos candidate = feet.offset(dx, dy, dz);
+                    // Standing here must not intersect the block we want to place
+                    if (candidate.equals(avoid) || candidate.above().equals(avoid)) continue;
+                    if (!level.getBlockState(candidate).isAir()
+                            || !level.getBlockState(candidate.above()).isAir()
+                            || level.getBlockState(candidate.below()).isAir()) continue;
+
+                    int dist = Math.abs(dx) + Math.abs(dy) + Math.abs(dz);
+                    if (!pending.contains(candidate) && !pending.contains(candidate.above())) {
+                        if (dist < bestNonPendingDist) {
+                            bestNonPendingDist = dist;
+                            bestNonPending = candidate;
+                        }
+                    } else if (dist < bestAnyDist) {
+                        bestAnyDist = dist;
+                        bestAny = candidate;
+                    }
+                }
+            }
+        }
+
+        return bestNonPending != null ? bestNonPending : bestAny;
     }
 
     private void navigateTo(XoonglinEntity entity, BlockPos pos) {
