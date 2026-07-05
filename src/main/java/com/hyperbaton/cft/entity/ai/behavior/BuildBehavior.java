@@ -7,6 +7,7 @@ import com.hyperbaton.cft.job.BuilderJob;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.StructureType;
+import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -56,6 +57,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
     private List<BuildPlacement> buildPlan;
     private int buildPlanIndex;
     private BlockPos storageContainerPos;
+    private BlockPos storageStructureKeyPos;
     private int repathTimer;
     private int placeCooldown;
     private int navFailures;
@@ -82,6 +84,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         buildPlan = null;
         buildPlanIndex = 0;
         storageContainerPos = null;
+        storageStructureKeyPos = null;
         repathTimer = 0;
         placeCooldown = 0;
         navFailures = 0;
@@ -225,13 +228,16 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         if (entity.position().distanceTo(Vec3.atCenterOf(storageContainerPos)) < REACH) {
             entity.getNavigation().stop();
 
-            if (!(level.getBlockEntity(storageContainerPos) instanceof Container container)) {
+            List<Container> containers = findStorageContainers(level);
+            if (containers.isEmpty()) {
                 state = State.FINDING_SITE;
                 return;
             }
 
-            takeNeededBlocks(entity, container);
-            container.setChanged();
+            for (Container container : containers) {
+                takeNeededBlocks(entity, container);
+                container.setChanged();
+            }
 
             boolean hasBlocks = hasUsableBuildBlocks(level, entity);
             if (hasBlocks) {
@@ -423,6 +429,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         buildStructureTypeId = null;
         buildPlan = null;
         storageContainerPos = null;
+        storageStructureKeyPos = null;
     }
 
     private Structure findClosestTemplate(StructuresData data, XoonglinEntity entity, String structureTypeId) {
@@ -496,7 +503,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
                         .filter(s -> s.getKeyBlockPos().equals(assignedPos))
                         .findFirst().orElse(null);
                 if (assigned != null) {
-                    return findContainerInStructure(level, assigned);
+                    return rememberStorageStructure(level, assigned);
                 }
             }
             return null;
@@ -508,21 +515,33 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
                 .filter(s -> s.getLeaderId().equals(entity.getLeaderId()))
                 .filter(s -> s.isUser(entity.getUUID()))
                 .sorted(Comparator.comparingInt(s -> s.getKeyBlockPos().distManhattan(entityPos)))
-                .map(s -> findContainerInStructure(level, s))
+                .map(s -> rememberStorageStructure(level, s))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
     }
 
-    private BlockPos findContainerInStructure(ServerLevel level, Structure structure) {
-        for (List<BlockPos> blocks : structure.getBlockPositions().values()) {
-            for (BlockPos pos : blocks) {
-                if (level.getBlockEntity(pos) instanceof Container) {
-                    return pos;
-                }
-            }
+    /**
+     * Records the storage structure's key block (so all its containers can be used
+     * when fetching) and returns the preferred container position to navigate to.
+     */
+    private BlockPos rememberStorageStructure(ServerLevel level, Structure structure) {
+        List<BlockPos> containerPositions = ContainerUtil.findContainerPositions(level, structure);
+        if (containerPositions.isEmpty()) {
+            return null;
         }
-        return null;
+        storageStructureKeyPos = structure.getKeyBlockPos();
+        return containerPositions.get(0);
+    }
+
+    private List<Container> findStorageContainers(ServerLevel level) {
+        if (storageStructureKeyPos == null) return List.of();
+        StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
+        Structure storage = data.getStructures().stream()
+                .filter(s -> s.getKeyBlockPos().equals(storageStructureKeyPos))
+                .findFirst().orElse(null);
+        if (storage == null) return List.of();
+        return ContainerUtil.findContainers(level, storage);
     }
 
     private void takeNeededBlocks(XoonglinEntity entity, Container container) {

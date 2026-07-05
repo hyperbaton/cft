@@ -4,9 +4,9 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.CrafterJob;
-import com.hyperbaton.cft.job.ItemQuantity;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -14,7 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -22,7 +21,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -123,7 +121,7 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        if (craftProgress == 0 && !hasAllIngredients(containers, job)) {
+        if (craftProgress == 0 && !ContainerUtil.hasAllIngredients(containers, job.getIngredients())) {
             LOGGER.warn("[Craft] {} is missing ingredients at workshop {}, waiting",
                     entity.getName().getString(), workshopKeyBlock);
             waitTicks = INGREDIENT_RETRY_COOLDOWN;
@@ -138,29 +136,18 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
         if (craftProgress >= job.getCraftingTime()) {
             craftProgress = 0;
             // Ingredients may have been taken away while crafting; verify before consuming
-            if (!hasAllIngredients(containers, job)) {
+            if (!ContainerUtil.hasAllIngredients(containers, job.getIngredients())) {
                 return;
             }
-            consumeIngredients(containers, job);
-            ItemStack output = job.createOutputStack();
-            ItemStack leftover = output;
-            for (Container container : containers) {
-                leftover = insertIntoContainer(container, leftover);
-                if (leftover.isEmpty()) break;
-            }
+            ContainerUtil.consumeIngredients(containers, job.getIngredients());
+            ItemStack leftover = ContainerUtil.insertIntoContainers(containers, job.createOutputStack());
             if (!leftover.isEmpty()) {
                 Containers.dropItemStack(level, workshopKeyBlock.getX() + 0.5,
                         workshopKeyBlock.getY() + 1.0, workshopKeyBlock.getZ() + 0.5, leftover);
             }
-            containers.forEach(Container::setChanged);
         }
     }
 
-    /**
-     * Finds all containers in the workshop. Plain storage (chests, barrels...) comes
-     * first, so outputs land there rather than in machine slots — note the workshop's
-     * key block itself may be a container (a smoker, a furnace...).
-     */
     private List<Container> findWorkshopContainers(ServerLevel level, CrafterJob job) {
         StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
         Structure workshop = data.getStructures().stream()
@@ -168,78 +155,7 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
                 .filter(s -> s.getStructureTypeId().equals(job.getRequiredStructureType()))
                 .findFirst().orElse(null);
         if (workshop == null) return List.of();
-        List<Container> plain = new ArrayList<>();
-        List<Container> machines = new ArrayList<>();
-        for (List<BlockPos> blocks : workshop.getBlockPositions().values()) {
-            for (BlockPos pos : blocks) {
-                if (level.getBlockEntity(pos) instanceof Container container) {
-                    if (container instanceof WorldlyContainer) {
-                        machines.add(container);
-                    } else {
-                        plain.add(container);
-                    }
-                }
-            }
-        }
-        plain.addAll(machines);
-        return plain;
-    }
-
-    private boolean hasAllIngredients(List<Container> containers, CrafterJob job) {
-        for (ItemQuantity ingredient : job.getIngredients()) {
-            int found = 0;
-            for (Container container : containers) {
-                for (int i = 0; i < container.getContainerSize(); i++) {
-                    ItemStack stack = container.getItem(i);
-                    if (!stack.isEmpty() && ingredient.ingredient().test(stack)) {
-                        found += stack.getCount();
-                    }
-                }
-            }
-            if (found < ingredient.quantity()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void consumeIngredients(List<Container> containers, CrafterJob job) {
-        for (ItemQuantity ingredient : job.getIngredients()) {
-            int remaining = ingredient.quantity();
-            for (Container container : containers) {
-                for (int i = 0; i < container.getContainerSize() && remaining > 0; i++) {
-                    ItemStack stack = container.getItem(i);
-                    if (!stack.isEmpty() && ingredient.ingredient().test(stack)) {
-                        int take = Math.min(remaining, stack.getCount());
-                        container.removeItem(i, take);
-                        remaining -= take;
-                    }
-                }
-                if (remaining <= 0) break;
-            }
-        }
-    }
-
-    private ItemStack insertIntoContainer(Container container, ItemStack stack) {
-        // First merge into existing stacks of the same item, then use empty slots
-        for (int i = 0; i < container.getContainerSize() && !stack.isEmpty(); i++) {
-            ItemStack existing = container.getItem(i);
-            if (!existing.isEmpty() && ItemStack.isSameItemSameComponents(existing, stack)) {
-                int space = existing.getMaxStackSize() - existing.getCount();
-                if (space > 0) {
-                    int move = Math.min(space, stack.getCount());
-                    existing.grow(move);
-                    stack.shrink(move);
-                }
-            }
-        }
-        for (int i = 0; i < container.getContainerSize() && !stack.isEmpty(); i++) {
-            if (container.getItem(i).isEmpty()) {
-                container.setItem(i, stack.copy());
-                stack = ItemStack.EMPTY;
-            }
-        }
-        return stack;
+        return ContainerUtil.findContainers(level, workshop);
     }
 
     private void navigateTo(XoonglinEntity entity, BlockPos pos) {

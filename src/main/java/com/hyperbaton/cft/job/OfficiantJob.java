@@ -11,14 +11,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
 /**
  * Performs a ritual at the key block of its required structure every `frequency` days,
@@ -32,7 +29,7 @@ public class OfficiantJob extends Job {
             Codec.STRING.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             Codec.DOUBLE.fieldOf("frequency").forGetter(OfficiantJob::getFrequency),
             Codec.INT.fieldOf("duration").forGetter(OfficiantJob::getDuration),
-            RitualIngredient.CODEC.listOf().optionalFieldOf("ingredients", List.of()).forGetter(OfficiantJob::getIngredients),
+            ItemQuantity.CODEC.listOf().optionalFieldOf("ingredients", List.of()).forGetter(OfficiantJob::getIngredients),
             Codec.INT.optionalFieldOf("summon_radius", 32).forGetter(OfficiantJob::getSummonRadius),
             Codec.INT.optionalFieldOf("ritual_radius", 8).forGetter(OfficiantJob::getRitualRadius),
             AttendanceRule.CODEC.listOf().optionalFieldOf("attendance", List.of()).forGetter(OfficiantJob::getAttendanceRules),
@@ -42,18 +39,11 @@ public class OfficiantJob extends Job {
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds)
     ).apply(inst, OfficiantJob::new));
 
-    public record RitualIngredient(Ingredient ingredient, int quantity) {
-        public static final Codec<RitualIngredient> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-                INGREDIENT_CODEC.fieldOf("item").forGetter(RitualIngredient::ingredient),
-                Codec.INT.fieldOf("quantity").forGetter(RitualIngredient::quantity)
-        ).apply(inst, RitualIngredient::new));
-    }
-
     private final String ritualId;
     private final String requiredStructure;
     private final double frequency;
     private final int duration;
-    private final List<RitualIngredient> ingredients;
+    private final List<ItemQuantity> ingredients;
     private final int summonRadius;
     private final int ritualRadius;
     private final List<AttendanceRule> attendanceRules;
@@ -62,7 +52,7 @@ public class OfficiantJob extends Job {
     private final int gracePeriod;
 
     public OfficiantJob(String ritualId, String requiredStructure, double frequency, int duration,
-                        List<RitualIngredient> ingredients, int summonRadius, int ritualRadius,
+                        List<ItemQuantity> ingredients, int summonRadius, int ritualRadius,
                         List<AttendanceRule> attendanceRules, int maxAttendees,
                         int gatheringTimeout, int gracePeriod, List<String> requiredNeeds) {
         super(requiredNeeds);
@@ -91,7 +81,7 @@ public class OfficiantJob extends Job {
         return duration;
     }
 
-    public List<RitualIngredient> getIngredients() {
+    public List<ItemQuantity> getIngredients() {
         return ingredients;
     }
 

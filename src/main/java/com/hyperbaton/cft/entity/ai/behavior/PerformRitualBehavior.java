@@ -10,6 +10,7 @@ import com.hyperbaton.cft.need.RitualNeed;
 import com.hyperbaton.cft.need.satisfaction.RitualNeedSatisfier;
 import com.hyperbaton.cft.ritual.Ritual;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.RitualsData;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
@@ -20,7 +21,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
@@ -145,8 +145,8 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        Container container = findTempleContainer(level, entity, job);
-        if (container == null || !hasAllIngredients(container, job)) {
+        List<Container> containers = findTempleContainers(level, job);
+        if (!ContainerUtil.hasAllIngredients(containers, job.getIngredients())) {
             LOGGER.warn("[Ritual] {} cannot start ritual {}: missing ingredients at {}, waiting",
                     entity.getName().getString(), job.getRitualId(), templeKeyBlock);
             waitTicks = INGREDIENT_RETRY_COOLDOWN;
@@ -207,8 +207,8 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
 
     private void startRitual(ServerLevel level, XoonglinEntity entity, OfficiantJob job,
                              Ritual ritual, List<XoonglinEntity> present) {
-        Container container = findTempleContainer(level, entity, job);
-        if (container == null || !hasAllIngredients(container, job)) {
+        List<Container> containers = findTempleContainers(level, job);
+        if (!ContainerUtil.hasAllIngredients(containers, job.getIngredients())) {
             // Ingredients vanished while gathering; postpone
             LOGGER.warn("[Ritual] {} postponing ritual {}: ingredients disappeared",
                     entity.getName().getString(), job.getRitualId());
@@ -216,7 +216,7 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
             postpone(level, entity, job);
             return;
         }
-        consumeIngredients(container, job);
+        ContainerUtil.consumeIngredients(containers, job.getIngredients());
 
         for (XoonglinEntity attendee : present) {
             if (ritual.getAttendees().size() >= job.getMaxAttendees()) break;
@@ -387,52 +387,14 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
                         && x.getLeaderId() != null && x.getLeaderId().equals(officiant.getLeaderId()));
     }
 
-    private Container findTempleContainer(ServerLevel level, XoonglinEntity entity, OfficiantJob job) {
+    private List<Container> findTempleContainers(ServerLevel level, OfficiantJob job) {
         StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
         Structure temple = data.getStructures().stream()
                 .filter(s -> s.getKeyBlockPos().equals(templeKeyBlock))
                 .filter(s -> s.getStructureTypeId().equals(job.getRequiredStructureType()))
                 .findFirst().orElse(null);
-        if (temple == null) return null;
-        for (List<BlockPos> blocks : temple.getBlockPositions().values()) {
-            for (BlockPos pos : blocks) {
-                if (level.getBlockEntity(pos) instanceof Container container) {
-                    return container;
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean hasAllIngredients(Container container, OfficiantJob job) {
-        for (OfficiantJob.RitualIngredient ingredient : job.getIngredients()) {
-            int found = 0;
-            for (int i = 0; i < container.getContainerSize(); i++) {
-                ItemStack stack = container.getItem(i);
-                if (!stack.isEmpty() && ingredient.ingredient().test(stack)) {
-                    found += stack.getCount();
-                }
-            }
-            if (found < ingredient.quantity()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void consumeIngredients(Container container, OfficiantJob job) {
-        for (OfficiantJob.RitualIngredient ingredient : job.getIngredients()) {
-            int remaining = ingredient.quantity();
-            for (int i = 0; i < container.getContainerSize() && remaining > 0; i++) {
-                ItemStack stack = container.getItem(i);
-                if (!stack.isEmpty() && ingredient.ingredient().test(stack)) {
-                    int take = Math.min(remaining, stack.getCount());
-                    container.removeItem(i, take);
-                    remaining -= take;
-                }
-            }
-        }
-        container.setChanged();
+        if (temple == null) return List.of();
+        return ContainerUtil.findContainers(level, temple);
     }
 
     private RitualsData ritualsData(ServerLevel level) {

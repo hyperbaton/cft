@@ -6,9 +6,8 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.HaulerErrand;
 import com.hyperbaton.cft.job.HaulerJob;
 import com.hyperbaton.cft.job.Job;
-import com.hyperbaton.cft.structure.EnclosedBuildingBlockGroup;
-import com.hyperbaton.cft.structure.OpenAirPlatformBlockGroup;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -133,8 +132,13 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
     }
 
     private void tickTakingItems(ServerLevel level, XoonglinEntity entity) {
-        if (originContainerPos == null || currentErrand == null
-                || !(level.getBlockEntity(originContainerPos) instanceof Container container)) {
+        if (originContainerPos == null || currentErrand == null || originStructure == null) {
+            state = State.PICKING_ERRAND;
+            return;
+        }
+
+        List<Container> containers = ContainerUtil.findContainers(level, originStructure);
+        if (containers.isEmpty()) {
             state = State.PICKING_ERRAND;
             return;
         }
@@ -145,23 +149,25 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
             int remaining = haulerItem.quantity();
             Ingredient ingredient = haulerItem.ingredient();
 
-            for (int i = 0; i < container.getContainerSize() && remaining > 0; i++) {
-                ItemStack stack = container.getItem(i);
-                if (stack.isEmpty() || !ingredient.test(stack)) continue;
+            for (Container container : containers) {
+                for (int i = 0; i < container.getContainerSize() && remaining > 0; i++) {
+                    ItemStack stack = container.getItem(i);
+                    if (stack.isEmpty() || !ingredient.test(stack)) continue;
 
-                int takeAmount = Math.min(remaining, stack.getCount());
-                ItemStack taken = container.removeItem(i, takeAmount);
-                ItemStack leftover = entity.getInventory().addItem(taken);
-                if (!leftover.isEmpty()) {
-                    container.setItem(i, leftover);
+                    int takeAmount = Math.min(remaining, stack.getCount());
+                    ItemStack taken = container.removeItem(i, takeAmount);
+                    ItemStack leftover = entity.getInventory().addItem(taken);
+                    if (!leftover.isEmpty()) {
+                        container.setItem(i, leftover);
+                    }
+                    int actuallyTaken = takeAmount - leftover.getCount();
+                    remaining -= actuallyTaken;
+                    if (actuallyTaken > 0) tookAnything = true;
                 }
-                int actuallyTaken = takeAmount - leftover.getCount();
-                remaining -= actuallyTaken;
-                if (actuallyTaken > 0) tookAnything = true;
+                container.setChanged();
+                if (remaining <= 0) break;
             }
         }
-
-        container.setChanged();
 
         if (!tookAnything) {
             state = State.PICKING_ERRAND;
@@ -194,8 +200,9 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
     }
 
     private void tickDepositingItems(ServerLevel level, XoonglinEntity entity) {
-        if (destinationContainerPos == null
-                || !(level.getBlockEntity(destinationContainerPos) instanceof Container container)) {
+        List<Container> containers = destinationStructure != null
+                ? ContainerUtil.findContainers(level, destinationStructure) : List.of();
+        if (destinationContainerPos == null || containers.isEmpty()) {
             state = State.RETURNING_ITEMS;
             repathTimer = 0;
             navigateTo(entity, originContainerPos);
@@ -209,11 +216,10 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty() || !matchesErrand(stack)) continue;
 
-            ItemStack remainder = insertIntoContainer(container, stack);
+            ItemStack remainder = ContainerUtil.insertIntoContainers(containers, stack);
             inventory.setItem(i, remainder);
             if (!remainder.isEmpty()) hasLeftover = true;
         }
-        container.setChanged();
 
         if (hasLeftover) {
             state = State.RETURNING_ITEMS;
@@ -273,44 +279,8 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
     }
 
     private BlockPos findContainer(ServerLevel level, Structure structure) {
-        for (String groupKey : List.of(
-                EnclosedBuildingBlockGroup.INTERIOR.getKey(),
-                OpenAirPlatformBlockGroup.BORDER.getKey())) {
-            List<BlockPos> blocks = structure.getBlockPositions().getOrDefault(groupKey, Collections.emptyList());
-            for (BlockPos pos : blocks) {
-                if (level.getBlockEntity(pos) instanceof Container) {
-                    return pos;
-                }
-            }
-        }
-
-        for (List<BlockPos> blocks : structure.getBlockPositions().values()) {
-            for (BlockPos pos : blocks) {
-                if (level.getBlockEntity(pos) instanceof Container) {
-                    return pos;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private ItemStack insertIntoContainer(Container container, ItemStack stack) {
-        ItemStack toInsert = stack.copy();
-        for (int i = 0; i < container.getContainerSize() && !toInsert.isEmpty(); i++) {
-            ItemStack existing = container.getItem(i);
-            if (existing.isEmpty()) {
-                container.setItem(i, toInsert.copy());
-                toInsert = ItemStack.EMPTY;
-            } else if (ItemStack.isSameItemSameComponents(existing, toInsert)
-                    && existing.getCount() < existing.getMaxStackSize()) {
-                int space = existing.getMaxStackSize() - existing.getCount();
-                int transfer = Math.min(space, toInsert.getCount());
-                existing.grow(transfer);
-                toInsert.shrink(transfer);
-            }
-        }
-        return toInsert;
+        List<BlockPos> positions = ContainerUtil.findContainerPositions(level, structure);
+        return positions.isEmpty() ? null : positions.get(0);
     }
 
     private boolean matchesErrand(ItemStack stack) {
@@ -323,27 +293,26 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
 
     private void returnErrandItemsToContainer(ServerLevel level, XoonglinEntity entity, BlockPos containerPos) {
         SimpleContainer inventory = entity.getInventory();
-        Container container = containerPos != null
-                && level.getBlockEntity(containerPos) instanceof Container c ? c : null;
+        List<Container> containers;
+        if (originStructure != null) {
+            containers = ContainerUtil.findContainers(level, originStructure);
+        } else if (containerPos != null && level.getBlockEntity(containerPos) instanceof Container c) {
+            containers = List.of(c);
+        } else {
+            containers = List.of();
+        }
 
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty() || !matchesErrand(stack)) continue;
 
-            if (container != null) {
-                ItemStack remainder = insertIntoContainer(container, stack);
-                inventory.setItem(i, remainder);
-                if (!remainder.isEmpty()) {
-                    dropItem(entity, remainder);
-                    inventory.setItem(i, ItemStack.EMPTY);
-                }
-            } else {
-                dropItem(entity, stack);
-                inventory.setItem(i, ItemStack.EMPTY);
+            ItemStack remainder = containers.isEmpty() ? stack
+                    : ContainerUtil.insertIntoContainers(containers, stack);
+            if (!remainder.isEmpty()) {
+                dropItem(entity, remainder);
             }
+            inventory.setItem(i, ItemStack.EMPTY);
         }
-
-        if (container != null) container.setChanged();
     }
 
     private void dropErrandItems(XoonglinEntity entity) {
