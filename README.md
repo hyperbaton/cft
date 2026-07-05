@@ -39,8 +39,10 @@ stats, and upgrade/downgrade conditions.
 have multiple possible jobs, and each Xoonglin will randomly pick one. The player can manually
 change the job of a Xoonglin among the available ones.
 - **Structures**: Buildings in the world can be recognized and validated by the mod. Homes
-are a special type of structure, but other structure types (workshops, farms, monuments)
-can also be defined and used by jobs and needs.
+are a special type of structure, but other structure types (workshops, farms, monuments,
+multi-storey buildings) can also be defined and used by jobs and needs.
+- **Rituals**: Xoonglins with the officiant job can perform rituals — or any kind of
+configurable ceremony or event — that other Xoonglins attend and get happiness from.
 - **Equipment**: Xoonglins can wear items and armor in any equipment slot, driven by
 equipment needs.
 
@@ -515,6 +517,44 @@ The Xoonglin needs specific decorative blocks placed near their home.
 - `min_spread`: _(Optional, default: 0.0)_ Minimum spatial spread of the blocks (0 to 1).
 </details>
 
+#### Ritual Need
+
+The Xoonglin needs a ritual to take place nearby. Despite the name, this doesn't have to
+be anything religious: any kind of ceremony, event or performance can be configured with
+this need type: a communal meal, a market day, a concert, a festival... Rituals are
+performed by Xoonglins with the **Officiant job** (see the Jobs section), and the need is
+satisfied when a ritual with a matching `ritual_id` completes within the given radius.
+
+<details>
+    <summary>Sample ritual need file</summary>
+
+```json
+{
+  "type": "cft:ritual",
+  "id": "cft:communion_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 5.0,
+  "satisfaction_threshold": 0.9,
+  "frequency": 1.0,
+  "hidden": false,
+  "ritual_id": "cft:communion",
+  "radius": 32,
+  "requires_presence": true
+}
+```
+
+For the common fields, look at the goods need example. The specific fields for ritual needs are:
+
+- `ritual_id`: Identifier of the ritual that satisfies this need. It must match the
+  `ritual_id` of an officiant job for the ritual to ever be performed.
+- `radius`: _(Optional, default: 16)_ How close (in blocks) the ritual must take place
+  for this Xoonglin to benefit from it.
+- `requires_presence`: _(Optional, default: false)_ If true, the Xoonglin must attend the
+  ritual in person, from beginning to end, standing within the ritual radius. If false,
+  it is enough that the ritual completes nearby, wherever the Xoonglin happens to be.
+</details>
+
 ### Jobs
 
 Jobs define what Xoonglins do during the day. They are assigned via the `jobs` field in
@@ -638,6 +678,172 @@ the ripe state.
   Xoonglin to be able to work.
 </details>
 
+#### Hauler
+
+The Xoonglin moves items between structures. Each errand defines an origin structure,
+a destination structure and the items to transport. The hauler will take items from the
+origin's container, carry them in its inventory and deposit them in the destination's
+container. Carried items are visible in the **Items tab** of the Xoonglin info screen.
+
+<details>
+    <summary>Sample hauler job file</summary>
+
+```json
+{
+  "type": "cft:hauler",
+  "hours_per_day": 6.0,
+  "radius": 64,
+  "errands": [
+    {
+      "origin_structure": "cft:farm",
+      "destination_structure": "cft:settler_house",
+      "items": [
+        {
+          "item": {
+            "item": "minecraft:wheat"
+          },
+          "quantity": 32
+        }
+      ]
+    }
+  ]
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `radius`: How far from the Xoonglin the origin and destination structures can be.
+- `errands`: A list of transport errands. The hauler will cycle through them.
+  - `origin_structure`: A reference to the structure type ID to take items from.
+  - `destination_structure`: A reference to the structure type ID to deliver items to.
+  - `items`: A list of items to transport.
+    - `item`: The item to transport, in Ingredient format.
+    - `quantity`: How many items to move per trip.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
+#### Builder
+
+The Xoonglin builds new structures by replicating existing ones. **The player must place
+the key block of a buildable structure (e.g. the door of a house) where the new building
+should stand**: the builder looks for key blocks within its build radius that are not
+part of any already detected structure, and takes them as build sites. It then finds the
+closest detected structure of the same type belonging to the same leader, uses it as a
+template, and replicates it block by block around the new key block.
+
+Building materials are taken from the container of the storage structure. If
+`storage_structure` is the same as `required_structure`, the builder only takes materials
+from the structure it is a user of; otherwise it uses the closest storage structure it
+is a user of. If materials run out, the builder waits by the container until the player
+restocks it.
+
+Note that the newly built structure still needs to be detected with the leader staff to
+be recognized by the mod.
+
+<details>
+    <summary>Sample builder job file</summary>
+
+```json
+{
+  "type": "cft:builder",
+  "hours_per_day": 8.0,
+  "storage_structure": "cft:settler_house",
+  "build_radius": 48,
+  "buildable_structures": [
+    "cft:settler_house"
+  ]
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: _(Optional)_ A reference to a structure type ID the builder must
+  be a user of to work. If omitted, no structure is required.
+- `storage_structure`: A reference to the structure type ID whose container provides the
+  building materials.
+- `build_radius`: _(Optional, default: 64)_ How far from the builder new key blocks are
+  searched for.
+- `build_speed`: _(Optional, default: 20)_ Ticks between placing one block and the next.
+- `buildable_structures`: A list of structure type IDs the builder knows how to build.
+  For each of them, at least one detected structure of the same type must exist to serve
+  as template.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
+#### Officiant
+
+The Xoonglin periodically performs a ritual at the key block of its required structure.
+Rituals are the counterpart of the **Ritual need**: when the ritual completes, all
+Xoonglins with a matching ritual need nearby get it satisfied. As with the need, rituals
+don't have to be religious — any recurring ceremony, celebration or communal event fits.
+
+The officiant goes to the structure, checks that the ingredients are available in its
+container, and summons attendees of the required social classes. The ritual starts once
+the attendance minimums are met (after a short grace period to let more attendees
+arrive, up to the maximum). If the minimums are not met before the gathering timeout,
+the ritual is postponed and retried later. During the ritual the officiant stays by the
+key block while the attendees stand around watching. Rituals survive world reloads and
+resume where they left off.
+
+<details>
+    <summary>Sample officiant job file</summary>
+
+```json
+{
+  "type": "cft:officiant",
+  "ritual_id": "cft:communion",
+  "required_structure": "cft:temple",
+  "frequency": 1.0,
+  "duration": 600,
+  "ingredients": [
+    {
+      "item": {
+        "item": "minecraft:wheat"
+      },
+      "quantity": 4
+    }
+  ],
+  "summon_radius": 48,
+  "ritual_radius": 8,
+  "attendance": [
+    {
+      "classes": ["cft:settler", "cft:citizen"],
+      "min": 1
+    }
+  ],
+  "max_attendees": 20,
+  "gathering_timeout": 1200,
+  "grace_period": 200
+}
+```
+- `ritual_id`: Identifier of the ritual this officiant performs. Ritual needs with the
+  same `ritual_id` are satisfied when the ritual completes.
+- `required_structure`: A reference to the structure type ID where the ritual takes
+  place. The officiant must be a user of one, and performs the ritual at its key block.
+- `frequency`: How often the ritual is performed, in Minecraft days.
+- `duration`: How long the ritual lasts, in ticks (20 ticks = 1 second).
+- `ingredients`: _(Optional)_ A list of items consumed from the structure's container
+  when the ritual starts.
+  - `item`: The ingredient, in Ingredient format.
+  - `quantity`: How many are consumed per ritual.
+- `summon_radius`: _(Optional, default: 32)_ How far the officiant looks for Xoonglins
+  to summon as attendees.
+- `ritual_radius`: _(Optional, default: 8)_ Attendees must stand within this distance of
+  the key block during the ritual.
+- `attendance`: _(Optional)_ A list of attendance rules that must be met for the ritual
+  to start. A Xoonglin counts toward every rule that lists its social class, so rules
+  can express requirements like "at least 10 settlers or citizens, and at least 2
+  patricians".
+  - `classes`: A list of social class IDs this rule applies to.
+  - `min`: _(Optional, default: 0)_ Minimum number of Xoonglins of these classes.
+  - `max`: _(Optional, default: unlimited)_ Maximum number of Xoonglins of these classes.
+- `max_attendees`: _(Optional, default: unlimited)_ Maximum total number of attendees.
+- `gathering_timeout`: _(Optional, default: 1200)_ Ticks to wait for the attendance
+  minimums before postponing the ritual.
+- `grace_period`: _(Optional, default: 200)_ Once the minimums are met, ticks to wait
+  for more attendees before starting.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 
 
 ### Structures
@@ -650,7 +856,7 @@ with the **Leader Staff**.
 All structure types share these base fields:
 
 - `type`: The structure type discriminator (e.g. `"cft:house"`, `"cft:enclosed_building"`,
-  `"cft:open_air_platform"`, `"cft:monument"`).
+  `"cft:open_air_platform"`, `"cft:monument"`, `"cft:multi_storey_building"`).
 - `id`: Identifier of this structure type.
 - `key_block`: _(Optional)_ A specific block that identifies the structure. Right clicking
   this block with the leader staff will trigger detection.
@@ -1010,4 +1216,188 @@ at different height ranges.
 - `identicalLayerGroups`: _(Optional)_ Groups of layers that must be identical to each other.
   - `from`: First layer index of the group (inclusive).
   - `to`: Last layer index of the group (inclusive).
+</details>
+
+#### Multi-Storey Building
+
+Multi-storey buildings are made of stacked enclosed-building storeys. Each storey works
+like an enclosed building — it has its own floor, walls, interior and roof (ceiling) —
+and on top of it sits the next storey. Storey rules define the valid blocks for each
+storey or range of storeys, similar to how monument layer rules work.
+
+Two consecutive storeys can be connected in either of two ways, tried in this order:
+
+- **Shared layer**: the ceiling of the lower storey is at the same time the floor of the
+  upper one. That layer must satisfy both the lower storey's `roofBlocks` rules and the
+  upper storey's `floorBlocks` rules.
+- **Separate layers**: the floor of the upper storey sits exactly one block above the
+  ceiling of the lower one, forming a two-block-thick separation.
+
+All storeys share the same footprint, and every ceiling that supports another storey
+must be flat (the top roof can take any shape as long as its walls vary in height).
+Detection starts from the key block of the ground storey and stacks storeys upward until
+one no longer fits; the building is valid if at least `min_storeys` are found.
+
+Xoonglins need a way to move between storeys, and holes in a ceiling are controlled
+through the block rules: list the connection blocks (ladders, or air above stairs) in the
+lower storey's `roofBlocks` — and, when the layer is shared, in the upper storey's
+`floorBlocks` too. Using `minQuantity` and `maxQuantity` you can require a connection to
+exist and limit how large the opening can be. The mod ships two examples:
+`two_storey_house.json` (ladder connection) and `two_storey_stairs_house.json` (stairs
+below an air opening).
+
+<details>
+    <summary>Sample multi-storey building structure file</summary>
+
+```json
+{
+  "type": "cft:multi_storey_building",
+  "id": "cft:two_storey_house",
+  "key_block": "minecraft:oak_door",
+  "max_users": 2,
+  "requires_container": true,
+  "priority": 10,
+  "min_storeys": 2,
+  "max_storeys": 2,
+  "storeyRules": [
+    {
+      "from": 1,
+      "to": 1,
+      "floorBlocks": [
+        {
+          "tagBlock": "minecraft:planks",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "wallBlocks": [
+        {
+          "tagBlock": "minecraft:logs",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:oak_door",
+          "minQuantity": 1,
+          "maxQuantity": 2,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "interiorBlocks": [
+        {
+          "block": "minecraft:air",
+          "minQuantity": 0,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:ladder",
+          "minQuantity": 1,
+          "maxQuantity": 10,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:chest",
+          "minQuantity": 1,
+          "maxQuantity": 2,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "roofBlocks": [
+        {
+          "tagBlock": "minecraft:planks",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:ladder",
+          "minQuantity": 1,
+          "maxQuantity": 1,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ]
+    },
+    {
+      "from": 2,
+      "to": 2,
+      "floorBlocks": [
+        {
+          "tagBlock": "minecraft:planks",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:ladder",
+          "minQuantity": 0,
+          "maxQuantity": 1,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "wallBlocks": [
+        {
+          "tagBlock": "minecraft:logs",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "interiorBlocks": [
+        {
+          "block": "minecraft:air",
+          "minQuantity": 0,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:ladder",
+          "minQuantity": 0,
+          "maxQuantity": 10,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "roofBlocks": [
+        {
+          "tagBlock": "minecraft:planks",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `min_storeys`: Minimum number of storeys the building must have.
+- `max_storeys`: Maximum number of storeys. Detection never looks beyond this.
+- `storeyRules`: A list of rules, each applying to a range of storeys (from bottom to
+  top). Storey 1 is the ground storey. Every storey from 1 to `max_storeys` must be
+  covered by exactly one rule.
+  - `from`: First storey this rule applies to (inclusive).
+  - `to`: Last storey this rule applies to (inclusive).
+  - `floorBlocks`: A list of valid block rules for the storey's floor.
+  - `wallBlocks`: A list of valid block rules for the storey's walls. Doors should be
+    included in the ground storey's rules.
+  - `interiorBlocks`: A list of valid block rules for the storey's interior.
+  - `roofBlocks`: A list of valid block rules for the storey's roof (ceiling). Include
+    connection blocks (ladders) or air openings here for storeys that must be reachable
+    from below.
 </details>
