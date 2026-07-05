@@ -844,6 +844,54 @@ resume where they left off.
   Xoonglin to be able to work.
 </details>
 
+#### Crafter
+
+The Xoonglin works at a workshop structure, consuming ingredients from the workshop's
+container to craft an output that is deposited back into the same container. Unlike the
+home artisan, the inputs of the craft are explicit: crafting only happens while the
+container holds the ingredients, which must be delivered to the workshop (for example
+by haulers). This allows building production chains: a farmer grows wheat, a hauler
+brings it to the bakery, the baker turns it into bread, and another hauler distributes
+the bread to the homes.
+
+If the ingredients run out, the crafter waits at the workshop and rechecks periodically.
+
+<details>
+    <summary>Sample crafter job file</summary>
+
+```json
+{
+  "type": "cft:crafter",
+  "hours_per_day": 8.0,
+  "required_structure": "cft:bakery",
+  "ingredients": [
+    {
+      "item": {
+        "item": "minecraft:wheat"
+      },
+      "quantity": 3
+    }
+  ],
+  "output": {
+    "item": "minecraft:bread"
+  },
+  "output_count": 1,
+  "crafting_time": 200
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: A reference to the structure type ID of the workshop. The
+  crafter must be a user of one, and works at its key block.
+- `ingredients`: A list of items consumed from the workshop container for each craft.
+  - `item`: The ingredient, in Ingredient format.
+  - `quantity`: How many are consumed per craft.
+- `output`: The crafted item, in Ingredient format.
+- `output_count`: _(Optional, default: 1)_ How many items are produced per craft.
+- `crafting_time`: _(Optional, default: 200)_ How many ticks each craft takes.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 
 
 ### Structures

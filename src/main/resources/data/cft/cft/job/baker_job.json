@@ -1,0 +1,18 @@
+{
+  "type": "cft:crafter",
+  "hours_per_day": 8.0,
+  "required_structure": "cft:bakery",
+  "ingredients": [
+    {
+      "item": {
+        "item": "minecraft:wheat"
+      },
+      "quantity": 3
+    }
+  ],
+  "output": {
+    "item": "minecraft:bread"
+  },
+  "output_count": 1,
+  "crafting_time": 200
+}
