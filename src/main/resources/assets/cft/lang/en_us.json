@@ -122,6 +122,8 @@
   "cft:farm": "Farm",
   "cft:obelisk": "Obelisk",
   "cft:temple": "Temple",
+  "cft:two_storey_house": "Two-Storey House",
+  "cft:two_storey_stairs_house": "Two-Storey House with Stairs",
   "gui.cft.need_type.ritual": "Ritual",
   "gui.cft.job_status.performing_ritual": "Performing Ritual",
   "gui.cft.job_status.gathering_attendees": "Gathering Attendees",

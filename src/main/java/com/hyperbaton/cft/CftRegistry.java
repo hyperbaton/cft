@@ -15,6 +15,7 @@ import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.type.EnclosedBuildingStructureType;
 import com.hyperbaton.cft.structure.type.HouseStructureType;
 import com.hyperbaton.cft.structure.type.MonumentStructureType;
+import com.hyperbaton.cft.structure.type.MultiStoreyBuildingStructureType;
 import com.hyperbaton.cft.structure.type.OpenAirPlatformStructureType;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
@@ -103,6 +104,9 @@ public class CftRegistry {
 
     public static final DeferredHolder<Codec<? extends StructureType>, Codec<MonumentStructureType>> MONUMENT_STRUCTURE_TYPE =
             STRUCTURE_TYPE_CODECS.register("monument", () -> MonumentStructureType.CODEC);
+
+    public static final DeferredHolder<Codec<? extends StructureType>, Codec<MultiStoreyBuildingStructureType>> MULTI_STOREY_BUILDING_STRUCTURE_TYPE =
+            STRUCTURE_TYPE_CODECS.register("multi_storey_building", () -> MultiStoreyBuildingStructureType.CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);

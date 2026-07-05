@@ -22,6 +22,8 @@ public enum StructureDetectionReasons {
     MONUMENT_TOO_SHORT("Monument does not reach the minimum height"),
     MONUMENT_TOO_TALL("Monument exceeds the maximum height"),
     LAYERS_NOT_IDENTICAL("Layers required to be identical differ in shape or block types"),
+    CEILING_NOT_FLAT("Storey ceiling must be flat to support another storey"),
+    NOT_ENOUGH_STOREYS("Building does not reach the minimum number of storeys"),
     STRUCTURE_DETECTED("Structure detected successfully");
 
     private final String message;

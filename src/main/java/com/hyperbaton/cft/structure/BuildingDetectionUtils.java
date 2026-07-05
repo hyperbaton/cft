@@ -106,6 +106,41 @@ public class BuildingDetectionUtils {
         return fullFloorSize == roofCandidateBlocks.size();
     }
 
+    /**
+     * True if all positions share the same Y coordinate. Used by multi-storey
+     * detection: a storey can only support another storey if its ceiling is flat.
+     */
+    public static boolean isSingleYLayer(Set<BlockPos> blocks) {
+        return blocks.stream().mapToInt(BlockPos::getY).distinct().count() <= 1;
+    }
+
+    /**
+     * Splits a known floor region into inner floor and perimeter blocks using the same
+     * neighbour-count classification as findFloor, but based on region membership
+     * instead of block validity. Used for the derived floors of upper storeys, whose
+     * extent is fixed by the storey below (no flood fill needed).
+     *
+     * @return false if the region is degenerate (a block with fewer than 2 neighbours)
+     */
+    public static boolean partitionFloorRegion(Set<BlockPos> region, Set<BlockPos> floorBlocks,
+                                               Set<BlockPos> floorPerimeterBlocks) {
+        for (BlockPos pos : region) {
+            int neighbours = 0;
+            if (region.contains(pos.north())) neighbours++;
+            if (region.contains(pos.south())) neighbours++;
+            if (region.contains(pos.east())) neighbours++;
+            if (region.contains(pos.west())) neighbours++;
+            switch (neighbours) {
+                case 2, 3 -> floorPerimeterBlocks.add(pos);
+                case 4 -> floorBlocks.add(pos);
+                default -> {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     public static boolean verifyRoof(Level level, Set<BlockPos> roofCandidateBlocks, List<ValidBlock> validBlocks) {
         return roofCandidateBlocks.stream()
                 .allMatch(roofBlock -> isValidBlock(level.getBlockState(roofBlock), validBlocks));

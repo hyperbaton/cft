@@ -1,0 +1,134 @@
+{
+  "type": "cft:multi_storey_building",
+  "id": "cft:two_storey_house",
+  "key_block": "minecraft:oak_door",
+  "max_users": 2,
+  "requires_container": true,
+  "priority": 10,
+  "min_storeys": 2,
+  "max_storeys": 2,
+  "storeyRules": [
+    {
+      "from": 1,
+      "to": 1,
+      "floorBlocks": [
+        {
+          "tagBlock": "minecraft:planks",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "wallBlocks": [
+        {
+          "tagBlock": "minecraft:logs",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:oak_door",
+          "minQuantity": 1,
+          "maxQuantity": 2,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "interiorBlocks": [
+        {
+          "block": "minecraft:air",
+          "minQuantity": 0,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:ladder",
+          "minQuantity": 1,
+          "maxQuantity": 10,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:chest",
+          "minQuantity": 1,
+          "maxQuantity": 2,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "roofBlocks": [
+        {
+          "tagBlock": "minecraft:planks",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:ladder",
+          "minQuantity": 1,
+          "maxQuantity": 1,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ]
+    },
+    {
+      "from": 2,
+      "to": 2,
+      "floorBlocks": [
+        {
+          "tagBlock": "minecraft:planks",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:ladder",
+          "minQuantity": 0,
+          "maxQuantity": 1,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "wallBlocks": [
+        {
+          "tagBlock": "minecraft:logs",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "interiorBlocks": [
+        {
+          "block": "minecraft:air",
+          "minQuantity": 0,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        },
+        {
+          "block": "minecraft:ladder",
+          "minQuantity": 0,
+          "maxQuantity": 10,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ],
+      "roofBlocks": [
+        {
+          "tagBlock": "minecraft:planks",
+          "minQuantity": 4,
+          "maxQuantity": 500,
+          "minPercentage": 0.0,
+          "maxPercentage": 1.0
+        }
+      ]
+    }
+  ]
+}
