@@ -82,6 +82,11 @@ public class HaulerJob extends Job {
     }
 
     @Override
+    public void eraseMemories(XoonglinEntity xoonglin) {
+        xoonglin.getBrain().eraseMemory(CftMemoryModuleType.MUST_HAUL.get());
+    }
+
+    @Override
     public JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state) {
         int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
         boolean doneForDay = state.workedTicksToday >= neededTicks;

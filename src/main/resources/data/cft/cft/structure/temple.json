@@ -1,0 +1,79 @@
+{
+  "type": "cft:enclosed_building",
+  "id": "cft:temple",
+  "key_block": "minecraft:bell",
+  "max_users": 2,
+  "requires_container": true,
+  "priority": 0,
+  "floorBlocks": [
+    {
+      "tagBlock": "minecraft:stone_bricks",
+      "minQuantity": 9,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "wallBlocks": [
+    {
+      "tagBlock": "minecraft:stone_bricks",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:quartz_block",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:oak_door",
+      "minQuantity": 1,
+      "maxQuantity": 2,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "interiorBlocks": [
+    {
+      "block": "minecraft:air",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:chest",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:bell",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "tagBlock": "minecraft:candles",
+      "minQuantity": 0,
+      "maxQuantity": 20,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "roofBlocks": [
+    {
+      "block": "minecraft:oak_planks",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ]
+}

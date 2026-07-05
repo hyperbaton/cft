@@ -1,0 +1,26 @@
+{
+  "type": "cft:officiant",
+  "ritual_id": "cft:communion",
+  "required_structure": "cft:temple",
+  "frequency": 1.0,
+  "duration": 600,
+  "ingredients": [
+    {
+      "item": {
+        "item": "minecraft:wheat"
+      },
+      "quantity": 4
+    }
+  ],
+  "summon_radius": 48,
+  "ritual_radius": 8,
+  "attendance": [
+    {
+      "classes": ["cft:settler", "cft:citizen"],
+      "min": 1
+    }
+  ],
+  "max_attendees": 20,
+  "gathering_timeout": 1200,
+  "grace_period": 200
+}

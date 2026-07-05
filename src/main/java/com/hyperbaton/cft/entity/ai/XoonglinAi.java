@@ -43,6 +43,8 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_FARM.get(),
             CftMemoryModuleType.MUST_HAUL.get(),
             CftMemoryModuleType.MUST_BUILD.get(),
+            CftMemoryModuleType.MUST_PERFORM_RITUAL.get(),
+            CftMemoryModuleType.MUST_ATTEND_RITUAL.get(),
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
             CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get(),
             MemoryModuleType.WALK_TARGET,
@@ -104,6 +106,12 @@ public class XoonglinAi {
                 )),
                 Pair.of(2, new BuildBehavior(
                         Map.of(CftMemoryModuleType.MUST_BUILD.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new PerformRitualBehavior(
+                        Map.of(CftMemoryModuleType.MUST_PERFORM_RITUAL.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(1, new AttendRitualBehavior(
+                        Map.of(CftMemoryModuleType.MUST_ATTEND_RITUAL.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(3, new FindAndClaimStructureBehavior())
         ));

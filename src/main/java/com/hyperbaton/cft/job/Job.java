@@ -23,6 +23,13 @@ public abstract class Job {
 
     public abstract void tick(XoonglinEntity xoonglin, JobState state);
 
+    /**
+     * Erases the brain memories this job sets to trigger its behaviors. Called instead
+     * of tick() while the job is preempted (e.g. the xoonglin was summoned to attend a
+     * ritual), so the job's behaviors stop cleanly until the job resumes ticking.
+     */
+    public abstract void eraseMemories(XoonglinEntity xoonglin);
+
     public abstract JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state);
 
     String idHint() { return getClass().getSimpleName(); }

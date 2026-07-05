@@ -93,6 +93,11 @@ public class GathererJob extends Job {
     }
 
     @Override
+    public void eraseMemories(XoonglinEntity xoonglin) {
+        xoonglin.getBrain().eraseMemory(CftMemoryModuleType.MUST_GATHER.get());
+    }
+
+    @Override
     public JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state) {
         int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
         boolean atHome = JobUtil.isAtHome(xoonglin, gatherRadius);

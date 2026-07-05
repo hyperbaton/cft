@@ -120,6 +120,12 @@ public class FarmerJob extends Job {
         }
     }
 
+    @Override
+    public void eraseMemories(XoonglinEntity xoonglin) {
+        xoonglin.getBrain().eraseMemory(CftMemoryModuleType.MUST_FARM.get());
+        xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
+    }
+
     private boolean isAtStructure(XoonglinEntity xoonglin, BlockPos structurePos) {
         return structurePos.closerToCenterThan(xoonglin.position(), CftConfig.HOME_WORK_RADIUS.get());
     }

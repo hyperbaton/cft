@@ -7,6 +7,7 @@ import com.hyperbaton.cft.job.GathererJob;
 import com.hyperbaton.cft.job.GuardJob;
 import com.hyperbaton.cft.job.HaulerJob;
 import com.hyperbaton.cft.job.HomeArtisanJob;
+import com.hyperbaton.cft.job.OfficiantJob;
 import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -62,6 +63,7 @@ public class CftRegistry {
     public static final DeferredHolder<Codec<? extends Need>, Codec<DecorationNeed>> DECORATION_NEED = NEEDS_CODEC.register("decoration", () -> DecorationNeed.DECORATION_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<StructureNeed>> STRUCTURE_NEED = NEEDS_CODEC.register("structure", () -> StructureNeed.STRUCTURE_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<EquipmentNeed>> EQUIPMENT_NEED = NEEDS_CODEC.register("equipment", () -> EquipmentNeed.EQUIPMENT_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<RitualNeed>> RITUAL_NEED = NEEDS_CODEC.register("ritual", () -> RitualNeed.RITUAL_NEED_CODEC);
 
     public static final DeferredRegister<Codec<? extends Job>> JOBS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.JOB_CODEC_KEY, CftMod.MOD_ID);
@@ -83,6 +85,9 @@ public class CftRegistry {
 
     public static final DeferredHolder<Codec<? extends Job>, Codec<BuilderJob>> BUILDER_JOB =
             JOBS_CODEC.register("builder", () -> BuilderJob.CODEC);
+
+    public static final DeferredHolder<Codec<? extends Job>, Codec<OfficiantJob>> OFFICIANT_JOB =
+            JOBS_CODEC.register("officiant", () -> OfficiantJob.CODEC);
 
     public static final DeferredRegister<Codec<? extends StructureType>> STRUCTURE_TYPE_CODECS =
             DeferredRegister.create(CftDatapackRegistryEvents.STRUCTURE_TYPE_CODEC_KEY, CftMod.MOD_ID);

@@ -19,6 +19,7 @@ import com.hyperbaton.cft.socialclass.SocialStructureHelper;
 import com.hyperbaton.cft.sound.CftSounds;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.home.HouseStructure;
+import com.hyperbaton.cft.world.RitualsData;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
@@ -141,7 +142,12 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (!level().isClientSide && jobId != null) {
             Job job = CftRegistry.JOBS.get(jobId);
             if (job != null) {
-                job.tick(this, jobState);
+                if (getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())) {
+                    // Attending a ritual preempts the day job
+                    job.eraseMemories(this);
+                } else {
+                    job.tick(this, jobState);
+                }
             } else {
                 LOGGER.warn("Xoonglin {} has invalid job ID '{}', clearing it", getName().getString(), jobId);
                 jobId = null;
@@ -173,6 +179,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_FARM.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_HAUL.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_BUILD.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.MUST_PERFORM_RITUAL.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get())) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
         } else if (brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).isPresent() &&
@@ -248,8 +256,15 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (!this.level().isClientSide) {
             removeFromAllStructures();
             dropEquipmentAndInventory();
+            cancelOwnRitual();
         }
         super.die(pDamageSource);
+    }
+
+    private void cancelOwnRitual() {
+        RitualsData ritualsData = ((ServerLevel) level()).getDataStorage()
+                .computeIfAbsent(RitualsData.factory(), "ritualsData");
+        ritualsData.findByOfficiant(getUUID()).ifPresent(ritualsData::removeRitual);
     }
 
     private void dropEquipmentAndInventory() {

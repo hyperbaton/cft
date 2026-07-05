@@ -1,0 +1,13 @@
+{
+  "type": "cft:ritual",
+  "id": "cft:communion_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 5.0,
+  "satisfaction_threshold": 0.9,
+  "frequency": 1.0,
+  "hidden": false,
+  "ritual_id": "cft:communion",
+  "radius": 32,
+  "requires_presence": true
+}
