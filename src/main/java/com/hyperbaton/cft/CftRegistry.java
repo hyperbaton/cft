@@ -12,6 +12,7 @@ import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.StructureType;
+import com.hyperbaton.cft.structure.type.CompoundStructureType;
 import com.hyperbaton.cft.structure.type.EnclosedBuildingStructureType;
 import com.hyperbaton.cft.structure.type.HouseStructureType;
 import com.hyperbaton.cft.structure.type.MonumentStructureType;
@@ -107,6 +108,9 @@ public class CftRegistry {
 
     public static final DeferredHolder<Codec<? extends StructureType>, Codec<MultiStoreyBuildingStructureType>> MULTI_STOREY_BUILDING_STRUCTURE_TYPE =
             STRUCTURE_TYPE_CODECS.register("multi_storey_building", () -> MultiStoreyBuildingStructureType.CODEC);
+
+    public static final DeferredHolder<Codec<? extends StructureType>, Codec<CompoundStructureType>> COMPOUND_STRUCTURE_TYPE =
+            STRUCTURE_TYPE_CODECS.register("compound", () -> CompoundStructureType.CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);

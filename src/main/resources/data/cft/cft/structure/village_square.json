@@ -1,0 +1,32 @@
+{
+  "type": "cft:compound",
+  "id": "cft:village_square",
+  "key_block": "minecraft:bell",
+  "max_users": 0,
+  "requires_container": false,
+  "priority": 0,
+  "surfaceBlocks": [
+    {
+      "tagBlock": "minecraft:stone_bricks",
+      "minQuantity": 25,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:polished_andesite",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "requiredStructures": [
+    {
+      "structure_type": "cft:settler_house",
+      "min": 3,
+      "max_distance": 16
+    }
+  ],
+  "requires_sky_access": true
+}

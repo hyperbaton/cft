@@ -856,7 +856,7 @@ with the **Leader Staff**.
 All structure types share these base fields:
 
 - `type`: The structure type discriminator (e.g. `"cft:house"`, `"cft:enclosed_building"`,
-  `"cft:open_air_platform"`, `"cft:monument"`, `"cft:multi_storey_building"`).
+  `"cft:open_air_platform"`, `"cft:monument"`, `"cft:multi_storey_building"`, `"cft:compound"`).
 - `id`: Identifier of this structure type.
 - `key_block`: _(Optional)_ A specific block that identifies the structure. Right clicking
   this block with the leader staff will trigger detection.
@@ -1400,4 +1400,71 @@ below an air opening).
   - `roofBlocks`: A list of valid block rules for the storey's roof (ceiling). Include
     connection blocks (ladders) or air openings here for storeys that must be reachable
     from below.
+</details>
+
+#### Compound
+
+Compounds are structures composed of other structures: an open surface (a plaza, a
+village square, a courtyard, a market...) that is only valid if enough already detected
+structures of the required types stand close to it. Instead of walls or fences, the
+surrounding buildings act as the compound's "border".
+
+The surface is detected by flood fill starting below the key block, so the paving
+material must be different from the surrounding ground for the surface to have a
+defined shape. The key block can stand directly on the paving or on top of a small
+decorative pillar (up to 5 blocks tall, e.g. a bell on a stone column); the pillar
+blocks are ignored by validation. The referenced structures must be detected (with the
+leader staff) **before** the compound, and must belong to the same leader.
+
+A compound cannot share surface blocks with any already detected compound, so placing
+a second key block on an already detected square will not create a second compound.
+
+<details>
+    <summary>Sample compound structure file</summary>
+
+```json
+{
+  "type": "cft:compound",
+  "id": "cft:village_square",
+  "key_block": "minecraft:bell",
+  "max_users": 0,
+  "requires_container": false,
+  "priority": 0,
+  "surfaceBlocks": [
+    {
+      "tagBlock": "minecraft:stone_bricks",
+      "minQuantity": 25,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:polished_andesite",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "requiredStructures": [
+    {
+      "structure_type": "cft:settler_house",
+      "min": 3,
+      "max_distance": 16
+    }
+  ],
+  "requires_sky_access": true
+}
+```
+
+- `surfaceBlocks`: A list of valid block rules for the compound's surface (the paving).
+- `requiredStructures`: A list of requirements on nearby detected structures. All of them
+  must be met for the compound to be valid.
+  - `structure_type`: A reference to the structure type ID that must exist nearby.
+  - `min`: _(Optional, default: 1)_ Minimum number of structures of this type.
+  - `max`: _(Optional, default: unlimited)_ Maximum number of structures of this type.
+  - `max_distance`: _(Optional, default: 16)_ Maximum distance (in blocks) from the
+    structure's key block to the nearest surface block of the compound.
+- `requires_sky_access`: _(Optional, default: true)_ Whether every surface block must be
+  open to the sky.
 </details>

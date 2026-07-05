@@ -24,6 +24,8 @@ public enum StructureDetectionReasons {
     LAYERS_NOT_IDENTICAL("Layers required to be identical differ in shape or block types"),
     CEILING_NOT_FLAT("Storey ceiling must be flat to support another storey"),
     NOT_ENOUGH_STOREYS("Building does not reach the minimum number of storeys"),
+    MISSING_REQUIRED_STRUCTURES("Required nearby structures are missing or too far"),
+    OVERLAPPING_STRUCTURE("Structure overlaps an already registered structure"),
     STRUCTURE_DETECTED("Structure detected successfully");
 
     private final String message;
