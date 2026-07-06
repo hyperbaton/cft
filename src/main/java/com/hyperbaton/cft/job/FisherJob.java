@@ -50,7 +50,8 @@ public class FisherJob extends Job {
             Codec.INT.optionalFieldOf("min_body_size", 20).forGetter(FisherJob::getMinBodySize),
             Codec.INT.optionalFieldOf("catch_interval", 300).forGetter(FisherJob::getCatchInterval),
             Catch.CODEC.listOf().fieldOf("catches").forGetter(FisherJob::getCatches),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds)
+            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
     ).apply(inst, FisherJob::new));
 
     /**
@@ -90,8 +91,9 @@ public class FisherJob extends Job {
     private final List<Catch> catches;
 
     public FisherJob(double hoursPerDay, int radius, String requiredStructure, List<BodyBlock> bodyBlocks,
-                     int minBodySize, int catchInterval, List<Catch> catches, List<String> requiredNeeds) {
-        super(requiredNeeds);
+                     int minBodySize, int catchInterval, List<Catch> catches, List<String> requiredNeeds,
+                     double minHappiness) {
+        super(requiredNeeds, minHappiness);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
         this.requiredStructure = requiredStructure;

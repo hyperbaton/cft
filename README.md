@@ -565,6 +565,13 @@ number of hours per Minecraft day, tracked through a daily tick quota.
 Job progress can be viewed in the **Job tab** of the Xoonglin info screen (accessed via
 the leader staff).
 
+All jobs share these optional fields:
+
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+- `min_happiness`: _(Optional, default: 0.0)_ The Xoonglin will not work while its
+  happiness is below this threshold, resuming once it recovers.
+
 #### Home Artisan
 
 The Xoonglin works at home and produces items periodically.

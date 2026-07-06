@@ -122,16 +122,12 @@ public class FishBehavior extends Behavior<XoonglinEntity> {
         BlockPos origin = searchOrigin(entity, job);
         List<BlockPos> body = findBody(level, origin, job);
         if (body.isEmpty()) {
-            LOGGER.warn("[Fish] {} found no body of at least {} blocks within {} of {}, waiting",
-                    entity.getName().getString(), job.getMinBodySize(), job.getRadius(), origin);
             waitTicks = SEARCH_RETRY_COOLDOWN;
             return;
         }
 
         BlockPos spot = findFishingSpot(level, entity, job, body);
         if (spot == null) {
-            LOGGER.warn("[Fish] {} found no valid spot to fish from near {}, waiting",
-                    entity.getName().getString(), body.get(0));
             waitTicks = SEARCH_RETRY_COOLDOWN;
             return;
         }

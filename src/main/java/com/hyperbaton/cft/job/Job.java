@@ -16,9 +16,15 @@ public abstract class Job {
             .dispatch("type", Job::jobType, codec -> MapCodec.assumeMapUnsafe(codec)));
 
     private final List<String> requiredNeeds;
+    private final double minHappiness;
 
     protected Job(List<String> requiredNeeds) {
+        this(requiredNeeds, 0.0);
+    }
+
+    protected Job(List<String> requiredNeeds, double minHappiness) {
         this.requiredNeeds = requiredNeeds != null ? List.copyOf(requiredNeeds) : List.of();
+        this.minHappiness = minHappiness;
     }
 
     public abstract void tick(XoonglinEntity xoonglin, JobState state);
@@ -40,8 +46,14 @@ public abstract class Job {
         return requiredNeeds;
     }
 
+    public double getMinHappiness() {
+        return minHappiness;
+    }
+
     public boolean canWork(XoonglinEntity xoonglin) {
         if (!xoonglin.allDamagingNeedsSatisfied()) return false;
+
+        if (xoonglin.getHappiness() < minHappiness) return false;
 
         if (!requiredNeeds.isEmpty() && xoonglin.getNeeds() != null) {
             for (String needId : requiredNeeds) {

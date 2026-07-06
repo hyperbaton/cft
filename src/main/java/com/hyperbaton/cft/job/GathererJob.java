@@ -28,7 +28,8 @@ public class GathererJob extends Job {
             Codec.INT.fieldOf("gather_radius").forGetter(j -> j.gatherRadius),
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block").forGetter(j -> Optional.ofNullable(j.block)),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("block_tag").forGetter(j -> Optional.ofNullable(j.blockTag)),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds)
+            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
     ).apply(inst, GathererJob::new));
 
     private final double hoursPerDay;
@@ -39,8 +40,8 @@ public class GathererJob extends Job {
 
 
     public GathererJob(double hoursPerDay, int gatherRadius, Optional<Block> block,
-                       Optional<TagKey<Block>> blockTag, List<String> requiredNeeds) {
-        super(requiredNeeds);
+                       Optional<TagKey<Block>> blockTag, List<String> requiredNeeds, double minHappiness) {
+        super(requiredNeeds, minHappiness);
         this.hoursPerDay = hoursPerDay;
         this.gatherRadius = gatherRadius;
         this.block = block.orElse(null);
