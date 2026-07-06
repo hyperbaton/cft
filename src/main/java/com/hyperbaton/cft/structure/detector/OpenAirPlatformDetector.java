@@ -78,7 +78,11 @@ public class OpenAirPlatformDetector implements StructureDetector {
             }
         }
 
-        if (structureType.isRequiresContainer() && !BuildingDetectionUtils.hasContainers(level, surfaceBlocks)) {
+        // The container can sit on the surface or be part of the border ring
+        // (e.g. a chest built into a dock's railing)
+        if (structureType.isRequiresContainer()
+                && !BuildingDetectionUtils.hasContainers(level, surfaceBlocks)
+                && !hasContainerIn(level, borderColumnBlocks)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
 
@@ -102,6 +106,15 @@ public class OpenAirPlatformDetector implements StructureDetector {
         );
 
         return StructureDetectionResult.success(structure);
+    }
+
+    private boolean hasContainerIn(ServerLevel level, Set<BlockPos> blocks) {
+        for (BlockPos pos : blocks) {
+            if (level.getBlockEntity(pos) instanceof net.minecraft.world.Container) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean traceBorder(ServerLevel level, BlockPos keyBlockPos, int borderY,

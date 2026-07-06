@@ -1,7 +1,6 @@
 package com.hyperbaton.cft.structure;
 
 import com.google.common.collect.Sets;
-import com.google.common.collect.Streams;
 import com.hyperbaton.cft.CftConfig;
 import com.mojang.logging.LogUtils;
 import net.minecraft.network.chat.Component;
@@ -11,7 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
-import oshi.util.tuples.Pair;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -165,31 +163,43 @@ public class BuildingDetectionUtils {
     public static List<String> checkValidBlocks(ServerLevel level, Set<BlockPos> blockList,
                                                 List<ValidBlock> validBlocks,
                                                 Predicate<BlockState> skipPredicate) {
-        List<Pair<ValidBlock, Integer>> classifiedBlocks = blockList.stream()
+        List<BlockState> states = blockList.stream()
                 .map(level::getBlockState)
                 .filter(blockState -> !skipPredicate.test(blockState))
+                .toList();
+        int total = states.size();
+
+        // Split the blocks into those matching some rule and those matching none
+        Map<Boolean, List<BlockState>> byMatched = states.stream()
+                .collect(Collectors.partitioningBy(
+                        blockState -> isValidBlock(blockState, validBlocks)));
+
+        // Blocks matching no rule are reported as disallowed, grouped by their name
+        Stream<String> disallowedErrors = byMatched.get(false).stream()
+                .collect(Collectors.groupingBy(
+                        blockState -> Component.translatable(blockState.getBlock().getDescriptionId()).getString(),
+                        LinkedHashMap::new, Collectors.counting()))
+                .entrySet().stream()
+                .map(entry -> String.format(
+                        "Found %d blocks of type %s, which is not allowed in this part of the structure",
+                        entry.getValue(), entry.getKey()));
+
+        // Each matched block counts towards the first rule it satisfies (orElseThrow is
+        // unreachable: only blocks that matched some rule reach this branch)
+        Map<ValidBlock, Long> counts = byMatched.get(true).stream()
                 .collect(Collectors.groupingBy(
                         blockState -> validBlocks.stream()
                                 .filter(validBlock -> isValidBlock(blockState, validBlock))
-                                .findFirst()
-                                // TODO: properly catch this and send message to player
-                                .orElseThrow(() -> new IllegalStateException("Block not matching any ValidBlock"))
-                ))
-                .entrySet().stream()
-                .map(entry -> new Pair<>(entry.getKey(), entry.getValue().size()))
-                .toList();
+                                .findFirst().orElseThrow(),
+                        Collectors.counting()));
 
-        List<Pair<ValidBlock, Integer>> notFoundValidBlocks = validBlocks.stream()
-                .filter(validBlock -> classifiedBlocks.stream()
-                        .map(Pair::getA)
-                        .noneMatch(classified -> classified.equals(validBlock)))
-                .map(validBlock -> new Pair<>(validBlock, 0))
-                .toList();
+        // Checked over every rule (not just the matched ones) so unmet minimums surface
+        Stream<String> conditionErrors = validBlocks.stream()
+                .map(validBlock -> satisfiesValidityConditions(
+                        validBlock, counts.getOrDefault(validBlock, 0L).intValue(), total))
+                .filter(Objects::nonNull);
 
-        return Streams.concat(classifiedBlocks.stream(), notFoundValidBlocks.stream())
-                .map(blockEntry -> satisfiesValidityConditions(blockEntry.getA(), blockEntry.getB(), blockList.size()))
-                .filter(Objects::nonNull)
-                .toList();
+        return Stream.concat(disallowedErrors, conditionErrors).toList();
     }
 
     public static boolean isValidBlock(BlockState blockState, List<ValidBlock> validBlocks) {

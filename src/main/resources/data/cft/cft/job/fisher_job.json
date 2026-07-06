@@ -1,0 +1,28 @@
+{
+  "type": "cft:fisher",
+  "hours_per_day": 6.0,
+  "radius": 86,
+  "required_needs": ["cft:fishing_rod_need"],
+  "min_body_size": 40,
+  "catch_interval": 300,
+  "catches": [
+    {
+      "item": {
+        "item": "minecraft:cod"
+      },
+      "weight": 0.5
+    },
+    {
+      "item": {
+        "item": "minecraft:salmon"
+      },
+      "weight": 0.25
+    },
+    {
+      "item": {
+        "item": "minecraft:pufferfish"
+      },
+      "weight": 0.05
+    }
+  ]
+}

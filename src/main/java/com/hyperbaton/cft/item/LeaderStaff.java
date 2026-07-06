@@ -128,6 +128,7 @@ public class LeaderStaff extends Item {
                 .toList();
 
         StructureDetectionResult bestFailure = null;
+        StructureType bestFailureType = null;
 
         for (StructureType structureType : matchingTypes) {
             StructureDetectionResult result = structureType.createDetector().detect(clickedPos, level, leaderId, structureType);
@@ -139,11 +140,15 @@ public class LeaderStaff extends Item {
             }
             if (bestFailure == null || result.reason().ordinal() > bestFailure.reason().ordinal()) {
                 bestFailure = result;
+                bestFailureType = structureType;
             }
         }
 
         if (bestFailure != null) {
-            return new StructureDetectionPacket(false, "", bestFailure.reason(), bestFailure.validationDetails());
+            // Several structure types can share a key block; sending the type id lets
+            // the client label the failure with the (translated) type that came closest
+            return new StructureDetectionPacket(false, bestFailureType.getId(),
+                    bestFailure.reason(), bestFailure.validationDetails());
         }
 
         return new StructureDetectionPacket(false, "", StructureDetectionReasons.NOT_A_KEY_BLOCK, Collections.emptyList());

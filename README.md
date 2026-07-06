@@ -892,6 +892,70 @@ If the ingredients run out, the crafter waits at the workshop and rechecks perio
   Xoonglin to be able to work.
 </details>
 
+#### Fisher
+
+The Xoonglin looks for a body of blocks — water by default, but configurable so modded
+fluids can be fished too — of at least a minimum size within its radius, stands at the
+water's edge and fishes. If a `required_structure` is set (e.g. a dock), the fisher
+stands on the structure's own blocks, as close to the water as possible without leaving
+it; otherwise it stands on the shore.
+
+While fishing, it rolls the weighted catch list periodically. **The weights must sum 1
+or less**: the missing probability is the chance that nothing bites on that try.
+Catches are carried in the Xoonglin's inventory (visible in the Items tab) and, at the
+end of the work day, deposited in the required structure's containers — or in its home
+container if there is no structure.
+
+<details>
+    <summary>Sample fisher job file</summary>
+
+```json
+{
+  "type": "cft:fisher",
+  "hours_per_day": 6.0,
+  "radius": 32,
+  "min_body_size": 40,
+  "catch_interval": 300,
+  "catches": [
+    {
+      "item": {
+        "item": "minecraft:cod"
+      },
+      "weight": 0.5
+    },
+    {
+      "item": {
+        "item": "minecraft:salmon"
+      },
+      "weight": 0.25
+    },
+    {
+      "item": {
+        "item": "minecraft:pufferfish"
+      },
+      "weight": 0.05
+    }
+  ]
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `radius`: _(Optional, default: 32)_ How far from the structure (or from the fisher)
+  the body of blocks is searched for.
+- `required_structure`: _(Optional)_ A reference to a structure type ID the fisher must
+  be a user of and stand on while fishing (e.g. a dock).
+- `body_blocks`: _(Optional, default: water)_ A list of blocks that form the fished
+  body. Each entry has a `block` or a `tagBlock` field.
+- `min_body_size`: _(Optional, default: 20)_ Minimum number of connected body blocks
+  for a body to be fishable.
+- `catch_interval`: _(Optional, default: 300)_ Ticks between catch attempts.
+- `catches`: The weighted list of possible catches.
+  - `item`: The caught item, in Ingredient format.
+  - `weight`: Probability of this catch per attempt. All weights must sum 1 or less.
+  - `count`: _(Optional, default: 1)_ How many items are caught at once.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 
 
 ### Structures
