@@ -37,6 +37,9 @@ public class CftMemoryModuleType {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_CRAFT = registerMemory("must_craft", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_FISH = registerMemory("must_fish", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_HEAL = registerMemory("must_heal", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_MINE = registerMemory("must_mine", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> QUARRY_FLOODED = registerMemory("quarry_flooded", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> QUARRY_NEEDS_LADDERS = registerMemory("quarry_needs_ladders", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> MUST_ATTEND_RITUAL = registerMemory("must_attend_ritual", BlockPos.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<String>> STRUCTURE_NEEDED = registerMemory("structure_needed", Codec.STRING);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> STRUCTURE_CANDIDATE_POSITION = registerMemory("structure_candidate_position", BlockPos.CODEC);

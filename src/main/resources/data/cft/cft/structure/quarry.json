@@ -1,0 +1,78 @@
+{
+  "type": "cft:open_air_platform",
+  "id": "cft:quarry",
+  "key_block": "minecraft:chiseled_stone_bricks",
+  "max_users": 1,
+  "requires_container": true,
+  "priority": 0,
+  "wall_height": 1,
+  "borderBlocks": [
+    {
+      "tagBlock": "minecraft:stone_bricks",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:chest",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "groundPerimeterBlocks": [
+    {
+      "tagBlock": "minecraft:base_stone_overworld",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "tagBlock": "minecraft:dirt",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "surfaceBlocks": [
+    {
+      "tagBlock": "minecraft:base_stone_overworld",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "tagBlock": "minecraft:dirt",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:grass_block",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:gravel",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:sand",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ]
+}

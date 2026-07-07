@@ -1012,6 +1012,44 @@ items, and is subject to a cooldown. If `items` is empty, healing is free.
   Xoonglin to be able to work.
 </details>
 
+#### Quarry Miner
+
+The Xoonglin digs a quarry — an open-air platform structure marking the footprint — layer
+by layer, top-down, down to a maximum depth. It maintains a ladder column at one edge of
+the quarry so it can climb back to the surface, and it deposits the mined blocks in the
+quarry's container. Ladders are taken from that same container, so the player must keep it
+stocked with ladders.
+
+The quarry is defined with the **open-air platform** structure type: a ring of blocks
+forms the perimeter, the surface inside it is the top layer to be dug, and the container
+sits in the perimeter ring. The miner never digs outside the footprint, so the
+surrounding terrain forms the quarry walls (and backs the ladder column).
+
+If the working layer, or any layer above it, is flooded by a fluid, the miner stops and
+the job status shows **Quarry Flooded**. The player must drain or seal it manually; the
+miner rechecks periodically and resumes once it is dry.
+
+<details>
+    <summary>Sample quarry miner job file</summary>
+
+```json
+{
+  "type": "cft:quarry_miner",
+  "hours_per_day": 8.0,
+  "required_structure": "cft:quarry",
+  "max_depth": 16,
+  "mine_speed": 20
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: A reference to the quarry structure type ID. The miner must be a
+  user of one.
+- `max_depth`: _(Optional, default: 16)_ How many layers down the quarry is dug.
+- `mine_speed`: _(Optional, default: 20)_ Ticks between mining one block and the next.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 
 
 ### Structures
