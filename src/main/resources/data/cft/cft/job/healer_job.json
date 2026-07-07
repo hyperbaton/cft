@@ -1,0 +1,16 @@
+{
+  "type": "cft:healer",
+  "hours_per_day": 8.0,
+  "radius": 24,
+  "items": [
+    {
+      "item": {
+        "item": "minecraft:golden_carrot"
+      },
+      "quantity": 1
+    }
+  ],
+  "heal_amount": 6.0,
+  "cooldown": 100,
+  "heal_player": true
+}

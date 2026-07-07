@@ -129,6 +129,8 @@
   "job.cft.baker_job": "Baker",
   "gui.cft.job_inputs": "Inputs",
   "job.cft.fisher_job": "Fisher",
+  "job.cft.healer_job": "Healer",
+  "gui.cft.job_supplies": "Supplies",
   "cft:fishing_rod_need": "Fishing Rod",
   "gui.cft.need_type.ritual": "Ritual",
   "gui.cft.job_status.performing_ritual": "Performing Ritual",

@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -38,7 +39,6 @@ public class FishBehavior extends Behavior<XoonglinEntity> {
 
     private static final int REPATH_INTERVAL = 40;
     private static final double SPOT_REACH = 2.0;
-    private static final double CONTAINER_REACH = 3.0;
     private static final int MAX_NAV_FAILURES = 5;
     // Ticks to wait before searching again when no suitable body of water is found
     private static final int SEARCH_RETRY_COOLDOWN = 600;
@@ -235,7 +235,8 @@ public class FishBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        boolean arrived = entity.position().distanceTo(Vec3.atCenterOf(depositPos)) < CONTAINER_REACH;
+        boolean arrived = entity.position().distanceTo(Vec3.atCenterOf(depositPos))
+                < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get();
         if (!arrived) {
             if (entity.getNavigation().isDone()) {
                 if (++navFailures >= MAX_NAV_FAILURES) {

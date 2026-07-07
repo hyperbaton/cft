@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -32,7 +33,6 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
 
     private static final int REPATH_INTERVAL = 40;
     private static final double BLOCK_REACH = 2.5;
-    private static final double CONTAINER_REACH = 3.0;
     private static final int ACTION_TICKS = 20;
 
     private enum State { SCANNING, MOVING, HARVESTING, PLANTING, MOVING_TO_CONTAINER, TAKING_SEEDS, DEPOSITING }
@@ -218,7 +218,8 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        if (entity.position().distanceTo(Vec3.atCenterOf(containerPos)) < CONTAINER_REACH) {
+        if (entity.position().distanceTo(Vec3.atCenterOf(containerPos))
+                < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()) {
             entity.getNavigation().stop();
             if (hasAnyItems(entity)) {
                 state = State.DEPOSITING;

@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -225,7 +226,8 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        if (entity.position().distanceTo(Vec3.atCenterOf(storageContainerPos)) < REACH) {
+        if (entity.position().distanceTo(Vec3.atCenterOf(storageContainerPos))
+                < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()) {
             entity.getNavigation().stop();
 
             List<Container> containers = findStorageContainers(level);

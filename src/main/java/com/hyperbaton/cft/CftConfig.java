@@ -29,7 +29,7 @@ public class CftConfig
             .define("keepXoonglinsLoaded", false);
     public static final ModConfigSpec.DoubleValue CLOSE_ENOUGH_DISTANCE_TO_CONTAINER = BUILDER
             .comment("Minimum distance at which a Xoonglin can interact with containers.")
-            .defineInRange("needs.closeEnoughDistanceToContainer", 1.25, 0.1, 5);
+            .defineInRange("needs.closeEnoughDistanceToContainer", 1.5, 0.1, 5);
     public static final ModConfigSpec.IntValue SUPPLY_COOLDOWN = BUILDER
             .comment("How long to check again if supplies are not present, in ticks.")
             .defineInRange("needs.supplyCooldown", 200, 40, 5000);

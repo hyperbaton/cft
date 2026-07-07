@@ -963,6 +963,55 @@ container if there is no structure.
   Xoonglin to be able to work.
 </details>
 
+#### Healer
+
+The Xoonglin heals nearby damaged Xoonglins (and optionally the leader) by spending
+items. If a `required_structure` is set, the healer works from it — treating patients
+within a radius of the structure and drawing supplies from its containers; otherwise it
+works from its home. Supplies are carried in the healer's inventory and restocked from
+the base as needed.
+
+Each heal restores a configurable amount of health, consumes one set of the configured
+items, and is subject to a cooldown. If `items` is empty, healing is free.
+
+<details>
+    <summary>Sample healer job file</summary>
+
+```json
+{
+  "type": "cft:healer",
+  "hours_per_day": 8.0,
+  "radius": 24,
+  "items": [
+    {
+      "item": {
+        "item": "minecraft:golden_carrot"
+      },
+      "quantity": 1
+    }
+  ],
+  "heal_amount": 6.0,
+  "cooldown": 100,
+  "heal_player": true
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `radius`: _(Optional, default: 24)_ How far from the base patients are searched for.
+- `required_structure`: _(Optional)_ A reference to a structure type ID the healer works
+  from and takes supplies from. If omitted, the healer works from its home.
+- `items`: _(Optional)_ A list of items consumed per heal. Taken from the base container.
+  - `item`: The item, in Ingredient format.
+  - `quantity`: How many are consumed per heal.
+- `heal_amount`: How much health each heal restores (2.0 = one heart).
+- `cooldown`: _(Optional, default: 100)_ Ticks between heals.
+- `doses_per_fetch`: _(Optional, default: 16)_ How many heals' worth of items the healer
+  grabs from the base on each restock trip.
+- `heal_player`: _(Optional, default: false)_ Whether the healer also heals the leader
+  when they are damaged and within the radius.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 
 
 ### Structures

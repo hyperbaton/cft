@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -25,7 +26,6 @@ import java.util.*;
 public class HaulBehavior extends Behavior<XoonglinEntity> {
 
     private static final int REPATH_INTERVAL = 40;
-    private static final double CONTAINER_REACH = 3.0;
 
     private enum State {
         PICKING_ERRAND, MOVING_TO_ORIGIN, TAKING_ITEMS,
@@ -119,7 +119,7 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        if (entity.position().distanceTo(Vec3.atCenterOf(originContainerPos)) < CONTAINER_REACH) {
+        if (entity.position().distanceTo(Vec3.atCenterOf(originContainerPos)) < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()) {
             entity.getNavigation().stop();
             state = State.TAKING_ITEMS;
             return;
@@ -187,7 +187,7 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        if (entity.position().distanceTo(Vec3.atCenterOf(destinationContainerPos)) < CONTAINER_REACH) {
+        if (entity.position().distanceTo(Vec3.atCenterOf(destinationContainerPos)) < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()) {
             entity.getNavigation().stop();
             state = State.DEPOSITING_ITEMS;
             return;
@@ -238,7 +238,7 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        if (entity.position().distanceTo(Vec3.atCenterOf(originContainerPos)) < CONTAINER_REACH) {
+        if (entity.position().distanceTo(Vec3.atCenterOf(originContainerPos)) < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()) {
             entity.getNavigation().stop();
             returnErrandItemsToContainer(level, entity, originContainerPos);
             state = State.PICKING_ERRAND;

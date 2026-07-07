@@ -47,6 +47,7 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_ATTEND_RITUAL.get(),
             CftMemoryModuleType.MUST_CRAFT.get(),
             CftMemoryModuleType.MUST_FISH.get(),
+            CftMemoryModuleType.MUST_HEAL.get(),
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
             CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get(),
             MemoryModuleType.WALK_TARGET,
@@ -117,6 +118,9 @@ public class XoonglinAi {
                 )),
                 Pair.of(2, new FishBehavior(
                         Map.of(CftMemoryModuleType.MUST_FISH.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new HealBehavior(
+                        Map.of(CftMemoryModuleType.MUST_HEAL.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(1, new AttendRitualBehavior(
                         Map.of(CftMemoryModuleType.MUST_ATTEND_RITUAL.get(), MemoryStatus.VALUE_PRESENT)

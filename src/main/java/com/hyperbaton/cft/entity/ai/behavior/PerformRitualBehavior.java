@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -40,7 +41,6 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int REPATH_INTERVAL = 40;
-    private static final double REACH = 3.0;
     // Ticks to wait before re-checking the container when ingredients are missing
     private static final int INGREDIENT_RETRY_COOLDOWN = 600;
     // How long to wait before retrying after a postponed ritual (attendance not met)
@@ -127,7 +127,8 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
     }
 
     private void tickTraveling(XoonglinEntity entity) {
-        if (entity.position().distanceTo(Vec3.atCenterOf(templeKeyBlock)) < REACH) {
+        if (entity.position().distanceTo(Vec3.atCenterOf(templeKeyBlock))
+                < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()) {
             entity.getNavigation().stop();
             state = State.CHECKING_INGREDIENTS;
             waitTicks = 0;

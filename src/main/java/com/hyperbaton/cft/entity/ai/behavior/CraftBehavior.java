@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
+import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -35,7 +36,6 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int REPATH_INTERVAL = 40;
-    private static final double REACH = 3.0;
     // Ticks to wait before re-checking the container when ingredients are missing
     private static final int INGREDIENT_RETRY_COOLDOWN = 600;
 
@@ -92,7 +92,8 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
     }
 
     private void tickTraveling(XoonglinEntity entity) {
-        if (entity.position().distanceTo(Vec3.atCenterOf(workshopKeyBlock)) < REACH) {
+        if (entity.position().distanceTo(Vec3.atCenterOf(workshopKeyBlock))
+                < CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()) {
             entity.getNavigation().stop();
             state = State.CRAFTING;
             return;
@@ -109,7 +110,8 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        if (entity.position().distanceTo(Vec3.atCenterOf(workshopKeyBlock)) > REACH) {
+        if (entity.position().distanceTo(Vec3.atCenterOf(workshopKeyBlock))
+                > CftConfig.CLOSE_ENOUGH_DISTANCE_TO_CONTAINER.get()) {
             state = State.TRAVELING;
             repathTimer = 0;
             return;
