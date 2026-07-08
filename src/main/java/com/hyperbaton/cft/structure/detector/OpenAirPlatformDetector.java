@@ -10,20 +10,17 @@ import net.minecraft.server.level.ServerLevel;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class OpenAirPlatformDetector implements StructureDetector {
+public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatformStructureType> {
 
     @Override
     public StructureDetectionResult detect(BlockPos keyBlockPos, ServerLevel level, UUID leaderId,
-                                           StructureType structureType) {
-        if (!(structureType instanceof OpenAirPlatformStructureType platformType)) {
-            throw new IllegalArgumentException("OpenAirPlatformDetector requires OpenAirPlatformStructureType");
-        }
+                                           OpenAirPlatformStructureType structureType) {
 
         int groundY = keyBlockPos.getY() - 1;
         int borderY = groundY + 1;
 
         Set<BlockPos> borderBlocks = Sets.newHashSet();
-        if (!traceBorder(level, keyBlockPos, borderY, platformType, borderBlocks)) {
+        if (!traceBorder(level, keyBlockPos, borderY, structureType, borderBlocks)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_BORDER);
         }
         if (borderBlocks.isEmpty()) {
@@ -36,9 +33,9 @@ public class OpenAirPlatformDetector implements StructureDetector {
 
         Predicate<net.minecraft.world.level.block.state.BlockState> noSkip = bs -> false;
 
-        Set<BlockPos> borderColumnBlocks = collectBorderColumn(borderBlocks, groundY, platformType.getWallHeight());
+        Set<BlockPos> borderColumnBlocks = collectBorderColumn(borderBlocks, groundY, structureType.getWallHeight());
         List<String> borderErrors = BuildingDetectionUtils.checkValidBlocks(level, borderColumnBlocks,
-                platformType.getBorderBlocks(), noSkip);
+                structureType.getBorderBlocks(), noSkip);
         if (!borderErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_BORDER, borderErrors);
         }
@@ -48,7 +45,7 @@ public class OpenAirPlatformDetector implements StructureDetector {
             groundPerimeterBlocks.add(new BlockPos(borderPos.getX(), groundY, borderPos.getZ()));
         }
         List<String> groundPerimeterErrors = BuildingDetectionUtils.checkValidBlocks(level, groundPerimeterBlocks,
-                platformType.getGroundPerimeterBlocks(), noSkip);
+                structureType.getGroundPerimeterBlocks(), noSkip);
         if (!groundPerimeterErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_GROUND_PERIMETER, groundPerimeterErrors);
         }
@@ -59,7 +56,7 @@ public class OpenAirPlatformDetector implements StructureDetector {
         }
 
         Set<BlockPos> surfaceBlocks = Sets.newHashSet();
-        if (!floodFillSurface(level, interiorStart, groundY, borderBlocks, surfaceBlocks, platformType)) {
+        if (!floodFillSurface(level, interiorStart, groundY, borderBlocks, surfaceBlocks, structureType)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.SURFACE_TOO_BIG);
         }
         if (surfaceBlocks.isEmpty()) {
@@ -67,7 +64,7 @@ public class OpenAirPlatformDetector implements StructureDetector {
         }
 
         List<String> surfaceErrors = BuildingDetectionUtils.checkValidBlocks(level, surfaceBlocks,
-                platformType.getSurfaceBlocks(), noSkip);
+                structureType.getSurfaceBlocks(), noSkip);
         if (!surfaceErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE, surfaceErrors);
         }

@@ -5,19 +5,22 @@ import com.hyperbaton.cft.structure.IdenticalLayerGroup;
 import com.hyperbaton.cft.structure.LayerRule;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.ValidBlock;
+import com.hyperbaton.cft.structure.StructureDetectionResult;
 import com.hyperbaton.cft.structure.detector.MonumentDetector;
-import com.hyperbaton.cft.structure.detector.StructureDetector;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class MonumentStructureType extends StructureType {
 
@@ -77,8 +80,8 @@ public class MonumentStructureType extends StructureType {
     }
 
     @Override
-    public StructureDetector createDetector() {
-        return new MonumentDetector();
+    public StructureDetectionResult detect(BlockPos keyBlockPos, ServerLevel level, UUID leaderId) {
+        return new MonumentDetector().detect(keyBlockPos, level, leaderId, this);
     }
 
     @Override

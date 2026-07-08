@@ -2,20 +2,23 @@ package com.hyperbaton.cft.structure.type;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.StoreyRule;
+import com.hyperbaton.cft.structure.StructureDetectionResult;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.detector.MultiStoreyBuildingDetector;
-import com.hyperbaton.cft.structure.detector.StructureDetector;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * A building made of stacked enclosed-building storeys. Each storey has its own
@@ -91,8 +94,8 @@ public class MultiStoreyBuildingStructureType extends StructureType {
     }
 
     @Override
-    public StructureDetector createDetector() {
-        return new MultiStoreyBuildingDetector();
+    public StructureDetectionResult detect(BlockPos keyBlockPos, ServerLevel level, UUID leaderId) {
+        return new MultiStoreyBuildingDetector().detect(keyBlockPos, level, leaderId, this);
     }
 
     @Override

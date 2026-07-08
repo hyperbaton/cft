@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  * attendance of required structure types is checked against StructuresData, measuring
  * the distance from each structure's key block to the nearest surface block.
  */
-public class CompoundDetector implements StructureDetector {
+public class CompoundDetector implements StructureDetector<CompoundStructureType> {
 
     // How far below the key block the surface can be, so the key block can stand
     // on a decorative post or pillar (e.g. a bell on a column)
@@ -26,17 +26,14 @@ public class CompoundDetector implements StructureDetector {
 
     @Override
     public StructureDetectionResult detect(BlockPos keyBlockPos, ServerLevel level, UUID leaderId,
-                                           StructureType structureType) {
-        if (!(structureType instanceof CompoundStructureType compoundType)) {
-            throw new IllegalArgumentException("CompoundDetector requires CompoundStructureType");
-        }
+                                           CompoundStructureType structureType) {
 
         // The key block may stand directly on the paving or on top of a decorative
         // pillar: descend until the surface is found. Pillar blocks are ignored.
         BlockPos surfaceStart = null;
         BlockPos probe = keyBlockPos.below();
         for (int i = 0; i < MAX_KEY_BLOCK_PILLAR_HEIGHT; i++) {
-            if (BuildingDetectionUtils.isValidBlock(level.getBlockState(probe), compoundType.getSurfaceBlocks())) {
+            if (BuildingDetectionUtils.isValidBlock(level.getBlockState(probe), structureType.getSurfaceBlocks())) {
                 surfaceStart = probe;
                 break;
             }
@@ -50,7 +47,7 @@ public class CompoundDetector implements StructureDetector {
         // Surface detection: flood fill valid surface blocks from the found start.
         // The paving material bounds the fill, so it must differ from the surrounding ground.
         Set<BlockPos> surfaceBlocks = Sets.newHashSet();
-        if (!floodFillSurface(level, surfaceStart, surfaceBlocks, compoundType)) {
+        if (!floodFillSurface(level, surfaceStart, surfaceBlocks, structureType)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.SURFACE_TOO_BIG);
         }
         if (surfaceBlocks.isEmpty()) {
@@ -65,6 +62,9 @@ public class CompoundDetector implements StructureDetector {
         Set<BlockPos> occupiedBlocks = Sets.newHashSet();
         for (Structure existing : structuresData.getStructures()) {
             if (!isCompoundType(existing.getStructureTypeId())) continue;
+            // Skip the compound already registered at this key block: it is "itself"
+            // when this detection is a re-validation of an existing compound
+            if (existing.getKeyBlockPos().equals(keyBlockPos)) continue;
             occupiedBlocks.add(existing.getKeyBlockPos());
             existing.getBlockPositions().values().forEach(occupiedBlocks::addAll);
         }
@@ -74,12 +74,12 @@ public class CompoundDetector implements StructureDetector {
 
         Predicate<BlockState> noSkip = bs -> false;
         List<String> surfaceErrors = BuildingDetectionUtils.checkValidBlocks(level, surfaceBlocks,
-                compoundType.getSurfaceBlocks(), noSkip);
+                structureType.getSurfaceBlocks(), noSkip);
         if (!surfaceErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE, surfaceErrors);
         }
 
-        if (compoundType.isRequiresSkyAccess()) {
+        if (structureType.isRequiresSkyAccess()) {
             for (BlockPos surfacePos : surfaceBlocks) {
                 // The key block's column is exempt: it may hold the key block's pillar
                 if (surfacePos.getX() == keyBlockPos.getX() && surfacePos.getZ() == keyBlockPos.getZ()) {
@@ -94,7 +94,7 @@ public class CompoundDetector implements StructureDetector {
         // Required structures: count detected structures of each type close enough
         // to the compound's surface
         List<String> structureErrors = new ArrayList<>();
-        for (RequiredStructure requirement : compoundType.getRequiredStructures()) {
+        for (RequiredStructure requirement : structureType.getRequiredStructures()) {
             long count = structuresData.getStructures().stream()
                     .filter(s -> s.getStructureTypeId().equals(requirement.structureType()))
                     .filter(s -> s.getLeaderId().equals(leaderId))

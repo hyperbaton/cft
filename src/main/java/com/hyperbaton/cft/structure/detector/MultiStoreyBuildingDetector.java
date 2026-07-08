@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * (ladders, trapdoors...) must be listed in the lower storey's roofBlocks and, for
  * shared layers, in the upper storey's floorBlocks.
  */
-public class MultiStoreyBuildingDetector implements StructureDetector {
+public class MultiStoreyBuildingDetector implements StructureDetector<MultiStoreyBuildingStructureType> {
 
     private static final Predicate<BlockState> NO_SKIP = bs -> false;
 
@@ -46,17 +46,14 @@ public class MultiStoreyBuildingDetector implements StructureDetector {
 
     @Override
     public StructureDetectionResult detect(BlockPos keyBlockPos, ServerLevel level, UUID leaderId,
-                                           StructureType structureType) {
-        if (!(structureType instanceof MultiStoreyBuildingStructureType multiType)) {
-            throw new IllegalArgumentException("MultiStoreyBuildingDetector requires MultiStoreyBuildingStructureType");
-        }
+                                           MultiStoreyBuildingStructureType structureType) {
 
         Map<String, List<BlockPos>> blockPositions = new HashMap<>();
         Set<BlockPos> allBlocks = Sets.newHashSet();
         Set<BlockPos> allFullFloors = Sets.newHashSet();
 
         // ---- Storey 1: detected like a plain enclosed building ----
-        StoreyRule rule = multiType.getRuleForStorey(1);
+        StoreyRule rule = structureType.getRuleForStorey(1);
         Set<BlockPos> floorBlockSet = Sets.newHashSet();
         Set<BlockPos> floorPerimeterBlocks = Sets.newHashSet();
         boolean foundFloor = BuildingDetectionUtils.findFloor(level, keyBlockPos.below(), floorBlockSet,
@@ -97,9 +94,9 @@ public class MultiStoreyBuildingDetector implements StructureDetector {
         List<String> lastFailureDetails = List.of();
 
         // ---- Upper storeys: floors derived from the ceiling below, no flood fill ----
-        while (storeyCount < multiType.getMaxStoreys()) {
+        while (storeyCount < structureType.getMaxStoreys()) {
             int storey = storeyCount + 1;
-            rule = multiType.getRuleForStorey(storey);
+            rule = structureType.getRuleForStorey(storey);
 
             if (!BuildingDetectionUtils.isSingleYLayer(previousCeiling)) {
                 lastFailure = StructureDetectionReasons.CEILING_NOT_FLAT;
@@ -151,10 +148,10 @@ public class MultiStoreyBuildingDetector implements StructureDetector {
             previousCeiling = parts.roofBlocks();
         }
 
-        if (storeyCount < multiType.getMinStoreys()) {
+        if (storeyCount < structureType.getMinStoreys()) {
             List<String> details = new ArrayList<>();
             details.add(String.format("Found %d storeys, but the minimum is %d",
-                    storeyCount, multiType.getMinStoreys()));
+                    storeyCount, structureType.getMinStoreys()));
             details.addAll(lastFailureDetails);
             return StructureDetectionResult.failure(StructureDetectionReasons.NOT_ENOUGH_STOREYS, details);
         }

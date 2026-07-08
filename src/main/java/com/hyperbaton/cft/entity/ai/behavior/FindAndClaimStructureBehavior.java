@@ -2,8 +2,11 @@ package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.google.common.collect.ImmutableMap;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.structure.StructureDetectionResult;
+import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -65,6 +68,13 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
                             .filter(Structure::hasCapacity)
                             .findFirst()
                             .ifPresent(structure -> {
+                                // Only claim if it is still standing; a broken structure is
+                                // removed so nobody claims it, and the search restarts
+                                if (!stillValid(level, structure)) {
+                                    data.removeStructure(structure);
+                                    xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get());
+                                    return;
+                                }
                                 structure.addUser(xoonglin.getUUID());
                                 xoonglin.assignStructure(structure.getStructureTypeId(), structure.getKeyBlockPos());
                                 xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get());
@@ -84,6 +94,16 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
     @Override
     protected void stop(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
         xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get());
+    }
+
+    /** Re-detects the structure at its key block to confirm it is still standing. */
+    private boolean stillValid(ServerLevel level, Structure structure) {
+        StructureType type = CftRegistry.STRUCTURES == null ? null : CftRegistry.STRUCTURES.stream()
+                .filter(t -> t.getId().equals(structure.getStructureTypeId()))
+                .findFirst()
+                .orElse(null);
+        return type != null && type.detect(structure.getKeyBlockPos(), level, structure.getLeaderId())
+                .success();
     }
 
     private Optional<Structure> findNearestClaimableStructure(XoonglinEntity xoonglin, StructuresData data, String targetTypeId) {

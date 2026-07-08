@@ -23,9 +23,9 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
             StructureType structureType = findStructureType(structureTypeId);
 
             if (structureType != null) {
-                var result = structureType.createDetector().detect(
+                var result = structureType.detect(
                         mob.getHome().getEntrance(), (ServerLevel) mob.level(),
-                        mob.getLeaderId(), structureType);
+                        mob.getLeaderId());
                 if (result.success()) {
                     super.satisfy(mob);
                     return true;

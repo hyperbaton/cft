@@ -131,7 +131,7 @@ public class LeaderStaff extends Item {
         StructureType bestFailureType = null;
 
         for (StructureType structureType : matchingTypes) {
-            StructureDetectionResult result = structureType.createDetector().detect(clickedPos, level, leaderId, structureType);
+            StructureDetectionResult result = structureType.detect(clickedPos, level, leaderId);
             if (result.success()) {
                 structuresData.addStructure(result.structure());
 
