@@ -69,6 +69,7 @@
   "gui.cft.need_dissatisfied": "%s need dissatisfied",
   "gui.cft.days": "days",
   "gui.cft.of_population": "of population",
+  "gui.cft.of_scope": "of %s",
   "gui.cft.need_type.goods": "Goods",
   "gui.cft.need_type.home": "Home",
   "gui.cft.need_type.altitude": "Altitude",

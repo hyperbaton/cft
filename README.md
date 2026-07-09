@@ -89,7 +89,8 @@ The datapack documentation is presented below.
       "socialStructureRequirements": [
         {
           "socialClass": "cft:settler",
-          "percentage": 0.30
+          "percentage": 0.30,
+          "scope": ["cft:settler", "cft:citizen"]
         }
       ]
     }
@@ -126,6 +127,9 @@ The datapack documentation is presented below.
       to be possible.
     - `socialStructureRequirements`: A list of such requirements. Each social class mentioned
       must represent a percentage lower or equal to this one. Always in the range [0,1].
+        - `scope`: _(Optional)_ A list of social class IDs. If given, the percentage is
+          computed among only those classes' combined population, instead of the whole
+          population. If omitted or empty, the percentage is of the whole population.
 - `downgrades`: A list of ways a Xoonglin can become a lower class.
     - `nextClass`: Reference to next class.
     - `requiredHappiness`: If happiness gets lower than this, the Xoonglin will downgrade.
@@ -133,6 +137,9 @@ The datapack documentation is presented below.
       downgrade.
     - `socialStructureRequirements`: A list of such requirements. Each social class mentioned
       must represent a percentage higher or equal to this one. Always in the range [0,1].
+        - `scope`: _(Optional)_ A list of social class IDs. If given, the percentage is
+          computed among only those classes' combined population, instead of the whole
+          population. If omitted or empty, the percentage is of the whole population.
 
 ### Needs
 

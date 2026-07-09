@@ -201,9 +201,14 @@ public class SocialClassDetailPanel {
 
         for (SocialStructureRequirement req : update.getSocialStructureRequirements()) {
             String className = Component.translatable(req.getSocialClass()).getString();
+            String scopeLabel = req.getScope() == null || req.getScope().isEmpty()
+                    ? Component.translatable("gui.cft.of_population").getString()
+                    : Component.translatable("gui.cft.of_scope",
+                            String.join(", ", req.getScope().stream().map(id -> Component.translatable(id).getString()).toList()))
+                            .getString();
             cachedLines.add(new StaticLine(
                     "  " + className + " ≥ " + String.format("%.0f%%", req.getPercentage() * 100)
-                            + " " + Component.translatable("gui.cft.of_population").getString(),
+                            + " " + scopeLabel,
                     LABEL_COLOR, 8, LINE_HEIGHT, false
             ));
         }

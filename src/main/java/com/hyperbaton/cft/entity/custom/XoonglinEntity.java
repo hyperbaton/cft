@@ -58,7 +58,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -337,14 +336,15 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
                         .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold()))
                 && checkSocialStructureForUpgrade(
-                getNormalizedSocialStructureWithUpgrade(this.socialClass.getId(), socialClassUpdate.getNextClass()),
+                getSocialStructureWithUpgrade(this.socialClass.getId(), socialClassUpdate.getNextClass()),
                 socialClassUpdate);
     }
 
-    private boolean checkSocialStructureForUpgrade(Map<String, BigDecimal> socialStructure, SocialClassUpdate socialClassUpdate) {
+    private boolean checkSocialStructureForUpgrade(Map<SocialClass, Integer> socialStructure, SocialClassUpdate socialClassUpdate) {
         if (socialClassUpdate.getSocialStructureRequirements() != null) {
             return socialClassUpdate.getSocialStructureRequirements().stream().allMatch(socialStructureRequirement ->
-                    socialStructure.get(socialStructureRequirement.getSocialClass()).doubleValue() > socialStructureRequirement.getPercentage());
+                    SocialStructureHelper.computeScopedPercentage(socialStructure, socialStructureRequirement.getSocialClass(),
+                            socialStructureRequirement.getScope()) > socialStructureRequirement.getPercentage());
         } else {
             return true;
         }
@@ -364,29 +364,28 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 this.getNeeds().stream()
                         .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
                         .anyMatch(need -> need.getSatisfaction() < needRequirement.getSatisfactionThreshold())))
-                || checkSocialStructureForDowngrade(getNormalizedSocialStructure(), socialClassUpdate));
+                || checkSocialStructureForDowngrade(getSocialStructure(), socialClassUpdate));
     }
 
-    private boolean checkSocialStructureForDowngrade(Map<String, BigDecimal> socialStructure, SocialClassUpdate socialClassUpdate) {
+    private boolean checkSocialStructureForDowngrade(Map<SocialClass, Integer> socialStructure, SocialClassUpdate socialClassUpdate) {
         if (socialClassUpdate.getSocialStructureRequirements() != null) {
             return socialClassUpdate.getSocialStructureRequirements().stream().anyMatch(socialStructureRequirement ->
-                    socialStructure.get(socialStructureRequirement.getSocialClass()).doubleValue() < socialStructureRequirement.getPercentage());
+                    SocialStructureHelper.computeScopedPercentage(socialStructure, socialStructureRequirement.getSocialClass(),
+                            socialStructureRequirement.getScope()) < socialStructureRequirement.getPercentage());
         } else {
             return false;
         }
     }
 
-    private Map<String, BigDecimal> getNormalizedSocialStructure() {
-        return SocialStructureHelper.computeNormalizedSocialStructureForPlayer((ServerLevel) this.level(), (ServerPlayer) this.level().getPlayerByUUID(this.leaderId))
-                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getId(), Map.Entry::getValue));
+    private Map<SocialClass, Integer> getSocialStructure() {
+        return SocialStructureHelper.computeSocialStructureForPlayer((ServerLevel) this.level(), (ServerPlayer) this.level().getPlayerByUUID(this.leaderId));
     }
 
-    private Map<String, BigDecimal> getNormalizedSocialStructureWithUpgrade(String fromClass, String toClass) {
-        return SocialStructureHelper.computeNormalizedSocialStructureForPlayerWithUpgrade((ServerLevel) this.level(),
-                        (ServerPlayer) this.level().getPlayerByUUID(this.leaderId),
-                        fromClass,
-                        toClass)
-                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getId(), Map.Entry::getValue));
+    private Map<SocialClass, Integer> getSocialStructureWithUpgrade(String fromClass, String toClass) {
+        return SocialStructureHelper.computeSocialStructureForPlayerWithUpgrade((ServerLevel) this.level(),
+                (ServerPlayer) this.level().getPlayerByUUID(this.leaderId),
+                fromClass,
+                toClass);
     }
 
     private void changeSocialClass(String nextClass) {

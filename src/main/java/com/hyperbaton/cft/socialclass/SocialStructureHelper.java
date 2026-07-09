@@ -29,34 +29,44 @@ public class SocialStructureHelper {
         return socialStructure;
     }
 
-    public static Map<SocialClass, BigDecimal> computeNormalizedSocialStructureForPlayer(ServerLevel level, ServerPlayer player) {
+    /**
+     * Raw population counts per class, as if the given Xoonglin had already moved from
+     * fromClass to toClass. Used to preview an upgrade/downgrade before it happens.
+     */
+    public static Map<SocialClass, Integer> computeSocialStructureForPlayerWithUpgrade(
+            ServerLevel level, ServerPlayer player, String fromClass, String toClass) {
         Map<SocialClass, Integer> socialStructure = computeSocialStructureForPlayer(level, player);
-        int population = socialStructure.values().stream().reduce(0, Integer::sum);
-        Map<SocialClass, BigDecimal> normalizedSocialStructure = new HashMap<>();
-        socialStructure.forEach((key, value) -> normalizedSocialStructure.put(key, BigDecimal.valueOf(value)
-                .setScale(8, RoundingMode.HALF_UP)
-                .divide(BigDecimal.valueOf(population).setScale(8, RoundingMode.HALF_UP), RoundingMode.HALF_UP)));
-        return normalizedSocialStructure;
-    }
-
-    public static Map<SocialClass, BigDecimal> computeNormalizedSocialStructureForPlayerWithUpgrade(ServerLevel level, ServerPlayer player, String fromClass, String toClass) {
-        Map<SocialClass, Integer> socialStructure = computeSocialStructureForPlayer(level, player);
-        int population = socialStructure.values().stream().reduce(0, Integer::sum);
         SocialClass formerSocialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(fromClass));
         SocialClass nextSocialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(toClass));
         // Reduce the population of previous class by 1, to account for the change
         socialStructure.replace(formerSocialClass, socialStructure.get(formerSocialClass) - 1);
         // Increase the population of next class by 1, to account for the change
-        if (socialStructure.get(nextSocialClass) == null) {
-            socialStructure.put(nextSocialClass, 1);
+        socialStructure.merge(nextSocialClass, 1, Integer::sum);
+        return socialStructure;
+    }
+
+    /**
+     * The share of `target` within `counts`, restricted to `scope` (a list of social
+     * class IDs). If scope is null or empty, the share is computed against the whole
+     * population instead of a restricted set of classes.
+     */
+    public static double computeScopedPercentage(Map<SocialClass, Integer> counts, String target, List<String> scope) {
+        int numerator = counts.entrySet().stream()
+                .filter(entry -> entry.getKey().getId().equals(target))
+                .mapToInt(Map.Entry::getValue)
+                .findFirst().orElse(0);
+
+        int denominator;
+        if (scope == null || scope.isEmpty()) {
+            denominator = counts.values().stream().mapToInt(Integer::intValue).sum();
         } else {
-            socialStructure.replace(nextSocialClass, socialStructure.get(nextSocialClass) + 1);
+            denominator = counts.entrySet().stream()
+                    .filter(entry -> scope.contains(entry.getKey().getId()))
+                    .mapToInt(Map.Entry::getValue)
+                    .sum();
         }
-        Map<SocialClass, BigDecimal> normalizedSocialStructure = new HashMap<>();
-        socialStructure.forEach((key, value) -> normalizedSocialStructure.put(key, BigDecimal.valueOf(value)
-                .setScale(8, RoundingMode.HALF_UP)
-                .divide(BigDecimal.valueOf(population).setScale(8, RoundingMode.HALF_UP), RoundingMode.HALF_UP)));
-        return normalizedSocialStructure;
+
+        return denominator <= 0 ? 0.0 : (double) numerator / denominator;
     }
 
     public static List<XoonglinEntity> getAllXoonglins(ServerLevel level) {
