@@ -1077,6 +1077,63 @@ items, and is subject to a cooldown. If `items` is empty, healing is free.
   Xoonglin to be able to work.
 </details>
 
+#### Blesser
+
+The Xoonglin blesses nearby Xoonglins (and optionally the leader) by spending items,
+applying a set of beneficial effects. If a `required_structure` is set, the blesser
+works from it — treating targets within a radius of the structure and drawing supplies
+from its containers; otherwise it works from its home. Supplies are carried in the
+blesser's inventory and restocked from the base as needed.
+
+A target is picked whenever it's missing at least one of the configured effects. Each
+blessing applies all of them at once, consumes one set of the configured items, and is
+subject to a cooldown. If `items` is empty, blessing is free.
+
+<details>
+    <summary>Sample blesser job file</summary>
+
+```json
+{
+  "type": "cft:blesser",
+  "hours_per_day": 1.0,
+  "radius": 24,
+  "items": [
+    {
+      "item": {
+        "item": "minecraft:nether_wart"
+      },
+      "quantity": 1
+    }
+  ],
+  "effects": [
+    { "effect": "minecraft:strength", "duration": 6000, "amplifier": 0 },
+    { "effect": "minecraft:speed", "duration": 6000, "amplifier": 0 }
+  ],
+  "cooldown": 100,
+  "bless_player": true
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `radius`: _(Optional, default: 24)_ How far from the base targets are searched for.
+- `required_structure`: _(Optional)_ A reference to a structure type ID the blesser works
+  from and takes supplies from. If omitted, the blesser works from its home.
+- `items`: _(Optional)_ A list of items consumed per blessing. Taken from the base
+  container.
+  - `item`: The item, in Ingredient format.
+  - `quantity`: How many are consumed per blessing.
+- `effects`: A list of effects applied together on each blessing.
+  - `effect`: The mob effect's ID (e.g. `minecraft:strength`).
+  - `duration`: How long the effect lasts, in ticks (20 ticks = 1 second).
+  - `amplifier`: _(Optional, default: 0)_ The effect's amplifier (0 = level I).
+- `cooldown`: _(Optional, default: 100)_ Ticks between blessings.
+- `doses_per_fetch`: _(Optional, default: 16)_ How many blessings' worth of items the
+  blesser grabs from the base on each restock trip.
+- `bless_player`: _(Optional, default: false)_ Whether the blesser also blesses the
+  leader when they are missing an effect and within the radius.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 #### Quarry Miner
 
 The Xoonglin digs a quarry — an open-air platform structure marking the footprint — layer

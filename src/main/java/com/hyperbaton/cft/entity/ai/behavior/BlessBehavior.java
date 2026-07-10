@@ -4,7 +4,8 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.job.HealerJob;
+import com.hyperbaton.cft.job.BlesserJob;
+import com.hyperbaton.cft.job.EffectApplication;
 import com.hyperbaton.cft.job.ItemQuantity;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
@@ -12,10 +13,16 @@ import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -34,16 +41,16 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Drives a healer: keep a stock of healing items from the base (structure or home),
- * seek the nearest damaged patient within the radius of the base, walk to it and heal
- * it on a cooldown, spending one dose of items per heal.
+ * Drives a blesser: keep a stock of supplies from the base (structure or home), seek the
+ * nearest target within the radius of the base missing one of its configured effects,
+ * walk to it and bless it on a cooldown, spending one dose of items per blessing.
  */
-public class HealBehavior extends Behavior<XoonglinEntity> {
+public class BlessBehavior extends Behavior<XoonglinEntity> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int REPATH_INTERVAL = 40;
-    private static final double HEAL_REACH = 2.5;
+    private static final double BLESS_REACH = 2.5;
     private static final int MAX_NAV_FAILURES = 5;
     // Ticks to idle before scanning again when there is nothing to do
     private static final int IDLE_WAIT = 40;
@@ -51,25 +58,25 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
     private static final int RESTOCK_COOLDOWN = 600;
 
     private enum State {
-        FETCHING, SEEKING, TREATING, WAITING
+        FETCHING, SEEKING, BLESSING, WAITING
     }
 
     private State state;
     private BlockPos basePos;
     private BlockPos fetchPos;
-    private UUID patientId;
+    private UUID targetId;
     private int repathTimer;
     private int waitTicks;
-    private int healCooldown;
+    private int blessCooldown;
     private int navFailures;
 
-    public HealBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
+    public BlessBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
         super(pEntryCondition, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        return getHealerJob(entity) != null;
+        return getBlesserJob(entity) != null;
     }
 
     @Override
@@ -77,29 +84,29 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         state = State.SEEKING;
         basePos = null;
         fetchPos = null;
-        patientId = null;
+        targetId = null;
         repathTimer = 0;
         waitTicks = 0;
-        healCooldown = 0;
+        blessCooldown = 0;
         navFailures = 0;
     }
 
     @Override
     protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_HEAL.get()).isPresent();
+        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_BLESS.get()).isPresent();
     }
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        HealerJob job = getHealerJob(entity);
+        BlesserJob job = getBlesserJob(entity);
         if (job == null) return;
 
         basePos = computeBase(entity, job);
         if (basePos == null) return;
 
-        if (healCooldown > 0) healCooldown--;
+        if (blessCooldown > 0) blessCooldown--;
 
-        // Whatever we are doing, divert to restock if we cannot heal and the base can supply us
+        // Whatever we are doing, divert to restock if we cannot bless and the base can supply us
         if (state != State.FETCHING && !job.hasDose(entity) && baseHasSupplies(level, entity, job)) {
             state = State.FETCHING;
             fetchPos = null;
@@ -110,7 +117,7 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         switch (state) {
             case FETCHING -> tickFetching(level, entity, job);
             case SEEKING -> tickSeeking(level, entity, job);
-            case TREATING -> tickTreating(level, entity, job);
+            case BLESSING -> tickBlessing(level, entity, job);
             case WAITING -> tickWaiting();
         }
     }
@@ -118,13 +125,13 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
-        patientId = null;
+        targetId = null;
     }
 
-    private void tickFetching(ServerLevel level, XoonglinEntity entity, HealerJob job) {
+    private void tickFetching(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
         List<Container> containers = baseContainers(level, entity, job);
         if (containers.isEmpty() || !baseHasSupplies(level, entity, job)) {
-            LOGGER.warn("[Heal] {} has no supplies at base {}, waiting",
+            LOGGER.warn("[Bless] {} has no supplies at base {}, waiting",
                     entity.getName().getString(), basePos);
             state = State.WAITING;
             waitTicks = RESTOCK_COOLDOWN;
@@ -161,49 +168,49 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         }
     }
 
-    private void tickSeeking(ServerLevel level, XoonglinEntity entity, HealerJob job) {
+    private void tickSeeking(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
         if (!job.hasDose(entity)) {
             // No supplies on hand, and the base couldn't restock us either (checked in
-            // tick()); don't go chasing a patient we can't actually heal yet.
+            // tick()); don't go chasing a target we can't actually bless yet.
             state = State.WAITING;
             waitTicks = IDLE_WAIT;
             return;
         }
-        LivingEntity patient = findNearestPatient(level, entity, job);
-        if (patient == null) {
+        LivingEntity target = findNearestTarget(level, entity, job);
+        if (target == null) {
             state = State.WAITING;
             waitTicks = IDLE_WAIT;
             return;
         }
-        patientId = patient.getUUID();
-        state = State.TREATING;
+        targetId = target.getUUID();
+        state = State.BLESSING;
         repathTimer = 0;
         navFailures = 0;
-        navigateTo(entity, patient.blockPosition());
+        navigateTo(entity, target.blockPosition());
     }
 
-    private void tickTreating(ServerLevel level, XoonglinEntity entity, HealerJob job) {
-        LivingEntity patient = resolvePatient(level, entity, job);
-        if (patient == null) {
-            patientId = null;
+    private void tickBlessing(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
+        LivingEntity target = resolveTarget(level, entity, job);
+        if (target == null) {
+            targetId = null;
             state = State.SEEKING;
             return;
         }
 
-        double distance = entity.position().distanceTo(patient.position());
-        if (distance > HEAL_REACH) {
+        double distance = entity.position().distanceTo(target.position());
+        if (distance > BLESS_REACH) {
             if (entity.getNavigation().isDone()) {
                 if (++navFailures >= MAX_NAV_FAILURES) {
                     navFailures = 0;
-                    patientId = null;
+                    targetId = null;
                     state = State.SEEKING;
                     return;
                 }
                 repathTimer = 0;
-                navigateTo(entity, patient.blockPosition());
+                navigateTo(entity, target.blockPosition());
             } else if (++repathTimer >= REPATH_INTERVAL) {
                 repathTimer = 0;
-                navigateTo(entity, patient.blockPosition());
+                navigateTo(entity, target.blockPosition());
             }
             return;
         }
@@ -212,24 +219,28 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         // BlockPosTracker (not EntityTracker): EntityTracker.isVisibleBy reads the
         // visible_mobs memory, which xoonglin brains do not register, and would crash
         entity.getBrain().setMemory(MemoryModuleType.LOOK_TARGET,
-                new BlockPosTracker(patient.getEyePosition()));
+                new BlockPosTracker(target.getEyePosition()));
 
-        if (healCooldown > 0) return;
+        if (blessCooldown > 0) return;
         if (!job.hasDose(entity)) {
             state = State.SEEKING;
             return;
         }
 
         job.consumeDose(entity);
-        patient.heal((float) job.getHealAmount());
+        for (EffectApplication application : job.getEffects()) {
+            Holder<MobEffect> holder = resolveEffect(application);
+            if (holder == null) continue;
+            target.addEffect(new MobEffectInstance(holder, application.duration(), application.amplifier()));
+        }
         entity.swing(InteractionHand.MAIN_HAND);
-        level.sendParticles(ParticleTypes.HEART,
-                patient.getX(), patient.getEyeY(), patient.getZ(),
+        level.sendParticles(ParticleTypes.HAPPY_VILLAGER,
+                target.getX(), target.getEyeY(), target.getZ(),
                 6, 0.4, 0.4, 0.4, 0.1);
-        healCooldown = job.getCooldown();
+        blessCooldown = job.getCooldown();
 
-        if (patient.getHealth() >= patient.getMaxHealth()) {
-            patientId = null;
+        if (!needsBlessing(target, job)) {
+            targetId = null;
             state = State.SEEKING;
         }
     }
@@ -240,16 +251,31 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         }
     }
 
-    private LivingEntity resolvePatient(ServerLevel level, XoonglinEntity entity, HealerJob job) {
-        if (patientId == null) return null;
-        Entity found = level.getEntity(patientId);
-        if (!(found instanceof LivingEntity patient) || !patient.isAlive()) return null;
-        if (patient.getHealth() >= patient.getMaxHealth()) return null;
-        if (patient.blockPosition().distManhattan(basePos) > job.getRadius() * 2L) return null;
-        return patient;
+    private Holder<MobEffect> resolveEffect(EffectApplication application) {
+        return BuiltInRegistries.MOB_EFFECT
+                .getHolder(ResourceKey.create(Registries.MOB_EFFECT, application.effect()))
+                .orElse(null);
     }
 
-    private LivingEntity findNearestPatient(ServerLevel level, XoonglinEntity entity, HealerJob job) {
+    /** True if the target is missing at least one of the job's configured effects. */
+    private boolean needsBlessing(LivingEntity target, BlesserJob job) {
+        for (EffectApplication application : job.getEffects()) {
+            Holder<MobEffect> holder = resolveEffect(application);
+            if (holder != null && !target.hasEffect(holder)) return true;
+        }
+        return false;
+    }
+
+    private LivingEntity resolveTarget(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
+        if (targetId == null) return null;
+        Entity found = level.getEntity(targetId);
+        if (!(found instanceof LivingEntity target) || !target.isAlive()) return null;
+        if (!needsBlessing(target, job)) return null;
+        if (target.blockPosition().distManhattan(basePos) > job.getRadius() * 2L) return null;
+        return target;
+    }
+
+    private LivingEntity findNearestTarget(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
         AABB area = new AABB(basePos).inflate(job.getRadius());
         UUID leaderId = entity.getLeaderId();
         LivingEntity best = null;
@@ -258,7 +284,7 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         for (XoonglinEntity candidate : level.getEntitiesOfClass(XoonglinEntity.class, area)) {
             if (candidate.getUUID().equals(entity.getUUID())) continue;
             if (leaderId == null || !leaderId.equals(candidate.getLeaderId())) continue;
-            if (candidate.getHealth() >= candidate.getMaxHealth()) continue;
+            if (!needsBlessing(candidate, job)) continue;
             double dist = entity.position().distanceToSqr(candidate.position());
             if (dist < bestDist) {
                 bestDist = dist;
@@ -266,10 +292,10 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
             }
         }
 
-        // Optionally treat the leader player, if damaged and within the base radius
-        if (job.isHealPlayer() && leaderId != null) {
+        // Optionally bless the leader player, if within the base radius and missing an effect
+        if (job.isBlessPlayer() && leaderId != null) {
             Player player = level.getPlayerByUUID(leaderId);
-            if (player != null && player.isAlive() && player.getHealth() < player.getMaxHealth()
+            if (player != null && player.isAlive() && needsBlessing(player, job)
                     && player.blockPosition().distManhattan(basePos) <= job.getRadius()) {
                 double dist = entity.position().distanceToSqr(player.position());
                 if (dist < bestDist) {
@@ -280,14 +306,14 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         return best;
     }
 
-    private BlockPos computeBase(XoonglinEntity entity, HealerJob job) {
+    private BlockPos computeBase(XoonglinEntity entity, BlesserJob job) {
         if (job.getRequiredStructureType() != null) {
             return entity.getAssignedStructurePos(job.getRequiredStructureType());
         }
         return entity.getHome() != null ? entity.getHome().getEntrance() : null;
     }
 
-    private Structure structureOrNull(ServerLevel level, XoonglinEntity entity, HealerJob job) {
+    private Structure structureOrNull(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
         if (job.getRequiredStructureType() == null) return null;
         BlockPos assigned = entity.getAssignedStructurePos(job.getRequiredStructureType());
         if (assigned == null) return null;
@@ -299,7 +325,7 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
     }
 
     /** Container positions of the base: the structure's, or the home's if none. */
-    private List<BlockPos> baseContainerPositions(ServerLevel level, XoonglinEntity entity, HealerJob job) {
+    private List<BlockPos> baseContainerPositions(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
         Structure structure = structureOrNull(level, entity, job);
         if (structure != null) {
             return ContainerUtil.findContainerPositions(level, structure);
@@ -316,7 +342,7 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
     }
 
     /** Containers of the base: the structure's, or the home's if there is no structure. */
-    private List<Container> baseContainers(ServerLevel level, XoonglinEntity entity, HealerJob job) {
+    private List<Container> baseContainers(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
         List<Container> containers = new ArrayList<>();
         for (BlockPos pos : baseContainerPositions(level, entity, job)) {
             if (level.getBlockEntity(pos) instanceof Container container) {
@@ -326,7 +352,7 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         return containers;
     }
 
-    private boolean baseHasSupplies(ServerLevel level, XoonglinEntity entity, HealerJob job) {
+    private boolean baseHasSupplies(ServerLevel level, XoonglinEntity entity, BlesserJob job) {
         if (job.getItems().isEmpty()) return false;
         List<Container> containers = baseContainers(level, entity, job);
         for (ItemQuantity item : job.getItems()) {
@@ -346,7 +372,7 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         return true;
     }
 
-    private void takeSupplies(XoonglinEntity entity, HealerJob job, List<Container> containers) {
+    private void takeSupplies(XoonglinEntity entity, BlesserJob job, List<Container> containers) {
         for (ItemQuantity item : job.getItems()) {
             int wanted = item.quantity() * job.getDosesPerFetch();
             for (Container container : containers) {
@@ -371,9 +397,9 @@ public class HealBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private HealerJob getHealerJob(XoonglinEntity entity) {
+    private BlesserJob getBlesserJob(XoonglinEntity entity) {
         if (entity.getJob() == null) return null;
         Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof HealerJob h ? h : null;
+        return job instanceof BlesserJob b ? b : null;
     }
 }

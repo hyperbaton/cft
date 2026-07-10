@@ -147,5 +147,6 @@
   "job.cft.settler_officiant_job": "Officiant",
   "cft:communion_need": "Communion",
   "job.cft.enchanter_job": "Enchanter",
-  "cft:enchanting_room": "Enchanting Room"
+  "cft:enchanting_room": "Enchanting Room",
+  "job.cft.blesser_job": "Blesser"
 }

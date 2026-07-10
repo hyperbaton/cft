@@ -37,6 +37,7 @@ public class CftMemoryModuleType {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_CRAFT = registerMemory("must_craft", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_FISH = registerMemory("must_fish", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_HEAL = registerMemory("must_heal", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_BLESS = registerMemory("must_bless", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_MINE = registerMemory("must_mine", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_ENCHANT = registerMemory("must_enchant", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> QUARRY_FLOODED = registerMemory("quarry_flooded", Codec.BOOL);

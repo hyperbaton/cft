@@ -1,0 +1,19 @@
+{
+  "type": "cft:blesser",
+  "hours_per_day": 1.0,
+  "radius": 24,
+  "items": [
+    {
+      "item": {
+        "item": "minecraft:nether_wart"
+      },
+      "quantity": 1
+    }
+  ],
+  "effects": [
+    { "effect": "minecraft:strength", "duration": 6000, "amplifier": 0 },
+    { "effect": "minecraft:speed", "duration": 6000, "amplifier": 0 }
+  ],
+  "cooldown": 100,
+  "bless_player": true
+}

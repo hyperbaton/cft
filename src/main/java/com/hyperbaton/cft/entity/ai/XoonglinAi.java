@@ -48,6 +48,7 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_CRAFT.get(),
             CftMemoryModuleType.MUST_FISH.get(),
             CftMemoryModuleType.MUST_HEAL.get(),
+            CftMemoryModuleType.MUST_BLESS.get(),
             CftMemoryModuleType.MUST_MINE.get(),
             CftMemoryModuleType.MUST_ENCHANT.get(),
             CftMemoryModuleType.QUARRY_FLOODED.get(),
@@ -125,6 +126,9 @@ public class XoonglinAi {
                 )),
                 Pair.of(2, new HealBehavior(
                         Map.of(CftMemoryModuleType.MUST_HEAL.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new BlessBehavior(
+                        Map.of(CftMemoryModuleType.MUST_BLESS.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(2, new QuarryMineBehavior(
                         Map.of(CftMemoryModuleType.MUST_MINE.get(), MemoryStatus.VALUE_PRESENT)
