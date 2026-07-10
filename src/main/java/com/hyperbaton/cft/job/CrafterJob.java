@@ -37,7 +37,9 @@ public class CrafterJob extends Job {
             Codec.INT.optionalFieldOf("output_count", 1).forGetter(CrafterJob::getOutputCount),
             Codec.INT.optionalFieldOf("crafting_time", 200).forGetter(CrafterJob::getCraftingTime),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, CrafterJob::new));
 
     private final double hoursPerDay;
@@ -49,8 +51,8 @@ public class CrafterJob extends Job {
 
     public CrafterJob(double hoursPerDay, String requiredStructure, List<ItemQuantity> ingredients,
                       Ingredient output, int outputCount, int craftingTime, List<String> requiredNeeds,
-                      double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                      double minHappiness, boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.ingredients = List.copyOf(ingredients);

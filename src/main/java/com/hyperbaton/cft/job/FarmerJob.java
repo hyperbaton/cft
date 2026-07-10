@@ -36,7 +36,9 @@ public class FarmerJob extends Job {
             BuiltInRegistries.BLOCK.byNameCodec().fieldOf("crop_block").forGetter(j -> j.cropBlock),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).fieldOf("ripe_state").forGetter(j -> j.ripeState),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, FarmerJob::new));
 
     private final double hoursPerDay;
@@ -48,8 +50,8 @@ public class FarmerJob extends Job {
 
     public FarmerJob(double hoursPerDay, String requiredStructure, Ingredient seed, Ingredient product,
                      Block cropBlock, Map<String, String> ripeState, List<String> requiredNeeds,
-                     double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                     double minHappiness, boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.seed = seed;

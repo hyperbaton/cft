@@ -37,7 +37,9 @@ public class OfficiantJob extends Job {
             Codec.INT.optionalFieldOf("gathering_timeout", 1200).forGetter(OfficiantJob::getGatheringTimeout),
             Codec.INT.optionalFieldOf("grace_period", 200).forGetter(OfficiantJob::getGracePeriod),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, OfficiantJob::new));
 
     private final String ritualId;
@@ -56,8 +58,8 @@ public class OfficiantJob extends Job {
                         List<ItemQuantity> ingredients, int summonRadius, int ritualRadius,
                         List<AttendanceRule> attendanceRules, int maxAttendees,
                         int gatheringTimeout, int gracePeriod, List<String> requiredNeeds,
-                        double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                        double minHappiness, boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.ritualId = ritualId;
         this.requiredStructure = requiredStructure;
         this.frequency = frequency;

@@ -32,7 +32,9 @@ public class QuarryMinerJob extends Job {
             Codec.INT.optionalFieldOf("max_depth", 16).forGetter(QuarryMinerJob::getMaxDepth),
             Codec.INT.optionalFieldOf("mine_speed", 20).forGetter(QuarryMinerJob::getMineSpeed),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, QuarryMinerJob::new));
 
     private final double hoursPerDay;
@@ -41,8 +43,9 @@ public class QuarryMinerJob extends Job {
     private final int mineSpeed;
 
     public QuarryMinerJob(double hoursPerDay, String requiredStructure, int maxDepth, int mineSpeed,
-                          List<String> requiredNeeds, double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                          List<String> requiredNeeds, double minHappiness,
+                          boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.maxDepth = maxDepth;

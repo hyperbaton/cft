@@ -219,6 +219,18 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         return CftEntities.XOONGLIN.get().create(serverLevel);
     }
 
+    /**
+     * Fired by AgeableMob.setAge() exactly once whenever the baby/adult boundary is
+     * crossed (natural growth or a forced ageUp), in either direction.
+     */
+    @Override
+    protected void ageBoundaryReached() {
+        super.ageBoundaryReached();
+        if (!level().isClientSide) {
+            assignEligibleJobIfNeeded();
+        }
+    }
+
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
@@ -404,8 +416,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
             this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
-            this.setJob(socialClass.getRandomJob(this.getRandom()));
-            this.jobState.reset();
+            assignEligibleJobIfNeeded();
             resetMatingDelay();
             applyClassMaxHealth();
         }
@@ -587,6 +598,22 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public void setJob(ResourceLocation jobId) { this.jobId = jobId; }
 
     public ResourceLocation getJob() { return jobId; }
+
+    public void assignEligibleJobIfNeeded() {
+        if (socialClass == null) return;
+
+        Job currentJob = jobId != null ? CftRegistry.JOBS.get(jobId) : null;
+        boolean currentJobValid = currentJob != null
+                && socialClass.getJobs().contains(jobId)
+                && (isBaby() ? currentJob.isAvailableToBabies() : currentJob.isAvailableToAdults());
+        if (currentJobValid) return;
+
+        ResourceLocation newJobId = socialClass.getRandomJob(getRandom(), isBaby());
+        if (!Objects.equals(jobId, newJobId)) {
+            setJob(newJobId);
+            jobState.reset();
+        }
+    }
 
     public JobState getJobState() { return jobState; }
 

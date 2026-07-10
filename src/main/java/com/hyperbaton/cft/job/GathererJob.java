@@ -29,7 +29,9 @@ public class GathererJob extends Job {
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block").forGetter(j -> Optional.ofNullable(j.block)),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("block_tag").forGetter(j -> Optional.ofNullable(j.blockTag)),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, GathererJob::new));
 
     private final double hoursPerDay;
@@ -40,8 +42,9 @@ public class GathererJob extends Job {
 
 
     public GathererJob(double hoursPerDay, int gatherRadius, Optional<Block> block,
-                       Optional<TagKey<Block>> blockTag, List<String> requiredNeeds, double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                       Optional<TagKey<Block>> blockTag, List<String> requiredNeeds, double minHappiness,
+                       boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.gatherRadius = gatherRadius;
         this.block = block.orElse(null);

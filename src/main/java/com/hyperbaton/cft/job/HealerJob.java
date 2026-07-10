@@ -35,7 +35,9 @@ public class HealerJob extends Job {
             Codec.INT.optionalFieldOf("doses_per_fetch", 16).forGetter(HealerJob::getDosesPerFetch),
             Codec.BOOL.optionalFieldOf("heal_player", false).forGetter(HealerJob::isHealPlayer),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, HealerJob::new));
 
     private final double hoursPerDay;
@@ -49,8 +51,9 @@ public class HealerJob extends Job {
 
     public HealerJob(double hoursPerDay, int radius, String requiredStructure, List<ItemQuantity> items,
                      double healAmount, int cooldown, int dosesPerFetch, boolean healPlayer,
-                     List<String> requiredNeeds, double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                     List<String> requiredNeeds, double minHappiness,
+                     boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
         this.requiredStructure = requiredStructure;

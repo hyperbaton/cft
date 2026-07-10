@@ -31,7 +31,9 @@ public class HomeArtisanJob extends Job {
             INGREDIENT_CODEC.fieldOf("output").forGetter(j -> j.output),
             Codec.INT.fieldOf("output_count").forGetter(j -> j.outputCount),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, HomeArtisanJob::new));
 
     private final double hoursPerDay;
@@ -42,8 +44,9 @@ public class HomeArtisanJob extends Job {
 
 
     public HomeArtisanJob(double hoursPerDay, int frequencyDays, Ingredient output, int outputCount,
-                          List<String> requiredNeeds, double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                          List<String> requiredNeeds, double minHappiness,
+                          boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.frequencyDays = Math.max(1, frequencyDays);
         this.output = output;

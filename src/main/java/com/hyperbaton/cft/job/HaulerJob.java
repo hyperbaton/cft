@@ -25,7 +25,9 @@ public class HaulerJob extends Job {
             Codec.INT.optionalFieldOf("radius", 64).forGetter(j -> j.radius),
             HaulerErrand.CODEC.listOf().fieldOf("errands").forGetter(j -> j.errands),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, HaulerJob::new));
 
     private final double hoursPerDay;
@@ -33,8 +35,8 @@ public class HaulerJob extends Job {
     private final List<HaulerErrand> errands;
 
     public HaulerJob(double hoursPerDay, int radius, List<HaulerErrand> errands, List<String> requiredNeeds,
-                     double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                     double minHappiness, boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
         this.errands = List.copyOf(errands);

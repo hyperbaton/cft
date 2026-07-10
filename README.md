@@ -578,6 +578,15 @@ All jobs share these optional fields:
   Xoonglin to be able to work.
 - `min_happiness`: _(Optional, default: 0.0)_ The Xoonglin will not work while its
   happiness is below this threshold, resuming once it recovers.
+- `available_to_babies`: _(Optional, default: false)_ Whether baby Xoonglins can be
+  assigned this job. Lets a social class offer a baby-specific job (e.g. a student).
+- `available_to_adults`: _(Optional, default: true)_ Whether adult Xoonglins can be
+  assigned this job.
+
+A Xoonglin is only ever assigned a job it is eligible for at its current age, picked
+randomly among its social class's `jobs` list. It is reassigned automatically whenever
+that stops being true — when it grows from baby to adult, or when its social class
+changes — falling back to no job if the class has no eligible job for that age.
 
 #### Home Artisan
 

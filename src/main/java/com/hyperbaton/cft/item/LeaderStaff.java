@@ -103,7 +103,7 @@ public class LeaderStaff extends Item {
                 entity.getUUID(),
                 JobUtil.buildJobInfo(entity),
                 JobUtil.buildInventoryData(entity),
-                entity.getSocialClass().getJobs(),
+                entity.getSocialClass().getJobsForAge(entity.isBaby()),
                 entity.canMate()
         );
     }

@@ -46,7 +46,7 @@ public record ChangeXoonglinJobPacket(UUID xoonglinId, ResourceLocation newJobId
                 if (level.getEntity(packet.xoonglinId) instanceof XoonglinEntity xoonglin) {
                     if (xoonglin.getLeaderId() == null || !xoonglin.getLeaderId().equals(player.getUUID())) return;
                     if (xoonglin.getSocialClass() == null) return;
-                    if (!xoonglin.getSocialClass().getJobs().contains(packet.newJobId)) return;
+                    if (!xoonglin.getSocialClass().getJobsForAge(xoonglin.isBaby()).contains(packet.newJobId)) return;
                     xoonglin.removeFromJobStructures();
                     xoonglin.setJob(packet.newJobId);
                     xoonglin.getJobState().reset();

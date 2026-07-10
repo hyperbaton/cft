@@ -64,7 +64,7 @@ public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements Custom
                                 xoonglin.getUUID(),
                                 JobUtil.buildJobInfo(xoonglin),
                                 JobUtil.buildInventoryData(xoonglin),
-                                xoonglin.getSocialClass().getJobs(),
+                                xoonglin.getSocialClass().getJobsForAge(xoonglin.isBaby()),
                                 xoonglin.canMate()
                         );
 

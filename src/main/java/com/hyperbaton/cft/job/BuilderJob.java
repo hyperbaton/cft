@@ -27,7 +27,9 @@ public class BuilderJob extends Job {
             Codec.INT.optionalFieldOf("build_speed", 20).forGetter(j -> j.buildSpeed),
             Codec.STRING.listOf().fieldOf("buildable_structures").forGetter(j -> j.buildableStructures),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, BuilderJob::new));
 
     private final double hoursPerDay;
@@ -39,8 +41,9 @@ public class BuilderJob extends Job {
 
     public BuilderJob(double hoursPerDay, String requiredStructure, String storageStructure,
                       int buildRadius, int buildSpeed, List<String> buildableStructures,
-                      List<String> requiredNeeds, double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                      List<String> requiredNeeds, double minHappiness,
+                      boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.storageStructure = storageStructure;

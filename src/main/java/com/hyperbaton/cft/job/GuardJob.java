@@ -22,7 +22,9 @@ public class GuardJob extends Job {
             Codec.INT.fieldOf("patrol_radius").forGetter(j -> j.patrolRadius),
             Codec.INT.optionalFieldOf("detection_radius", 16).forGetter(j -> j.detectionRadius),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness)
+            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
+            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
+            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, GuardJob::new));
 
     private final double hoursPerDay;
@@ -32,8 +34,8 @@ public class GuardJob extends Job {
 
 
     public GuardJob(double hoursPerDay, int patrolRadius, int detectionRadius, List<String> requiredNeeds,
-                    double minHappiness) {
-        super(requiredNeeds, minHappiness);
+                    double minHappiness, boolean availableToBabies, boolean availableToAdults) {
+        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.patrolRadius = patrolRadius;
         this.detectionRadius = detectionRadius;

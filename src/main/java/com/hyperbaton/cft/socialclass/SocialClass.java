@@ -1,11 +1,14 @@
 package com.hyperbaton.cft.socialclass;
 
+import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.job.Job;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class SocialClass {
@@ -115,9 +118,28 @@ public class SocialClass {
         return jobs;
     }
 
-    public ResourceLocation getRandomJob(RandomSource random) {
-        if (jobs.isEmpty()) return null;
-        return jobs.get(random.nextInt(jobs.size()));
+    /**
+     * Filters this class's job list down to those eligible for the given age
+     * (baby/adult), per the job's available_to_babies/available_to_adults fields.
+     */
+    public List<ResourceLocation> getJobsForAge(boolean isBaby) {
+        return jobs.stream()
+                .filter(jobId -> {
+                    Job job = CftRegistry.JOBS.get(jobId);
+                    return job != null && (isBaby ? job.isAvailableToBabies() : job.isAvailableToAdults());
+                })
+                .toList();
+    }
+
+    /**
+     * Picks a random job from this class's list that the given age (baby/adult) is
+     * eligible for, per the job's available_to_babies/available_to_adults fields.
+     * Returns null if no eligible job exists (the Xoonglin remains jobless).
+     */
+    public ResourceLocation getRandomJob(RandomSource random, boolean isBaby) {
+        List<ResourceLocation> eligible = getJobsForAge(isBaby);
+        if (eligible.isEmpty()) return null;
+        return eligible.get(random.nextInt(eligible.size()));
     }
 
     public boolean canUpgradeAsBaby() {

@@ -17,14 +17,22 @@ public abstract class Job {
 
     private final List<String> requiredNeeds;
     private final double minHappiness;
+    private final boolean availableToBabies;
+    private final boolean availableToAdults;
 
     protected Job(List<String> requiredNeeds) {
         this(requiredNeeds, 0.0);
     }
 
     protected Job(List<String> requiredNeeds, double minHappiness) {
+        this(requiredNeeds, minHappiness, false, true);
+    }
+
+    protected Job(List<String> requiredNeeds, double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         this.requiredNeeds = requiredNeeds != null ? List.copyOf(requiredNeeds) : List.of();
         this.minHappiness = minHappiness;
+        this.availableToBabies = availableToBabies;
+        this.availableToAdults = availableToAdults;
     }
 
     public abstract void tick(XoonglinEntity xoonglin, JobState state);
@@ -48,6 +56,14 @@ public abstract class Job {
 
     public double getMinHappiness() {
         return minHappiness;
+    }
+
+    public boolean isAvailableToBabies() {
+        return availableToBabies;
+    }
+
+    public boolean isAvailableToAdults() {
+        return availableToAdults;
     }
 
     public boolean canWork(XoonglinEntity xoonglin) {
