@@ -138,6 +138,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             setupAnimationStates();
         }
 
+        if (!level().isClientSide && matingDelay > 0) {
+            matingDelay--;
+        }
+
         if (!level().isClientSide && jobId != null) {
             Job job = CftRegistry.JOBS.get(jobId);
             if (job != null) {
@@ -170,9 +174,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         Brain<XoonglinEntity> brain = this.getBrain();
 
         brain.tick((ServerLevel) level(), this);
-        if (brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
+        boolean readyToMate = brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).orElse(false)
+                && brain.hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get());
+
+        boolean activelyWorking = brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GATHER.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GUARD.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_FARM.get())
@@ -183,12 +188,18 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_CRAFT.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_FISH.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_HEAL.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_MINE.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get())) {
+                || brain.hasMemoryValue(CftMemoryModuleType.MUST_MINE.get());
+
+        boolean workInterrupted = brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get());
+
+        if (activelyWorking) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
-        } else if (brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).isPresent() &&
-                brain.getMemory(CftMemoryModuleType.MATING_CANDIDATE.get()).isPresent()) {
+        } else if (readyToMate) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(CftActivities.MATE.get(), Activity.IDLE));
+        } else if (workInterrupted) {
+            brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
         } else {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
         }
@@ -512,7 +523,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     public boolean canMate() {
-        matingDelay--;
         return !this.isBaby() &&
                 matingDelay <= 0 &&
                 this.socialClass != null &&
