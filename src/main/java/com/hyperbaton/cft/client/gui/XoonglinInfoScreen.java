@@ -94,6 +94,10 @@ public class XoonglinInfoScreen extends Screen {
         int titleX = x + (imageWidth / 2) - (titleWidth / 2);
         graphics.drawString(this.font, titleText, titleX, y + MARGIN_PIXELS, 0x4040B0, false);
 
+        if (packet.isCanMate()) {
+            renderMateIndicator(graphics, x, y);
+        }
+
         renderTabs(graphics, x, y, mouseX, mouseY);
 
         switch (currentTab) {
@@ -103,6 +107,14 @@ public class XoonglinInfoScreen extends Screen {
         }
 
         super.render(graphics, mouseX, mouseY, delta);
+    }
+
+    /** A small heart shown in the top-right corner while the Xoonglin is ready to mate. */
+    private void renderMateIndicator(GuiGraphics graphics, int x, int y) {
+        String heart = "❤";
+        int heartWidth = this.font.width(heart);
+        int heartX = x + imageWidth - MARGIN_PIXELS - heartWidth;
+        graphics.drawString(this.font, heart, heartX, y + MARGIN_PIXELS, 0xFFE05070, false);
     }
 
     private void renderTabs(GuiGraphics graphics, int x, int y, int mouseX, int mouseY) {
@@ -464,7 +476,8 @@ public class XoonglinInfoScreen extends Screen {
                 updatePacket.getXoonglinId(),
                 updatePacket.getJobInfo(),
                 updatePacket.getInventoryData(),
-                updatePacket.getAvailableJobs()
+                updatePacket.getAvailableJobs(),
+                updatePacket.isCanMate()
         );
 
         if (needsScrollPanel != null) {

@@ -28,7 +28,8 @@ public record CheckOnXoonglinPacket(
         UUID xoonglinId,
         JobInfoData jobInfo,
         List<InventorySlotData> inventoryData,
-        List<ResourceLocation> availableJobs
+        List<ResourceLocation> availableJobs,
+        boolean canMate
 ) implements CustomPacketPayload {
 
     public static final Type<CheckOnXoonglinPacket> TYPE =
@@ -72,7 +73,8 @@ public record CheckOnXoonglinPacket(
             for (int i = 0; i < jobsSize; i++) {
                 availableJobs.add(ResourceLocation.STREAM_CODEC.decode(buf));
             }
-            return new CheckOnXoonglinPacket(name, socialClass, jobId, happiness, needsData, xoonglinId, jobInfo, inventoryData, availableJobs);
+            boolean canMate = ByteBufCodecs.BOOL.decode(buf);
+            return new CheckOnXoonglinPacket(name, socialClass, jobId, happiness, needsData, xoonglinId, jobInfo, inventoryData, availableJobs, canMate);
         }
 
         @Override
@@ -110,6 +112,7 @@ public record CheckOnXoonglinPacket(
             for (ResourceLocation jobId : packet.availableJobs) {
                 ResourceLocation.STREAM_CODEC.encode(buf, jobId);
             }
+            ByteBufCodecs.BOOL.encode(buf, packet.canMate);
         }
     };
 
@@ -131,4 +134,5 @@ public record CheckOnXoonglinPacket(
     public JobInfoData getJobInfo() { return jobInfo; }
     public List<InventorySlotData> getInventoryData() { return inventoryData; }
     public List<ResourceLocation> getAvailableJobs() { return availableJobs; }
+    public boolean isCanMate() { return canMate; }
 }
