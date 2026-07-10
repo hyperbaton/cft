@@ -1184,7 +1184,8 @@ with the **Leader Staff**.
 All structure types share these base fields:
 
 - `type`: The structure type discriminator (e.g. `"cft:house"`, `"cft:enclosed_building"`,
-  `"cft:open_air_platform"`, `"cft:monument"`, `"cft:multi_storey_building"`, `"cft:compound"`).
+  `"cft:open_air_platform"`, `"cft:pasture"`, `"cft:monument"`, `"cft:multi_storey_building"`,
+  `"cft:compound"`).
 - `id`: Identifier of this structure type.
 - `key_block`: _(Optional)_ A specific block that identifies the structure. Right clicking
   this block with the leader staff will trigger detection.
@@ -1469,6 +1470,74 @@ ground perimeter, and a surface.
 - `groundPerimeterBlocks`: A list of valid block rules for the ground below the border.
 - `surfaceBlocks`: A list of valid block rules for the interior surface of the platform
   (e.g. farmland, water).
+</details>
+
+#### Pasture
+
+A pasture is an open air platform (same border/ground perimeter/surface shape) that
+additionally requires a minimum — and optionally maximum — number of specific animals to
+be physically present inside its footprint. Detection re-checks the animal count every
+time the structure is validated (e.g. when a Xoonglin claims it), so a pen that's since
+wandered empty is caught rather than staying claimed on stale data.
+
+<details>
+    <summary>Sample pasture structure file</summary>
+
+```json
+{
+  "type": "cft:pasture",
+  "id": "cft:pasture",
+  "key_block": "minecraft:hay_block",
+  "max_users": 1,
+  "requires_container": false,
+  "priority": 0,
+  "wall_height": 1,
+  "borderBlocks": [
+    {
+      "tagBlock": "minecraft:fences",
+      "minQuantity": 4,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "groundPerimeterBlocks": [
+    {
+      "block": "minecraft:grass_block",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "surfaceBlocks": [
+    {
+      "block": "minecraft:grass_block",
+      "minQuantity": 0,
+      "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    }
+  ],
+  "eligible_mobs": [
+    "minecraft:cow",
+    "minecraft:sheep",
+    "minecraft:pig"
+  ],
+  "min_mob_count": 3
+}
+```
+
+- `wall_height`, `borderBlocks`, `groundPerimeterBlocks`, `surfaceBlocks`: Same as open air
+  platform.
+- `eligible_mobs`: A list of entities that count toward the pasture's occupancy. Each
+  entry is either an entity type ID (e.g. `"minecraft:cow"`) or, prefixed with `#`, an
+  entity type tag (e.g. `"#minecraft:skeletons"`) — the two can be mixed freely in the
+  same list.
+- `min_mob_count`: _(Optional, default: 1)_ Minimum number of eligible animals that must
+  be inside the footprint.
+- `max_mob_count`: _(Optional, default: unlimited)_ Maximum number of eligible animals
+  allowed inside the footprint.
 </details>
 
 #### Monument

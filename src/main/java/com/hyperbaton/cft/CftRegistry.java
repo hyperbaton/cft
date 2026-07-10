@@ -24,6 +24,7 @@ import com.hyperbaton.cft.structure.type.HouseStructureType;
 import com.hyperbaton.cft.structure.type.MonumentStructureType;
 import com.hyperbaton.cft.structure.type.MultiStoreyBuildingStructureType;
 import com.hyperbaton.cft.structure.type.OpenAirPlatformStructureType;
+import com.hyperbaton.cft.structure.type.PastureStructureType;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -135,6 +136,9 @@ public class CftRegistry {
 
     public static final DeferredHolder<Codec<? extends StructureType>, Codec<CompoundStructureType>> COMPOUND_STRUCTURE_TYPE =
             STRUCTURE_TYPE_CODECS.register("compound", () -> CompoundStructureType.CODEC);
+
+    public static final DeferredHolder<Codec<? extends StructureType>, Codec<PastureStructureType>> PASTURE_STRUCTURE_TYPE =
+            STRUCTURE_TYPE_CODECS.register("pasture", () -> PastureStructureType.CODEC);
 
     public static Registry<Need> getNeedsRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.NEED_KEY);
