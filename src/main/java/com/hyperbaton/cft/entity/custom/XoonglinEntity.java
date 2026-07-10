@@ -611,7 +611,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         ResourceLocation newJobId = socialClass.getRandomJob(getRandom(), isBaby());
         if (!Objects.equals(jobId, newJobId)) {
             setJob(newJobId);
-            jobState.reset();
+            jobState.resetJobSpecific();
         }
     }
 

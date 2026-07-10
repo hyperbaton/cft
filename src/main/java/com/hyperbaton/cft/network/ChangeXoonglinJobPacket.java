@@ -49,7 +49,7 @@ public record ChangeXoonglinJobPacket(UUID xoonglinId, ResourceLocation newJobId
                     if (!xoonglin.getSocialClass().getJobsForAge(xoonglin.isBaby()).contains(packet.newJobId)) return;
                     xoonglin.removeFromJobStructures();
                     xoonglin.setJob(packet.newJobId);
-                    xoonglin.getJobState().reset();
+                    xoonglin.getJobState().resetJobSpecific();
                 }
             }
         });

@@ -19,6 +19,16 @@ public class JobState {
         lastActionGameTime = 0;
     }
 
+    /**
+     * Clears only state tied to the specific job behavior (e.g. an officiant's last
+     * ritual time). The daily work quota tracking is left untouched, since it reflects
+     * the Xoonglin's workday and must survive job reassignment (otherwise switching
+     * jobs would let a Xoonglin dodge its daily quota).
+     */
+    public void resetJobSpecific() {
+        lastActionGameTime = 0;
+    }
+
     public void save(CompoundTag tag) {
         tag.putLong("lastDay", lastDayIndex);
         tag.putInt("workedToday", workedTicksToday);
