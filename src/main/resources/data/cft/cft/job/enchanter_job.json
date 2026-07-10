@@ -1,0 +1,16 @@
+{
+  "type": "cft:enchanter",
+  "hours_per_day": 6.0,
+  "required_structure": "cft:enchanting_room",
+  "input": {
+    "tag": "minecraft:swords"
+  },
+  "repertoire": [
+    { "enchantment": "minecraft:sharpness", "min_level": 1, "max_level": 5 },
+    { "enchantment": "minecraft:knockback", "min_level": 1, "max_level": 2 },
+    { "enchantment": "minecraft:fire_aspect", "min_level": 1, "max_level": 2 },
+    { "enchantment": "minecraft:looting", "min_level": 1, "max_level": 3 },
+    { "enchantment": "minecraft:sweeping_edge", "min_level": 1, "max_level": 3 }
+  ],
+  "enchanting_time": 200
+}

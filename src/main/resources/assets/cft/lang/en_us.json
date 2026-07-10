@@ -145,5 +145,7 @@
   "gui.cft.job_ritual_progress": "Ritual Progress",
   "gui.cft.job_attendees": "Attendees",
   "job.cft.settler_officiant_job": "Officiant",
-  "cft:communion_need": "Communion"
+  "cft:communion_need": "Communion",
+  "job.cft.enchanter_job": "Enchanter",
+  "cft:enchanting_room": "Enchanting Room"
 }

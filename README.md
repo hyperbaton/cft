@@ -915,6 +915,55 @@ If the ingredients run out, the crafter waits at the workshop and rechecks perio
   Xoonglin to be able to work.
 </details>
 
+#### Enchanter
+
+The Xoonglin works at an enchanting structure, taking an item from the structure's
+container and applying an enchantment from its repertoire, depositing it back into the
+same container afterward. Unlike the crafter, there's no separate output: the item
+itself is enchanted in place, so it must already be something enchantments can apply to
+(e.g. tools, weapons, armor).
+
+Each time it works, the enchanter looks across the container for an item matching
+`input`, then checks its `repertoire` for an enchantment that: is compatible with the
+item, is compatible with whatever enchantments are already on it (following the same
+exclusivity rules as an enchanting table, e.g. Sharpness and Smite can't coexist), and
+isn't already present at its configured maximum level. If it finds one, it applies it at
+a random level within the configured range (clamped to the enchantment's own maximum
+level). If nothing eligible is found, it waits at the structure and rechecks
+periodically.
+
+<details>
+    <summary>Sample enchanter job file</summary>
+
+```json
+{
+  "type": "cft:enchanter",
+  "hours_per_day": 6.0,
+  "required_structure": "cft:enchanting_room",
+  "input": {
+    "tag": "minecraft:swords"
+  },
+  "repertoire": [
+    { "enchantment": "minecraft:sharpness", "min_level": 1, "max_level": 5 },
+    { "enchantment": "minecraft:knockback", "min_level": 1, "max_level": 2 }
+  ],
+  "enchanting_time": 200
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: A reference to the structure type ID of the enchanting
+  structure. The enchanter must be a user of one, and works at its key block.
+- `input`: The item eligible to be enchanted, in Ingredient format.
+- `repertoire`: A list of enchantments the enchanter can apply.
+  - `enchantment`: The enchantment's ID.
+  - `min_level` / `max_level`: _(Optional, default: 1)_ The level range to pick from,
+    clamped to the enchantment's own maximum level.
+- `enchanting_time`: _(Optional, default: 200)_ How many ticks each enchantment takes to
+  apply.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 #### Fisher
 
 The Xoonglin looks for a body of blocks — water by default, but configurable so modded
