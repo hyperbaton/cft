@@ -1,0 +1,16 @@
+{
+  "type": "cft:rancher",
+  "hours_per_day": 4.0,
+  "required_structure": "cft:pasture",
+  "feed": [
+    {
+      "item": {
+        "item": "minecraft:wheat"
+      },
+      "quantity": 1
+    }
+  ],
+  "shear": true,
+  "milk": true,
+  "action_cooldown": 200
+}

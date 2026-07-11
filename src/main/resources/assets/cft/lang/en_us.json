@@ -148,5 +148,7 @@
   "cft:communion_need": "Communion",
   "job.cft.enchanter_job": "Enchanter",
   "cft:enchanting_room": "Enchanting Room",
-  "job.cft.blesser_job": "Blesser"
+  "job.cft.blesser_job": "Blesser",
+  "cft:pasture": "Pasture",
+  "job.cft.rancher_job": "Rancher"
 }

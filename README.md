@@ -1134,6 +1134,73 @@ subject to a cooldown. If `items` is empty, blessing is free.
   Xoonglin to be able to work.
 </details>
 
+#### Rancher
+
+The Xoonglin tends the animals of a pasture: shears sheep, milks cows, and feeds pairs of
+eligible animals to trigger breeding. Each tick it looks across the whole pasture
+footprint for the nearest ready action among the three (whichever is enabled and off
+cooldown), travels to it, and performs it. Wool and milk are deposited in the pasture's
+container; feed is taken from it — so the pasture should declare
+`"requires_container": true` for the rancher to actually be able to restock and deposit.
+
+Shearing and milking are on their own cooldowns and don't need `feed` configured, so a
+rancher can be set up for only some of the three actions (e.g. a pure shepherd with
+`"milk": false`). Feeding picks any two adult, breeding-ready animals of the same species
+within the pasture where a configured `feed` item is valid food for them (checked via the
+animal's own species-specific food rules, e.g. wheat for sheep and cows, carrots for
+pigs), consumes one unit of that item per animal, and lets them breed on their own —
+exactly as if a player had fed them by hand.
+
+Shearing requires a pair of shears carried by the rancher (fetched from the container
+like any other supply, and worn down with use — a broken pair is discarded and must be
+replaced). Milking only requires an empty bucket, but since vanilla cows have no
+cooldown of their own, each cow gets a `milk_regen_ticks` cooldown tracked individually
+so the rancher doesn't just repeatedly milk the same cow.
+
+<details>
+    <summary>Sample rancher job file</summary>
+
+```json
+{
+  "type": "cft:rancher",
+  "hours_per_day": 4.0,
+  "required_structure": "cft:pasture",
+  "feed": [
+    {
+      "item": {
+        "item": "minecraft:wheat"
+      },
+      "quantity": 1
+    }
+  ],
+  "shear": true,
+  "milk": true,
+  "action_cooldown": 200
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: A reference to the pasture structure type ID. The rancher must be
+  a user of one.
+- `feed`: _(Optional)_ A list of items that can be fed to trigger breeding. Each entry's
+  `quantity` is consumed per animal (so a pair costs twice that). If empty, breeding is
+  disabled.
+  - `item`: The item, in Ingredient format.
+  - `quantity`: How many are consumed per animal fed.
+- `shear`: _(Optional, default: true)_ Whether the rancher shears eligible sheep.
+- `milk`: _(Optional, default: true)_ Whether the rancher milks cows (requires empty
+  buckets in the container).
+- `action_cooldown`: _(Optional, default: 200)_ Ticks between individual actions (shears,
+  milkings, or feedings each have their own cooldown of this length).
+- `doses_per_fetch`: _(Optional, default: 16)_ How many feedings' worth of items the
+  rancher grabs from the container on each restock trip.
+- `buckets_per_fetch`: _(Optional, default: 4)_ How many empty buckets the rancher grabs
+  from the container on each restock trip.
+- `milk_regen_ticks`: _(Optional, default: 6000)_ Minimum time between milkings of the
+  same cow.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 #### Quarry Miner
 
 The Xoonglin digs a quarry — an open-air platform structure marking the footprint — layer

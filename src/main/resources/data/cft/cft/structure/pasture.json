@@ -3,7 +3,7 @@
   "id": "cft:pasture",
   "key_block": "minecraft:hay_block",
   "max_users": 1,
-  "requires_container": false,
+  "requires_container": true,
   "priority": 0,
   "wall_height": 2,
   "borderBlocks": [
@@ -25,6 +25,13 @@
       "tagBlock": "minecraft:logs",
       "minQuantity": 0,
       "maxQuantity": 500,
+      "minPercentage": 0.0,
+      "maxPercentage": 1.0
+    },
+    {
+      "block": "minecraft:chest",
+      "minQuantity": 1,
+      "maxQuantity": 1,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     }
