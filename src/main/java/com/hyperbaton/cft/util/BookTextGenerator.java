@@ -64,13 +64,14 @@ public final class BookTextGenerator {
     private static String generatePage(RandomSource random) {
         StringBuilder page = new StringBuilder();
         int sentences = 4 + random.nextInt(5);
+        // Stop as soon as the threshold is reached, but keep the last sentence whole
         for (int i = 0; i < sentences && page.length() < MAX_PAGE_LENGTH; i++) {
             String sentence = fill(pick(random, SENTENCE_TEMPLATES), random);
             sentence = Character.toUpperCase(sentence.charAt(0)) + sentence.substring(1);
             if (!page.isEmpty()) page.append(' ');
             page.append(sentence);
         }
-        return page.length() > MAX_PAGE_LENGTH ? page.substring(0, MAX_PAGE_LENGTH) : page.toString();
+        return page.toString();
     }
 
     /** Fills every %s placeholder in the template from a word bank chosen by rotation. */
