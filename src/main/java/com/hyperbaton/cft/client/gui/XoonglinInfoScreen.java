@@ -345,6 +345,11 @@ public class XoonglinInfoScreen extends Screen {
             if (!data.icons.isEmpty()) {
                 ItemStack iconStack = getIconStack(data.icons);
                 graphics.renderItem(iconStack, textX, barY - 4);
+                if (data.extraTooltip != null
+                        && mouseX >= textX && mouseX < textX + ICON_SIZE
+                        && mouseY >= barY - 4 && mouseY < barY - 4 + ICON_SIZE) {
+                    graphics.renderTooltip(this.font, Component.literal(data.extraTooltip), mouseX, mouseY);
+                }
                 textX += ICON_SIZE + 2;
             }
 

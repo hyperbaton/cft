@@ -2,6 +2,7 @@ package com.hyperbaton.cft.network;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.util.JobUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -18,7 +19,6 @@ import net.minecraft.core.UUIDUtil;
 
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements CustomPacketPayload {
 
@@ -43,17 +43,7 @@ public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements Custom
                     if (xoonglin.getLeaderId() != null &&
                             xoonglin.getLeaderId().equals(player.getUUID())) {
 
-                        Map<String, NeedSatisfactionData> needsData = xoonglin.getNeeds().stream()
-                                .filter(needSatisfier -> !needSatisfier.getNeed().isHidden())
-                                .collect(Collectors.toMap(
-                                        needSatisfier -> needSatisfier.getNeed().getId(),
-                                        needSatisfier -> new NeedSatisfactionData(
-                                                needSatisfier.getSatisfaction(),
-                                                needSatisfier.getNeed().getDamageThreshold(),
-                                                needSatisfier.getNeed().getSatisfactionThreshold(),
-                                                needSatisfier.getNeed().getIcons()
-                                        )
-                                ));
+                        Map<String, NeedSatisfactionData> needsData = NeedUtils.buildNeedsData(xoonglin);
 
                         XoonglinInfoUpdatePacket updatePacket = new XoonglinInfoUpdatePacket(
                                 xoonglin.getCustomName(),

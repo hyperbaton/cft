@@ -57,7 +57,9 @@ public record CheckOnXoonglinPacket(
                 for (int j = 0; j < iconCount; j++) {
                     icons.add(ResourceLocation.STREAM_CODEC.decode(buf));
                 }
-                needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold, icons));
+                boolean hasExtraTooltip = ByteBufCodecs.BOOL.decode(buf);
+                String extraTooltip = hasExtraTooltip ? ByteBufCodecs.STRING_UTF8.decode(buf) : null;
+                needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold, icons, extraTooltip));
             }
             boolean hasJobInfo = ByteBufCodecs.BOOL.decode(buf);
             JobInfoData jobInfo = hasJobInfo ? JobInfoData.decode(buf) : null;
@@ -97,6 +99,10 @@ public record CheckOnXoonglinPacket(
                 ByteBufCodecs.VAR_INT.encode(buf, entry.getValue().icons.size());
                 for (ResourceLocation icon : entry.getValue().icons) {
                     ResourceLocation.STREAM_CODEC.encode(buf, icon);
+                }
+                ByteBufCodecs.BOOL.encode(buf, entry.getValue().extraTooltip != null);
+                if (entry.getValue().extraTooltip != null) {
+                    ByteBufCodecs.STRING_UTF8.encode(buf, entry.getValue().extraTooltip);
                 }
             }
             ByteBufCodecs.BOOL.encode(buf, packet.jobInfo != null);

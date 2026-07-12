@@ -2,6 +2,7 @@ package com.hyperbaton.cft.item;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
 import com.hyperbaton.cft.network.NeedSatisfactionData;
 import com.hyperbaton.cft.network.StructureDetectionPacket;
@@ -82,17 +83,7 @@ public class LeaderStaff extends Item {
     }
 
     private CheckOnXoonglinPacket createXoonglinInfoMessage(XoonglinEntity entity) {
-        Map<String, NeedSatisfactionData> needsData = entity.getNeeds().stream()
-                .filter(needSatisfier -> !needSatisfier.getNeed().isHidden())
-                .collect(Collectors.toMap(
-                        needSatisfier -> needSatisfier.getNeed().getId(),
-                        needSatisfier -> new NeedSatisfactionData(
-                                needSatisfier.getSatisfaction(),
-                                needSatisfier.getNeed().getDamageThreshold(),
-                                needSatisfier.getNeed().getSatisfactionThreshold(),
-                                needSatisfier.getNeed().getIcons()
-                        )
-                ));
+        Map<String, NeedSatisfactionData> needsData = NeedUtils.buildNeedsData(entity);
 
         return new CheckOnXoonglinPacket(
                 entity.getCustomName(),

@@ -1,0 +1,9 @@
+{
+  "id": "cft:reading_need",
+  "type": "cft:reading",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 60.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 14
+}

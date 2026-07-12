@@ -57,6 +57,13 @@ class NeedsScrollPanel extends ScrollPanel {
                 if (!data.icons.isEmpty()) {
                     ItemStack iconStack = getIconStack(data.icons);
                     graphics.renderItem(iconStack, textX, adjustedY - 4);
+                    if (data.extraTooltip != null
+                            && mouseX >= textX && mouseX < textX + ICON_SIZE
+                            && mouseY >= adjustedY - 4 && mouseY < adjustedY - 4 + ICON_SIZE) {
+                        currentTooltip = Component.literal(data.extraTooltip);
+                        tooltipX = mouseX;
+                        tooltipY = mouseY;
+                    }
                     textX += ICON_SIZE + 2;
                 }
 

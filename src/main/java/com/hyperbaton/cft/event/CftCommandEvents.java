@@ -3,6 +3,7 @@ package com.hyperbaton.cft.event;
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.commands.HappinessLadderCommand;
 import com.hyperbaton.cft.commands.PopulationLadderCommand;
+import com.hyperbaton.cft.commands.RosterCommand;
 import com.hyperbaton.cft.commands.SocialStructureCommand;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -17,6 +18,7 @@ public class CftCommandEvents {
         new SocialStructureCommand(event.getDispatcher());
         new PopulationLadderCommand(event.getDispatcher());
         new HappinessLadderCommand(event.getDispatcher());
+        new RosterCommand(event.getDispatcher());
 
         ConfigCommand.register(event.getDispatcher());
     }

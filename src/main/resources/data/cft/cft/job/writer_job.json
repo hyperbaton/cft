@@ -1,0 +1,12 @@
+{
+  "type": "cft:writer",
+  "hours_per_day": 4.0,
+  "frequency_days": 7,
+  "pages_per_book": 6,
+  "input": {
+    "item": {
+      "item": "minecraft:writable_book"
+    },
+    "quantity": 1
+  }
+}

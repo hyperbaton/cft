@@ -52,6 +52,8 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_MINE.get(),
             CftMemoryModuleType.MUST_ENCHANT.get(),
             CftMemoryModuleType.MUST_RANCH.get(),
+            CftMemoryModuleType.MUST_WRITE.get(),
+            CftMemoryModuleType.MUST_SCRIBE.get(),
             CftMemoryModuleType.QUARRY_FLOODED.get(),
             CftMemoryModuleType.QUARRY_NEEDS_LADDERS.get(),
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
@@ -139,6 +141,12 @@ public class XoonglinAi {
                 )),
                 Pair.of(2, new RanchBehavior(
                         Map.of(CftMemoryModuleType.MUST_RANCH.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new WriteBehavior(
+                        Map.of(CftMemoryModuleType.MUST_WRITE.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new ScribeBehavior(
+                        Map.of(CftMemoryModuleType.MUST_SCRIBE.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(1, new AttendRitualBehavior(
                         Map.of(CftMemoryModuleType.MUST_ATTEND_RITUAL.get(), MemoryStatus.VALUE_PRESENT)

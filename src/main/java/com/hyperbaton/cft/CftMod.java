@@ -42,6 +42,8 @@ public class CftMod
 
         CftRegistry.STRUCTURE_TYPE_CODECS.register(modEventBus);
 
+        CftDataComponents.register(modEventBus);
+
         CreativeModTabs.register(modEventBus);
 
         CftItems.register(modEventBus);

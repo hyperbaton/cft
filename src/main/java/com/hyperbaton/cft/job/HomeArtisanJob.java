@@ -60,25 +60,34 @@ public class HomeArtisanJob extends Job {
 
         long dayIndex = Math.floorDiv(level.getDayTime(), 24000L);
         int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
-        // Day rollover handling
+        // Day rollover handling: if yesterday's quota was never credited, the streak breaks.
         if (state.lastDayIndex == Long.MIN_VALUE) { // First tick after spawning
             state.lastDayIndex = dayIndex;
+            state.creditedToday = false;
         } else if (dayIndex != state.lastDayIndex) {
-            // End-of-day check
-            boolean metQuota = state.workedTicksToday >= neededTicks;
-
-            LOGGER.trace(
-                    "Day rollover for {}: workedTicks={}, needed={}, metQuota={}, streak {}, (dayIndex={})",
-                    xoonglin.getName(), state.workedTicksToday, neededTicks, metQuota, state.consecutiveDaysWorked, dayIndex
-            );
-
-            if (metQuota) {
-                state.consecutiveDaysWorked++;
-            } else {
+            if (!state.creditedToday) {
                 state.consecutiveDaysWorked = 0;
             }
             state.workedTicksToday = 0;
             state.lastDayIndex = dayIndex;
+            state.creditedToday = false;
+        }
+
+        // Count work tick if at home and required needs are met
+        if (JobUtil.isAtHome(xoonglin, CftConfig.HOME_WORK_RADIUS.get())
+                && canWork(xoonglin)) {
+            state.workedTicksToday++;
+        }
+
+        // Credit the streak the instant today's quota is met
+        if (!state.creditedToday && state.workedTicksToday >= neededTicks) {
+            state.creditedToday = true;
+            state.consecutiveDaysWorked++;
+
+            LOGGER.trace(
+                    "Quota met for {}: workedTicks={}, needed={}, streak={}",
+                    xoonglin.getName(), state.workedTicksToday, neededTicks, state.consecutiveDaysWorked
+            );
 
             if (state.consecutiveDaysWorked >= frequencyDays) {
                 // Try deposit
@@ -93,12 +102,6 @@ public class HomeArtisanJob extends Job {
                 }
                 state.consecutiveDaysWorked = 0;
             }
-        }
-
-        // Count work tick if at home and required needs are met
-        if (JobUtil.isAtHome(xoonglin, CftConfig.HOME_WORK_RADIUS.get())
-                && canWork(xoonglin)) {
-            state.workedTicksToday++;
         }
 
         // Drive behavior via memory: if we still need to work at home today, remember it.

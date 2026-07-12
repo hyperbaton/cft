@@ -15,6 +15,8 @@ import com.hyperbaton.cft.job.GuardJob;
 import com.hyperbaton.cft.job.HaulerJob;
 import com.hyperbaton.cft.job.HomeArtisanJob;
 import com.hyperbaton.cft.job.OfficiantJob;
+import com.hyperbaton.cft.job.ScribeJob;
+import com.hyperbaton.cft.job.WriterJob;
 import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -74,6 +76,7 @@ public class CftRegistry {
     public static final DeferredHolder<Codec<? extends Need>, Codec<StructureNeed>> STRUCTURE_NEED = NEEDS_CODEC.register("structure", () -> StructureNeed.STRUCTURE_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<EquipmentNeed>> EQUIPMENT_NEED = NEEDS_CODEC.register("equipment", () -> EquipmentNeed.EQUIPMENT_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<RitualNeed>> RITUAL_NEED = NEEDS_CODEC.register("ritual", () -> RitualNeed.RITUAL_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<ReadingNeed>> READING_NEED = NEEDS_CODEC.register("reading", () -> ReadingNeed.READING_NEED_CODEC);
 
     public static final DeferredRegister<Codec<? extends Job>> JOBS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.JOB_CODEC_KEY, CftMod.MOD_ID);
@@ -119,6 +122,12 @@ public class CftRegistry {
 
     public static final DeferredHolder<Codec<? extends Job>, Codec<RancherJob>> RANCHER_JOB =
             JOBS_CODEC.register("rancher", () -> RancherJob.CODEC);
+
+    public static final DeferredHolder<Codec<? extends Job>, Codec<WriterJob>> WRITER_JOB =
+            JOBS_CODEC.register("writer", () -> WriterJob.CODEC);
+
+    public static final DeferredHolder<Codec<? extends Job>, Codec<ScribeJob>> SCRIBE_JOB =
+            JOBS_CODEC.register("scribe", () -> ScribeJob.CODEC);
 
     public static final DeferredRegister<Codec<? extends StructureType>> STRUCTURE_TYPE_CODECS =
             DeferredRegister.create(CftDatapackRegistryEvents.STRUCTURE_TYPE_CODEC_KEY, CftMod.MOD_ID);

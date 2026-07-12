@@ -562,6 +562,33 @@ For the common fields, look at the goods need example. The specific fields for r
   it is enough that the ritual completes nearby, wherever the Xoonglin happens to be.
 </details>
 
+#### Reading Need
+
+The Xoonglin wants a book from the world's shared **roster** of writer-produced books
+(see the Writer job). It works exactly like a Goods Need: the Xoonglin fetches a
+matching book from its home container into its own inventory, then consumes it to satisfy the need. Which book is "wanted" is picked automatically each check —
+a stable pick that shifts over time as new books are written — rather than assigned once
+and remembered, so there's nothing to configure about which title.
+
+<details>
+    <summary>Sample reading need file</summary>
+
+```json
+{
+  "id": "cft:reading_need",
+  "type": "cft:reading",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 60.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 14
+}
+```
+
+For the common fields, look at the goods need example. This need has no extra fields —
+what's "required" comes entirely from the current roster of book titles.
+</details>
+
 ### Jobs
 
 Jobs define what Xoonglins do during the day. They are assigned via the `jobs` field in
@@ -1197,6 +1224,99 @@ so the rancher doesn't just repeatedly milk the same cow.
   from the container on each restock trip.
 - `milk_regen_ticks`: _(Optional, default: 6000)_ Minimum time between milkings of the
   same cow.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
+#### Writer
+
+The Xoonglin periodically writes an original book, or **manuscript**: a title, author
+(the Xoonglin's own name) and pages are generated procedurally, and the book is
+registered in the world's shared **roster** of titles, then deposited in the base container.
+
+Unlike most production jobs, writing a book takes several days of accumulated work
+rather than being repeatable within a single day — `frequency_days` sets how many
+consecutive full workdays are needed before a book is produced (modeled on the Home
+Artisan job's cadence). If `required_structure` is omitted, the writer works from home,
+like the Healer/Blesser jobs; otherwise it works at the given structure.
+
+Each leader's roster is capped at `needs.maxRosterSize` in the mod config (default 20).
+If the roster is already full, the writer simply holds at its production threshold —
+work isn't lost — and writes the book as soon as room frees up (e.g. an existing entry's
+only physical copies are all lost, or the cap is raised).
+
+If `input` is configured — for example, a book and quill — the writer first fetches it
+from the base container into its own inventory, and only counts a day's work toward the
+streak while it's actually holding it: no input, no progress, and it'll go fetch more
+before resuming. The input is consumed (and the book deposited) only once the streak is
+actually reached, so partial progress is never lost to a missing supply.
+
+<details>
+    <summary>Sample writer job file</summary>
+
+```json
+{
+  "type": "cft:writer",
+  "hours_per_day": 2.0,
+  "frequency_days": 10,
+  "pages_per_book": 6,
+  "input": {
+    "item": {
+      "item": "minecraft:writable_book"
+    },
+    "quantity": 1
+  }
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `frequency_days`: How many consecutive full workdays are needed to produce one book.
+- `required_structure`: _(Optional)_ A reference to a structure type ID the writer works
+  from and deposits into. If omitted, the writer works from home.
+- `pages_per_book`: _(Optional, default: 6)_ How many pages the generated book has.
+- `input`: _(Optional)_ An item consumed from the base container each time a book is
+  produced (e.g. a book and quill). If omitted, writing is free.
+  - `item`: The item, in Ingredient format.
+  - `quantity`: How many are consumed per book.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
+#### Scribe
+
+The Xoonglin works at a scriptorium, copying books. It looks in the structure's
+container for any book carrying a valid manuscript/copy from the current leader's roster
+that isn't already at the maximum copyable generation, and — given enough of the
+configured input — spends some time producing a new copy of it (one generation further
+from the original; vanilla copies cap at generation 2, "tattered" copies at generation 3
+can no longer be copied). **The source book is never consumed**, so the scriptorium can
+keep producing copies from the same manuscript over time; only the input is spent. Like
+the Writer job, the scribe fetches the input into its own inventory before working, and
+only consumes it once a copy is actually produced.
+
+<details>
+    <summary>Sample scribe job file</summary>
+
+```json
+{
+  "type": "cft:scribe",
+  "hours_per_day": 6.0,
+  "required_structure": "cft:scriptorium",
+  "input": {
+    "item": {
+      "item": "minecraft:paper"
+    },
+    "quantity": 3
+  },
+  "crafting_time": 400
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: A reference to the scriptorium structure type ID. The scribe must
+  be a user of one.
+- `input`: The item consumed per copy, in the same format as a crafter's ingredients.
+  - `item`: The item, in Ingredient format.
+  - `quantity`: How many are consumed per copy.
+- `crafting_time`: _(Optional, default: 200)_ How many ticks each copy takes.
 - `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
   Xoonglin to be able to work.
 </details>

@@ -45,6 +45,7 @@
   "cft.socialstructure.population": "Population: ",
   "cft.populationladder.header": "Population ladder: ",
   "cft.happinessladder.header": "Happiness ladder: ",
+  "cft.roster.header": "Book roster: ",
   "sounds.cft.entity.xoonglin.hurt": "Xoonglin hurt",
   "sounds.cft.entity.xoonglin.death": "Xoonglin dying",
   "sounds.cft.entity.xoonglin.ambient": "Xoonglin babbling",
@@ -150,5 +151,10 @@
   "cft:enchanting_room": "Enchanting Room",
   "job.cft.blesser_job": "Blesser",
   "cft:pasture": "Pasture",
-  "job.cft.rancher_job": "Rancher"
+  "job.cft.rancher_job": "Rancher",
+  "job.cft.writer_job": "Writer",
+  "job.cft.scribe_job": "Scribe",
+  "cft:scriptorium": "Scriptorium",
+  "gui.cft.need_type.reading": "Reading",
+  "cft:reading_need": "Reading"
 }

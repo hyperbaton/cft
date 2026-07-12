@@ -39,6 +39,9 @@ public class CftConfig
     public static final ModConfigSpec.BooleanValue USE_HUMANOID_MODEL = BUILDER
             .comment("If true, Xoonglins will use the basic humanoid/player model instead of the custom Xoonglin model.")
             .define("useHumanoidModel", false);
+    public static final ModConfigSpec.IntValue MAX_ROSTER_SIZE = BUILDER
+            .comment("Maximum number of books a leader's writers can have in the world roster at once.")
+            .defineInRange("needs.maxRosterSize", 20, 1, 500);
     static final ModConfigSpec SPEC = BUILDER.build();
 
 
