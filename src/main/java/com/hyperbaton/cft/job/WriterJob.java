@@ -49,6 +49,7 @@ public class WriterJob extends Job {
             Codec.STRING.optionalFieldOf("required_structure", "").forGetter(j -> j.requiredStructure),
             Codec.INT.optionalFieldOf("pages_per_book", 6).forGetter(j -> j.pagesPerBook),
             ItemQuantity.CODEC.optionalFieldOf("input").forGetter(j -> j.input),
+            TextBank.CODEC.optionalFieldOf("text_bank", TextBank.DEFAULT).forGetter(j -> j.textBank),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
@@ -60,9 +61,10 @@ public class WriterJob extends Job {
     private final String requiredStructure;
     private final int pagesPerBook;
     private final Optional<ItemQuantity> input;
+    private final TextBank textBank;
 
     public WriterJob(double hoursPerDay, int frequencyDays, String requiredStructure, int pagesPerBook,
-                     Optional<ItemQuantity> input, List<String> requiredNeeds, double minHappiness,
+                     Optional<ItemQuantity> input, TextBank textBank, List<String> requiredNeeds, double minHappiness,
                      boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
@@ -70,6 +72,7 @@ public class WriterJob extends Job {
         this.requiredStructure = requiredStructure;
         this.pagesPerBook = pagesPerBook;
         this.input = input;
+        this.textBank = textBank;
     }
 
     @Override
@@ -174,10 +177,10 @@ public class WriterJob extends Job {
             return false;
         }
 
-        String title = BookTextGenerator.generateTitle(xoonglin.getRandom());
+        String title = BookTextGenerator.generateTitle(xoonglin.getRandom(), textBank);
         if (title.length() > 32) title = title.substring(0, 32);
         String authorName = xoonglin.getName().getString();
-        List<String> pages = BookTextGenerator.generatePages(xoonglin.getRandom(), pagesPerBook);
+        List<String> pages = BookTextGenerator.generatePages(xoonglin.getRandom(), pagesPerBook, textBank);
 
         BookEntry entry = rosters.add(leaderId, title, authorName, pages);
 
