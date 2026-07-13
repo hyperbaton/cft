@@ -21,7 +21,10 @@ public class XoonglinInfoScreen extends Screen {
     private static final ResourceLocation TEXTURE =
         ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "textures/gui/check_on_xoonglin_background.png");
     private static final int MARGIN_PIXELS = 10;
-    private static final int MAX_VISIBLE_NEEDS = 7;
+    // needsStartY sits at CONTENT_Y_OFFSET + 35 = 75px from the top of the texture, and
+    // each row is 18px tall, so only (176 - 75) / 18 ~= 5 rows fit before protruding
+    // past the texture's bottom edge (imageHeight = 176).
+    private static final int MAX_VISIBLE_NEEDS = 5;
     private static final int UPDATE_FREQUENCY = 20;
     private static final int ICON_ROTATE_TICKS = 40;
     private static final int ICON_SIZE = 16;
@@ -61,7 +64,10 @@ public class XoonglinInfoScreen extends Screen {
         int y = (height - imageHeight) / 2;
 
         if (packet.getNeedsData().size() > MAX_VISIBLE_NEEDS) {
-            int scrollPanelHeight = 15 * MAX_VISIBLE_NEEDS;
+            // 18px per row, matching NeedsScrollPanel's own elementHeight and the
+            // normal-render row step, so exactly MAX_VISIBLE_NEEDS rows fit with no
+            // leftover blank space at the bottom of the panel.
+            int scrollPanelHeight = 18 * MAX_VISIBLE_NEEDS;
             needsScrollPanel = new NeedsScrollPanel(
                     minecraft,
                     this.font,

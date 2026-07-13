@@ -156,5 +156,6 @@
   "job.cft.scribe_job": "Scribe",
   "cft:scriptorium": "Scriptorium",
   "gui.cft.need_type.reading": "Reading",
-  "cft:reading_need": "Reading"
+  "cft:reading_need": "Reading",
+  "job.cft.settler_builder_job": "Builder"
 }
