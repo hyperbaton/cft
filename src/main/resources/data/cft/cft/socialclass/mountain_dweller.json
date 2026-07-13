@@ -3,6 +3,7 @@
   "maxHappiness": 100.0,
   "matingHappinessThreshold": 5.0,
   "spontaneouslySpawnPopulation": 3,
+  "jobs": ["cft:quarry_miner_job"],
   "needs": [
     "cft:potato_need",
     "cft:wood_logs_need",

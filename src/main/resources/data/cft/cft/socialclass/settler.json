@@ -3,13 +3,15 @@
   "maxHappiness": 100.0,
   "matingHappinessThreshold": 5.0,
   "spontaneouslySpawnPopulation": 3,
-  "jobs": ["cft:wheat_farmer_job","cft:gather_flowers_job"],
+  "jobs": ["cft:wheat_hauler_job","cft:settler_builder_job","cft:gather_flowers_job"],
   "needs": [
     "cft:settler_home",
     "cft:water_need",
     "cft:potato_need",
     "cft:wood_logs_need",
-    "cft:bread_need"
+    "cft:bread_need",
+    "cft:communion_need",
+    "cft:settlers_companions_need"
   ],
   "upgrades": [
     {

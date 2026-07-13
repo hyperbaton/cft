@@ -3,6 +3,7 @@
   "maxHappiness": 24000.0,
   "matingHappinessThreshold": 2400.0,
   "spontaneouslySpawnPopulation": 0,
+  "jobs": ["cft:blesser_job"],
   "needs": [
     "cft:cake_need",
     "cft:diamond_need",

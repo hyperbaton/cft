@@ -4,6 +4,7 @@
   "matingHappinessThreshold": 600.0,
   "spontaneouslySpawnPopulation": 0,
   "maxHealth": 40.0,
+  "jobs": ["cft:guard_job","cft:healer_job","cft:enchanter_job"],
   "needs": [
     "cft:flint_need",
     "cft:iron_sword_need",

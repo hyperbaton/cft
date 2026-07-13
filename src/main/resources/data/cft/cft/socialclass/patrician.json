@@ -3,6 +3,7 @@
   "maxHappiness": 4000.0,
   "matingHappinessThreshold": 800.0,
   "spontaneouslySpawnPopulation": 0,
+  "jobs": ["cft:writer_job","cft:priest_job"],
   "needs": [
     "cft:gold_nugget_need",
     "cft:book_need",

@@ -3,6 +3,7 @@
   "maxHappiness": 750.0,
   "matingHappinessThreshold": 300,
   "spontaneouslySpawnPopulation": 0,
+  "jobs": ["cft:produce_paper_job","cft:scribe_job"],
   "needs": [
     "cft:clay_need",
     "cft:terracotta_need",

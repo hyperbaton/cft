@@ -3,13 +3,16 @@
   "maxHappiness": 200.0,
   "matingHappinessThreshold": 40.0,
   "spontaneouslySpawnPopulation": 0,
+  "jobs": ["cft:baker_job","cft:fisher_job","cft:rancher_job","cft:wheat_farmer_job"],
   "needs": [
     "cft:bread_need",
     "cft:coal_need",
     "cft:citizen_terracotta_need",
     "cft:citizen_book_need",
     "cft:citizen_iron_sword_need",
-    "cft:citizen_home"
+    "cft:citizen_home",
+    "cft:fishing_rod_need",
+    "cft:communion_need"
   ],
   "upgrades": [
     {

@@ -1,6 +1,6 @@
 {
   "type": "cft:energy",
-  "id": "basic_energy_need",
+  "id": "cft:basic_energy_need",
   "damage": 1.0,
   "damage_threshold": 0.2,
   "provided_happiness": 1.0,
