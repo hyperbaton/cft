@@ -42,6 +42,11 @@ public class XoonglinInfoScreen extends Screen {
 
     private static final int ARROW_SIZE = 12;
 
+    private static final ResourceLocation TRADER_JOB_ID =
+            ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "trader_job");
+    private static final int CONFIGURE_TRADES_BUTTON_WIDTH = 110;
+    private static final int CONFIGURE_TRADES_BUTTON_HEIGHT = 14;
+
     private final int imageWidth = 220, imageHeight = 176;
     private CheckOnXoonglinPacket packet;
     private int ticksUntilNextUpdate = UPDATE_FREQUENCY;
@@ -49,6 +54,8 @@ public class XoonglinInfoScreen extends Screen {
     private int currentTab = TAB_INFO;
 
     private NeedsScrollPanel needsScrollPanel;
+    private int configureTradesButtonY = -1;
+    private int configureTradesButtonX = -1;
 
     public XoonglinInfoScreen(Component title, CheckOnXoonglinPacket packet) {
         super(title);
@@ -256,6 +263,23 @@ public class XoonglinInfoScreen extends Screen {
                 }
             }
         }
+
+        if (TRADER_JOB_ID.equals(packet.getJobId())) {
+            configureTradesButtonX = x + MARGIN_PIXELS;
+            configureTradesButtonY = contentY + 4;
+            boolean hovered = isInBounds(mouseX, mouseY, configureTradesButtonX, configureTradesButtonY,
+                    CONFIGURE_TRADES_BUTTON_WIDTH, CONFIGURE_TRADES_BUTTON_HEIGHT);
+            int bg = hovered ? 0xFF606060 : 0xFF404040;
+            graphics.fill(configureTradesButtonX, configureTradesButtonY,
+                    configureTradesButtonX + CONFIGURE_TRADES_BUTTON_WIDTH, configureTradesButtonY + CONFIGURE_TRADES_BUTTON_HEIGHT, bg);
+            String label = Component.translatable("gui.cft.configure_trades").getString();
+            int textWidth = this.font.width(label);
+            graphics.drawString(this.font, label,
+                    configureTradesButtonX + (CONFIGURE_TRADES_BUTTON_WIDTH - textWidth) / 2, configureTradesButtonY + 3,
+                    hovered ? 0xFFFFFF : 0xC0C0C0, false);
+        } else {
+            configureTradesButtonY = -1;
+        }
     }
 
     private void renderArrowButton(GuiGraphics graphics, int x, int y, boolean left, boolean hovered) {
@@ -428,6 +452,13 @@ public class XoonglinInfoScreen extends Screen {
                         switchJob(1);
                         return true;
                     }
+                }
+
+                if (configureTradesButtonY >= 0
+                        && isInBounds(mouseX, mouseY, configureTradesButtonX, configureTradesButtonY,
+                        CONFIGURE_TRADES_BUTTON_WIDTH, CONFIGURE_TRADES_BUTTON_HEIGHT)) {
+                    PacketDistributor.sendToServer(new RequestConfigureTradesPacket(packet.getXoonglinId()));
+                    return true;
                 }
             }
         }

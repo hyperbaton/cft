@@ -67,6 +67,36 @@ public class CftPacketHandler {
                 StructureLabelsPacket.STREAM_CODEC,
                 StructureLabelsPacket::handle
         );
+
+        registrar.playToClient(
+                OpenTradeScreenPacket.TYPE,
+                OpenTradeScreenPacket.STREAM_CODEC,
+                OpenTradeScreenPacket::handle
+        );
+
+        registrar.playToServer(
+                ExecuteTradePacket.TYPE,
+                ExecuteTradePacket.STREAM_CODEC,
+                ExecuteTradePacket::handle
+        );
+
+        registrar.playToServer(
+                RequestConfigureTradesPacket.TYPE,
+                RequestConfigureTradesPacket.STREAM_CODEC,
+                RequestConfigureTradesPacket::handle
+        );
+
+        registrar.playToServer(
+                TradeBoxClickPacket.TYPE,
+                TradeBoxClickPacket.STREAM_CODEC,
+                TradeBoxClickPacket::handle
+        );
+
+        registrar.playToClient(
+                TradeBoxUpdatePacket.TYPE,
+                TradeBoxUpdatePacket.STREAM_CODEC,
+                TradeBoxUpdatePacket::handle
+        );
     }
 
     public static void sendToServer(Object message) {

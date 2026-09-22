@@ -1,0 +1,5 @@
+{
+  "type": "cft:trader",
+  "hours_per_day": 6.0,
+  "max_trades": 4
+}

@@ -5,9 +5,11 @@ import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.ai.sensor.CftSensorTypes;
+import com.hyperbaton.cft.client.gui.TradeConfigScreen;
 import com.hyperbaton.cft.entity.client.XoonglinRenderer;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.item.CftItems;
+import com.hyperbaton.cft.menu.CftMenus;
 import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.sound.CftSounds;
 import com.mojang.logging.LogUtils;
@@ -21,6 +23,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
@@ -57,6 +60,8 @@ public class CftMod
         CftActivities.register(modEventBus);
 
         CftSounds.register(modEventBus);
+
+        CftMenus.register(modEventBus);
 
         modEventBus.register(new CftDatapackRegistryEvents());
 
@@ -105,6 +110,12 @@ public class CftMod
         public static void onClientSetup(FMLClientSetupEvent event)
         {
             EntityRenderers.register(CftEntities.XOONGLIN.get(), XoonglinRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void onRegisterMenuScreens(RegisterMenuScreensEvent event)
+        {
+            event.register(CftMenus.TRADE_CONFIG.get(), TradeConfigScreen::new);
         }
     }
 }

@@ -1352,6 +1352,36 @@ only consumes it once a copy is actually produced.
   Xoonglin to be able to work.
 </details>
 
+#### Trader
+
+A player-facing shopkeeper with its own simple trading system (not vanilla's
+Merchant/villager trades). The leader configures up to `max_trades` item-for-item
+exchanges at runtime, from the "Configure Trades" button on the Job tab — not via
+datapack. At the start of each work day the trader hoards as much as it can of each
+configured trade's "given" item from its base container. Any player who is **not** the
+trader's leader can right-click it to open a trade list and exchange items directly with
+its inventory. At the end of the work day, the trader deposits everything it's carrying
+(unsold stock and payment received) back into the base container; whatever doesn't fit
+stays in its inventory into the next day.
+
+<details>
+    <summary>Sample trader job file</summary>
+
+```json
+{
+  "type": "cft:trader",
+  "hours_per_day": 6.0,
+  "max_trades": 4
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: _(Optional)_ A structure type ID to use as the trader's base
+  instead of its home.
+- `max_trades`: _(Optional, default: 4)_ How many trade slots the leader can configure.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 #### Quarry Miner
 
 The Xoonglin digs a quarry — an open-air platform structure marking the footprint — layer

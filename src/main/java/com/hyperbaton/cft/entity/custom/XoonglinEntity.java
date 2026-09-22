@@ -80,6 +80,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private UUID leaderId;
     private final SimpleContainer inventory = new SimpleContainer(27);
+    private final List<com.hyperbaton.cft.job.TradeOffer> tradeOffers = new ArrayList<>();
 
     private HouseStructure home;
 
@@ -106,6 +107,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public static final String KEY_JOB_ID = "jobId";
     public static final String KEY_JOB_STATE = "jobState";
     private static final String KEY_ASSIGNED_STRUCTURES = "assignedStructures";
+    private static final String KEY_TRADE_OFFERS = "tradeOffers";
 
     @Override
     public void tick() {
@@ -193,7 +195,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_ENCHANT.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_RANCH.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_WRITE.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_SCRIBE.get());
+                || brain.hasMemoryValue(CftMemoryModuleType.MUST_SCRIBE.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.MUST_TRADE.get());
 
         boolean workInterrupted = brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
@@ -208,6 +211,17 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         } else {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
         }
+    }
+
+    @Override
+    protected net.minecraft.world.InteractionResult mobInteract(net.minecraft.world.entity.player.Player player, net.minecraft.world.InteractionHand hand) {
+        if (!level().isClientSide && player instanceof ServerPlayer serverPlayer
+                && jobId != null && CftRegistry.JOBS.get(jobId) instanceof com.hyperbaton.cft.job.TraderJob
+                && leaderId != null && !leaderId.equals(player.getUUID())) {
+            com.hyperbaton.cft.network.OpenTradeScreenPacket.sendTo(serverPlayer, this);
+            return net.minecraft.world.InteractionResult.SUCCESS;
+        }
+        return super.mobInteract(player, hand);
     }
 
     @Override
@@ -622,6 +636,17 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     public JobState getJobState() { return jobState; }
 
+    public List<com.hyperbaton.cft.job.TradeOffer> getTradeOffers() {
+        return tradeOffers;
+    }
+
+    public void setTradeOffer(int index, com.hyperbaton.cft.job.TradeOffer offer) {
+        while (tradeOffers.size() <= index) {
+            tradeOffers.add(com.hyperbaton.cft.job.TradeOffer.EMPTY);
+        }
+        tradeOffers.set(index, offer);
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
@@ -656,6 +681,13 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 structuresTag.put(entry.getKey(), NbtUtils.writeBlockPos(entry.getValue()));
             }
             tag.put(KEY_ASSIGNED_STRUCTURES, structuresTag);
+        }
+        if (!tradeOffers.isEmpty()) {
+            ListTag tradeOffersTag = new ListTag();
+            for (com.hyperbaton.cft.job.TradeOffer offer : tradeOffers) {
+                tradeOffersTag.add(offer.toTag(this.registryAccess()));
+            }
+            tag.put(KEY_TRADE_OFFERS, tradeOffersTag);
         }
     }
 
@@ -703,6 +735,12 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             CompoundTag structuresTag = tag.getCompound(KEY_ASSIGNED_STRUCTURES);
             for (String key : structuresTag.getAllKeys()) {
                 NbtUtils.readBlockPos(structuresTag, key).ifPresent(pos -> assignedStructurePositions.put(key, pos));
+            }
+        }
+        if (tag.contains(KEY_TRADE_OFFERS)) {
+            tradeOffers.clear();
+            for (Tag offerTag : tag.getList(KEY_TRADE_OFFERS, Tag.TAG_COMPOUND)) {
+                tradeOffers.add(com.hyperbaton.cft.job.TradeOffer.fromTag((CompoundTag) offerTag, this.registryAccess()));
             }
         }
     }

@@ -43,6 +43,7 @@ public class CftMemoryModuleType {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_RANCH = registerMemory("must_ranch", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_WRITE = registerMemory("must_write", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_SCRIBE = registerMemory("must_scribe", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_TRADE = registerMemory("must_trade", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> QUARRY_FLOODED = registerMemory("quarry_flooded", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> QUARRY_NEEDS_LADDERS = registerMemory("quarry_needs_ladders", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> MUST_ATTEND_RITUAL = registerMemory("must_attend_ritual", BlockPos.CODEC);

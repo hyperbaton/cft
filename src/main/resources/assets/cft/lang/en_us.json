@@ -157,5 +157,10 @@
   "cft:scriptorium": "Scriptorium",
   "gui.cft.need_type.reading": "Reading",
   "cft:reading_need": "Reading",
-  "job.cft.settler_builder_job": "Builder"
+  "job.cft.settler_builder_job": "Builder",
+  "job.cft.trader_job": "Trader",
+  "gui.cft.job_trades": "Trades",
+  "gui.cft.configure_trades": "Configure Trades",
+  "gui.cft.no_trades": "No trades configured",
+  "gui.cft.out_of_stock": "Out of stock"
 }

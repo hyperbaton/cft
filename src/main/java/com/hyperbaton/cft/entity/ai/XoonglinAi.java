@@ -54,6 +54,7 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_RANCH.get(),
             CftMemoryModuleType.MUST_WRITE.get(),
             CftMemoryModuleType.MUST_SCRIBE.get(),
+            CftMemoryModuleType.MUST_TRADE.get(),
             CftMemoryModuleType.QUARRY_FLOODED.get(),
             CftMemoryModuleType.QUARRY_NEEDS_LADDERS.get(),
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
@@ -147,6 +148,9 @@ public class XoonglinAi {
                 )),
                 Pair.of(2, new ScribeBehavior(
                         Map.of(CftMemoryModuleType.MUST_SCRIBE.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new TradeBehavior(
+                        Map.of(CftMemoryModuleType.MUST_TRADE.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(1, new AttendRitualBehavior(
                         Map.of(CftMemoryModuleType.MUST_ATTEND_RITUAL.get(), MemoryStatus.VALUE_PRESENT)

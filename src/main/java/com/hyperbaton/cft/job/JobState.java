@@ -15,6 +15,12 @@ public class JobState {
      */
     public boolean creditedToday = false;
     /**
+     * Whether today's start-of-day action (e.g. a trader's restock) has already run.
+     * Reset alongside creditedToday at day rollover. Distinct from creditedToday because
+     * some jobs have separate start-of-day and end-of-day actions.
+     */
+    public boolean dayStartHandled = false;
+    /**
      * Game time of the last completed periodic action (e.g. an officiant's ritual).
      * Used by jobs whose work recurs on a frequency rather than a daily quota.
      */
@@ -25,6 +31,7 @@ public class JobState {
         workedTicksToday = 0;
         consecutiveDaysWorked = 0;
         creditedToday = false;
+        dayStartHandled = false;
         lastActionGameTime = 0;
     }
 
@@ -43,6 +50,7 @@ public class JobState {
         tag.putInt("workedToday", workedTicksToday);
         tag.putInt("consecutive", consecutiveDaysWorked);
         tag.putBoolean("creditedToday", creditedToday);
+        tag.putBoolean("dayStartHandled", dayStartHandled);
         tag.putLong("lastAction", lastActionGameTime);
     }
 
@@ -51,6 +59,7 @@ public class JobState {
         workedTicksToday = tag.getInt("workedToday");
         consecutiveDaysWorked = tag.getInt("consecutive");
         creditedToday = tag.getBoolean("creditedToday");
+        dayStartHandled = tag.getBoolean("dayStartHandled");
         lastActionGameTime = tag.getLong("lastAction");
     }
 }
