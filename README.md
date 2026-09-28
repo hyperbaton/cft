@@ -122,6 +122,12 @@ The datapack documentation is presented below.
   can downgrade.
 - `matingDelay`: _(Optional, default: -1)_ Custom mating cooldown in ticks for this class.
   If -1, uses the global config value.
+- `name_samples`: _(Optional)_ A list of example names. Xoonglins spawned or born into this
+  class get a new name generated from them (with a Markov chain), so the names sound similar
+  without just repeating the list. This lets each class have its own naming "culture" or
+  language. With short lists the generated names mostly repeat the samples, so 30 or more
+  are recommended. If omitted, the default Xoonglin-style names are used. A Xoonglin keeps
+  its name when it changes class.
 - `upgrades`: A list of ways a Xoonglin can become a higher class.
     - `nextClass`: Reference to next class.
     - `requiredHappiness`: Minimum happiness level to consider upgrading.

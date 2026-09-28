@@ -2,11 +2,17 @@ package com.hyperbaton.cft.entity.custom;
 
 import java.util.*;
 
+/**
+ * Generates names with a Markov chain trained on a list of sample names, so the results
+ * sound like the samples without copying them. Each social class can provide its own
+ * samples (e.g. a different "culture" per class); otherwise the default Xoonglin-style
+ * samples are used.
+ */
 public class XoonglinNameGenerator {
     private static final Random RANDOM = new Random();
-    
+
     // Training data - a collection of Xoonglin-style names to learn patterns from
-    private static final List<String> TRAINING_NAMES = List.of(
+    public static final List<String> DEFAULT_SAMPLES = List.of(
             "zynara", "glompix", "plonbo", "flekquix", "drimnib",
             "zylphy", "goolin", "plixar", "flembo", "dryglin", "xynquix",
             "glorbix", "plonyx", "flekrin", "zynolin", "drimple", "xooglix",
@@ -18,103 +24,93 @@ public class XoonglinNameGenerator {
             "gloobrix", "plynglix", "flemgrin", "dryblin", "zynolin", "gloogrix",
             "plixbrix", "flekgrin", "drimolin", "xoogbrix", "zyngbrix", "glooglin"
     );
-    
+
+    public static final XoonglinNameGenerator DEFAULT = new XoonglinNameGenerator(DEFAULT_SAMPLES);
+
     // Markov chain order (how many previous characters to consider)
     private static final int CHAIN_ORDER = 2;
-    
+    private static final int MAX_TRIES = 10;
+    /** How much longer than the longest sample a generated name may grow. */
+    private static final int EXTRA_LENGTH = 3;
+    private static final char START = '^';
+    private static final char END = '$';
+
+    private final List<String> samples;
     // Character transition probabilities
-    private static final Map<String, List<Character>> TRANSITIONS = new HashMap<>();
-    
-    // Initialize the Markov chain
-    static {
+    private final Map<String, List<Character>> transitions = new HashMap<>();
+    private final int minLength;
+    private final int maxLength;
+
+    /**
+     * @param samples names to learn from. Blank entries are ignored; if none is left, the
+     *                default samples are used instead.
+     */
+    public XoonglinNameGenerator(List<String> samples) {
+        List<String> cleaned = samples.stream()
+                .map(String::trim)
+                .filter(sample -> !sample.isEmpty())
+                .map(sample -> sample.toLowerCase(Locale.ROOT))
+                .toList();
+        this.samples = cleaned.isEmpty() ? DEFAULT_SAMPLES : cleaned;
+        this.minLength = Math.min(3, this.samples.stream().mapToInt(String::length).min().orElse(3));
+        this.maxLength = this.samples.stream().mapToInt(String::length).max().orElse(10) + EXTRA_LENGTH;
         buildMarkovChain();
     }
-    
-    private static void buildMarkovChain() {
-        for (String name : TRAINING_NAMES) {
-            String processedName = "^" + name.toLowerCase() + "$"; // Add start/end markers
-            
+
+    private void buildMarkovChain() {
+        String startMarkers = String.valueOf(START).repeat(CHAIN_ORDER);
+        for (String name : samples) {
+            String processedName = startMarkers + name + END; // Add start/end markers
+
             // Build transitions for each n-gram
-            for (int i = 0; i <= processedName.length() - CHAIN_ORDER - 1; i++) {
+            for (int i = 0; i + CHAIN_ORDER < processedName.length(); i++) {
                 String state = processedName.substring(i, i + CHAIN_ORDER);
                 char nextChar = processedName.charAt(i + CHAIN_ORDER);
-                
-                TRANSITIONS.computeIfAbsent(state, k -> new ArrayList<>()).add(nextChar);
+                transitions.computeIfAbsent(state, k -> new ArrayList<>()).add(nextChar);
             }
         }
     }
-    
+
+    /** Uses the default Xoonglin-style samples. */
     public static String generateName() {
-        StringBuilder name = new StringBuilder();
-        String currentState = "^".repeat(CHAIN_ORDER); // Start state
-        
-        int maxAttempts = 50; // Prevent infinite loops
-        int attempts = 0;
-        
-        while (attempts < maxAttempts) {
-            List<Character> possibleNext = TRANSITIONS.get(currentState);
-            
-            if (possibleNext == null || possibleNext.isEmpty()) {
-                // If we hit a dead end, try a different approach
-                if (name.length() < 3) {
-                    // Start over with a random valid starting state
-                    currentState = getRandomStartState();
-                    continue;
-                } else {
-                    // End the name here
-                    break;
-                }
+        return DEFAULT.generate();
+    }
+
+    public String generate() {
+        for (int i = 0; i < MAX_TRIES; i++) {
+            String name = walkChain();
+            if (name.length() >= minLength) {
+                return capitalizeFirst(name);
             }
-            
-            char nextChar = possibleNext.get(RANDOM.nextInt(possibleNext.size()));
-            
-            if (nextChar == '$') {
-                // End of name marker
+        }
+        // Fallback if the chain keeps producing names that are too short
+        return capitalizeFirst(samples.get(RANDOM.nextInt(samples.size())));
+    }
+
+    private String walkChain() {
+        StringBuilder name = new StringBuilder();
+        String currentState = String.valueOf(START).repeat(CHAIN_ORDER);
+
+        while (name.length() < maxLength) {
+            List<Character> possibleNext = transitions.get(currentState);
+            if (possibleNext == null || possibleNext.isEmpty()) {
                 break;
             }
-            
-            if (nextChar != '^') {
-                name.append(nextChar);
+
+            char nextChar = possibleNext.get(RANDOM.nextInt(possibleNext.size()));
+            if (nextChar == END) {
+                break;
             }
-            
+            name.append(nextChar);
+
             // Update state (sliding window)
             currentState = currentState.substring(1) + nextChar;
-            attempts++;
         }
-        
-        String result = name.toString();
-        
-        // Ensure minimum length and capitalize
-        if (result.length() < 3) {
-            return generateFallbackName();
-        }
-        
-        return capitalizeFirst(result);
+        return name.toString();
     }
-    
-    private static String getRandomStartState() {
-        List<String> startStates = new ArrayList<>();
-        for (String state : TRANSITIONS.keySet()) {
-            if (state.startsWith("^")) {
-                startStates.add(state);
-            }
-        }
-        return startStates.isEmpty() ? "^".repeat(CHAIN_ORDER) : 
-               startStates.get(RANDOM.nextInt(startStates.size()));
-    }
-    
-    private static String generateFallbackName() {
-        // Fallback to the original method if Markov chain fails
-        List<String> prefixes = List.of("Xoo", "Zyn", "Glo", "Plo", "Fle", "Dri");
-        List<String> suffixes = List.of("lin", "gla", "bo", "qui", "ni", "tro");
-        
-        String prefix = prefixes.get(RANDOM.nextInt(prefixes.size()));
-        String suffix = suffixes.get(RANDOM.nextInt(suffixes.size()));
-        return prefix + suffix;
-    }
-    
+
     private static String capitalizeFirst(String name) {
         if (name.isEmpty()) return name;
-        return name.substring(0, 1).toUpperCase() + name.substring(1);
+        return name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
     }
 }

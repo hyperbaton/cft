@@ -10,6 +10,7 @@ import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.home.HouseStructure;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.MobSpawnType;
@@ -88,6 +89,7 @@ public class XoonglinSpawner implements CustomSpawner {
         xoonglin.setLeaderId(leaderId);
         xoonglin.setHome(HouseStructure.of(house));
         xoonglin.setSocialClass(socialClass);
+        xoonglin.setCustomName(Component.literal(socialClass.generateName()));
         xoonglin.setNeeds(NeedUtils.getNeedsForClass(xoonglin.getSocialClass()));
         xoonglin.getEntityData().set(XoonglinEntity.SOCIAL_CLASS_NAME, xoonglin.getSocialClass().getId());
         xoonglin.setJob(socialClass.getRandomJob(xoonglin.getRandom(), xoonglin.isBaby()));

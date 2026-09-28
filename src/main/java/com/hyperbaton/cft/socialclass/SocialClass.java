@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.socialclass;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.entity.custom.XoonglinNameGenerator;
 import com.hyperbaton.cft.job.Job;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -24,7 +25,8 @@ public class SocialClass {
             Codec.BOOL.optionalFieldOf("canUpgradeAsBaby", false).forGetter(SocialClass::canUpgradeAsBaby),
             Codec.BOOL.optionalFieldOf("canDowngradeAsBaby", true).forGetter(SocialClass::canDowngradeAsBaby),
             Codec.INT.optionalFieldOf("matingDelay", -1).forGetter(SocialClass::getMatingDelay),
-            Codec.DOUBLE.optionalFieldOf("maxHealth", 20.0).forGetter(SocialClass::getMaxHealth)
+            Codec.DOUBLE.optionalFieldOf("maxHealth", 20.0).forGetter(SocialClass::getMaxHealth),
+            Codec.STRING.listOf().optionalFieldOf("name_samples", List.of()).forGetter(SocialClass::getNameSamples)
     ).apply(instance, SocialClass::new));
 
     private String id;
@@ -39,11 +41,15 @@ public class SocialClass {
     private final boolean canDowngradeAsBaby;
     private final int matingDelay;
     private final double maxHealth;
+    /** Sample names the name generator learns from; empty to use the default Xoonglin names. */
+    private final List<String> nameSamples;
+    /** Built on first use, since training the Markov chain isn't free and most classes may never need it. */
+    private XoonglinNameGenerator nameGenerator;
 
     public SocialClass(String id, double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
                        List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades,
                        List<ResourceLocation> jobs, boolean canUpgradeAsBaby, boolean canDowngradeAsBaby,
-                       int matingDelay, double maxHealth) {
+                       int matingDelay, double maxHealth, List<String> nameSamples) {
         this.id = id;
         this.maxHappiness = maxHappiness;
         this.matingHappinessThreshold = matingHappinessThreshold;
@@ -56,6 +62,7 @@ public class SocialClass {
         this.canDowngradeAsBaby = canDowngradeAsBaby;
         this.matingDelay = matingDelay;
         this.maxHealth = maxHealth;
+        this.nameSamples = nameSamples != null ? List.copyOf(nameSamples) : List.of();
     }
 
     public String getId() {
@@ -156,5 +163,20 @@ public class SocialClass {
 
     public double getMaxHealth() {
         return maxHealth;
+    }
+
+    public List<String> getNameSamples() {
+        return nameSamples;
+    }
+
+    /** A new name for a Xoonglin of this class, based on its name samples. */
+    public String generateName() {
+        if (nameSamples.isEmpty()) {
+            return XoonglinNameGenerator.generateName();
+        }
+        if (nameGenerator == null) {
+            nameGenerator = new XoonglinNameGenerator(nameSamples);
+        }
+        return nameGenerator.generate();
     }
 }
