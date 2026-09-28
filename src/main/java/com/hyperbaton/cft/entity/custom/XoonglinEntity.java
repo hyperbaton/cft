@@ -65,6 +65,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
+    private static final EntityDimensions XOONGLIN_DIMENSIONS = EntityDimensions.scalable(0.6F, 1.4F);
+    private static final EntityDimensions HUMANOID_DIMENSIONS = EntityDimensions.scalable(0.6F, 1.95F);
     private static final int FULL_HEAL_TICKS = 24000;
     public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.STRING);
     /** Synced so the client can show the need indicator only to the Xoonglin's own leader. */
@@ -87,6 +89,9 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (!pLevel.isClientSide && !this.hasCustomName()) {
             this.setCustomName(Component.literal(XoonglinNameGenerator.generateName()));
         }
+        // The constructor sizes entities after their EntityType, and vanilla only recomputes
+        // the size when the pose, baby flag or scale change, which never happens for adults.
+        this.refreshDimensions();
     }
 
     public final AnimationState idleAnimationState = new AnimationState();
@@ -739,9 +744,15 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         builder.define(NEED_ALERT_ICON, "");
     }
 
+    /**
+     * Sized to fit the model in use: the custom Xoonglin model is about 1.6 blocks tall once
+     * scaled, while the humanoid one is as tall as a zombie. Babies get half the size, as in
+     * vanilla; the SCALE attribute is applied on top of this by {@link #getDimensions}.
+     */
     @Override
-    public EntityDimensions getDefaultDimensions(Pose pose) {
-        return EntityDimensions.scalable(0.6F, 1.4F).scale(this.getScale());
+    public @NotNull EntityDimensions getDefaultDimensions(Pose pose) {
+        EntityDimensions dimensions = CftConfig.USE_HUMANOID_MODEL.get() ? HUMANOID_DIMENSIONS : XOONGLIN_DIMENSIONS;
+        return dimensions.scale(this.getAgeScale());
     }
 
     @Override

@@ -16,7 +16,10 @@ import net.minecraft.world.entity.EntityAttachment;
 import net.minecraft.world.phys.Vec3;
 
 public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<XoonglinEntity>> {
-    private static final float NAME_TAG_EXTRA_HEIGHT = 0.6F;
+    /** Height of XoonglinModel from the feet to the tip of the antenna (34 px), before scaling. */
+    private static final float CUSTOM_MODEL_HEIGHT = 34.0F / 16.0F;
+    /** Space vanilla leaves between the name tag attachment point and the name tag. */
+    private static final float NAME_TAG_GAP = 0.5F;
 
     private final XoonglinModel<XoonglinEntity> customModel;
     private final HumanoidModel<XoonglinEntity> humanoidModel;
@@ -49,10 +52,12 @@ public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<Xo
         }
 
         float modelScale;
-        if (pEntity.isBaby()) {
-            modelScale = 0.4f;
-        } else if (CftConfig.USE_HUMANOID_MODEL.get()) {
+        if (CftConfig.USE_HUMANOID_MODEL.get()) {
+            // HumanoidModel already renders babies with baby proportions, so it must
+            // not be shrunk again here.
             modelScale = 1.0f;
+        } else if (pEntity.isBaby()) {
+            modelScale = 0.4f;
         } else {
             modelScale = 0.75f;
         }
@@ -70,16 +75,25 @@ public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<Xo
     @Override
     protected void renderNameTag(XoonglinEntity entity, Component name, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float partialTick) {
         poseStack.pushPose();
-        poseStack.translate(0, entity.getBbHeight() * NAME_TAG_EXTRA_HEIGHT, 0);
+        poseStack.translate(0, getNameTagY(entity, partialTick) - getVanillaNameTagY(entity, partialTick), 0);
         super.renderNameTag(entity, name, poseStack, buffer, packedLight, partialTick);
         poseStack.popPose();
     }
 
-    /** Mirrors where {@link #renderNameTag} ends up drawing the name. */
+    /**
+     * Height of the name tag in the renderer's (model-scaled) space.
+     */
     private static float getNameTagY(XoonglinEntity entity, float partialTick) {
+        return CftConfig.USE_HUMANOID_MODEL.get()
+                ? getVanillaNameTagY(entity, partialTick)
+                : CUSTOM_MODEL_HEIGHT + NAME_TAG_GAP;
+    }
+
+    /** Where {@code EntityRenderer#renderNameTag} draws the name tag by itself. */
+    private static float getVanillaNameTagY(XoonglinEntity entity, float partialTick) {
         Vec3 attachment = entity.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0, entity.getViewYRot(partialTick));
         float baseY = attachment != null ? (float) attachment.y : entity.getBbHeight();
-        return baseY + 0.5F + entity.getBbHeight() * NAME_TAG_EXTRA_HEIGHT;
+        return baseY + NAME_TAG_GAP;
     }
 
 }
