@@ -21,6 +21,7 @@ public class AltitudeNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(AltitudeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(AltitudeNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(AltitudeNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(AltitudeNeed::isBonus),
             Codec.DOUBLE.fieldOf("min_altitude").forGetter(AltitudeNeed::getMinAltitude),
             Codec.DOUBLE.fieldOf("max_altitude").forGetter(AltitudeNeed::getMaxAltitude),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(AltitudeNeed::getIcon)
@@ -30,9 +31,9 @@ public class AltitudeNeed extends Need {
     private double maxAltitude;
 
     public AltitudeNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                        double satisfactionThreshold, double frequency, boolean hidden, double minAltitude,
+                        double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, double minAltitude,
                         double maxAltitude, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.minAltitude = minAltitude;
         this.maxAltitude = maxAltitude;
     }

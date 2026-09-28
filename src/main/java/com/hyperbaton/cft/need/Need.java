@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public abstract class Need {
     protected static final boolean DEFAULT_HIDDEN = false;
+    protected static final boolean DEFAULT_BONUS = false;
 
     public static final Codec<Need> NEED_CODEC = Codec.lazyInitialized(() -> CftRegistry.NEEDS_CODEC_REGISTRY.byNameCodec()
             .dispatch("type", Need::needType, codec -> MapCodec.assumeMapUnsafe(codec)));
@@ -37,6 +38,11 @@ public abstract class Need {
      */
     private boolean hidden;
 
+    /**
+     * Bonus needs only add happiness when satisfied, and never subtract it when unsatisfied
+     */
+    private boolean bonus;
+
     private final ResourceLocation icon;
 
     public static final String TAG_ID = "id";
@@ -46,9 +52,10 @@ public abstract class Need {
     public static final String TAG_SATISFACTION_THRESHOLD = "satisfactionThreshold";
     public static final String TAG_FREQUENCY = "frequency";
     public static final String TAG_HIDDEN = "hidden";
+    public static final String TAG_BONUS = "bonus";
 
     public Need(String id, double damage, double damageThreshold, double providedHappiness,
-                double satisfactionThreshold, double frequency, boolean hidden,
+                double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                 Optional<ResourceLocation> icon) {
         this.id = id;
         this.damage = damage;
@@ -57,6 +64,7 @@ public abstract class Need {
         this.satisfactionThreshold = satisfactionThreshold;
         this.frequency = frequency;
         this.hidden = hidden;
+        this.bonus = bonus;
         this.icon = icon.orElse(null);
     }
 
@@ -114,6 +122,14 @@ public abstract class Need {
         this.hidden = hidden;
     }
 
+    public boolean isBonus() {
+        return bonus;
+    }
+
+    public void setBonus(boolean bonus) {
+        this.bonus = bonus;
+    }
+
     public NeedSatisfier<? extends Need> createSatisfier() {
         return createSatisfier(this.getSatisfactionThreshold(), false);
     }
@@ -144,6 +160,7 @@ public abstract class Need {
         tag.putDouble(TAG_SATISFACTION_THRESHOLD, satisfactionThreshold);
         tag.putDouble(TAG_FREQUENCY, frequency);
         tag.putBoolean(TAG_HIDDEN, hidden);
+        tag.putBoolean(TAG_BONUS, bonus);
         return tag;
     }
 }

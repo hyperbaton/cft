@@ -38,7 +38,7 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
             }
             // Not assigned yet — trigger behavior to find and claim
             this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+            mob.decreaseHappiness(need);
             addMemoriesForSatisfaction(mob);
             return false;
         } else {
@@ -55,7 +55,7 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
             }
 
             this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+            mob.decreaseHappiness(need);
             return false;
         }
     }

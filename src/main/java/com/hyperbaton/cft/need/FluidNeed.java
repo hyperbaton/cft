@@ -22,6 +22,7 @@ public class FluidNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(FluidNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(FluidNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(FluidNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(FluidNeed::isBonus),
             FluidStack.CODEC.fieldOf("fluid_stack").forGetter(FluidNeed::getFluidStack),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(FluidNeed::getIcon)
     ).apply(instance, FluidNeed::new));
@@ -29,9 +30,9 @@ public class FluidNeed extends Need {
     private final FluidStack fluidStack;
 
     public FluidNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, double frequency, boolean hidden,
+                     double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                      FluidStack fluidStack, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.fluidStack = fluidStack;
     }
 

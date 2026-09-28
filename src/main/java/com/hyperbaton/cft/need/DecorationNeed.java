@@ -25,6 +25,7 @@ public class DecorationNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(DecorationNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(DecorationNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(DecorationNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(DecorationNeed::isBonus),
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block").forGetter(d -> Optional.ofNullable(d.getBlock())),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("block_tag").forGetter(d -> Optional.ofNullable(d.getBlockTag())),
             Codec.INT.fieldOf("min_count").forGetter(DecorationNeed::getMinCount),
@@ -40,11 +41,11 @@ public class DecorationNeed extends Need {
     private final double minSpread;
 
     public DecorationNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                          double satisfactionThreshold, double frequency, boolean hidden,
+                          double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                           Optional<Block> block, Optional<TagKey<Block>> blockTag,
                           int minCount, int radius, double minSpread,
                           Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.block = block.orElse(null);
         this.blockTag = blockTag.orElse(null);
         this.minCount = minCount;

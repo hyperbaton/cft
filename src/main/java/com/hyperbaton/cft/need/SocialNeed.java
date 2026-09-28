@@ -20,6 +20,7 @@ public class SocialNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(SocialNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(SocialNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(SocialNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(SocialNeed::isBonus),
             Codec.STRING.listOf().fieldOf("classes").forGetter(SocialNeed::getAcceptedSocialClassIds),
             Codec.INT.fieldOf("min_count").forGetter(SocialNeed::getMinCount),
             Codec.INT.fieldOf("max_count").forGetter(SocialNeed::getMaxCount),
@@ -39,13 +40,13 @@ public class SocialNeed extends Need {
             double providedHappiness,
             double satisfactionThreshold,
             double frequency,
-            boolean hidden,
+            boolean hidden, boolean bonus,
             List<String> acceptedSocialClassIds,
             int minCount, int maxCount,
             int radius,
             Optional<ResourceLocation> icon
     ) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.acceptedSocialClassIds = List.copyOf(acceptedSocialClassIds);
         this.minCount = minCount;
         this.maxCount = maxCount;

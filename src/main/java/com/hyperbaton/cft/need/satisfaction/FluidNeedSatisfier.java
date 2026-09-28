@@ -54,7 +54,7 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
                         mob.getBrain().eraseMemory(fluidContainerMemoryType());
                         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get(), true, CftConfig.SUPPLY_COOLDOWN.get());
                         this.unsatisfy(need.getFrequency(), mob);
-                        mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+                        mob.decreaseHappiness(need);
                         return false;
                     }
                 } else {
@@ -64,7 +64,7 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
             } else {
                 LOGGER.trace("Xoonglin {} is too far from the remembered container. Cannot retrieve fluid.", mob.getCustomName().getString());
                 this.unsatisfy(need.getFrequency(), mob);
-                mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+                mob.decreaseHappiness(need);
                 return false;
             }
         } else {
@@ -81,7 +81,7 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
         }
 
         this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+        mob.decreaseHappiness(need);
         return false;
     }
 

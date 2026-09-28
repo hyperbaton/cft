@@ -56,7 +56,7 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
                         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get(),
                                 true, CftConfig.SUPPLY_COOLDOWN.get());
                         this.unsatisfy(need.getFrequency(), mob);
-                        mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+                        mob.decreaseHappiness(need);
                         return false;
                     }
                 } else {
@@ -68,7 +68,7 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
                 LOGGER.trace("Xoonglin {} is too far from the remembered container. Cannot extract energy.",
                         mob.getCustomName().getString());
                 this.unsatisfy(need.getFrequency(), mob);
-                mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+                mob.decreaseHappiness(need);
                 return false;
             }
         } else {
@@ -88,7 +88,7 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
         }
 
         this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+        mob.decreaseHappiness(need);
         return false;
     }
 

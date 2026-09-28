@@ -21,6 +21,7 @@ public class EnergyNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(EnergyNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(EnergyNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(EnergyNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(EnergyNeed::isBonus),
             Codec.INT.fieldOf("energy_amount").forGetter(EnergyNeed::getEnergyAmount),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(EnergyNeed::getIcon)
     ).apply(instance, EnergyNeed::new));
@@ -30,9 +31,9 @@ public class EnergyNeed extends Need {
     public static final String TAG_ENERGY_AMOUNT = "energy_amount";
 
     public EnergyNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                      double satisfactionThreshold, double frequency, boolean hidden,
+                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                       int energyAmount, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.energyAmount = energyAmount;
     }
 

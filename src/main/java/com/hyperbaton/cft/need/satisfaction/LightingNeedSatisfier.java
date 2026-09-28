@@ -70,7 +70,7 @@ public class LightingNeedSatisfier extends NeedSatisfier<LightingNeed> {
 
         // Not satisfied: decay and apply happiness penalty
         this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+        mob.decreaseHappiness(need);
         addMemoriesForSatisfaction(mob);
         return false;
     }

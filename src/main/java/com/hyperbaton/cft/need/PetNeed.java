@@ -20,6 +20,7 @@ public class PetNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(PetNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(PetNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(PetNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(PetNeed::isBonus),
             ResourceLocation.CODEC.listOf().fieldOf("entity_types").forGetter(PetNeed::getEntityTypes),
             Codec.INT.fieldOf("min_count").forGetter(PetNeed::getMinCount),
             Codec.INT.fieldOf("max_count").forGetter(PetNeed::getMaxCount),
@@ -33,10 +34,10 @@ public class PetNeed extends Need {
     private final int radius;
 
     public PetNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                   double satisfactionThreshold, double frequency, boolean hidden,
+                   double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                    List<ResourceLocation> entityTypes, int minCount, int maxCount, int radius,
                    Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.entityTypes = List.copyOf(entityTypes);
         this.minCount = minCount;
         this.maxCount = maxCount;

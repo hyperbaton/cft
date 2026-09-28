@@ -43,7 +43,7 @@ public class DecorationNeedSatisfier extends NeedSatisfier<DecorationNeed> {
 
         if (matchingPositions.size() < need.getMinCount()) {
             this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+            mob.decreaseHappiness(need);
             return false;
         }
 
@@ -51,7 +51,7 @@ public class DecorationNeedSatisfier extends NeedSatisfier<DecorationNeed> {
             double spread = computeSpread(matchingPositions, radius);
             if (spread < need.getMinSpread()) {
                 this.unsatisfy(need.getFrequency(), mob);
-                mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+                mob.decreaseHappiness(need);
                 return false;
             }
         }
