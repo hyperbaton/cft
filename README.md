@@ -193,6 +193,8 @@ like checking NBT tags.
 - `frequency`: In Minecraft days, how long it takes for the satisfaction of this need to
 go from 1 to 0.
 - `hidden`: _(Optional, default: false)_ Whether this need should be hidden from interfaces.
+- `bonus`: _(Optional, default: false)_ If true, the need only adds happiness when satisfied and never
+subtracts it when unsatisfied — useful for festivals or luxuries.
 - `quantity`: How many items of the specified type are consumed each time the need is satisfied.
 - `hoarding`: _(Optional)_ How many items the Xoonglin will take from the container when
 resupplying. If omitted or set to 0, defaults to `quantity`. Setting this higher than

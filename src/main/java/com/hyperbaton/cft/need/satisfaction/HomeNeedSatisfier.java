@@ -42,12 +42,12 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
             mob.setHome(null);
             mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
             this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+            mob.decreaseHappiness(need);
             addMemoriesForSatisfaction(mob);
             return false;
         } else {
             this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+            mob.decreaseHappiness(need);
             addMemoriesForSatisfaction(mob);
             return false;
         }

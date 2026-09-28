@@ -21,6 +21,7 @@ public class LightingNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(LightingNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(LightingNeed::getFrequency),
             Codec.BOOL.fieldOf("hidden").forGetter(LightingNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(LightingNeed::isBonus),
             Codec.INT.fieldOf("min_light").forGetter(LightingNeed::getMinLight),
             Codec.INT.optionalFieldOf("radius", 0).forGetter(LightingNeed::getRadius),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(LightingNeed::getIcon)
@@ -37,11 +38,12 @@ public class LightingNeed extends Need {
             double satisfactionThreshold,
             double frequency,
             boolean hidden,
+            boolean bonus,
             int minLight,
             int radius,
             Optional<ResourceLocation> icon
     ) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.minLight = Math.max(0, Math.min(15, minLight));
         this.radius = Math.max(0, radius);
     }

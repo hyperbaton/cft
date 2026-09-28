@@ -21,6 +21,7 @@ public class HomeNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(HomeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(HomeNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(HomeNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(HomeNeed::isBonus),
             Codec.STRING.fieldOf("required_structure").forGetter(HomeNeed::getRequiredStructure),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(HomeNeed::getIcon)
     ).apply(instance, HomeNeed::new));
@@ -28,9 +29,9 @@ public class HomeNeed extends Need {
     private final String requiredStructure;
 
     public HomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                    double satisfactionThreshold, double frequency, boolean hidden,
+                    double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                     String requiredStructure, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.requiredStructure = requiredStructure;
     }
 

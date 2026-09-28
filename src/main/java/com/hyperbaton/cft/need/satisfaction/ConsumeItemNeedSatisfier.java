@@ -33,7 +33,7 @@ public class ConsumeItemNeedSatisfier extends NeedSatisfier<GoodsNeed> {
             }
         }
         this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need.getProvidedHappiness(), need.getFrequency());
+        mob.decreaseHappiness(need);
         addMemoriesForSatisfaction(mob);
         return false;
     }

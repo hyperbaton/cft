@@ -27,13 +27,14 @@ public class ReadingNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(ReadingNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(ReadingNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(ReadingNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(ReadingNeed::isBonus),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(ReadingNeed::getIcon)
     ).apply(instance, ReadingNeed::new));
 
     public ReadingNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                       double satisfactionThreshold, double frequency, boolean hidden,
+                       double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                        Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
     }
 
     @Override

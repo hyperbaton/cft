@@ -21,6 +21,7 @@ public class BiomeNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(BiomeNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(BiomeNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(BiomeNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(BiomeNeed::isBonus),
             Codec.STRING.listOf().fieldOf("biomes").forGetter(BiomeNeed::getBiomes),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(BiomeNeed::getIcon)
     ).apply(instance, BiomeNeed::new));
@@ -28,9 +29,9 @@ public class BiomeNeed extends Need {
     private List<String> biomes;
 
     public BiomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, double frequency, boolean hidden, List<String> biomes,
+                     double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, List<String> biomes,
                      Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.biomes = biomes;
     }
 

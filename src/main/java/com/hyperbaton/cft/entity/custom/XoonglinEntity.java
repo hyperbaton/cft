@@ -522,13 +522,19 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 .add(Attributes.STEP_HEIGHT, 1.0);
     }
 
-    public void decreaseHappiness(double providedHappiness, double frequency) {
+    /**
+     * Decreases happiness for an unsatisfied need. Bonus needs never subtract happiness.
+     */
+    public void decreaseHappiness(Need need) {
+        if (need.isBonus()) {
+            return;
+        }
         happiness = Math.max(
                 happiness - (
-                        providedHappiness *
+                        need.getProvidedHappiness() *
                                 BigDecimal.valueOf(DELAY_BETWEEN_NEEDS_CHECKS)
                                         .setScale(8, RoundingMode.HALF_UP)
-                                        .divide(BigDecimal.valueOf(24000 * frequency),
+                                        .divide(BigDecimal.valueOf(24000 * need.getFrequency()),
                                                 RoundingMode.HALF_UP)
                                         .doubleValue()),
                 0);

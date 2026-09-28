@@ -30,6 +30,7 @@ public class GoodsNeed extends Need {
             INGREDIENT_CODEC.fieldOf("item").forGetter(GoodsNeed::getIngredient),
             Codec.DOUBLE.fieldOf("frequency").forGetter(GoodsNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(GoodsNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(GoodsNeed::isBonus),
             Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity),
             Codec.INT.optionalFieldOf("hoarding", 0).forGetter(GoodsNeed::getHoarding),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(GoodsNeed::getIcon)
@@ -45,9 +46,9 @@ public class GoodsNeed extends Need {
     public static final String TAG_HOARDING = "hoarding";
 
     public GoodsNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, int quantity,
+                     double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, boolean bonus, int quantity,
                      int hoarding, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.quantity = quantity;
         this.hoarding = hoarding > 0 ? hoarding : quantity;
         this.item = item;

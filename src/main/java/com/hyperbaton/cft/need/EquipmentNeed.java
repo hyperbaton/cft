@@ -30,6 +30,7 @@ public class EquipmentNeed extends Need {
             INGREDIENT_CODEC.fieldOf("item").forGetter(EquipmentNeed::getIngredient),
             Codec.DOUBLE.fieldOf("frequency").forGetter(EquipmentNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(EquipmentNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(EquipmentNeed::isBonus),
             Codec.STRING.optionalFieldOf("slot", "mainhand").forGetter(EquipmentNeed::getSlotName),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(EquipmentNeed::getIcon)
     ).apply(instance, EquipmentNeed::new));
@@ -39,9 +40,9 @@ public class EquipmentNeed extends Need {
     private final String slotName;
 
     public EquipmentNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                         double satisfactionThreshold, Ingredient item, double frequency, boolean hidden,
+                         double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, boolean bonus,
                          String slotName, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.item = item;
         this.slotName = slotName;
         this.slot = parseSlot(slotName);

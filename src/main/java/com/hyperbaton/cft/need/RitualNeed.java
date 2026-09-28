@@ -27,6 +27,7 @@ public class RitualNeed extends Need {
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(RitualNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(RitualNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(RitualNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(RitualNeed::isBonus),
             Codec.STRING.fieldOf("ritual_id").forGetter(RitualNeed::getRitualId),
             Codec.INT.optionalFieldOf("radius", 16).forGetter(RitualNeed::getRadius),
             Codec.BOOL.optionalFieldOf("requires_presence", false).forGetter(RitualNeed::isRequiresPresence),
@@ -38,10 +39,10 @@ public class RitualNeed extends Need {
     private final boolean requiresPresence;
 
     public RitualNeed(String id, double damage, double damageThreshold, double providedHappiness,
-                      double satisfactionThreshold, double frequency, boolean hidden,
+                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                       String ritualId, int radius, boolean requiresPresence,
                       Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, icon);
+        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.ritualId = ritualId;
         this.radius = radius;
         this.requiresPresence = requiresPresence;
