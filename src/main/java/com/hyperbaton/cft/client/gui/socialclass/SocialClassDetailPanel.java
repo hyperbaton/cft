@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.client.gui.socialclass;
 
+import com.hyperbaton.cft.client.gui.NeedTooltips;
 import com.hyperbaton.cft.need.*;
 import com.hyperbaton.cft.socialclass.NeedSatisfaction;
 import com.hyperbaton.cft.socialclass.SocialClass;
@@ -45,6 +46,7 @@ public class SocialClassDetailPanel {
     private double scrollOffset = 0;
     private int totalContentHeight = 0;
     private int tickCounter = 0;
+    private String hoveredNeedId;
 
     public SocialClassDetailPanel(int x, int y, int width, int height, Font font, Registry<Need> needRegistry) {
         this.x = x;
@@ -77,15 +79,28 @@ public class SocialClassDetailPanel {
 
         graphics.enableScissor(x, y, x + width, y + height);
 
+        hoveredNeedId = null;
+        boolean mouseInside = mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height;
         int drawY = y + PADDING - (int) scrollOffset;
         for (DetailLine line : cachedLines) {
             if (drawY + LINE_HEIGHT > y && drawY < y + height) {
                 line.render(graphics, font, x + PADDING + line.indent(), drawY, tickCounter);
+                if (mouseInside && line instanceof IconNeedLine needLine
+                        && mouseY >= drawY - 1 && mouseY < drawY - 1 + line.lineHeight()) {
+                    hoveredNeedId = needLine.needId();
+                }
             }
             drawY += line.lineHeight();
         }
 
         graphics.disableScissor();
+    }
+
+    /** Rendered after the rest of the screen so the tooltip isn't clipped by the panel. */
+    public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (hoveredNeedId != null) {
+            graphics.renderTooltip(font, NeedTooltips.build(font, hoveredNeedId, null), mouseX, mouseY);
+        }
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -164,7 +179,7 @@ public class SocialClassDetailPanel {
         String typeName = getNeedTypeName(need);
         String line = needName + " (" + typeName + ")";
         List<ResourceLocation> icons = need.getIcons();
-        cachedLines.add(new IconNeedLine(line, VALUE_COLOR, 4, icons));
+        cachedLines.add(new IconNeedLine(need.getId(), line, VALUE_COLOR, 4, icons));
 
         double freq = need.getFrequency();
         String freqText = (freq % 1 == 0) ? String.format("%.0f", freq) : String.format("%.1f", freq);
@@ -263,7 +278,7 @@ public class SocialClassDetailPanel {
         }
     }
 
-    private record IconNeedLine(String text, int color, int indent, List<ResourceLocation> icons) implements DetailLine {
+    private record IconNeedLine(String needId, String text, int color, int indent, List<ResourceLocation> icons) implements DetailLine {
         private static final int ICON_SIZE = 16;
 
         @Override

@@ -12,8 +12,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityAttachment;
+import net.minecraft.world.phys.Vec3;
 
 public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<XoonglinEntity>> {
+    private static final float NAME_TAG_EXTRA_HEIGHT = 0.6F;
+
     private final XoonglinModel<XoonglinEntity> customModel;
     private final HumanoidModel<XoonglinEntity> humanoidModel;
 
@@ -44,26 +48,38 @@ public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<Xo
             this.model = customModel;
         }
 
+        float modelScale;
         if (pEntity.isBaby()) {
-            pMatrixStack.scale(0.4f, 0.4f, 0.4f);
+            modelScale = 0.4f;
+        } else if (CftConfig.USE_HUMANOID_MODEL.get()) {
+            modelScale = 1.0f;
         } else {
-            if (CftConfig.USE_HUMANOID_MODEL.get()) {
-                pMatrixStack.scale(1.0f, 1.0f, 1.0f);
-            } else {
-                pMatrixStack.scale(0.75f, 0.75f, 0.75f);
-            }
+            modelScale = 0.75f;
         }
+        pMatrixStack.scale(modelScale, modelScale, modelScale);
         //pMatrixStack.rotateAround(new Quaternionf(0f, 0f, 0f, 0f), 0f, 0f, 0f);
 
         super.render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight);
+
+        if (NeedIndicatorRenderer.shouldShow(pEntity)) {
+            NeedIndicatorRenderer.render(pEntity, getNameTagY(pEntity, pPartialTicks), modelScale, pPartialTicks,
+                    pMatrixStack, pBuffer, this.entityRenderDispatcher, this.getFont());
+        }
     }
 
     @Override
     protected void renderNameTag(XoonglinEntity entity, Component name, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float partialTick) {
         poseStack.pushPose();
-        poseStack.translate(0, entity.getBbHeight() * 0.6F, 0);
+        poseStack.translate(0, entity.getBbHeight() * NAME_TAG_EXTRA_HEIGHT, 0);
         super.renderNameTag(entity, name, poseStack, buffer, packedLight, partialTick);
         poseStack.popPose();
+    }
+
+    /** Mirrors where {@link #renderNameTag} ends up drawing the name. */
+    private static float getNameTagY(XoonglinEntity entity, float partialTick) {
+        Vec3 attachment = entity.getAttachments().getNullable(EntityAttachment.NAME_TAG, 0, entity.getViewYRot(partialTick));
+        float baseY = attachment != null ? (float) attachment.y : entity.getBbHeight();
+        return baseY + 0.5F + entity.getBbHeight() * NAME_TAG_EXTRA_HEIGHT;
     }
 
 }

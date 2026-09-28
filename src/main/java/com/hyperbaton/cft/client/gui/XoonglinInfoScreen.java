@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -180,7 +181,7 @@ public class XoonglinInfoScreen extends Screen {
             renderNeedsNormally(graphics, x, needsStartY, mouseX, mouseY);
         } else {
             needsScrollPanel.render(graphics, mouseX, mouseY, delta);
-            Component tooltip = needsScrollPanel.getCurrentTooltip();
+            List<FormattedCharSequence> tooltip = needsScrollPanel.getCurrentTooltip();
             if (tooltip != null) {
                 graphics.renderTooltip(this.font, tooltip,
                         needsScrollPanel.getTooltipX(),
@@ -368,18 +369,15 @@ public class XoonglinInfoScreen extends Screen {
         int barWidth = 50;
         int barHeight = 8;
 
+        List<FormattedCharSequence> tooltip = null;
         for (Map.Entry<String, NeedSatisfactionData> need : packet.getNeedsData().entrySet()) {
             NeedSatisfactionData data = need.getValue();
-            int textX = x + MARGIN_PIXELS;
+            int rowX = x + MARGIN_PIXELS;
+            int textX = rowX;
 
             if (!data.icons.isEmpty()) {
                 ItemStack iconStack = getIconStack(data.icons);
                 graphics.renderItem(iconStack, textX, barY - 4);
-                if (data.extraTooltip != null
-                        && mouseX >= textX && mouseX < textX + ICON_SIZE
-                        && mouseY >= barY - 4 && mouseY < barY - 4 + ICON_SIZE) {
-                    graphics.renderTooltip(this.font, Component.literal(data.extraTooltip), mouseX, mouseY);
-                }
                 textX += ICON_SIZE + 2;
             }
 
@@ -393,12 +391,15 @@ public class XoonglinInfoScreen extends Screen {
                 data.satisfaction, data.damageThreshold, data.satisfactionThreshold, isHovered);
 
             if (isHovered) {
-                graphics.renderTooltip(this.font,
-                        NeedsBarRenderer.getTooltip(data.satisfaction),
-                        mouseX, mouseY);
+                tooltip = List.of(NeedsBarRenderer.getTooltip(data.satisfaction).getVisualOrderText());
+            } else if (mouseX >= rowX && mouseX < barX - 2 && mouseY >= barY - 4 && mouseY < barY - 4 + ICON_SIZE) {
+                tooltip = NeedTooltips.build(this.font, need.getKey(), data.extraTooltip);
             }
 
             barY += 18;
+        }
+        if (tooltip != null) {
+            graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
         }
     }
 

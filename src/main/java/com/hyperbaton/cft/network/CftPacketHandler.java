@@ -44,6 +44,12 @@ public class CftPacketHandler {
                 PopulationUpdatePacket::handle
         );
 
+        registrar.playToClient(
+                ClassChangeNotificationPacket.TYPE,
+                ClassChangeNotificationPacket.STREAM_CODEC,
+                ClassChangeNotificationPacket::handle
+        );
+
         registrar.playToServer(
                 ChangeXoonglinJobPacket.TYPE,
                 ChangeXoonglinJobPacket.STREAM_CODEC,

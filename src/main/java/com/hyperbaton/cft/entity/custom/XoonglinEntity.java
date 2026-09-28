@@ -5,6 +5,7 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.JobState;
+import com.hyperbaton.cft.network.ClassChangeNotificationPacket;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfierMapper;
@@ -50,6 +51,7 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -65,6 +67,18 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public static final int DELAY_BETWEEN_NEEDS_CHECKS = 20;
     private static final int FULL_HEAL_TICKS = 24000;
     public static final EntityDataAccessor<String> SOCIAL_CLASS_NAME = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.STRING);
+    /** Synced so the client can show the need indicator only to the Xoonglin's own leader. */
+    public static final EntityDataAccessor<Optional<UUID>> LEADER_UUID = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.OPTIONAL_UUID);
+    /** One of the ALERT_* levels, describing the worst visible need. */
+    public static final EntityDataAccessor<Byte> NEED_ALERT = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.BYTE);
+    /** Item id used as icon for the worst visible need, or empty if there is none. */
+    public static final EntityDataAccessor<String> NEED_ALERT_ICON = SynchedEntityData.defineId(XoonglinEntity.class, EntityDataSerializers.STRING);
+
+    public static final byte ALERT_NONE = 0;
+    /** Some need is below its satisfaction threshold. */
+    public static final byte ALERT_UNSATISFIED = 1;
+    /** Some harmful need is below its damage threshold, so the Xoonglin is getting hurt. */
+    public static final byte ALERT_CRITICAL = 2;
 
     public XoonglinEntity(EntityType<? extends AgeableMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -132,6 +146,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 float healAmount = getMaxHealth() * DELAY_BETWEEN_NEEDS_CHECKS / (float) FULL_HEAL_TICKS;
                 heal(healAmount);
             }
+            updateNeedAlert();
             checkSocialClass();
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         }
@@ -367,7 +382,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.socialClass.getUpgrades().stream()
                 .filter(this::appliesForUpgrade)
                 .findAny()
-                .ifPresent(socialClassUpdate -> changeSocialClass(socialClassUpdate.getNextClass()));
+                .ifPresent(socialClassUpdate -> changeSocialClass(socialClassUpdate.getNextClass(), true));
     }
 
     private boolean appliesForUpgrade(SocialClassUpdate socialClassUpdate) {
@@ -395,7 +410,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private boolean downgradeSocialClass() {
         Optional<SocialClassUpdate> optSocialClassToDowngradeTo = this.socialClass.getDowngrades().stream()
                 .filter(this::appliesForDowngrade).findAny();
-        optSocialClassToDowngradeTo.ifPresent(socialClassUpdate -> changeSocialClass(socialClassUpdate.getNextClass()));
+        optSocialClassToDowngradeTo.ifPresent(socialClassUpdate -> changeSocialClass(socialClassUpdate.getNextClass(), false));
         return optSocialClassToDowngradeTo.isPresent();
     }
 
@@ -430,7 +445,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 toClass);
     }
 
-    private void changeSocialClass(String nextClass) {
+    private void changeSocialClass(String nextClass, boolean upgrade) {
+        String previousClass = this.socialClass != null ? this.socialClass.getId() : null;
         this.socialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(nextClass));
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
@@ -438,6 +454,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             assignEligibleJobIfNeeded();
             resetMatingDelay();
             applyClassMaxHealth();
+            notifyLeaderOfClassChange(previousClass, upgrade);
         }
         if (this.home != null) {
             this.home = null;
@@ -453,6 +470,65 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (this.getHealth() > this.getMaxHealth()) {
             this.setHealth(this.getMaxHealth());
         }
+    }
+
+    private void notifyLeaderOfClassChange(String previousClass, boolean upgrade) {
+        if (leaderId != null && level().getPlayerByUUID(leaderId) instanceof ServerPlayer leader) {
+            PacketDistributor.sendToPlayer(leader, new ClassChangeNotificationPacket(
+                    getName().getString(), previousClass != null ? previousClass : "", socialClass.getId(), upgrade));
+        }
+    }
+
+    /**
+     * Publishes the worst visible need to the client, so it can be flagged above the
+     * Xoonglin. Hidden and bonus needs are ignored: the former are technical and the
+     * latter never cause unhappiness.
+     */
+    private void updateNeedAlert() {
+        Optional<NeedSatisfier<? extends Need>> worst = getWorstNeed();
+        byte level = worst.map(satisfier -> isCritical(satisfier) ? ALERT_CRITICAL : ALERT_UNSATISFIED).orElse(ALERT_NONE);
+        String icon = worst.map(satisfier -> satisfier.getNeed().getIcons())
+                .filter(icons -> !icons.isEmpty())
+                .map(icons -> icons.get(0).toString())
+                .orElse("");
+        this.entityData.set(NEED_ALERT, level);
+        this.entityData.set(NEED_ALERT_ICON, icon);
+    }
+
+    /**
+     * The most pressing unsatisfied need: critical ones first, then the least satisfied.
+     * Hidden and bonus needs are never reported. Server side only.
+     */
+    public Optional<NeedSatisfier<? extends Need>> getWorstNeed() {
+        return getUnsatisfiedVisibleNeeds().stream()
+                .min(Comparator.comparing((NeedSatisfier<? extends Need> satisfier) -> !isCritical(satisfier))
+                        .thenComparingDouble(NeedSatisfier::getSatisfaction));
+    }
+
+    /** Unsatisfied needs that the player can see and that cause unhappiness. Server side only. */
+    public List<NeedSatisfier<? extends Need>> getUnsatisfiedVisibleNeeds() {
+        if (needs == null) return List.of();
+        return needs.stream()
+                .filter(satisfier -> !satisfier.getNeed().isHidden() && !satisfier.getNeed().isBonus() && !satisfier.isSatisfied())
+                .toList();
+    }
+
+    public static boolean isCritical(NeedSatisfier<? extends Need> satisfier) {
+        return satisfier.getNeed().getDamage() > 0.0
+                && satisfier.getSatisfaction() < satisfier.getNeed().getDamageThreshold();
+    }
+
+    public byte getNeedAlert() {
+        return this.entityData.get(NEED_ALERT);
+    }
+
+    public String getNeedAlertIcon() {
+        return this.entityData.get(NEED_ALERT_ICON);
+    }
+
+    /** Client-safe leader lookup, backed by synced data. */
+    public Optional<UUID> getSyncedLeaderId() {
+        return this.entityData.get(LEADER_UUID);
     }
 
     private void removeFromAllStructures() {
@@ -578,6 +654,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     public void setLeaderId(UUID leaderId) {
         this.leaderId = leaderId;
+        this.entityData.set(LEADER_UUID, Optional.ofNullable(leaderId));
     }
 
     public HouseStructure getHome() {
@@ -657,6 +734,9 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(SOCIAL_CLASS_NAME, "xoonglin");
+        builder.define(LEADER_UUID, Optional.empty());
+        builder.define(NEED_ALERT, ALERT_NONE);
+        builder.define(NEED_ALERT_ICON, "");
     }
 
     @Override

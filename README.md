@@ -32,9 +32,6 @@ population. The commands `\happinessLadder`, `\populationLadder` and `\socialstr
 rankings and information on your Xoonglins.
 - The social classes, needs, structures and jobs are fully configurable and customizable via
 datapacks, so it's possible to build a tailored experience for any modpack.
-- **Social Class Browser**: Press `V` to open an interactive screen showing the full social
-class hierarchy as a visual graph, with clickable nodes to view each class's needs,
-stats, and upgrade/downgrade conditions.
 - **Jobs**: Xoonglins can be assigned jobs through their social class. Each social class can
 have multiple possible jobs, and each Xoonglin will randomly pick one. The player can manually
 change the job of a Xoonglin among the available ones.
@@ -45,6 +42,11 @@ multi-storey buildings) can also be defined and used by jobs and needs.
 configurable ceremony or event — that other Xoonglins attend and get happiness from.
 - **Equipment**: Xoonglins can wear items and armor in any equipment slot, driven by
 equipment needs.
+- **Social Class Browser**: Press `V` to open an interactive screen showing the full social
+  class hierarchy as a visual graph, with clickable nodes to view each class's needs,
+  stats, and upgrade/downgrade conditions.
+- **Jade integration**: If [Jade](https://modrinth.com/mod/jade) is installed, looking at a
+  Xoonglin shows its class, job and happiness; its leader also sees its most pressing need.
 
 ## Datapacks
 

@@ -4,6 +4,7 @@ import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.network.CftPacketHandler;
 import com.hyperbaton.cft.network.RequestPopulationPacket;
+import com.hyperbaton.cft.socialclass.CensusStats;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,6 +20,19 @@ import java.util.Map;
 
 public class SocialClassBrowserScreen extends Screen {
 
+    private enum Mode { CLASSES, CENSUS }
+
+    private static final int TAB_WIDTH = 60;
+    private static final int TAB_HEIGHT = 14;
+    private static final int TAB_MARGIN = 4;
+    /** Space taken by the tabs at the top of the census. */
+    private static final int CENSUS_TOP = TAB_MARGIN + TAB_HEIGHT + TAB_MARGIN;
+    private static final int STATS_REFRESH_TICKS = 100;
+
+    private static Mode lastMode = Mode.CLASSES;
+    private Mode mode = lastMode;
+    private int ticksUntilRefresh = STATS_REFRESH_TICKS;
+
     private List<SocialClassNode> nodes = new ArrayList<>();
     private List<GraphEdge> edges = new ArrayList<>();
     private SocialClassNode selectedNode;
@@ -31,6 +45,7 @@ public class SocialClassBrowserScreen extends Screen {
     private int detailPanelWidth;
 
     private SocialClassDetailPanel detailPanel;
+    private CensusPanel censusPanel;
 
     private double graphScrollY = 0;
     private double graphScrollX = 0;
@@ -38,6 +53,7 @@ public class SocialClassBrowserScreen extends Screen {
     private int graphContentWidth;
 
     private Map<String, Integer> populationData = new HashMap<>();
+    private CensusStats censusStats;
 
     private boolean dragging = false;
     private double dragLastX;
@@ -74,11 +90,22 @@ public class SocialClassBrowserScreen extends Screen {
                 detailPanelX, 0, detailPanelWidth, this.height, this.font, needRegistry
         );
 
+        this.censusPanel = new CensusPanel(
+                0, CENSUS_TOP, this.width, this.height - CENSUS_TOP, this.font, socialClassRegistry, needRegistry
+        );
+        if (censusStats != null) {
+            censusPanel.setStats(censusStats);
+        }
+
         CftPacketHandler.sendToServer(new RequestPopulationPacket());
     }
 
-    public void updatePopulation(Map<String, Integer> population) {
-        this.populationData = population;
+    public void updateCensusStats(CensusStats stats) {
+        this.censusStats = stats;
+        this.populationData = stats.population();
+        if (censusPanel != null) {
+            censusPanel.setStats(stats);
+        }
     }
 
     @Override
@@ -90,13 +117,51 @@ public class SocialClassBrowserScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         super.render(graphics, mouseX, mouseY, delta);
 
+        if (mode == Mode.CENSUS) {
+            censusPanel.render(graphics, mouseX, mouseY);
+            Component title = Component.translatable("gui.cft.census");
+            graphics.drawString(this.font, title, titleX(title, this.width), 7, 0xFFE0E0E0, true);
+            renderModeTabs(graphics);
+            censusPanel.renderTooltip(graphics, mouseX, mouseY);
+            return;
+        }
+
         renderGraphPanel(graphics, mouseX, mouseY);
         renderDivider(graphics);
         detailPanel.render(graphics, mouseX, mouseY);
 
         Component title = Component.translatable("gui.cft.social_class_browser");
-        int titleWidth = this.font.width(title);
-        graphics.drawString(this.font, title, (graphPanelWidth - titleWidth) / 2, 5, 0xFFE0E0E0, true);
+        graphics.drawString(this.font, title, titleX(title, graphPanelWidth), 7, 0xFFE0E0E0, true);
+        renderModeTabs(graphics);
+        detailPanel.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    /** Centres the title within the given width, but never under the mode tabs. */
+    private int titleX(Component title, int areaWidth) {
+        int tabsEnd = TAB_MARGIN * 3 + TAB_WIDTH * 2;
+        return Math.max((areaWidth - this.font.width(title)) / 2, tabsEnd);
+    }
+
+    private void renderModeTabs(GuiGraphics graphics) {
+        renderModeTab(graphics, TAB_MARGIN, Component.translatable("gui.cft.tab_classes"), mode == Mode.CLASSES);
+        renderModeTab(graphics, TAB_MARGIN * 2 + TAB_WIDTH, Component.translatable("gui.cft.tab_census"), mode == Mode.CENSUS);
+    }
+
+    private void renderModeTab(GuiGraphics graphics, int tabX, Component label, boolean selected) {
+        int tabY = TAB_MARGIN;
+        graphics.fill(tabX, tabY, tabX + TAB_WIDTH, tabY + TAB_HEIGHT, selected ? 0xFF4A4A6A : 0xFF2A2A40);
+        graphics.fill(tabX, tabY + TAB_HEIGHT - 1, tabX + TAB_WIDTH, tabY + TAB_HEIGHT, selected ? 0xFF88AACC : 0xFF4A4A6A);
+        int textColor = selected ? 0xFFFFFFFF : 0xFFA0A0B0;
+        graphics.drawString(this.font, label, tabX + (TAB_WIDTH - this.font.width(label)) / 2, tabY + 3, textColor, false);
+    }
+
+    /** Returns the mode of the tab under the cursor, or null if there is none. */
+    private Mode modeTabAt(double mouseX, double mouseY) {
+        if (mouseY < TAB_MARGIN || mouseY >= TAB_MARGIN + TAB_HEIGHT) return null;
+        if (mouseX >= TAB_MARGIN && mouseX < TAB_MARGIN + TAB_WIDTH) return Mode.CLASSES;
+        int censusX = TAB_MARGIN * 2 + TAB_WIDTH;
+        if (mouseX >= censusX && mouseX < censusX + TAB_WIDTH) return Mode.CENSUS;
+        return null;
     }
 
     private void renderGraphPanel(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -132,6 +197,16 @@ public class SocialClassBrowserScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        Mode clickedTab = button == 0 ? modeTabAt(mouseX, mouseY) : null;
+        if (clickedTab != null) {
+            mode = clickedTab;
+            lastMode = clickedTab;
+            return true;
+        }
+        if (mode == Mode.CENSUS) {
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
         if (button == 0 && mouseX < graphPanelWidth) {
             for (SocialClassNode node : nodes) {
                 if (isMouseOverNode(node, (int) mouseX, (int) mouseY)) {
@@ -176,6 +251,10 @@ public class SocialClassBrowserScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (mode == Mode.CENSUS) {
+            return censusPanel.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+
         if (mouseX < graphPanelWidth) {
             if (Screen.hasShiftDown()) {
                 graphScrollX = clampScrollX(graphScrollX - scrollY * 10);
@@ -205,6 +284,13 @@ public class SocialClassBrowserScreen extends Screen {
         super.tick();
         if (detailPanel != null) {
             detailPanel.tick();
+        }
+        if (censusPanel != null) {
+            censusPanel.tick();
+        }
+        if (--ticksUntilRefresh <= 0) {
+            ticksUntilRefresh = STATS_REFRESH_TICKS;
+            CftPacketHandler.sendToServer(new RequestPopulationPacket());
         }
     }
 

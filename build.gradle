@@ -46,10 +46,26 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     mavenCentral()
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
+
+    // Optional Jade integration: players don't need Jade installed. runtimeOnly only
+    // adds it to the dev run configurations, so the tooltip can be tested there.
+    compileOnly "maven.modrinth:jade:${jade_version}"
+    runtimeOnly "maven.modrinth:jade:${jade_version}"
 
     testImplementation "org.junit.jupiter:junit-jupiter-params:$project.junit_version"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$project.junit_version"

@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.gui.widget.ScrollPanel;
 
@@ -23,7 +24,7 @@ class NeedsScrollPanel extends ScrollPanel {
     private Map<String, NeedSatisfactionData> needsData;
     private final int elementHeight = 18;
     private final Font font;
-    private Component currentTooltip = null;
+    private List<FormattedCharSequence> currentTooltip = null;
     private int tooltipX, tooltipY;
     private int tickCounter = 0;
 
@@ -52,18 +53,12 @@ class NeedsScrollPanel extends ScrollPanel {
             if (currentY + elementHeight >= scrollDistance && currentY <= scrollDistance + height) {
                 int adjustedY = top + currentY - (int) scrollDistance + SIDE_MARGIN;
                 NeedSatisfactionData data = need.getValue();
-                int textX = left + SIDE_MARGIN;
+                int rowX = left + SIDE_MARGIN;
+                int textX = rowX;
 
                 if (!data.icons.isEmpty()) {
                     ItemStack iconStack = getIconStack(data.icons);
                     graphics.renderItem(iconStack, textX, adjustedY - 4);
-                    if (data.extraTooltip != null
-                            && mouseX >= textX && mouseX < textX + ICON_SIZE
-                            && mouseY >= adjustedY - 4 && mouseY < adjustedY - 4 + ICON_SIZE) {
-                        currentTooltip = Component.literal(data.extraTooltip);
-                        tooltipX = mouseX;
-                        tooltipY = mouseY;
-                    }
                     textX += ICON_SIZE + 2;
                 }
 
@@ -75,8 +70,14 @@ class NeedsScrollPanel extends ScrollPanel {
                 NeedsBarRenderer.renderBar(graphics, barX, adjustedY, barWidth, barHeight,
                     data.satisfaction, data.damageThreshold, data.satisfactionThreshold, isHovered);
 
+                boolean insidePanel = mouseY >= top && mouseY < top + height;
                 if (isHovered) {
-                    currentTooltip = NeedsBarRenderer.getTooltip(data.satisfaction);
+                    currentTooltip = List.of(NeedsBarRenderer.getTooltip(data.satisfaction).getVisualOrderText());
+                    tooltipX = mouseX;
+                    tooltipY = mouseY;
+                } else if (insidePanel && mouseX >= rowX && mouseX < barX - 2
+                        && mouseY >= adjustedY - 4 && mouseY < adjustedY - 4 + ICON_SIZE) {
+                    currentTooltip = NeedTooltips.build(this.font, need.getKey(), data.extraTooltip);
                     tooltipX = mouseX;
                     tooltipY = mouseY;
                 }
@@ -95,7 +96,7 @@ class NeedsScrollPanel extends ScrollPanel {
 
     }
 
-    public Component getCurrentTooltip() {
+    public List<FormattedCharSequence> getCurrentTooltip() {
         return currentTooltip;
     }
 

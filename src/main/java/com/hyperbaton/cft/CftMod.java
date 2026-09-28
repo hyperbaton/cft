@@ -73,6 +73,7 @@ public class CftMod
         modEventBus.addListener(this::addCreative);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, CftConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, CftClientConfig.SPEC);
     }
 
     private void registerRegistries(NewRegistryEvent event) {
