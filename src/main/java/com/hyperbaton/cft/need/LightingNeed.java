@@ -20,7 +20,7 @@ public class LightingNeed extends Need {
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(LightingNeed::getProvidedHappiness),
             Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(LightingNeed::getSatisfactionThreshold),
             Codec.DOUBLE.fieldOf("frequency").forGetter(LightingNeed::getFrequency),
-            Codec.BOOL.fieldOf("hidden").forGetter(LightingNeed::isHidden),
+            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(LightingNeed::isHidden),
             Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(LightingNeed::isBonus),
             Codec.INT.fieldOf("min_light").forGetter(LightingNeed::getMinLight),
             Codec.INT.optionalFieldOf("radius", 0).forGetter(LightingNeed::getRadius),
