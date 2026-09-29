@@ -12,7 +12,9 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Containers;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -85,6 +87,33 @@ public final class JobUtil {
             }
         }
         return slots;
+    }
+
+    /**
+     * The tool of this kind (e.g. {@code ItemTags.AXES}) the Xoonglin holds in its main hand or
+     * carries in its inventory, or EMPTY if it has none.
+     */
+    public static ItemStack findTool(XoonglinEntity xoonglin, TagKey<Item> tool) {
+        if (xoonglin.getMainHandItem().is(tool)) return xoonglin.getMainHandItem();
+        for (int i = 0; i < xoonglin.getInventory().getContainerSize(); i++) {
+            ItemStack stack = xoonglin.getInventory().getItem(i);
+            if (stack.is(tool)) return stack;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /**
+     * Holds a tool of this kind from its inventory in its main hand, to show it. Only if that hand
+     * is free: an equipment need for it takes precedence, and the tool then stays in the inventory.
+     */
+    public static void equipTool(XoonglinEntity xoonglin, TagKey<Item> tool) {
+        if (!xoonglin.getMainHandItem().isEmpty()) return;
+        for (int i = 0; i < xoonglin.getInventory().getContainerSize(); i++) {
+            if (xoonglin.getInventory().getItem(i).is(tool)) {
+                xoonglin.setItemSlot(EquipmentSlot.MAINHAND, xoonglin.getInventory().removeItem(i, 1));
+                return;
+            }
+        }
     }
 
     public static boolean isAtHome(XoonglinEntity mob, double radius) {

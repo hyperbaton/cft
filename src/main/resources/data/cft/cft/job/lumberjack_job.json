@@ -1,0 +1,7 @@
+{
+  "type": "cft:lumberjack",
+  "hours_per_day": 6.0,
+  "required_structure": "cft:lumber_camp",
+  "chop_radius": 64,
+  "max_tree_size": 128
+}

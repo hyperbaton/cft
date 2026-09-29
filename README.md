@@ -1665,6 +1665,35 @@ to raw food.
 ```
 </details>
 
+#### Lumberjack
+
+The Xoonglin fells whole trees around its base: a lumber camp if the job has a
+`required_structure`, or its home otherwise. It walks to the nearest tree and chops the base of its
+trunk until the whole tree falls.
+
+It needs an axe.
+
+<details>
+    <summary>Sample lumberjack job file</summary>
+
+```json
+{
+  "type": "cft:lumberjack",
+  "hours_per_day": 6.0,
+  "required_structure": "cft:lumber_camp",
+  "chop_radius": 16,
+  "max_tree_size": 128
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: _(Optional)_ A structure type ID to use as the lumberjack's base, like
+  a lumber camp. Without it, it works around its home and uses the home's containers.
+- `chop_radius`: _(Optional, default: 16)_ How far from its base it looks for trees.
+- `max_tree_size`: _(Optional, default: 128)_ Log clusters bigger than this are not felled.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
 ### Structures
 
 Structures define building types that the mod can recognize and validate in the world.

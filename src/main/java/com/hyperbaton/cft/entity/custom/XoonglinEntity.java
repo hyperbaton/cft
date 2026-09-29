@@ -242,6 +242,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_CRAFT.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_SMELT.get())
+                || brain.hasMemoryValue(CftMemoryModuleType.MUST_CHOP.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_FISH.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_HEAL.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_BLESS.get())

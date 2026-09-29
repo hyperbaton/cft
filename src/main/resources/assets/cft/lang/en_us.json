@@ -231,5 +231,9 @@
   "need.cft.tavern_visit_need.tooltip": "Likes to have a drink at the tavern in its free time. While there, it can also eat and drink from the tavern's stock.",
   "job.cft.smelter_job": "Smelter",
   "job.cft.cook_job": "Cook",
-  "cft:smeltery": "Smeltery"
+  "cft:smeltery": "Smeltery",
+  "job.cft.lumberjack_job": "Lumberjack",
+  "cft:lumber_camp": "Lumber Camp",
+  "gui.cft.job_status.needs_axe": "Needs an Axe",
+  "gui.cft.job_axe": "Axe"
 }

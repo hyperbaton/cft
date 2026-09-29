@@ -45,6 +45,7 @@ public class CftMemoryModuleType {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_SCRIBE = registerMemory("must_scribe", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_TRADE = registerMemory("must_trade", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_SMELT = registerMemory("must_smelt", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_CHOP = registerMemory("must_chop", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_SLEEP = registerMemory("must_sleep", Codec.BOOL);
     /** Key block of the structure an unsatisfied visit need sends the Xoonglin to. */
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> MUST_VISIT = registerMemory("must_visit", BlockPos.CODEC);
