@@ -3,6 +3,7 @@ package com.hyperbaton.cft.socialclass;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinNameGenerator;
 import com.hyperbaton.cft.job.Job;
+import com.hyperbaton.cft.entity.ai.schedule.ScheduleDefinition;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +27,8 @@ public class SocialClass {
             Codec.BOOL.optionalFieldOf("canDowngradeAsBaby", true).forGetter(SocialClass::canDowngradeAsBaby),
             Codec.INT.optionalFieldOf("matingDelay", -1).forGetter(SocialClass::getMatingDelay),
             Codec.DOUBLE.optionalFieldOf("maxHealth", 20.0).forGetter(SocialClass::getMaxHealth),
-            Codec.STRING.listOf().optionalFieldOf("name_samples", List.of()).forGetter(SocialClass::getNameSamples)
+            Codec.STRING.listOf().optionalFieldOf("name_samples", List.of()).forGetter(SocialClass::getNameSamples),
+            ScheduleDefinition.CODEC.optionalFieldOf("schedule").forGetter(SocialClass::getSchedule)
     ).apply(instance, SocialClass::new));
 
     private String id;
@@ -45,11 +47,14 @@ public class SocialClass {
     private final List<String> nameSamples;
     /** Built on first use, since training the Markov chain isn't free and most classes may never need it. */
     private XoonglinNameGenerator nameGenerator;
+    /** Daily routine for this class; null if its Xoonglins don't follow any. */
+    private final ScheduleDefinition schedule;
 
     public SocialClass(String id, double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
                        List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades,
                        List<ResourceLocation> jobs, boolean canUpgradeAsBaby, boolean canDowngradeAsBaby,
-                       int matingDelay, double maxHealth, List<String> nameSamples) {
+                       int matingDelay, double maxHealth, List<String> nameSamples,
+                       Optional<ScheduleDefinition> schedule) {
         this.id = id;
         this.maxHappiness = maxHappiness;
         this.matingHappinessThreshold = matingHappinessThreshold;
@@ -63,6 +68,7 @@ public class SocialClass {
         this.matingDelay = matingDelay;
         this.maxHealth = maxHealth;
         this.nameSamples = nameSamples != null ? List.copyOf(nameSamples) : List.of();
+        this.schedule = schedule.orElse(null);
     }
 
     public String getId() {
@@ -163,6 +169,10 @@ public class SocialClass {
 
     public double getMaxHealth() {
         return maxHealth;
+    }
+
+    public Optional<ScheduleDefinition> getSchedule() {
+        return Optional.ofNullable(schedule);
     }
 
     public List<String> getNameSamples() {

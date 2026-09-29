@@ -55,6 +55,7 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_WRITE.get(),
             CftMemoryModuleType.MUST_SCRIBE.get(),
             CftMemoryModuleType.MUST_TRADE.get(),
+            CftMemoryModuleType.MUST_SLEEP.get(),
             CftMemoryModuleType.QUARRY_FLOODED.get(),
             CftMemoryModuleType.QUARRY_NEEDS_LADDERS.get(),
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
@@ -68,6 +69,7 @@ public class XoonglinAi {
         initIdleActivity(pBrain);
         initInvestigateActivity(pBrain);
         initMateActivity(pBrain);
+        initRestActivity(pBrain);
         //initWorkActivity(pBrain);
         pBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         pBrain.setDefaultActivity(Activity.IDLE);
@@ -162,6 +164,12 @@ public class XoonglinAi {
     private static void initMateActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(CftActivities.MATE.get(), ImmutableList.of(
                 Pair.of(0, new MateBehavior(Map.of(CftMemoryModuleType.MATING_CANDIDATE.get(), MemoryStatus.VALUE_PRESENT)))
+        ));
+    }
+
+    private static void initRestActivity(Brain<XoonglinEntity> pBrain) {
+        pBrain.addActivity(Activity.REST, ImmutableList.of(
+                Pair.of(0, new RestAtHomeBehavior())
         ));
     }
 

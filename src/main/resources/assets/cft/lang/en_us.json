@@ -211,5 +211,11 @@
   "jade.cft.needs_critical": "Suffering from lack of %s",
   "jade.cft.more_needs": " (+%s more)",
   "jade.cft.all_needs_met": "All needs met",
-  "jade.cft.ready_to_mate": "❤ Ready to mate"
+  "jade.cft.ready_to_mate": "❤ Ready to mate",
+  "gui.cft.need_type.sleep": "Sleep",
+  "gui.cft.job_status.sleeping": "Sleeping",
+  "gui.cft.job_status.at_home": "At home",
+  "gui.cft.job_status.free_time": "Free time",
+  "cft:sleep_need": "Sleep",
+  "need.cft.sleep_need.tooltip": "Needs to sleep in a bed of its home at night, or during the rest time of its schedule."
 }

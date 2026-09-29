@@ -78,6 +78,7 @@ public class CftRegistry {
     public static final DeferredHolder<Codec<? extends Need>, Codec<EquipmentNeed>> EQUIPMENT_NEED = NEEDS_CODEC.register("equipment", () -> EquipmentNeed.EQUIPMENT_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<RitualNeed>> RITUAL_NEED = NEEDS_CODEC.register("ritual", () -> RitualNeed.RITUAL_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<ReadingNeed>> READING_NEED = NEEDS_CODEC.register("reading", () -> ReadingNeed.READING_NEED_CODEC);
+    public static final DeferredHolder<Codec<? extends Need>, Codec<SleepNeed>> SLEEP_NEED = NEEDS_CODEC.register("sleep", () -> SleepNeed.SLEEP_NEED_CODEC);
 
     public static final DeferredRegister<Codec<? extends Job>> JOBS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.JOB_CODEC_KEY, CftMod.MOD_ID);

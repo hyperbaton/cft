@@ -4,18 +4,36 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.entity.ai.schedule.ScheduleDefinition;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class Job {
 
     public static final Codec<Job> JOB_CODEC = Codec.lazyInitialized(() -> CftRegistry.JOBS_CODEC_REGISTRY.byNameCodec()
-            .dispatch("type", Job::jobType, codec -> MapCodec.assumeMapUnsafe(codec)));
+            .dispatch("type", Job::jobType, codec -> withCommonFields(codec)));
+
+    /**
+     * Adds the fields shared by every job type to its codec, so each job codec doesn't have
+     * to declare them (some are already at the codec builder's field limit).
+     */
+    private static <J extends Job> MapCodec<J> withCommonFields(Codec<J> codec) {
+        return Codec.mapPair(MapCodec.assumeMapUnsafe(codec), ScheduleDefinition.CODEC.optionalFieldOf("schedule"))
+                .xmap(pair -> {
+                    J job = pair.getFirst();
+                    ((Job) job).schedule = pair.getSecond().orElse(null);
+                    return job;
+                }, job -> Pair.of(job, job.getSchedule()));
+    }
 
     private final List<String> requiredNeeds;
+    /** Replaces the social class schedule for Xoonglins with this job; null to use the class one. */
+    private ScheduleDefinition schedule;
     private final double minHappiness;
     private final boolean availableToBabies;
     private final boolean availableToAdults;
@@ -81,6 +99,10 @@ public abstract class Job {
         }
 
         return true;
+    }
+
+    public Optional<ScheduleDefinition> getSchedule() {
+        return Optional.ofNullable(schedule);
     }
 
     public String getRequiredStructureType() {

@@ -6,6 +6,7 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.JobState;
 import com.hyperbaton.cft.network.ClassChangeNotificationPacket;
+import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfierMapper;
@@ -170,6 +171,9 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 if (getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())) {
                     // Attending a ritual preempts the day job
                     job.eraseMemories(this);
+                } else if (ScheduleUtils.isOffDuty(this)) {
+                    // Outside the working hours of its schedule
+                    job.eraseMemories(this);
                 } else {
                     job.tick(this, jobState);
                 }
@@ -195,11 +199,40 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     protected void customServerAiStep() {
         Brain<XoonglinEntity> brain = this.getBrain();
 
+        ScheduleUtils.updateBrainSchedule(this);
         brain.tick((ServerLevel) level(), this);
-        boolean readyToMate = brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).orElse(false)
-                && brain.hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get());
+        updateActivity();
+    }
 
-        boolean activelyWorking = brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
+    private void updateActivity() {
+        boolean resting = shouldRest();
+
+        if (isActivelyWorking() || (resting && canFetchSupplies())) {
+            setActivity(Activity.INVESTIGATE);
+        } else if (resting) {
+            setActivity(Activity.REST);
+        } else if (isReadyToMate()) {
+            setActivity(CftActivities.MATE.get());
+        } else if (isWorkInterrupted()) {
+            setActivity(Activity.INVESTIGATE);
+        } else {
+            setActivity(Activity.IDLE);
+        }
+    }
+
+    private void setActivity(Activity activity) {
+        this.getBrain().setActiveActivityToFirstValid(ImmutableList.of(activity, Activity.IDLE));
+    }
+
+    private boolean isReadyToMate() {
+        Brain<XoonglinEntity> brain = this.getBrain();
+        return brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).orElse(false)
+                && brain.hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get());
+    }
+
+    private boolean isActivelyWorking() {
+        Brain<XoonglinEntity> brain = this.getBrain();
+        return brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GATHER.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GUARD.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_FARM.get())
@@ -217,20 +250,30 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_WRITE.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_SCRIBE.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_TRADE.get());
+    }
 
-        boolean workInterrupted = brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
+    private boolean isWorkInterrupted() {
+        Brain<XoonglinEntity> brain = this.getBrain();
+        return brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get());
+    }
 
-        if (activelyWorking) {
-            brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
-        } else if (readyToMate) {
-            brain.setActiveActivityToFirstValid(ImmutableList.of(CftActivities.MATE.get(), Activity.IDLE));
-        } else if (workInterrupted) {
-            brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.INVESTIGATE, Activity.IDLE));
-        } else {
-            brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
-        }
+    /** At home during the rest time of its schedule, or whenever it's time to go to bed. */
+    private boolean shouldRest() {
+        return this.home != null && (ScheduleUtils.is(this, Activity.REST) || shouldSleep());
+    }
+
+    private boolean shouldSleep() {
+        return ScheduleUtils.isSleepTime(this)
+                && (this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_SLEEP.get()) || this.isSleeping());
+    }
+
+    private boolean canFetchSupplies() {
+        Brain<XoonglinEntity> brain = this.getBrain();
+        return !this.isSleeping()
+                && brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
+                && brain.hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER.get());
     }
 
     @Override

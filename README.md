@@ -128,6 +128,9 @@ The datapack documentation is presented below.
   language. With short lists the generated names mostly repeat the samples, so 30 or more
   are recommended. If omitted, the default Xoonglin-style names are used. A Xoonglin keeps
   its name when it changes class.
+- `schedule`: _(Optional)_ The daily routine of this class: when its Xoonglins work, have
+  free time and rest. See [Schedules](#schedules). If omitted, they work from sunrise until
+  their job's daily hours are done and are idle the rest of the time.
 - `upgrades`: A list of ways a Xoonglin can become a higher class.
     - `nextClass`: Reference to next class.
     - `requiredHappiness`: Minimum happiness level to consider upgrading.
@@ -148,6 +151,42 @@ The datapack documentation is presented below.
         - `scope`: _(Optional)_ A list of social class IDs. If given, the percentage is
           computed among only those classes' combined population, instead of the whole
           population. If omitted or empty, the percentage is of the whole population.
+
+### Schedules
+
+A schedule tells Xoonglins what to do at each time of the day. It can be set on a social class, and a
+job can set its own, which replaces the class one for the Xoonglins with that job (e.g. guards
+working the night shift). Xoonglins without a schedule keep the default behavior: they work
+from sunrise until their daily hours are done, and are idle the rest of the time.
+
+<details>
+    <summary>Sample schedule</summary>
+
+```json
+{"schedule": [
+  { "at": 6, "activity": "minecraft:work" },
+  { "at": 16, "activity": "minecraft:idle" },
+  { "at": 21, "activity": "minecraft:rest" }
+]}
+```
+</details>
+
+The schedule is a list of transitions: at each one, the Xoonglin switches to a new activity,
+which lasts until the next transition. The last transition of the day lasts until the first
+one of the next day, so above, rest goes from 21:00 to 6:00.
+
+- `at`: Clock hour of the transition, from 0 to 24, where 6 is sunrise (the start of the
+  Minecraft day) and 18 is sunset. Decimals are allowed (e.g. 6.5 is 6:30).
+- `activity`: A vanilla activity ID. Xoonglins understand these:
+    - `minecraft:work`: the Xoonglin's job runs and counts towards its daily hours. The work
+      time must add up to at least the job's `hours_per_day`, or the daily quota can never be met.
+    - `minecraft:rest`: the Xoonglin goes back home and stays inside. If it has a
+      [Sleep Need](#sleep-need) that needs satisfying, it sleeps in a free bed of its home.
+      Attending a ritual still interrupts rest.
+    - Any other activity, such as `minecraft:idle`, is free time: no job, the Xoonglin strolls
+      around, tends to its needs and can mate.
+
+Schedules are ignored in dimensions without a day cycle, such as the Nether.
 
 ### Needs
 
@@ -599,6 +638,41 @@ For the common fields, look at the goods need example. This need has no extra fi
 what's "required" comes entirely from the current roster of book titles.
 </details>
 
+#### Sleep Need
+
+The Xoonglin needs to sleep in a bed inside its home, so its home needs a free bed for each
+Xoonglin living there that has this need (a house type can allow or require beds through its
+`interiorBlocks`).
+
+While the need is unsatisfied, the Xoonglin will go to bed as soon as it's time to sleep: during
+the rest time of its [schedule](#schedules) or, if it has no schedule, at night. It then sleeps
+until that time is over (until sunrise, without a schedule), even though the need is satisfied as
+soon as it falls asleep.
+
+Unlike other needs, it doesn't wear off while the Xoonglin sleeps, so it always wakes up fully
+rested. Once awake, satisfaction wears off over `frequency` days. If it drops below
+`satisfaction_threshold` during the day, the Xoonglin is unhappy until it can sleep again; if it
+drops during rest time, it just goes to bed. For example, with `frequency` 1, a threshold of 0.3
+lasts about 17 hours after waking up.
+
+<details>
+    <summary>Sample sleep need file</summary>
+
+```json
+{
+  "id": "cft:sleep_need",
+  "type": "cft:sleep",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 3.0,
+  "satisfaction_threshold": 0.3,
+  "frequency": 1.0
+}
+```
+
+For the common fields, look at the goods need example. This need has no extra fields.
+</details>
+
 ### Jobs
 
 Jobs define what Xoonglins do during the day. They are assigned via the `jobs` field in
@@ -619,6 +693,9 @@ All jobs share these optional fields:
   assigned this job. Lets a social class offer a baby-specific job (e.g. a student).
 - `available_to_adults`: _(Optional, default: true)_ Whether adult Xoonglins can be
   assigned this job.
+- `schedule`: _(Optional)_ A daily schedule for Xoonglins with this job, replacing the one
+  of their social class (e.g. guards working the night shift). Same format as the social
+  class `schedule`, see [Schedules](#schedules).
 
 A Xoonglin is only ever assigned a job it is eligible for at its current age, picked
 randomly among its social class's `jobs` list. It is reassigned automatically whenever

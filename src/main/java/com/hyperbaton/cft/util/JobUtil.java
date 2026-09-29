@@ -5,6 +5,8 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.network.InventorySlotData;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Containers;
@@ -23,6 +25,11 @@ public final class JobUtil {
     private JobUtil() {}
 
     public static final int TICKS_PER_MC_HOUR = 1000;
+    private static final String SLEEPING_STATUS_KEY = "gui.cft.job_status.sleeping";
+    private static final String AT_HOME_STATUS_KEY = "gui.cft.job_status.at_home";
+    private static final String FREE_TIME_STATUS_KEY = "gui.cft.job_status.free_time";
+    private static final int SLEEPING_STATUS_COLOR = 0x6060C0;
+    private static final int OFF_DUTY_STATUS_COLOR = 0x808080;
 
     public static String formatWorkTime(int workedTicks, double hoursPerDay) {
         int workedHours = workedTicks / TICKS_PER_MC_HOUR;
@@ -35,7 +42,17 @@ public final class JobUtil {
         if (xoonglin.getJob() == null) return null;
         Job job = CftRegistry.JOBS.get(xoonglin.getJob());
         if (job == null) return null;
-        return job.getDisplayInfo(xoonglin, xoonglin.getJobState());
+        JobInfoData info = job.getDisplayInfo(xoonglin, xoonglin.getJobState());
+        if (info == null) return null;
+        // Outside working time, the job's own status would describe work that isn't happening
+        if (xoonglin.isSleeping()) {
+            return new JobInfoData(SLEEPING_STATUS_KEY, SLEEPING_STATUS_COLOR, info.entries());
+        }
+        if (ScheduleUtils.isOffDuty(xoonglin)) {
+            String statusKey = xoonglin.getBrain().isActive(Activity.REST) ? AT_HOME_STATUS_KEY : FREE_TIME_STATUS_KEY;
+            return new JobInfoData(statusKey, OFF_DUTY_STATUS_COLOR, info.entries());
+        }
+        return info;
     }
 
     public static List<InventorySlotData> buildInventoryData(XoonglinEntity xoonglin) {

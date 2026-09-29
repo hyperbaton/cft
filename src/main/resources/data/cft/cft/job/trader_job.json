@@ -1,5 +1,10 @@
 {
   "type": "cft:trader",
   "hours_per_day": 6.0,
-  "max_trades": 4
+  "max_trades": 4,
+  "schedule": [
+    { "at": 6, "activity": "minecraft:work" },
+    { "at": 16, "activity": "minecraft:idle" },
+    { "at": 21, "activity": "minecraft:rest" }
+  ]
 }
