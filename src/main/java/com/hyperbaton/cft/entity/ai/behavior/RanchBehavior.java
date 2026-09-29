@@ -1,11 +1,9 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.data.ItemQuantity;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.RancherJob;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.ContainerUtil;
@@ -23,10 +21,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Sheep;
@@ -51,7 +47,7 @@ import java.util.function.Predicate;
  * closest and ready, on its own cooldown. Wool and milk are deposited back in the
  * container; feed is consumed from it.
  */
-public class RanchBehavior extends Behavior<XoonglinEntity> {
+public class RanchBehavior extends JobBehavior<RancherJob> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -96,19 +92,19 @@ public class RanchBehavior extends Behavior<XoonglinEntity> {
     private int milkCooldown;
     private int feedCooldown;
 
-    public RanchBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public RanchBehavior() {
+        super(CftMemoryModuleType.MUST_RANCH.get(), RancherJob.class, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        RancherJob job = getRancherJob(entity);
+        RancherJob job = getJob(entity);
         return job != null && entity.getAssignedStructurePos(job.getRequiredStructureType()) != null;
     }
 
     @Override
     protected void start(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        RancherJob job = getRancherJob(entity);
+        RancherJob job = getJob(entity);
         basePos = entity.getAssignedStructurePos(job.getRequiredStructureType());
         state = State.SEEKING;
         fetchPos = null;
@@ -122,16 +118,13 @@ public class RanchBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_RANCH.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        RancherJob job = getRancherJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        RancherJob job = getJob(entity);
         if (job == null || basePos == null) return;
 
         if (shearCooldown > 0) shearCooldown--;
@@ -155,8 +148,7 @@ public class RanchBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         action = null;
     }
@@ -609,9 +601,4 @@ public class RanchBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private RancherJob getRancherJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof RancherJob r ? r : null;
-    }
 }

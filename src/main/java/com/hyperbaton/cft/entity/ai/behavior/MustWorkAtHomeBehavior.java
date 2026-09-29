@@ -1,24 +1,21 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
+import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.util.JobUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 
-import java.util.Map;
 
-public class MustWorkAtHomeBehavior extends Behavior<XoonglinEntity> {
+public class MustWorkAtHomeBehavior extends JobBehavior<Job> {
 
     private static final int REPATH_INTERVAL = 40;
     private int repathTimer;
 
-    public MustWorkAtHomeBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 1200);
+    public MustWorkAtHomeBehavior() {
+        super(CftMemoryModuleType.MUST_WORK_AT_HOME.get(), Job.class, 1200);
     }
 
     @Override
@@ -36,13 +33,12 @@ public class MustWorkAtHomeBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        boolean mustWork = entity.getBrain().getMemory(CftMemoryModuleType.MUST_WORK_AT_HOME.get()).isPresent();
-        return mustWork && !JobUtil.isAtHome(entity, CftConfig.HOME_WORK_RADIUS.get());
+    protected boolean canKeepWorking(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        return !JobUtil.isAtHome(entity, CftConfig.HOME_WORK_RADIUS.get());
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         if (++repathTimer >= REPATH_INTERVAL || entity.getNavigation().isDone()) {
             repathTimer = 0;
             navigateHome(entity);
@@ -50,7 +46,7 @@ public class MustWorkAtHomeBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         if (JobUtil.isAtHome(entity, CftConfig.HOME_WORK_RADIUS.get())) {
             entity.getNavigation().stop();
         }

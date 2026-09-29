@@ -5,7 +5,6 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.BuilderJob;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.util.ContainerUtil;
@@ -16,9 +15,6 @@ import org.slf4j.Logger;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,7 +25,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public class BuildBehavior extends Behavior<XoonglinEntity> {
+public class BuildBehavior extends JobBehavior<BuilderJob> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -78,13 +74,13 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
     private int stalledRebuilds;
     private final Set<BlockPos> abandonedSites = new HashSet<>();
 
-    public BuildBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public BuildBehavior() {
+        super(CftMemoryModuleType.MUST_BUILD.get(), BuilderJob.class, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        return getBuilderJob(entity) != null;
+        return getJob(entity) != null;
     }
 
     @Override
@@ -107,16 +103,13 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_BUILD.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        BuilderJob job = getBuilderJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BuilderJob job = getJob(entity);
         if (job == null) return;
 
         switch (state) {
@@ -341,7 +334,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        BuilderJob job = getBuilderJob(entity);
+        BuilderJob job = getJob(entity);
         if (job == null) return;
 
         if (placeCooldown > 0) {
@@ -438,8 +431,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         buildSiteKeyBlock = null;
         buildStructureTypeId = null;
@@ -722,9 +714,4 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private BuilderJob getBuilderJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof BuilderJob b ? b : null;
-    }
 }

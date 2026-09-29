@@ -1,12 +1,10 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.EnchanterJob;
 import com.hyperbaton.cft.job.data.EnchantmentOption;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
@@ -18,16 +16,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Makes an enchanter work at its structure: it stands by the key block and, as long as
@@ -35,7 +29,7 @@ import java.util.Map;
  * the item doesn't already have (and is compatible with) and applies it in place. If no
  * eligible item/enchantment combination is found, it waits and rechecks periodically.
  */
-public class EnchantBehavior extends Behavior<XoonglinEntity> {
+public class EnchantBehavior extends JobBehavior<EnchanterJob> {
 
     private static final int REPATH_INTERVAL = 40;
     // Ticks to wait before re-checking the container when there's nothing eligible to enchant
@@ -62,19 +56,19 @@ public class EnchantBehavior extends Behavior<XoonglinEntity> {
     private int enchantProgress;
     private Target target;
 
-    public EnchantBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public EnchantBehavior() {
+        super(CftMemoryModuleType.MUST_ENCHANT.get(), EnchanterJob.class, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        EnchanterJob job = getEnchanterJob(entity);
+        EnchanterJob job = getJob(entity);
         return job != null && entity.getAssignedStructurePos(job.getRequiredStructureType()) != null;
     }
 
     @Override
     protected void start(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        EnchanterJob job = getEnchanterJob(entity);
+        EnchanterJob job = getJob(entity);
         structureKeyBlock = entity.getAssignedStructurePos(job.getRequiredStructureType());
         state = State.TRAVELING;
         repathTimer = 0;
@@ -84,16 +78,13 @@ public class EnchantBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_ENCHANT.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        EnchanterJob job = getEnchanterJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        EnchanterJob job = getJob(entity);
         if (job == null || structureKeyBlock == null) return;
 
         switch (state) {
@@ -103,8 +94,7 @@ public class EnchantBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         enchantProgress = 0;
         target = null;
@@ -211,9 +201,4 @@ public class EnchantBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private EnchanterJob getEnchanterJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof EnchanterJob e ? e : null;
-    }
 }

@@ -1,11 +1,9 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.CrafterJob;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
@@ -15,15 +13,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Makes a crafter work at its workshop: it stands by the workshop's key block and, as
@@ -31,7 +25,7 @@ import java.util.Map;
  * into that same container. If ingredients are missing, it waits by the workshop and
  * rechecks periodically.
  */
-public class CraftBehavior extends Behavior<XoonglinEntity> {
+public class CraftBehavior extends JobBehavior<CrafterJob> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -57,19 +51,19 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
     private int waitTicks;
     private int craftProgress;
 
-    public CraftBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public CraftBehavior() {
+        super(CftMemoryModuleType.MUST_CRAFT.get(), CrafterJob.class, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        CrafterJob job = getCrafterJob(entity);
+        CrafterJob job = getJob(entity);
         return job != null && entity.getAssignedStructurePos(job.getRequiredStructureType()) != null;
     }
 
     @Override
     protected void start(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        CrafterJob job = getCrafterJob(entity);
+        CrafterJob job = getJob(entity);
         workshopKeyBlock = entity.getAssignedStructurePos(job.getRequiredStructureType());
         state = State.TRAVELING;
         repathTimer = 0;
@@ -78,16 +72,13 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_CRAFT.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        CrafterJob job = getCrafterJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        CrafterJob job = getJob(entity);
         if (job == null || workshopKeyBlock == null) return;
 
         switch (state) {
@@ -97,8 +88,7 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         craftProgress = 0;
     }
@@ -176,9 +166,4 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private CrafterJob getCrafterJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof CrafterJob c ? c : null;
-    }
 }

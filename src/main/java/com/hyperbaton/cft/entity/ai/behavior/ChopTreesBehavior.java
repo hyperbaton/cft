@@ -1,9 +1,7 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.LumberjackJob;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.ContainerUtil;
@@ -19,9 +17,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -39,7 +34,7 @@ import java.util.function.Predicate;
  * their drops go to its inventory. It replants the tree's spot with saplings and takes the wood back
  * to its base, keeping a few saplings for replanting. Without an axe, it goes to its base to get one.
  */
-public class ChopTreesBehavior extends Behavior<XoonglinEntity> {
+public class ChopTreesBehavior extends JobBehavior<LumberjackJob> {
 
     private static final int MAX_DURATION = 6000;
     private static final int REPATH_INTERVAL = 40;
@@ -90,13 +85,13 @@ public class ChopTreesBehavior extends Behavior<XoonglinEntity> {
     /** Logs of trees it couldn't get next to, left alone until it starts working again. */
     private Set<BlockPos> unreachableLogs = new HashSet<>();
 
-    public ChopTreesBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, MAX_DURATION);
+    public ChopTreesBehavior() {
+        super(CftMemoryModuleType.MUST_CHOP.get(), LumberjackJob.class, MAX_DURATION);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        LumberjackJob job = getLumberjackJob(entity);
+        LumberjackJob job = getJob(entity);
         return job != null && job.getBasePos(entity) != null;
     }
 
@@ -113,16 +108,13 @@ public class ChopTreesBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_CHOP.get());
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        LumberjackJob job = getLumberjackJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        LumberjackJob job = getJob(entity);
         BlockPos basePos = job != null ? job.getBasePos(entity) : null;
         if (basePos == null) return;
 
@@ -139,8 +131,7 @@ public class ChopTreesBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         if (tree != null) {
             level.destroyBlockProgress(entity.getId(), tree.base(), -1);
@@ -469,9 +460,4 @@ public class ChopTreesBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private static LumberjackJob getLumberjackJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof LumberjackJob lumberjackJob ? lumberjackJob : null;
-    }
 }

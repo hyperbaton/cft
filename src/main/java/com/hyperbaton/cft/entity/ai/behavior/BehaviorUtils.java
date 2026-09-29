@@ -1,9 +1,7 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
-import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 import java.util.Collection;
@@ -22,16 +20,6 @@ public final class BehaviorUtils {
         return level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()
                 && level.getBlockState(pos.above()).getCollisionShape(level, pos.above()).isEmpty()
                 && level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP);
-    }
-
-    /** Shows the step of its work a job behavior is on in the job tab. */
-    public static void showWorkStep(LivingEntity entity, WorkStep step) {
-        entity.getBrain().setMemory(CftMemoryModuleType.WORK_STEP.get(), step);
-    }
-
-    /** Clears the work step when a job behavior stops. */
-    public static void clearWorkStep(LivingEntity entity) {
-        entity.getBrain().eraseMemory(CftMemoryModuleType.WORK_STEP.get());
     }
 
     /**

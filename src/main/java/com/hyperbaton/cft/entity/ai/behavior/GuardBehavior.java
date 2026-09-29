@@ -1,24 +1,18 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.GuardJob;
-import com.hyperbaton.cft.job.Job;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
-import java.util.Map;
 
-public class GuardBehavior extends Behavior<XoonglinEntity> {
+public class GuardBehavior extends JobBehavior<GuardJob> {
 
     private static final int REPATH_INTERVAL = 40;
     private static final int SCAN_INTERVAL = 20;
@@ -36,13 +30,13 @@ public class GuardBehavior extends Behavior<XoonglinEntity> {
     private int patrolPauseTimer;
     private BlockPos patrolTarget;
 
-    public GuardBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 1200);
+    public GuardBehavior() {
+        super(CftMemoryModuleType.MUST_GUARD.get(), GuardJob.class, 1200);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        return getGuardJob(entity) != null && entity.getHome() != null
+        return getJob(entity) != null && entity.getHome() != null
                 && entity.getHome().getEntrance() != null;
     }
 
@@ -58,13 +52,8 @@ public class GuardBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_GUARD.get()).isPresent();
-    }
-
-    @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        GuardJob job = getGuardJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        GuardJob job = getJob(entity);
         if (job == null) return;
 
         if (attackCooldown > 0) attackCooldown--;
@@ -210,7 +199,7 @@ public class GuardBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         clearTarget(entity);
         patrolTarget = null;
@@ -232,9 +221,4 @@ public class GuardBehavior extends Behavior<XoonglinEntity> {
         }
     }
 
-    private GuardJob getGuardJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof GuardJob g ? g : null;
-    }
 }

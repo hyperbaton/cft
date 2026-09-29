@@ -1,11 +1,9 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.data.AttendanceRule;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.OfficiantJob;
 import com.hyperbaton.cft.need.RitualNeed;
 import com.hyperbaton.cft.need.satisfaction.RitualNeedSatisfier;
@@ -19,15 +17,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -36,7 +30,7 @@ import java.util.Optional;
  * it re-attaches in start() and resumes where it left off. The ritual is only
  * cancelled when the officiant no longer wants to perform it (memory gone) or dies.
  */
-public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
+public class PerformRitualBehavior extends JobBehavior<OfficiantJob> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -72,19 +66,19 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
     private int waitTicks;
     private int intervalTimer;
 
-    public PerformRitualBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 6000);
+    public PerformRitualBehavior() {
+        super(CftMemoryModuleType.MUST_PERFORM_RITUAL.get(), OfficiantJob.class, 6000);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        return getOfficiantJob(entity) != null
-                && entity.getAssignedStructurePos(getOfficiantJob(entity).getRequiredStructureType()) != null;
+        return getJob(entity) != null
+                && entity.getAssignedStructurePos(getJob(entity).getRequiredStructureType()) != null;
     }
 
     @Override
     protected void start(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        OfficiantJob job = getOfficiantJob(entity);
+        OfficiantJob job = getJob(entity);
         templeKeyBlock = entity.getAssignedStructurePos(job.getRequiredStructureType());
         repathTimer = 0;
         waitTicks = 0;
@@ -101,16 +95,13 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_PERFORM_RITUAL.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        OfficiantJob job = getOfficiantJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        OfficiantJob job = getJob(entity);
         if (job == null || templeKeyBlock == null) return;
 
         switch (state) {
@@ -122,8 +113,7 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         // Only cancel the ritual if the officiant no longer wants to perform it.
         // On a plain behavior timeout the memory is still present and the persisted
@@ -420,9 +410,4 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private OfficiantJob getOfficiantJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof OfficiantJob o ? o : null;
-    }
 }

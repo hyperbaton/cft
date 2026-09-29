@@ -1,21 +1,16 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.data.HaulerErrand;
 import com.hyperbaton.cft.job.HaulerJob;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -23,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
-public class HaulBehavior extends Behavior<XoonglinEntity> {
+public class HaulBehavior extends JobBehavior<HaulerJob> {
 
     private static final int REPATH_INTERVAL = 40;
 
@@ -51,13 +46,13 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
     private BlockPos destinationContainerPos;
     private int repathTimer;
 
-    public HaulBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public HaulBehavior() {
+        super(CftMemoryModuleType.MUST_HAUL.get(), HaulerJob.class, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        return getHaulerJob(entity) != null;
+        return getJob(entity) != null;
     }
 
     @Override
@@ -72,16 +67,13 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_HAUL.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        HaulerJob job = getHaulerJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        HaulerJob job = getJob(entity);
         if (job == null) return;
 
         switch (state) {
@@ -266,8 +258,7 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
 
         if (currentErrand != null) {
@@ -351,9 +342,4 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private HaulerJob getHaulerJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof HaulerJob h ? h : null;
-    }
 }

@@ -1,11 +1,9 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.FarmerJob;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.OpenAirPlatformBlockGroup;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.JobUtil;
@@ -14,9 +12,6 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
@@ -26,9 +21,8 @@ import org.slf4j.Logger;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-public class FarmBehavior extends Behavior<XoonglinEntity> {
+public class FarmBehavior extends JobBehavior<FarmerJob> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final int REPATH_INTERVAL = 40;
@@ -61,13 +55,13 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
     private int repathTimer;
     private int actionTimer;
 
-    public FarmBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public FarmBehavior() {
+        super(CftMemoryModuleType.MUST_FARM.get(), FarmerJob.class, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        return getFarmerJob(entity) != null && findAssignedStructure(level, entity) != null;
+        return getJob(entity) != null && findAssignedStructure(level, entity) != null;
     }
 
     @Override
@@ -80,16 +74,13 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_FARM.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        FarmerJob job = getFarmerJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        FarmerJob job = getJob(entity);
         if (job == null) return;
 
         Structure structure = findAssignedStructure(level, entity);
@@ -277,7 +268,7 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
 
     private void tickDepositing(ServerLevel level, XoonglinEntity entity, Structure structure) {
         if (containerPos == null || !(level.getBlockEntity(containerPos) instanceof Container container)) {
-            depositAtHome(entity, getFarmerJob(entity));
+            depositAtHome(entity, getJob(entity));
             state = State.SCANNING;
             return;
         }
@@ -325,8 +316,7 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         targetBlock = null;
         containerPos = null;
@@ -422,7 +412,7 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
     }
 
     private Structure findAssignedStructure(ServerLevel level, XoonglinEntity entity) {
-        FarmerJob job = getFarmerJob(entity);
+        FarmerJob job = getJob(entity);
         if (job == null) return null;
         BlockPos structurePos = entity.getAssignedStructurePos(job.getRequiredStructureType());
         if (structurePos == null) return null;
@@ -440,9 +430,4 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private FarmerJob getFarmerJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof FarmerJob f ? f : null;
-    }
 }

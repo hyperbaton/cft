@@ -207,13 +207,20 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         updateActivity();
     }
 
+    /**
+     * Picks the activity: attending a ritual, then working, resting, mating, errands and free time,
+     * in that order. Fetching supplies still comes before work, because it pauses the job (see
+     * {@link #tick()}), so the job's memories are gone by then.
+     */
     private void updateActivity() {
         boolean resting = shouldRest();
 
-        if (isActivelyWorking() || (resting && hasSuppliesToFetch())) {
+        if (this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())) {
             setActivity(Activity.INVESTIGATE);
+        } else if (isWorkingAtJob()) {
+            setActivity(Activity.WORK);
         } else if (resting) {
-            setActivity(Activity.REST);
+            setActivity(hasSuppliesToFetch() ? Activity.INVESTIGATE : Activity.REST);
         } else if (isReadyToMate()) {
             setActivity(CftActivities.MATE.get());
         } else if (isWorkInterrupted()) {
@@ -231,10 +238,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         Brain<XoonglinEntity> brain = this.getBrain();
         return brain.getMemory(CftMemoryModuleType.CAN_MATE.get()).orElse(false)
                 && brain.hasMemoryValue(CftMemoryModuleType.MATING_CANDIDATE.get());
-    }
-
-    private boolean isActivelyWorking() {
-        return isWorkingAtJob() || this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get());
     }
 
     /**

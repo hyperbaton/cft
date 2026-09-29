@@ -1,10 +1,8 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.SmelterJob;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.FurnaceUtil;
@@ -13,14 +11,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -28,7 +22,7 @@ import java.util.Optional;
  * then tends all the workshop's furnaces, collecting their results and loading them with things
  * to cook and fuel from the workshop's chests.
  */
-public class SmeltBehavior extends Behavior<XoonglinEntity> {
+public class SmeltBehavior extends JobBehavior<SmelterJob> {
 
     private static final int REPATH_INTERVAL = 40;
     /** Ticks between rounds of tending the furnaces. */
@@ -51,19 +45,19 @@ public class SmeltBehavior extends Behavior<XoonglinEntity> {
     private int repathTimer;
     private int ticksUntilTending;
 
-    public SmeltBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public SmeltBehavior() {
+        super(CftMemoryModuleType.MUST_SMELT.get(), SmelterJob.class, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        SmelterJob job = getSmelterJob(entity);
+        SmelterJob job = getJob(entity);
         return job != null && entity.getAssignedStructurePos(job.getRequiredStructureType()) != null;
     }
 
     @Override
     protected void start(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        SmelterJob job = getSmelterJob(entity);
+        SmelterJob job = getJob(entity);
         workshopKeyBlock = entity.getAssignedStructurePos(job.getRequiredStructureType());
         state = State.TRAVELING;
         repathTimer = 0;
@@ -71,16 +65,13 @@ public class SmeltBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_SMELT.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        SmelterJob job = getSmelterJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        SmelterJob job = getJob(entity);
         if (job == null || workshopKeyBlock == null) return;
 
         switch (state) {
@@ -90,8 +81,7 @@ public class SmeltBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
     }
 
@@ -141,9 +131,4 @@ public class SmeltBehavior extends Behavior<XoonglinEntity> {
                 .filter(structure -> structure.getStructureTypeId().equals(job.getRequiredStructureType()));
     }
 
-    private SmelterJob getSmelterJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof SmelterJob smelterJob ? smelterJob : null;
-    }
 }

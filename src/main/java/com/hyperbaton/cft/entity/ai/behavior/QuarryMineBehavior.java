@@ -1,10 +1,8 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.QuarryMinerJob;
 import com.hyperbaton.cft.structure.OpenAirPlatformBlockGroup;
 import com.hyperbaton.cft.structure.Structure;
@@ -18,10 +16,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -34,7 +30,6 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,7 +39,7 @@ import java.util.Set;
  * reliably climb ladders): the miner first walks on solid ground to the shaft, then a
  * controlled traversal tracks its own depth and keeps a ladder on every cell it passes.
  */
-public class QuarryMineBehavior extends Behavior<XoonglinEntity> {
+public class QuarryMineBehavior extends JobBehavior<QuarryMinerJob> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -92,8 +87,8 @@ public class QuarryMineBehavior extends Behavior<XoonglinEntity> {
     private int blockCooldown;
     private int navFailures;
 
-    public QuarryMineBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public QuarryMineBehavior() {
+        super(CftMemoryModuleType.MUST_MINE.get(), QuarryMinerJob.class, 2400);
     }
 
     @Override
@@ -124,16 +119,17 @@ public class QuarryMineBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_MINE.get()).isPresent()
-                && !footprint.isEmpty() && ladderColumn != null;
+    protected boolean canKeepWorking(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        return !footprint.isEmpty() && ladderColumn != null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
+    }
+
+    @Override
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         QuarryMinerJob job = getJob(entity);
         if (job == null || footprint.isEmpty() || ladderColumn == null) return;
 
@@ -149,8 +145,7 @@ public class QuarryMineBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
     }
 
@@ -666,11 +661,5 @@ public class QuarryMineBehavior extends Behavior<XoonglinEntity> {
 
     private void approach(XoonglinEntity entity, BlockPos pos) {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
-    }
-
-    private QuarryMinerJob getJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof QuarryMinerJob q ? q : null;
     }
 }

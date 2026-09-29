@@ -1,25 +1,19 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.GathererJob;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.util.JobUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.Map;
 
-public class GatherBlocksBehavior extends Behavior<XoonglinEntity> {
+public class GatherBlocksBehavior extends JobBehavior<GathererJob> {
 
     private static final int REPATH_INTERVAL = 40;
     private static final double BLOCK_REACH = 2.5;
@@ -46,13 +40,13 @@ public class GatherBlocksBehavior extends Behavior<XoonglinEntity> {
     private int repathTimer;
     private int harvestTimer;
 
-    public GatherBlocksBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 1200);
+    public GatherBlocksBehavior() {
+        super(CftMemoryModuleType.MUST_GATHER.get(), GathererJob.class, 1200);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        return getGathererJob(entity) != null && entity.getHome() != null
+        return getJob(entity) != null && entity.getHome() != null
                 && entity.getHome().getEntrance() != null;
     }
 
@@ -65,16 +59,13 @@ public class GatherBlocksBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_GATHER.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        GathererJob job = getGathererJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        GathererJob job = getJob(entity);
         if (job == null) return;
 
         switch (state) {
@@ -208,8 +199,7 @@ public class GatherBlocksBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         targetBlock = null;
     }
@@ -232,9 +222,4 @@ public class GatherBlocksBehavior extends Behavior<XoonglinEntity> {
         }
     }
 
-    private GathererJob getGathererJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof GathererJob g ? g : null;
-    }
 }

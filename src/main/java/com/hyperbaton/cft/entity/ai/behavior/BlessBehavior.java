@@ -1,13 +1,11 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.BlesserJob;
 import com.hyperbaton.cft.job.data.EffectApplication;
 import com.hyperbaton.cft.job.data.ItemQuantity;
-import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
@@ -25,10 +23,8 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
@@ -37,7 +33,6 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -45,7 +40,7 @@ import java.util.UUID;
  * nearest target within the radius of the base missing one of its configured effects,
  * walk to it and bless it on a cooldown, spending one dose of items per blessing.
  */
-public class BlessBehavior extends Behavior<XoonglinEntity> {
+public class BlessBehavior extends JobBehavior<BlesserJob> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -80,13 +75,13 @@ public class BlessBehavior extends Behavior<XoonglinEntity> {
     private int blessCooldown;
     private int navFailures;
 
-    public BlessBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition, 2400);
+    public BlessBehavior() {
+        super(CftMemoryModuleType.MUST_BLESS.get(), BlesserJob.class, 2400);
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, XoonglinEntity entity) {
-        return getBlesserJob(entity) != null;
+        return getJob(entity) != null;
     }
 
     @Override
@@ -102,16 +97,13 @@ public class BlessBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        return entity.getBrain().getMemory(CftMemoryModuleType.MUST_BLESS.get()).isPresent();
+    protected WorkStep workStep() {
+        return state != null ? state.step : null;
     }
 
     @Override
-    protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        if (state != null) {
-            BehaviorUtils.showWorkStep(entity, state.step);
-        }
-        BlesserJob job = getBlesserJob(entity);
+    protected void tickWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BlesserJob job = getJob(entity);
         if (job == null) return;
 
         basePos = computeBase(entity, job);
@@ -136,8 +128,7 @@ public class BlessBehavior extends Behavior<XoonglinEntity> {
     }
 
     @Override
-    protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
-        BehaviorUtils.clearWorkStep(entity);
+    protected void stopWork(ServerLevel level, XoonglinEntity entity, long gameTime) {
         entity.getNavigation().stop();
         targetId = null;
     }
@@ -411,9 +402,4 @@ public class BlessBehavior extends Behavior<XoonglinEntity> {
         entity.getNavigation().moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 1.0);
     }
 
-    private BlesserJob getBlesserJob(XoonglinEntity entity) {
-        if (entity.getJob() == null) return null;
-        Job job = CftRegistry.JOBS.get(entity.getJob());
-        return job instanceof BlesserJob b ? b : null;
-    }
 }

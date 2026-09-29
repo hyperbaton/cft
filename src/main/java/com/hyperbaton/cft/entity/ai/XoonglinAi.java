@@ -78,7 +78,7 @@ public class XoonglinAi {
         initInvestigateActivity(pBrain);
         initMateActivity(pBrain);
         initRestActivity(pBrain);
-        //initWorkActivity(pBrain);
+        initWorkActivity(pBrain);
         pBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         pBrain.setDefaultActivity(Activity.IDLE);
         pBrain.useDefaultActivity();
@@ -108,6 +108,10 @@ public class XoonglinAi {
                         CftMemoryModuleType.CONVERSATION_PARTNER.get(), MemoryStatus.VALUE_ABSENT)))));
     }
 
+    /**
+     * The Xoonglin's own errands, which take it away from work and free time: finding a home,
+     * fetching goods, fluids or energy for its needs, claiming a structure and attending rituals.
+     */
     private static void initInvestigateActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(Activity.INVESTIGATE, ImmutableList.of(
                 Pair.of(0, new FindAndClaimHomeBehavior()),
@@ -120,63 +124,6 @@ public class XoonglinAi {
                 )),
                 Pair.of(1, new GetEnergyBehavior(
                         Map.of(CftMemoryModuleType.ENERGY_CONTAINER.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new MustWorkAtHomeBehavior(
-                        Map.of(CftMemoryModuleType.MUST_WORK_AT_HOME.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new GatherBlocksBehavior(
-                        Map.of(CftMemoryModuleType.MUST_GATHER.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new GuardBehavior(
-                        Map.of(CftMemoryModuleType.MUST_GUARD.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new FarmBehavior(
-                        Map.of(CftMemoryModuleType.MUST_FARM.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new HaulBehavior(
-                        Map.of(CftMemoryModuleType.MUST_HAUL.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new BuildBehavior(
-                        Map.of(CftMemoryModuleType.MUST_BUILD.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new PerformRitualBehavior(
-                        Map.of(CftMemoryModuleType.MUST_PERFORM_RITUAL.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new CraftBehavior(
-                        Map.of(CftMemoryModuleType.MUST_CRAFT.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new SmeltBehavior(
-                        Map.of(CftMemoryModuleType.MUST_SMELT.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new ChopTreesBehavior(
-                        Map.of(CftMemoryModuleType.MUST_CHOP.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new FishBehavior(
-                        Map.of(CftMemoryModuleType.MUST_FISH.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new HealBehavior(
-                        Map.of(CftMemoryModuleType.MUST_HEAL.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new BlessBehavior(
-                        Map.of(CftMemoryModuleType.MUST_BLESS.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new QuarryMineBehavior(
-                        Map.of(CftMemoryModuleType.MUST_MINE.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new EnchantBehavior(
-                        Map.of(CftMemoryModuleType.MUST_ENCHANT.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new RanchBehavior(
-                        Map.of(CftMemoryModuleType.MUST_RANCH.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new WriteBehavior(
-                        Map.of(CftMemoryModuleType.MUST_WRITE.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new ScribeBehavior(
-                        Map.of(CftMemoryModuleType.MUST_SCRIBE.get(), MemoryStatus.VALUE_PRESENT)
-                )),
-                Pair.of(2, new TradeBehavior(
-                        Map.of(CftMemoryModuleType.MUST_TRADE.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(1, new AttendRitualBehavior(
                         Map.of(CftMemoryModuleType.MUST_ATTEND_RITUAL.get(), MemoryStatus.VALUE_PRESENT)
@@ -197,11 +144,28 @@ public class XoonglinAi {
         ));
     }
 
+    /** Its job: each job type has a behavior, triggered by the MUST_* memory its job sets. */
     private static void initWorkActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(Activity.WORK, ImmutableList.of(
-                Pair.of(1, new MustWorkAtHomeBehavior(
-                        Map.of(CftMemoryModuleType.MUST_WORK_AT_HOME.get(), MemoryStatus.VALUE_PRESENT)
-                ))
+                Pair.of(2, new MustWorkAtHomeBehavior()),
+                Pair.of(2, new GatherBlocksBehavior()),
+                Pair.of(2, new GuardBehavior()),
+                Pair.of(2, new FarmBehavior()),
+                Pair.of(2, new HaulBehavior()),
+                Pair.of(2, new BuildBehavior()),
+                Pair.of(2, new PerformRitualBehavior()),
+                Pair.of(2, new CraftBehavior()),
+                Pair.of(2, new SmeltBehavior()),
+                Pair.of(2, new ChopTreesBehavior()),
+                Pair.of(2, new FishBehavior()),
+                Pair.of(2, new HealBehavior()),
+                Pair.of(2, new BlessBehavior()),
+                Pair.of(2, new QuarryMineBehavior()),
+                Pair.of(2, new EnchantBehavior()),
+                Pair.of(2, new RanchBehavior()),
+                Pair.of(2, new WriteBehavior()),
+                Pair.of(2, new ScribeBehavior()),
+                Pair.of(2, new TradeBehavior())
         ));
     }
 }
