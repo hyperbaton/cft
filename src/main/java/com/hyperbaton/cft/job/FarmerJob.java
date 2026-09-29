@@ -7,6 +7,7 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.JobDisplayEntry;
 import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.network.JobStatus;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -142,23 +143,17 @@ public class FarmerJob extends Job {
         boolean canDoWork = canWork(xoonglin);
         boolean doneForDay = state.workedTicksToday >= neededTicks;
 
-        String statusKey;
-        int statusColor;
+        JobStatus status;
         if (structurePos == null) {
-            statusKey = "gui.cft.job_status.no_structure";
-            statusColor = 0xDD4040;
+            status = JobStatus.NO_STRUCTURE;
         } else if (!canDoWork) {
-            statusKey = "gui.cft.job_status.cant_work";
-            statusColor = 0xDD4040;
+            status = JobStatus.CANT_WORK;
         } else if (doneForDay) {
-            statusKey = "gui.cft.job_status.resting";
-            statusColor = 0xDDAA00;
+            status = JobStatus.RESTING;
         } else if (atStructure) {
-            statusKey = "gui.cft.job_status.working";
-            statusColor = 0x40AA40;
+            status = JobStatus.WORKING;
         } else {
-            statusKey = "gui.cft.job_status.traveling";
-            statusColor = 0x4080DD;
+            status = JobStatus.TRAVELING;
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();
@@ -178,7 +173,7 @@ public class FarmerJob extends Job {
                     getIngredientIcon(product), productCount));
         }
 
-        return new JobInfoData(statusKey, statusColor, entries);
+        return new JobInfoData(status, entries);
     }
 
     private int countIngredient(XoonglinEntity xoonglin, Ingredient ingredient) {

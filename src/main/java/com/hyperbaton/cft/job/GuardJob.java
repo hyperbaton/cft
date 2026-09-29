@@ -6,6 +6,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.JobDisplayEntry;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -16,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GuardJob extends Job {
+
+    private static final JobStatus FIGHTING = JobStatus.attention("gui.cft.job_status.fighting");
+    private static final JobStatus PATROLLING = JobStatus.active("gui.cft.job_status.patrolling");
 
     public static final Codec<GuardJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
@@ -98,30 +102,24 @@ public class GuardJob extends Job {
         boolean doneForDay = state.workedTicksToday >= neededTicks;
         boolean fighting = xoonglin.getTarget() != null && xoonglin.getTarget().isAlive();
 
-        String statusKey;
-        int statusColor;
+        JobStatus status;
         if (!canDoWork) {
-            statusKey = "gui.cft.job_status.cant_work";
-            statusColor = 0xDD4040;
+            status = JobStatus.CANT_WORK;
         } else if (doneForDay) {
-            statusKey = "gui.cft.job_status.resting";
-            statusColor = 0xDDAA00;
+            status = JobStatus.RESTING;
         } else if (fighting) {
-            statusKey = "gui.cft.job_status.fighting";
-            statusColor = 0xDD4040;
+            status = FIGHTING;
         } else if (nearHome) {
-            statusKey = "gui.cft.job_status.patrolling";
-            statusColor = 0x40AA40;
+            status = PATROLLING;
         } else {
-            statusKey = "gui.cft.job_status.traveling";
-            statusColor = 0x4080DD;
+            status = JobStatus.TRAVELING;
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();
         entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks,
                 JobUtil.formatWorkTime(state.workedTicksToday, hoursPerDay)));
 
-        return new JobInfoData(statusKey, statusColor, entries);
+        return new JobInfoData(status, entries);
     }
 
     @Override

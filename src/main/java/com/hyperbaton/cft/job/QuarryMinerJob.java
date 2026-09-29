@@ -5,6 +5,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.JobDisplayEntry;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -25,6 +26,9 @@ import java.util.List;
  * down to a maximum depth. Ladders are taken from the quarry's container.
  */
 public class QuarryMinerJob extends Job {
+
+    private static final JobStatus QUARRY_FLOODED = JobStatus.attention("gui.cft.job_status.quarry_flooded");
+    private static final JobStatus NEEDS_LADDERS = JobStatus.attention("gui.cft.job_status.needs_ladders");
 
     public static final Codec<QuarryMinerJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
@@ -143,26 +147,19 @@ public class QuarryMinerJob extends Job {
         boolean flooded = xoonglin.getBrain().hasMemoryValue(CftMemoryModuleType.QUARRY_FLOODED.get());
         boolean needsLadders = xoonglin.getBrain().hasMemoryValue(CftMemoryModuleType.QUARRY_NEEDS_LADDERS.get());
 
-        String statusKey;
-        int statusColor;
+        JobStatus status;
         if (needsStructure) {
-            statusKey = "gui.cft.job_status.no_structure";
-            statusColor = 0xDD4040;
+            status = JobStatus.NO_STRUCTURE;
         } else if (flooded) {
-            statusKey = "gui.cft.job_status.quarry_flooded";
-            statusColor = 0xDD4040;
+            status = QUARRY_FLOODED;
         } else if (needsLadders) {
-            statusKey = "gui.cft.job_status.needs_ladders";
-            statusColor = 0xDD4040;
+            status = NEEDS_LADDERS;
         } else if (!canDoWork) {
-            statusKey = "gui.cft.job_status.cant_work";
-            statusColor = 0xDD4040;
+            status = JobStatus.CANT_WORK;
         } else if (doneForDay) {
-            statusKey = "gui.cft.job_status.resting";
-            statusColor = 0xDDAA00;
+            status = JobStatus.RESTING;
         } else {
-            statusKey = "gui.cft.job_status.working";
-            statusColor = 0x40AA40;
+            status = JobStatus.WORKING;
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();
@@ -171,7 +168,7 @@ public class QuarryMinerJob extends Job {
         entries.add(JobDisplayEntry.item("gui.cft.job_ladders",
                 BuiltInRegistries.ITEM.getKey(Items.LADDER), countLadders(xoonglin)));
 
-        return new JobInfoData(statusKey, statusColor, entries);
+        return new JobInfoData(status, entries);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.hyperbaton.cft.job;
+package com.hyperbaton.cft.job.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

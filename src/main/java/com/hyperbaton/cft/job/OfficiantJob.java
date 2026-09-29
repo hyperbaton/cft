@@ -5,8 +5,11 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.JobDisplayEntry;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.ritual.Ritual;
 import com.hyperbaton.cft.world.RitualsData;
+import com.hyperbaton.cft.job.data.AttendanceRule;
+import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.server.level.ServerLevel;
@@ -23,6 +26,9 @@ import java.util.Optional;
  * attendance rules are met and satisfies nearby xoonglins' ritual needs on completion.
  */
 public class OfficiantJob extends Job {
+
+    private static final JobStatus PERFORMING_RITUAL = JobStatus.active("gui.cft.job_status.performing_ritual");
+    private static final JobStatus GATHERING_ATTENDEES = JobStatus.active("gui.cft.job_status.gathering_attendees");
 
     public static final Codec<OfficiantJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.STRING.fieldOf("ritual_id").forGetter(OfficiantJob::getRitualId),
@@ -165,26 +171,19 @@ public class OfficiantJob extends Job {
             activeRitual = data.findByOfficiant(xoonglin.getUUID());
         }
 
-        String statusKey;
-        int statusColor;
+        JobStatus status;
         if (needsStructure) {
-            statusKey = "gui.cft.job_status.no_structure";
-            statusColor = 0xDD4040;
+            status = JobStatus.NO_STRUCTURE;
         } else if (!canDoWork) {
-            statusKey = "gui.cft.job_status.cant_work";
-            statusColor = 0xDD4040;
+            status = JobStatus.CANT_WORK;
         } else if (activeRitual.isPresent() && activeRitual.get().getState() == Ritual.State.IN_PROGRESS) {
-            statusKey = "gui.cft.job_status.performing_ritual";
-            statusColor = 0x40AA40;
+            status = PERFORMING_RITUAL;
         } else if (activeRitual.isPresent()) {
-            statusKey = "gui.cft.job_status.gathering_attendees";
-            statusColor = 0x40AA40;
+            status = GATHERING_ATTENDEES;
         } else if (isRitualDue(level, state)) {
-            statusKey = "gui.cft.job_status.working";
-            statusColor = 0x40AA40;
+            status = JobStatus.WORKING;
         } else {
-            statusKey = "gui.cft.job_status.resting";
-            statusColor = 0xDDAA00;
+            status = JobStatus.RESTING;
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();
@@ -203,7 +202,7 @@ public class OfficiantJob extends Job {
                     String.valueOf(ritual.getAttendees().size()), 0xFFFFFF));
         }
 
-        return new JobInfoData(statusKey, statusColor, entries);
+        return new JobInfoData(status, entries);
     }
 
     @Override

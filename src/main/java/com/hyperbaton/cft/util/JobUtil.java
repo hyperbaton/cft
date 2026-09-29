@@ -5,6 +5,7 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.network.InventorySlotData;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
 import net.minecraft.world.entity.ai.Brain;
@@ -29,13 +30,6 @@ public final class JobUtil {
     private JobUtil() {}
 
     public static final int TICKS_PER_MC_HOUR = 1000;
-    private static final String SLEEPING_STATUS_KEY = "gui.cft.job_status.sleeping";
-    private static final String AT_HOME_STATUS_KEY = "gui.cft.job_status.at_home";
-    private static final String FREE_TIME_STATUS_KEY = "gui.cft.job_status.free_time";
-    private static final String VISITING_STATUS_KEY = "gui.cft.job_status.visiting";
-    private static final String CHATTING_STATUS_KEY = "gui.cft.job_status.chatting";
-    private static final int SLEEPING_STATUS_COLOR = 0x6060C0;
-    private static final int OFF_DUTY_STATUS_COLOR = 0x808080;
 
     public static String formatWorkTime(int workedTicks, double hoursPerDay) {
         int workedHours = workedTicks / TICKS_PER_MC_HOUR;
@@ -52,24 +46,24 @@ public final class JobUtil {
         if (info == null) return null;
         // Outside working time, the job's own status would describe work that isn't happening
         if (xoonglin.isSleeping()) {
-            return new JobInfoData(SLEEPING_STATUS_KEY, SLEEPING_STATUS_COLOR, info.entries());
+            return new JobInfoData(JobStatus.SLEEPING, info.entries());
         }
         if (ScheduleUtils.isOffDuty(xoonglin)) {
-            String statusKey = xoonglin.getBrain().isActive(Activity.REST) ? AT_HOME_STATUS_KEY : freeTimeStatusKey(xoonglin);
-            return new JobInfoData(statusKey, OFF_DUTY_STATUS_COLOR, info.entries());
+            JobStatus status = xoonglin.getBrain().isActive(Activity.REST) ? JobStatus.AT_HOME : freeTimeStatus(xoonglin);
+            return new JobInfoData(status, info.entries());
         }
         return info;
     }
 
-    private static String freeTimeStatusKey(XoonglinEntity xoonglin) {
+    private static JobStatus freeTimeStatus(XoonglinEntity xoonglin) {
         Brain<XoonglinEntity> brain = xoonglin.getBrain();
         if (brain.hasMemoryValue(CftMemoryModuleType.CONVERSATION_PARTNER.get())) {
-            return CHATTING_STATUS_KEY;
+            return JobStatus.CHATTING;
         }
         if (brain.hasMemoryValue(CftMemoryModuleType.VISITING.get()) || brain.hasMemoryValue(CftMemoryModuleType.MUST_VISIT.get())) {
-            return VISITING_STATUS_KEY;
+            return JobStatus.VISITING;
         }
-        return FREE_TIME_STATUS_KEY;
+        return JobStatus.FREE_TIME;
     }
 
     public static List<InventorySlotData> buildInventoryData(XoonglinEntity xoonglin) {

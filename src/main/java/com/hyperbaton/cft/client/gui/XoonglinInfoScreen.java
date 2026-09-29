@@ -224,8 +224,8 @@ public class XoonglinInfoScreen extends Screen {
             contentY += 14;
         }
 
-        String statusText = Component.translatable(jobInfo.statusKey()).getString();
-        graphics.drawString(this.font, statusText, x + MARGIN_PIXELS, contentY, jobInfo.statusColor(), false);
+        String statusText = Component.translatable(jobInfo.status().key()).getString();
+        graphics.drawString(this.font, statusText, x + MARGIN_PIXELS, contentY, jobInfo.status().color(), false);
         contentY += 16;
 
         for (JobDisplayEntry entry : jobInfo.entries()) {

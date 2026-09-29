@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.util;
 
-import com.hyperbaton.cft.job.TextBank;
+import com.hyperbaton.cft.job.data.TextBank;
 import net.minecraft.util.RandomSource;
 
 import java.util.ArrayList;

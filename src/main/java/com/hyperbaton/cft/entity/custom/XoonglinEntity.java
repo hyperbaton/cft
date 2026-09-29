@@ -100,7 +100,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private UUID leaderId;
     private final SimpleContainer inventory = new SimpleContainer(27);
-    private final List<com.hyperbaton.cft.job.TradeOffer> tradeOffers = new ArrayList<>();
+    private final List<com.hyperbaton.cft.job.data.TradeOffer> tradeOffers = new ArrayList<>();
 
     private HouseStructure home;
 
@@ -781,13 +781,13 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     public JobState getJobState() { return jobState; }
 
-    public List<com.hyperbaton.cft.job.TradeOffer> getTradeOffers() {
+    public List<com.hyperbaton.cft.job.data.TradeOffer> getTradeOffers() {
         return tradeOffers;
     }
 
-    public void setTradeOffer(int index, com.hyperbaton.cft.job.TradeOffer offer) {
+    public void setTradeOffer(int index, com.hyperbaton.cft.job.data.TradeOffer offer) {
         while (tradeOffers.size() <= index) {
-            tradeOffers.add(com.hyperbaton.cft.job.TradeOffer.EMPTY);
+            tradeOffers.add(com.hyperbaton.cft.job.data.TradeOffer.EMPTY);
         }
         tradeOffers.set(index, offer);
     }
@@ -838,7 +838,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
         if (!tradeOffers.isEmpty()) {
             ListTag tradeOffersTag = new ListTag();
-            for (com.hyperbaton.cft.job.TradeOffer offer : tradeOffers) {
+            for (com.hyperbaton.cft.job.data.TradeOffer offer : tradeOffers) {
                 tradeOffersTag.add(offer.toTag(this.registryAccess()));
             }
             tag.put(KEY_TRADE_OFFERS, tradeOffersTag);
@@ -894,7 +894,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (tag.contains(KEY_TRADE_OFFERS)) {
             tradeOffers.clear();
             for (Tag offerTag : tag.getList(KEY_TRADE_OFFERS, Tag.TAG_COMPOUND)) {
-                tradeOffers.add(com.hyperbaton.cft.job.TradeOffer.fromTag((CompoundTag) offerTag, this.registryAccess()));
+                tradeOffers.add(com.hyperbaton.cft.job.data.TradeOffer.fromTag((CompoundTag) offerTag, this.registryAccess()));
             }
         }
     }

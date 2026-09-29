@@ -4,7 +4,7 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.job.HaulerErrand;
+import com.hyperbaton.cft.job.data.HaulerErrand;
 import com.hyperbaton.cft.job.HaulerJob;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;

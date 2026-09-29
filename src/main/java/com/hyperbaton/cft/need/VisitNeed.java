@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.need;
 
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.job.ItemQuantity;
+import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.VisitNeedSatisfier;
 import com.mojang.serialization.Codec;

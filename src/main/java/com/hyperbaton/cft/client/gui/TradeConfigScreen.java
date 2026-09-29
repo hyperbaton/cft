@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.client.gui;
 
 import com.hyperbaton.cft.CftMod;
-import com.hyperbaton.cft.job.TradeOffer;
+import com.hyperbaton.cft.job.data.TradeOffer;
 import com.hyperbaton.cft.menu.TradeConfigMenu;
 import com.hyperbaton.cft.network.TradeBoxClickPacket;
 import net.minecraft.client.Minecraft;

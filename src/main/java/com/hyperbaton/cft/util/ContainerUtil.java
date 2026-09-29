@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.util;
 
-import com.hyperbaton.cft.job.ItemQuantity;
+import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.hyperbaton.cft.structure.Structure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;

@@ -2,7 +2,7 @@ package com.hyperbaton.cft.network;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.job.TradeOffer;
+import com.hyperbaton.cft.job.data.TradeOffer;
 import com.hyperbaton.cft.menu.TradeConfigMenu;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;

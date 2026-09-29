@@ -4,7 +4,7 @@ import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.TraderJob;
-import com.hyperbaton.cft.job.TradeOffer;
+import com.hyperbaton.cft.job.data.TradeOffer;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;

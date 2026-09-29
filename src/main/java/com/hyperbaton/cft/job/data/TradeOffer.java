@@ -1,4 +1,4 @@
-package com.hyperbaton.cft.job;
+package com.hyperbaton.cft.job.data;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

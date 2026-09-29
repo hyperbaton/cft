@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.menu;
 
-import com.hyperbaton.cft.job.TradeOffer;
+import com.hyperbaton.cft.job.data.TradeOffer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

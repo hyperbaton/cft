@@ -5,7 +5,7 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.EnchanterJob;
-import com.hyperbaton.cft.job.EnchantmentOption;
+import com.hyperbaton.cft.job.data.EnchantmentOption;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.ContainerUtil;

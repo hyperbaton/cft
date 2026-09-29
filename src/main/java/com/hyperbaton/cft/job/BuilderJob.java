@@ -5,6 +5,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.JobDisplayEntry;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -127,20 +128,15 @@ public class BuilderJob extends Job {
         boolean needsStructure = !requiredStructure.isEmpty()
                 && xoonglin.getAssignedStructurePos(requiredStructure) == null;
 
-        String statusKey;
-        int statusColor;
+        JobStatus status;
         if (needsStructure) {
-            statusKey = "gui.cft.job_status.no_structure";
-            statusColor = 0xDD4040;
+            status = JobStatus.NO_STRUCTURE;
         } else if (!canDoWork) {
-            statusKey = "gui.cft.job_status.cant_work";
-            statusColor = 0xDD4040;
+            status = JobStatus.CANT_WORK;
         } else if (doneForDay) {
-            statusKey = "gui.cft.job_status.resting";
-            statusColor = 0xDDAA00;
+            status = JobStatus.RESTING;
         } else {
-            statusKey = "gui.cft.job_status.working";
-            statusColor = 0x40AA40;
+            status = JobStatus.WORKING;
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();
@@ -157,7 +153,7 @@ public class BuilderJob extends Job {
             entries.add(JobDisplayEntry.progress("gui.cft.job_carrying_blocks", totalCarried, 0));
         }
 
-        return new JobInfoData(statusKey, statusColor, entries);
+        return new JobInfoData(status, entries);
     }
 
     @Override

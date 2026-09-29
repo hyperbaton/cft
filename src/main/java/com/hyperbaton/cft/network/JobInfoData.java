@@ -7,11 +7,11 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-public record JobInfoData(String statusKey, int statusColor, List<JobDisplayEntry> entries) {
+public record JobInfoData(JobStatus status, List<JobDisplayEntry> entries) {
 
     public static void encode(ByteBuf buf, JobInfoData data) {
-        ByteBufCodecs.STRING_UTF8.encode(buf, data.statusKey);
-        buf.writeInt(data.statusColor);
+        ByteBufCodecs.STRING_UTF8.encode(buf, data.status.key());
+        buf.writeInt(data.status.color());
         ByteBufCodecs.VAR_INT.encode(buf, data.entries.size());
         for (JobDisplayEntry entry : data.entries) {
             buf.writeByte(entry.type());
@@ -64,6 +64,6 @@ public record JobInfoData(String statusKey, int statusColor, List<JobDisplayEntr
                 }
             }
         }
-        return new JobInfoData(statusKey, statusColor, entries);
+        return new JobInfoData(new JobStatus(statusKey, statusColor), entries);
     }
 }

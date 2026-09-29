@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.client.gui;
 
-import com.hyperbaton.cft.job.TradeOffer;
+import com.hyperbaton.cft.job.data.TradeOffer;
 import com.hyperbaton.cft.menu.TradeConfigMenu;
 import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
