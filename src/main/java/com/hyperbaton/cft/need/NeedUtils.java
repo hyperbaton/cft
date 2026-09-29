@@ -1,6 +1,11 @@
 package com.hyperbaton.cft.need;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.world.StructuresData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.ReadingNeedSatisfier;
@@ -13,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class NeedUtils {
@@ -38,6 +44,32 @@ public class NeedUtils {
             ));
         }
         return result;
+    }
+
+    /**
+     * Where a Xoonglin can take supplies from for its goods, fluid and energy needs: its home
+     * and, while it's visiting a structure that one of its visit needs lets it use
+     * (use_supplies), that structure, which comes first.
+     */
+    public static List<BlockPos> supplySourcePositions(XoonglinEntity xoonglin) {
+        List<BlockPos> positions = new ArrayList<>();
+        visitedStructureWithSupplies(xoonglin).ifPresent(structure -> positions.addAll(structure.getAllBlockPositions()));
+        if (xoonglin.getHome() != null) {
+            positions.addAll(xoonglin.getHome().getInteriorBlocks());
+        }
+        return positions;
+    }
+
+    private static Optional<Structure> visitedStructureWithSupplies(XoonglinEntity xoonglin) {
+        if (!(xoonglin.level() instanceof ServerLevel level) || xoonglin.getNeeds() == null) return Optional.empty();
+        return xoonglin.getBrain().getMemory(CftMemoryModuleType.VISITING.get())
+                .flatMap(keyPos -> level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData")
+                        .findByKeyBlock(keyPos))
+                .filter(structure -> xoonglin.getNeeds().stream()
+                        .map(NeedSatisfier::getNeed)
+                        .anyMatch(need -> need instanceof VisitNeed visitNeed
+                                && visitNeed.isUseSupplies()
+                                && visitNeed.getRequiredStructure().equals(structure.getStructureTypeId())));
     }
 
     public static List<NeedSatisfier<? extends Need>> getNeedsForClass(SocialClass socialClass) {

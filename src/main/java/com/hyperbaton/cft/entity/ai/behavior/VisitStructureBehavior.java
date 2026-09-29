@@ -94,9 +94,6 @@ public class VisitStructureBehavior extends Behavior<XoonglinEntity> {
     }
 
     private static Optional<Structure> findStructure(ServerLevel level, BlockPos keyPos) {
-        StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
-        return data.getStructures().stream()
-                .filter(structure -> structure.getKeyBlockPos().equals(keyPos))
-                .findFirst();
+        return level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData").findByKeyBlock(keyPos);
     }
 }

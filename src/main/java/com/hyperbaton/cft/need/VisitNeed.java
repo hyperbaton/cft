@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.need;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.job.ItemQuantity;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.VisitNeedSatisfier;
 import com.mojang.serialization.Codec;
@@ -29,20 +30,27 @@ public class VisitNeed extends Need {
             Codec.STRING.fieldOf("required_structure").forGetter(VisitNeed::getRequiredStructure),
             Codec.INT.optionalFieldOf("search_radius", 64).forGetter(VisitNeed::getSearchRadius),
             Codec.INT.optionalFieldOf("stay_duration", 1200).forGetter(VisitNeed::getStayDuration),
+            ItemQuantity.CODEC.listOf().optionalFieldOf("consumes", List.of()).forGetter(VisitNeed::getConsumes),
+            Codec.BOOL.optionalFieldOf("use_supplies", false).forGetter(VisitNeed::isUseSupplies),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(VisitNeed::getIcon)
     ).apply(instance, VisitNeed::new));
 
     private final String requiredStructure;
     private final int searchRadius;
     private final int stayDuration;
+    private final List<ItemQuantity> consumes;
+    private final boolean useSupplies;
 
     public VisitNeed(String id, double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                     String requiredStructure, int searchRadius, int stayDuration, Optional<ResourceLocation> icon) {
+                     String requiredStructure, int searchRadius, int stayDuration, List<ItemQuantity> consumes,
+                     boolean useSupplies, Optional<ResourceLocation> icon) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.requiredStructure = requiredStructure;
         this.searchRadius = searchRadius;
         this.stayDuration = stayDuration;
+        this.consumes = List.copyOf(consumes);
+        this.useSupplies = useSupplies;
     }
 
     @Override
@@ -78,5 +86,21 @@ public class VisitNeed extends Need {
     /** How long, in ticks, the Xoonglin stays at the structure once it arrives. */
     public int getStayDuration() {
         return stayDuration;
+    }
+
+    /**
+     * Goods taken from the structure's containers on arrival, like a drink at the tavern. Only
+     * structures that hold all of them are visited.
+     */
+    public List<ItemQuantity> getConsumes() {
+        return consumes;
+    }
+
+    /**
+     * Whether, while visiting, the Xoonglin can use the structure's containers to satisfy its
+     * goods, fluid and energy needs, as it does with the ones in its home.
+     */
+    public boolean isUseSupplies() {
+        return useSupplies;
     }
 }

@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.world;
 
 import com.hyperbaton.cft.structure.Structure;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -10,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class StructuresData extends SavedData {
     private static final String TAG_STRUCTURES = "structures";
@@ -45,6 +47,13 @@ public class StructuresData extends SavedData {
 
     public List<Structure> getStructures() {
         return structures;
+    }
+
+    /** The registered structure whose key block is at the given position, if any. */
+    public Optional<Structure> findByKeyBlock(BlockPos keyBlockPos) {
+        return structures.stream()
+                .filter(structure -> structure.getKeyBlockPos().equals(keyBlockPos))
+                .findFirst();
     }
 
     public void addStructure(Structure structure) {

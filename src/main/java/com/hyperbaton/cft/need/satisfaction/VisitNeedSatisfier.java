@@ -4,6 +4,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.VisitNeed;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -13,9 +14,9 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Satisfied as soon as the Xoonglin is at a structure of the required type. Until then, the
- * MUST_VISIT memory sends it to the nearest one; once there, the VISITING memory keeps it
- * around for the stay duration.
+ * Satisfied as soon as the Xoonglin is at a structure of the required type, taking the goods the
+ * visit consumes from its containers. Until then, the MUST_VISIT memory sends it to the nearest
+ * one; once there, the VISITING memory keeps it around for the stay duration.
  */
 public class VisitNeedSatisfier extends NeedSatisfier<VisitNeed> {
 
@@ -33,6 +34,10 @@ public class VisitNeedSatisfier extends NeedSatisfier<VisitNeed> {
                 .filter(structure -> isAt(mob, structure))
                 .findFirst();
         if (visited.isPresent()) {
+            if (!need.getConsumes().isEmpty()) {
+                ContainerUtil.consumeIngredients(ContainerUtil.findContainers((ServerLevel) mob.level(), visited.get()),
+                        need.getConsumes());
+            }
             super.satisfy(mob);
             mob.getBrain().eraseMemory(CftMemoryModuleType.MUST_VISIT.get());
             mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.VISITING.get(),
@@ -56,7 +61,10 @@ public class VisitNeedSatisfier extends NeedSatisfier<VisitNeed> {
                         () -> mob.getBrain().eraseMemory(CftMemoryModuleType.MUST_VISIT.get()));
     }
 
-    /** Structures of the required type, of the Xoonglin's leader, within reach of its home. */
+    /**
+     * Structures of the required type, of the Xoonglin's leader, within reach of its home and
+     * holding the goods the visit consumes, if any.
+     */
     private Stream<Structure> candidateStructures(XoonglinEntity mob) {
         ServerLevel level = (ServerLevel) mob.level();
         StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
@@ -64,7 +72,9 @@ public class VisitNeedSatisfier extends NeedSatisfier<VisitNeed> {
         return data.getStructures().stream()
                 .filter(structure -> structure.getStructureTypeId().equals(need.getRequiredStructure()))
                 .filter(structure -> structure.getLeaderId().equals(mob.getLeaderId()))
-                .filter(structure -> structure.getKeyBlockPos().distManhattan(homePos) <= need.getSearchRadius());
+                .filter(structure -> structure.getKeyBlockPos().distManhattan(homePos) <= need.getSearchRadius())
+                .filter(structure -> need.getConsumes().isEmpty()
+                        || ContainerUtil.hasAllIngredients(ContainerUtil.findContainers(level, structure), need.getConsumes()));
     }
 
     /** Inside the structure, or right next to it (e.g. standing on a plaza). */

@@ -4,6 +4,7 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.EnergyNeed;
+import com.hyperbaton.cft.need.NeedUtils;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -102,22 +103,21 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
     private Optional<BlockPos> findEnergyContainer(XoonglinEntity mob, int requiredEnergy) {
         LOGGER.trace("Searching for energy container for Xoonglin {} that can provide {} energy",
                 mob.getCustomName().getString(), requiredEnergy);
-        return Optional.ofNullable(mob.getHome())
-                .flatMap(home -> home.getInteriorBlocks().stream()
-                        .filter(pos -> {
-                            IEnergyStorage handler = getEnergyHandlerAt((ServerLevel) mob.level(), pos);
-                            if (handler == null) {
-                                LOGGER.trace("No energy handler found at {}", pos);
-                                return false;
-                            }
+        return NeedUtils.supplySourcePositions(mob).stream()
+                .filter(pos -> {
+                    IEnergyStorage handler = getEnergyHandlerAt((ServerLevel) mob.level(), pos);
+                    if (handler == null) {
+                        LOGGER.trace("No energy handler found at {}", pos);
+                        return false;
+                    }
 
-                            LOGGER.trace("Found energy handler at {}: stored={}, maxExtract={}, canExtract={}",
-                                    pos, handler.getEnergyStored(), handler.extractEnergy(requiredEnergy, true),
-                                    handler.canExtract());
+                    LOGGER.trace("Found energy handler at {}: stored={}, maxExtract={}, canExtract={}",
+                            pos, handler.getEnergyStored(), handler.extractEnergy(requiredEnergy, true),
+                            handler.canExtract());
 
-                            return handler.canExtract() && handler.extractEnergy(requiredEnergy, true) >= requiredEnergy;
-                        })
-                        .findFirst());
+                    return handler.canExtract() && handler.extractEnergy(requiredEnergy, true) >= requiredEnergy;
+                })
+                .findFirst();
     }
 
     private IEnergyStorage getEnergyHandlerAt(ServerLevel level, BlockPos pos) {

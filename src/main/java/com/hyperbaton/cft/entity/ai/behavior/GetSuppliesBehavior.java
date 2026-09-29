@@ -69,16 +69,18 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
             return;
         }
 
-        retrieveSupplies(mob, container, neededSupplies.get());
+        // Xoonglins only stock up from their own home; elsewhere they take just what they need right now
+        boolean atHome = mob.getHome() != null && mob.getHome().getInteriorBlocks().contains(containerPos.get());
+        retrieveSupplies(mob, container, neededSupplies.get(), atHome);
 
         mob.getBrain().eraseMemory(CftMemoryModuleType.SUPPLIES_NEEDED.get());
         mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.SUPPLY_COOLDOWN.get(), true, CftConfig.SUPPLY_COOLDOWN.get());
     }
 
-    private void retrieveSupplies(XoonglinEntity mob, Container container, List<Ingredient> neededSupplies) {
+    private void retrieveSupplies(XoonglinEntity mob, Container container, List<Ingredient> neededSupplies, boolean atHome) {
         for (Ingredient ingredient : neededSupplies) {
-            int neededAmount = getNeededQuantity(mob, ingredient);
+            int neededAmount = getNeededQuantity(mob, ingredient, atHome);
             if (neededAmount <= 0) continue;
 
             for (int i = 0; i < container.getContainerSize() && neededAmount > 0; i++) {
@@ -94,18 +96,18 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
         }
     }
 
-    private int getNeededQuantity(XoonglinEntity mob, Ingredient ingredient) {
-        int hoarding = findHoardingAmount(mob, ingredient);
+    private int getNeededQuantity(XoonglinEntity mob, Ingredient ingredient, boolean atHome) {
+        int hoarding = findHoardingAmount(mob, ingredient, atHome);
         int currentCount = countInInventory(mob, ingredient);
         return Math.max(hoarding - currentCount, 0);
     }
 
-    private int findHoardingAmount(XoonglinEntity mob, Ingredient ingredient) {
+    private int findHoardingAmount(XoonglinEntity mob, Ingredient ingredient, boolean atHome) {
         if (mob.getNeeds() == null) return 1;
         for (NeedSatisfier<?> satisfier : mob.getNeeds()) {
             if (satisfier.getNeed() instanceof GoodsNeed goodsNeed
                     && goodsNeed.getIngredient().equals(ingredient)) {
-                return goodsNeed.getHoarding();
+                return atHome ? goodsNeed.getHoarding() : goodsNeed.getQuantity();
             }
         }
         return 1;

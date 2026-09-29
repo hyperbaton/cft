@@ -3,6 +3,7 @@ package com.hyperbaton.cft.need.satisfaction;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.GoodsNeed;
+import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.need.Need;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -58,18 +59,17 @@ public class ConsumeItemNeedSatisfier extends NeedSatisfier<GoodsNeed> {
     }
 
     private Optional<BlockPos> findContainerWithSupplies(XoonglinEntity mob, Ingredient ingredient) {
-        return Optional.ofNullable(mob.getHome())
-                .flatMap(home -> home.getInteriorBlocks().stream()
-                        .filter(pos -> {
-                            if (!(mob.level().getBlockEntity(pos) instanceof Container container)) return false;
-                            for (int i = 0; i < container.getContainerSize(); i++) {
-                                if (ingredient.test(container.getItem(i)) && !container.getItem(i).isEmpty()) {
-                                    return true;
-                                }
-                            }
-                            return false;
-                        })
-                        .findFirst());
+        return NeedUtils.supplySourcePositions(mob).stream()
+                .filter(pos -> {
+                    if (!(mob.level().getBlockEntity(pos) instanceof Container container)) return false;
+                    for (int i = 0; i < container.getContainerSize(); i++) {
+                        if (ingredient.test(container.getItem(i)) && !container.getItem(i).isEmpty()) {
+                            return true;
+                        }
+                    }
+                    return false;
+                })
+                .findFirst();
     }
 
     public static NeedSatisfier<GoodsNeed> fromTag(CompoundTag tag) {

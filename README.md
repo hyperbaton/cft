@@ -709,6 +709,39 @@ For the common fields, look at the goods need example.
   can be (Manhattan distance).
 - `stay_duration`: _(Optional, default: 1200)_ How long the Xoonglin stays once it arrives, in
   ticks (20 ticks = 1 second).
+- `consumes`: _(Optional)_ A list of goods taken from the structure's containers when the
+  Xoonglin arrives, like a drink at the tavern, in the same format as job inputs
+  (`{"item": ..., "quantity": ...}`). Only structures holding all of them are visited, so a
+  tavern that runs out stops attracting visitors until it's restocked.
+- `use_supplies`: _(Optional, default: false)_ If true, while the Xoonglin is visiting, it can
+  satisfy its goods, fluid and energy needs from the structure's containers, just as it does
+  with the ones in its home (and preferring the structure's). From there it only takes what
+  it needs right now: `hoarding` only applies to its home. Leave it off for structures whose
+  containers hold goods for other purposes, like a job's inputs or a ritual's ingredients.
+</details>
+
+<details>
+    <summary>Sample tavern visit need</summary>
+
+The mod ships this need together with a sample `cft:tavern` structure: an enclosed wooden
+building whose key block is a barrel, which can also hold the tavern's stock.
+
+```json
+{
+  "type": "cft:visit",
+  "id": "cft:tavern_visit_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 6.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 1.0,
+  "required_structure": "cft:tavern",
+  "consumes": [
+    { "item": { "item": "minecraft:honey_bottle" }, "quantity": 1 }
+  ],
+  "use_supplies": true
+}
+```
 </details>
 
 #### Socialize Need

@@ -256,7 +256,19 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         Brain<XoonglinEntity> brain = this.getBrain();
         return brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get());
+                || brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get())
+                || hasFluidOrEnergyToFetch();
+    }
+
+    /**
+     * Whether a fluid or energy need found a container to draw from
+     */
+    private boolean hasFluidOrEnergyToFetch() {
+        Brain<XoonglinEntity> brain = this.getBrain();
+        return (brain.hasMemoryValue(CftMemoryModuleType.FLUID_CONTAINER.get())
+                && !brain.hasMemoryValue(CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get()))
+                || (brain.hasMemoryValue(CftMemoryModuleType.ENERGY_CONTAINER.get())
+                && !brain.hasMemoryValue(CftMemoryModuleType.ENERGY_SUPPLY_COOLDOWN.get()));
     }
 
     /** At home during the rest time of its schedule, or whenever it's time to go to bed. */
