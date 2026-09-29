@@ -1,11 +1,19 @@
 package com.hyperbaton.cft.network;
 
+import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.Nullable;
+
 /**
  * What a Xoonglin is doing at its job, as shown in the job tab: a translation key and a color that
- * tells at a glance how things are going. Jobs use the shared statuses below, or define their own
- * with the factory for the kind of status it is.
+ * tells at a glance how things are going, plus an optional detail line (e.g. why it can't work, or
+ * the step of its work it's on). Jobs use the shared statuses below, or define their own with the
+ * factory for the kind of status it is.
  */
-public record JobStatus(String key, int color) {
+public record JobStatus(String key, int color, @Nullable Component detail) {
+
+    public JobStatus(String key, int color) {
+        this(key, color, null);
+    }
 
     /** Something keeps it from working, or needs the player's attention. */
     public static final int ATTENTION_COLOR = 0xDD4040;
@@ -31,6 +39,11 @@ public record JobStatus(String key, int color) {
     public static final JobStatus FREE_TIME = offDuty("gui.cft.job_status.free_time");
     public static final JobStatus VISITING = offDuty("gui.cft.job_status.visiting");
     public static final JobStatus CHATTING = offDuty("gui.cft.job_status.chatting");
+
+    /** The same status with a detail line under it; null for none. */
+    public JobStatus withDetail(@Nullable Component detail) {
+        return new JobStatus(key, color, detail);
+    }
 
     /** A status for something that keeps it from working or needs the player's attention. */
     public static JobStatus attention(String key) {

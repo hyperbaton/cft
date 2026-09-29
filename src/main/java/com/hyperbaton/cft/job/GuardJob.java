@@ -104,7 +104,7 @@ public class GuardJob extends Job {
 
         JobStatus status;
         if (!canDoWork) {
-            status = JobStatus.CANT_WORK;
+            status = cantWorkStatus(xoonglin);
         } else if (doneForDay) {
             status = JobStatus.RESTING;
         } else if (fighting) {

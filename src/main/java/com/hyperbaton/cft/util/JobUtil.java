@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -53,6 +54,13 @@ public final class JobUtil {
             return new JobInfoData(status, info.entries());
         }
         return info;
+    }
+
+    /** {@link JobStatus#WORKING}, with the step of its work it's on if its behavior shows one. */
+    public static JobStatus workingStatus(XoonglinEntity xoonglin) {
+        return JobStatus.WORKING.withDetail(xoonglin.getBrain().getMemory(CftMemoryModuleType.WORK_STEP.get())
+                .map(step -> (Component) Component.translatable(step.key()))
+                .orElse(null));
     }
 
     private static JobStatus freeTimeStatus(XoonglinEntity xoonglin) {

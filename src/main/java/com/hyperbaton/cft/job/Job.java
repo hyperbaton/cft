@@ -4,11 +4,13 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.network.JobInfoData;
+import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.entity.ai.schedule.ScheduleDefinition;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 import java.util.Optional;
@@ -85,20 +87,55 @@ public abstract class Job {
     }
 
     public boolean canWork(XoonglinEntity xoonglin) {
-        if (!xoonglin.allDamagingNeedsSatisfied()) return false;
+        return cantWorkReason(xoonglin).isEmpty();
+    }
 
-        if (xoonglin.getHappiness() < minHappiness) return false;
+    /**
+     * Why the Xoonglin can't do this job right now, to show the player what to fix: an unsatisfied
+     * need that damages it, too little happiness, or an unsatisfied need the job requires. Empty
+     * if it can work.
+     */
+    public Optional<Component> cantWorkReason(XoonglinEntity xoonglin) {
+        if (xoonglin.getNeeds() == null) return Optional.of(Component.empty());
 
-        if (!requiredNeeds.isEmpty() && xoonglin.getNeeds() != null) {
-            for (String needId : requiredNeeds) {
-                boolean satisfied = xoonglin.getNeeds().stream()
-                        .filter(ns -> ns.getNeed().getId().equals(needId))
-                        .anyMatch(NeedSatisfier::isSatisfied);
-                if (!satisfied) return false;
-            }
+        Optional<String> damagingNeed = xoonglin.getNeeds().stream()
+                .filter(ns -> ns.getNeed().getDamage() > 0.0 && !ns.isSatisfied())
+                .map(ns -> ns.getNeed().getId())
+                .findFirst();
+        if (damagingNeed.isPresent()) {
+            return Optional.of(unsatisfiedNeedReason(damagingNeed.get()));
         }
 
-        return true;
+        if (xoonglin.getHappiness() < minHappiness) {
+            return Optional.of(Component.translatable("gui.cft.job_detail.too_unhappy",
+                    String.format("%.2f", minHappiness)));
+        }
+
+        for (String needId : requiredNeeds) {
+            boolean satisfied = xoonglin.getNeeds().stream()
+                    .filter(ns -> ns.getNeed().getId().equals(needId))
+                    .anyMatch(NeedSatisfier::isSatisfied);
+            if (!satisfied) return Optional.of(unsatisfiedNeedReason(needId));
+        }
+
+        return Optional.empty();
+    }
+
+    private static Component unsatisfiedNeedReason(String needId) {
+        return Component.translatable("gui.cft.job_detail.unsatisfied_need", Component.translatable(needId));
+    }
+
+    /** {@link JobStatus#CANT_WORK}, saying why. */
+    protected JobStatus cantWorkStatus(XoonglinEntity xoonglin) {
+        return JobStatus.CANT_WORK.withDetail(cantWorkReason(xoonglin).orElse(null));
+    }
+
+    /** {@link JobStatus#NO_STRUCTURE}, naming the structure it needs. */
+    protected JobStatus noStructureStatus() {
+        String structureType = getRequiredStructureType();
+        return structureType == null ? JobStatus.NO_STRUCTURE
+                : JobStatus.NO_STRUCTURE.withDetail(Component.translatable("gui.cft.job_detail.needs_structure",
+                        Component.translatable(structureType)));
     }
 
     public Optional<ScheduleDefinition> getSchedule() {

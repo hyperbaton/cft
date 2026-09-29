@@ -55,7 +55,21 @@ public class ChopTreesBehavior extends Behavior<XoonglinEntity> {
     private static final int WAIT_TICKS = 600;
     private static final int SAPLINGS_TO_KEEP = 4;
 
-    private enum State { SEARCHING, MOVING_TO_TREE, CHOPPING, RETURNING, DEPOSITING, WAITING }
+    private enum State {
+        SEARCHING(WorkStep.of("looking_for_trees")),
+        MOVING_TO_TREE(WorkStep.of("walking_to_tree")),
+        CHOPPING(WorkStep.of("chopping")),
+        RETURNING(WorkStep.HEADING_BACK),
+        DEPOSITING(WorkStep.STORING_ITEMS),
+        WAITING(WorkStep.WAITING);
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
+    }
 
     private State state;
     private TreeUtil.Tree tree;
@@ -105,6 +119,9 @@ public class ChopTreesBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         LumberjackJob job = getLumberjackJob(entity);
         BlockPos basePos = job != null ? job.getBasePos(entity) : null;
         if (basePos == null) return;
@@ -123,6 +140,7 @@ public class ChopTreesBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
         if (tree != null) {
             level.destroyBlockProgress(entity.getId(), tree.base(), -1);

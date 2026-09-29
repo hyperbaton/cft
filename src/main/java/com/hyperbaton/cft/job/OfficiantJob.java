@@ -6,6 +6,7 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.network.JobDisplayEntry;
 import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.network.JobStatus;
+import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.ritual.Ritual;
 import com.hyperbaton.cft.world.RitualsData;
 import com.hyperbaton.cft.job.data.AttendanceRule;
@@ -173,15 +174,15 @@ public class OfficiantJob extends Job {
 
         JobStatus status;
         if (needsStructure) {
-            status = JobStatus.NO_STRUCTURE;
+            status = noStructureStatus();
         } else if (!canDoWork) {
-            status = JobStatus.CANT_WORK;
+            status = cantWorkStatus(xoonglin);
         } else if (activeRitual.isPresent() && activeRitual.get().getState() == Ritual.State.IN_PROGRESS) {
             status = PERFORMING_RITUAL;
         } else if (activeRitual.isPresent()) {
             status = GATHERING_ATTENDEES;
         } else if (isRitualDue(level, state)) {
-            status = JobStatus.WORKING;
+            status = JobUtil.workingStatus(xoonglin);
         } else {
             status = JobStatus.RESTING;
         }

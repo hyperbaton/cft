@@ -28,8 +28,19 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
     private static final int REPATH_INTERVAL = 40;
 
     private enum State {
-        PICKING_ERRAND, MOVING_TO_ORIGIN, TAKING_ITEMS,
-        MOVING_TO_DESTINATION, DEPOSITING_ITEMS, RETURNING_ITEMS
+        PICKING_ERRAND(WorkStep.of("choosing_errand")),
+        MOVING_TO_ORIGIN(WorkStep.of("going_to_pick_up")),
+        TAKING_ITEMS(WorkStep.of("picking_up_items")),
+        MOVING_TO_DESTINATION(WorkStep.of("delivering_items")),
+        DEPOSITING_ITEMS(WorkStep.STORING_ITEMS),
+        RETURNING_ITEMS(WorkStep.of("returning_items"));
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
     }
 
     private State state;
@@ -67,6 +78,9 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         HaulerJob job = getHaulerJob(entity);
         if (job == null) return;
 
@@ -253,6 +267,7 @@ public class HaulBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
 
         if (currentErrand != null) {

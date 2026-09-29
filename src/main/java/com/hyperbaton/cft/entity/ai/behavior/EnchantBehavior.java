@@ -42,7 +42,15 @@ public class EnchantBehavior extends Behavior<XoonglinEntity> {
     private static final int NO_TARGET_RETRY_COOLDOWN = 600;
 
     private enum State {
-        TRAVELING, ENCHANTING
+        TRAVELING(WorkStep.GOING_TO_WORK),
+        ENCHANTING(WorkStep.of("enchanting"));
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
     }
 
     private record Target(Container container, int slot, Holder<Enchantment> enchantment, int level) {}
@@ -82,6 +90,9 @@ public class EnchantBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         EnchanterJob job = getEnchanterJob(entity);
         if (job == null || structureKeyBlock == null) return;
 
@@ -93,6 +104,7 @@ public class EnchantBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
         enchantProgress = 0;
         target = null;

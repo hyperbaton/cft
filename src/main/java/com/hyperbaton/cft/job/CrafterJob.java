@@ -148,13 +148,13 @@ public class CrafterJob extends Job {
 
         JobStatus status;
         if (needsStructure) {
-            status = JobStatus.NO_STRUCTURE;
+            status = noStructureStatus();
         } else if (!canDoWork) {
-            status = JobStatus.CANT_WORK;
+            status = cantWorkStatus(xoonglin);
         } else if (doneForDay) {
             status = JobStatus.RESTING;
         } else {
-            status = JobStatus.WORKING;
+            status = JobUtil.workingStatus(xoonglin);
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();

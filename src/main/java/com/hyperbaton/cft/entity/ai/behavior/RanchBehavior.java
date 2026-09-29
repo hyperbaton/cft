@@ -72,7 +72,17 @@ public class RanchBehavior extends Behavior<XoonglinEntity> {
     private record PendingAction(ActionType type, UUID primaryId, UUID secondaryId) {}
 
     private enum State {
-        FETCHING, SEEKING, WORKING, WAITING
+        FETCHING(WorkStep.FETCHING_SUPPLIES),
+        SEEKING(WorkStep.of("looking_for_animals")),
+        WORKING(WorkStep.of("tending_animals")),
+        WAITING(WorkStep.WAITING);
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
     }
 
     private State state;
@@ -118,6 +128,9 @@ public class RanchBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         RancherJob job = getRancherJob(entity);
         if (job == null || basePos == null) return;
 
@@ -143,6 +156,7 @@ public class RanchBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
         action = null;
     }

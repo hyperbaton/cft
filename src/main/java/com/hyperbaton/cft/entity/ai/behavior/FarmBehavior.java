@@ -35,7 +35,23 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
     private static final double BLOCK_REACH = 2.5;
     private static final int ACTION_TICKS = 20;
 
-    private enum State { SCANNING, MOVING, HARVESTING, PLANTING, MOVING_TO_CONTAINER, TAKING_SEEDS, DEPOSITING }
+    private enum State {
+        SCANNING(WorkStep.of("checking_crops")),
+        MOVING(WorkStep.of("walking_to_crops")),
+        HARVESTING(WorkStep.of("harvesting")),
+        PLANTING(WorkStep.of("planting")),
+        MOVING_TO_CONTAINER(WorkStep.of("going_to_storage")),
+        TAKING_SEEDS(WorkStep.of("getting_seeds")),
+        DEPOSITING(WorkStep.STORING_ITEMS);
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
+    }
+
     private enum NextAction { HARVEST, PLANT }
 
     private State state;
@@ -70,6 +86,9 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         FarmerJob job = getFarmerJob(entity);
         if (job == null) return;
 
@@ -307,6 +326,7 @@ public class FarmBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
         targetBlock = null;
         containerPos = null;

@@ -131,11 +131,11 @@ public class HomeArtisanJob extends Job {
 
         JobStatus status;
         if (!canDoWork) {
-            status = JobStatus.CANT_WORK;
+            status = cantWorkStatus(xoonglin);
         } else if (doneForDay) {
             status = JobStatus.RESTING;
         } else if (atHome) {
-            status = JobStatus.WORKING;
+            status = JobUtil.workingStatus(xoonglin);
         } else {
             status = JobStatus.TRAVELING;
         }

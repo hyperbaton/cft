@@ -46,7 +46,17 @@ public class FishBehavior extends Behavior<XoonglinEntity> {
     private static final int SEARCH_HEIGHT = 8;
 
     private enum State {
-        FINDING_WATER, TRAVELING, FISHING, DEPOSITING
+        FINDING_WATER(WorkStep.of("looking_for_water")),
+        TRAVELING(WorkStep.of("going_to_fishing_spot")),
+        FISHING(WorkStep.of("fishing")),
+        DEPOSITING(WorkStep.of("delivering_catch"));
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
     }
 
     private State state;
@@ -88,6 +98,9 @@ public class FishBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         FisherJob job = getFisherJob(entity);
         if (job == null) return;
 
@@ -110,6 +123,7 @@ public class FishBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
     }
 

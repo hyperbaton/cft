@@ -48,6 +48,7 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_CRAFT.get(),
             CftMemoryModuleType.MUST_SMELT.get(),
             CftMemoryModuleType.MUST_CHOP.get(),
+            CftMemoryModuleType.WORK_STEP.get(),
             CftMemoryModuleType.MUST_FISH.get(),
             CftMemoryModuleType.MUST_HEAL.get(),
             CftMemoryModuleType.MUST_BLESS.get(),

@@ -26,7 +26,20 @@ public class GatherBlocksBehavior extends Behavior<XoonglinEntity> {
     private static final double HOME_REACH = 3.0;
     private static final int HARVEST_TICKS = 30;
 
-    private enum State { SEARCHING, MOVING_TO_BLOCK, HARVESTING, RETURNING, DEPOSITING }
+    private enum State {
+        SEARCHING(WorkStep.of("looking_for_resources")),
+        MOVING_TO_BLOCK(WorkStep.of("walking_to_resource")),
+        HARVESTING(WorkStep.of("gathering")),
+        RETURNING(WorkStep.HEADING_BACK),
+        DEPOSITING(WorkStep.STORING_ITEMS);
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
+    }
 
     private State state;
     private BlockPos targetBlock;
@@ -58,6 +71,9 @@ public class GatherBlocksBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         GathererJob job = getGathererJob(entity);
         if (job == null) return;
 
@@ -193,6 +209,7 @@ public class GatherBlocksBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
         targetBlock = null;
     }

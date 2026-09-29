@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.entity.ai.memory;
 
 import com.hyperbaton.cft.CftMod;
+import com.hyperbaton.cft.entity.ai.behavior.WorkStep;
 import com.hyperbaton.cft.need.codec.CftCodec;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
@@ -51,10 +52,9 @@ public class CftMemoryModuleType {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> MUST_VISIT = registerMemory("must_visit", BlockPos.CODEC);
     /** Key block of the structure the Xoonglin is lingering in after a visit; set with an expiry. */
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> VISITING = registerMemory("visiting", BlockPos.CODEC);
-    /** Set by an unsatisfied socialize need; the Xoonglin looks for company. */
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> MUST_SOCIALIZE = registerMemory("must_socialize", Codec.BOOL);
-    /** UUID of the Xoonglin this one is talking to; both of them hold it. */
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<String>> CONVERSATION_PARTNER = registerMemory("conversation_partner", Codec.STRING);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<WorkStep>> WORK_STEP = registerMemory("work_step");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> QUARRY_FLOODED = registerMemory("quarry_flooded", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> QUARRY_NEEDS_LADDERS = registerMemory("quarry_needs_ladders", Codec.BOOL);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> MUST_ATTEND_RITUAL = registerMemory("must_attend_ritual", BlockPos.CODEC);

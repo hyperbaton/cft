@@ -44,8 +44,18 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
     private static final int MAX_STALLED_REBUILDS = 2;
 
     private enum State {
-        FINDING_SITE, PLANNING, FETCHING_RESOURCES,
-        TRAVELING_TO_SITE, PLACING_BLOCKS
+        FINDING_SITE(WorkStep.of("looking_for_building_site")),
+        PLANNING(WorkStep.of("planning_build")),
+        FETCHING_RESOURCES(WorkStep.of("fetching_materials")),
+        TRAVELING_TO_SITE(WorkStep.of("going_to_building_site")),
+        PLACING_BLOCKS(WorkStep.of("building"));
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
     }
 
     private record BuildPlacement(BlockPos target, BlockState state) {}
@@ -103,6 +113,9 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         BuilderJob job = getBuilderJob(entity);
         if (job == null) return;
 
@@ -426,6 +439,7 @@ public class BuildBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
         buildSiteKeyBlock = null;
         buildStructureTypeId = null;

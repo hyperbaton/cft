@@ -38,6 +38,7 @@ public class XoonglinInfoScreen extends Screen {
     private static final int TAB_Y_OFFSET = 22;
     private static final int CONTENT_Y_OFFSET = 40;
 
+    private static final int JOB_STATUS_DETAIL_COLOR = 0x707070;
     private static final int PROGRESS_BAR_WIDTH = 60;
     private static final int PROGRESS_BAR_HEIGHT = 8;
 
@@ -226,6 +227,13 @@ public class XoonglinInfoScreen extends Screen {
 
         String statusText = Component.translatable(jobInfo.status().key()).getString();
         graphics.drawString(this.font, statusText, x + MARGIN_PIXELS, contentY, jobInfo.status().color(), false);
+        if (jobInfo.status().detail() != null) {
+            // Why it can't work, or the step of its work it's on
+            for (FormattedCharSequence line : this.font.split(jobInfo.status().detail(), imageWidth - 2 * MARGIN_PIXELS)) {
+                contentY += 10;
+                graphics.drawString(this.font, line, x + MARGIN_PIXELS, contentY, JOB_STATUS_DETAIL_COLOR, false);
+            }
+        }
         contentY += 16;
 
         for (JobDisplayEntry entry : jobInfo.entries()) {

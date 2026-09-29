@@ -58,7 +58,21 @@ public class QuarryMineBehavior extends Behavior<XoonglinEntity> {
     // Blocks moved per tick along the ladder (4 ticks per block)
     private static final double CLIMB_SPEED = 0.25;
 
-    private enum State { DESCENDING, MINING, ASCENDING, DEPOSITING, WAITING }
+    private enum State {
+        DESCENDING(WorkStep.of("climbing_down")),
+        MINING(WorkStep.of("mining")),
+        ASCENDING(WorkStep.of("climbing_up")),
+        DEPOSITING(WorkStep.STORING_ITEMS),
+        WAITING(WorkStep.WAITING);
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
+    }
+
     private enum AfterAscend { DEPOSIT, WAIT_FLOODED, DONE }
 
     private State state;
@@ -117,6 +131,9 @@ public class QuarryMineBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         QuarryMinerJob job = getJob(entity);
         if (job == null || footprint.isEmpty() || ladderColumn == null) return;
 
@@ -133,6 +150,7 @@ public class QuarryMineBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
     }
 

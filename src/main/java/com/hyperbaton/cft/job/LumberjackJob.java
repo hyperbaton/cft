@@ -137,15 +137,15 @@ public class LumberjackJob extends Job {
 
         JobStatus status;
         if (getBasePos(xoonglin) == null) {
-            status = JobStatus.NO_STRUCTURE;
+            status = noStructureStatus();
         } else if (!canWork(xoonglin)) {
-            status = JobStatus.CANT_WORK;
+            status = cantWorkStatus(xoonglin);
         } else if (doneForDay) {
             status = JobStatus.RESTING;
         } else if (axe.isEmpty()) {
             status = NEEDS_AXE;
         } else {
-            status = JobStatus.WORKING;
+            status = JobUtil.workingStatus(xoonglin);
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();

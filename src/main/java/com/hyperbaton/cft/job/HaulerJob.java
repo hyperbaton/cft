@@ -100,11 +100,11 @@ public class HaulerJob extends Job {
 
         JobStatus status;
         if (!canDoWork) {
-            status = JobStatus.CANT_WORK;
+            status = cantWorkStatus(xoonglin);
         } else if (doneForDay) {
             status = JobStatus.RESTING;
         } else {
-            status = JobStatus.WORKING;
+            status = JobUtil.workingStatus(xoonglin);
         }
 
         List<JobDisplayEntry> entries = new ArrayList<>();

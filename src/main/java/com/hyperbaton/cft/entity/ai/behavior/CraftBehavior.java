@@ -40,7 +40,15 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
     private static final int INGREDIENT_RETRY_COOLDOWN = 600;
 
     private enum State {
-        TRAVELING, CRAFTING
+        TRAVELING(WorkStep.GOING_TO_WORK),
+        CRAFTING(WorkStep.of("crafting"));
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
     }
 
     private State state;
@@ -76,6 +84,9 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         CrafterJob job = getCrafterJob(entity);
         if (job == null || workshopKeyBlock == null) return;
 
@@ -87,6 +98,7 @@ public class CraftBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
         craftProgress = 0;
     }

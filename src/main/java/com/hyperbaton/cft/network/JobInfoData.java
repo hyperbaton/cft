@@ -1,6 +1,9 @@
 package com.hyperbaton.cft.network;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 
@@ -12,6 +15,10 @@ public record JobInfoData(JobStatus status, List<JobDisplayEntry> entries) {
     public static void encode(ByteBuf buf, JobInfoData data) {
         ByteBufCodecs.STRING_UTF8.encode(buf, data.status.key());
         buf.writeInt(data.status.color());
+        buf.writeBoolean(data.status.detail() != null);
+        if (data.status.detail() != null) {
+            ComponentSerialization.STREAM_CODEC.encode((RegistryFriendlyByteBuf) buf, data.status.detail());
+        }
         ByteBufCodecs.VAR_INT.encode(buf, data.entries.size());
         for (JobDisplayEntry entry : data.entries) {
             buf.writeByte(entry.type());
@@ -40,6 +47,9 @@ public record JobInfoData(JobStatus status, List<JobDisplayEntry> entries) {
     public static JobInfoData decode(ByteBuf buf) {
         String statusKey = ByteBufCodecs.STRING_UTF8.decode(buf);
         int statusColor = buf.readInt();
+        Component detail = buf.readBoolean()
+                ? ComponentSerialization.STREAM_CODEC.decode((RegistryFriendlyByteBuf) buf)
+                : null;
         int count = ByteBufCodecs.VAR_INT.decode(buf);
         List<JobDisplayEntry> entries = new ArrayList<>();
         for (int i = 0; i < count; i++) {
@@ -64,6 +74,6 @@ public record JobInfoData(JobStatus status, List<JobDisplayEntry> entries) {
                 }
             }
         }
-        return new JobInfoData(new JobStatus(statusKey, statusColor), entries);
+        return new JobInfoData(new JobStatus(statusKey, statusColor, detail), entries);
     }
 }

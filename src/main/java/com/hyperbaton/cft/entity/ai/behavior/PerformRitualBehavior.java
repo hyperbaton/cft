@@ -53,7 +53,17 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
     private static final int SATISFACTION_SCAN_RADIUS = 128;
 
     private enum State {
-        TRAVELING, CHECKING_INGREDIENTS, SUMMONING, PERFORMING
+        TRAVELING(WorkStep.GOING_TO_WORK),
+        CHECKING_INGREDIENTS(WorkStep.of("checking_ritual_ingredients")),
+        SUMMONING(WorkStep.of("summoning_attendees")),
+        PERFORMING(WorkStep.of("performing_ritual"));
+
+        /** Shown in the job tab while the behavior is in this state. */
+        private final WorkStep step;
+
+        State(WorkStep step) {
+            this.step = step;
+        }
     }
 
     private State state;
@@ -97,6 +107,9 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void tick(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        if (state != null) {
+            BehaviorUtils.showWorkStep(entity, state.step);
+        }
         OfficiantJob job = getOfficiantJob(entity);
         if (job == null || templeKeyBlock == null) return;
 
@@ -110,6 +123,7 @@ public class PerformRitualBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel level, XoonglinEntity entity, long gameTime) {
+        BehaviorUtils.clearWorkStep(entity);
         entity.getNavigation().stop();
         // Only cancel the ritual if the officiant no longer wants to perform it.
         // On a plain behavior timeout the memory is still present and the persisted

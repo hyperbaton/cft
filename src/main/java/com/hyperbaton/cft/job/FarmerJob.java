@@ -145,13 +145,13 @@ public class FarmerJob extends Job {
 
         JobStatus status;
         if (structurePos == null) {
-            status = JobStatus.NO_STRUCTURE;
+            status = noStructureStatus();
         } else if (!canDoWork) {
-            status = JobStatus.CANT_WORK;
+            status = cantWorkStatus(xoonglin);
         } else if (doneForDay) {
             status = JobStatus.RESTING;
         } else if (atStructure) {
-            status = JobStatus.WORKING;
+            status = JobUtil.workingStatus(xoonglin);
         } else {
             status = JobStatus.TRAVELING;
         }
