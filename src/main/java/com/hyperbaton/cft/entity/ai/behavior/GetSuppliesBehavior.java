@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
+import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.GoodsNeed;
@@ -62,6 +63,7 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
+        ErrandUtils.finish(mob, ErrandUtils.SUPPLIES);
         LOGGER.trace("Checking container in home");
         Optional<BlockPos> containerPos = mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER.get());
         if (containerPos.isEmpty() || !isCloseEnoughToContainer(mob)) {

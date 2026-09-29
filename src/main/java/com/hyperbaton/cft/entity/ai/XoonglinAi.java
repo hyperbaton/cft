@@ -16,16 +16,20 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
+import net.neoforged.neoforge.common.NeoForge;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class XoonglinAi {
 
-    public static final ImmutableList<? extends SensorType<? extends Sensor<? super XoonglinEntity>>> SENSOR_TYPES = ImmutableList.of(
+    private static final ImmutableList<? extends SensorType<? extends Sensor<? super XoonglinEntity>>> SENSOR_TYPES = ImmutableList.of(
             CftSensorTypes.ABLE_TO_MATE.get(), CftSensorTypes.FIND_POTENTIAL_MATES.get()
     );
 
-    public static final ImmutableList<? extends MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
+    private static final ImmutableList<? extends MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             CftMemoryModuleType.HOME_CONTAINER.get(),
             CftMemoryModuleType.SUPPLIES_NEEDED.get(),
             CftMemoryModuleType.HOME_CANDIDATE_POSITION.get(),
@@ -68,25 +72,68 @@ public class XoonglinAi {
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
             CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get(),
             CftMemoryModuleType.STRUCTURE_SEARCH_COOLDOWN.get(),
+            CftMemoryModuleType.ERRANDS_PAUSING_WORK.get(),
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.LOOK_TARGET
     );
 
-    public static Brain<?> makeBrain(Brain<XoonglinEntity> pBrain) {
-        initCoreActivity(pBrain);
-        initIdleActivity(pBrain);
-        initInvestigateActivity(pBrain);
-        initMateActivity(pBrain);
-        initRestActivity(pBrain);
-        initWorkActivity(pBrain);
-        pBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
-        pBrain.setDefaultActivity(Activity.IDLE);
-        pBrain.useDefaultActivity();
-        return pBrain;
+    private static Brain.Provider<XoonglinEntity> brainProvider;
+
+    /**
+     * The memories and sensors of the Xoonglin brain: CFT's own plus those addons add with
+     * {@link XoonglinBrainEvent.RegisterMemories}, which is posted the first time it's needed.
+     */
+    public static synchronized Brain.Provider<XoonglinEntity> brainProvider() {
+        if (brainProvider == null) {
+            List<MemoryModuleType<?>> memories = new ArrayList<>(MEMORY_TYPES);
+            List<SensorType<? extends Sensor<? super XoonglinEntity>>> sensors = new ArrayList<>(SENSOR_TYPES);
+            NeoForge.EVENT_BUS.post(new XoonglinBrainEvent.RegisterMemories(memories, sensors));
+            brainProvider = Brain.provider(memories, sensors);
+        }
+        return brainProvider;
     }
 
-    private static void initCoreActivity(Brain<XoonglinEntity> pBrain) {
-        pBrain.addActivity(Activity.CORE, 2, ImmutableList.of(
+    /**
+     * Adds the behaviors of each activity to a new Xoonglin brain: CFT's own plus those addons add
+     * with {@link XoonglinBrainEvent.AddBehaviors}.
+     */
+    public static Brain<?> makeBrain(Brain<XoonglinEntity> brain) {
+        ActivityBehaviors activities = new ActivityBehaviors();
+        initCoreActivity(activities);
+        initIdleActivity(activities);
+        initInvestigateActivity(activities);
+        initMateActivity(activities);
+        initRestActivity(activities);
+        initWorkActivity(activities);
+        NeoForge.EVENT_BUS.post(new XoonglinBrainEvent.AddBehaviors(activities.behaviors));
+        activities.behaviors.forEach((activity, behaviors) -> brain.addActivity(activity, ImmutableList.copyOf(behaviors)));
+
+        brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
+        brain.setDefaultActivity(Activity.IDLE);
+        brain.useDefaultActivity();
+        return brain;
+    }
+
+    /** The behaviors of each activity, gathered before they're added to the brain. */
+    private static class ActivityBehaviors {
+        private final Map<Activity, List<Pair<Integer, ? extends BehaviorControl<? super XoonglinEntity>>>> behaviors =
+                new LinkedHashMap<>();
+
+        void addActivity(Activity activity, int priority,
+                         ImmutableList<? extends BehaviorControl<? super XoonglinEntity>> activityBehaviors) {
+            for (BehaviorControl<? super XoonglinEntity> behavior : activityBehaviors) {
+                behaviors.computeIfAbsent(activity, a -> new ArrayList<>()).add(Pair.of(priority, behavior));
+            }
+        }
+
+        void addActivity(Activity activity,
+                         ImmutableList<? extends Pair<Integer, ? extends BehaviorControl<? super XoonglinEntity>>> activityBehaviors) {
+            behaviors.computeIfAbsent(activity, a -> new ArrayList<>()).addAll(activityBehaviors);
+        }
+    }
+
+    private static void initCoreActivity(ActivityBehaviors activities) {
+        activities.addActivity(Activity.CORE, 2, ImmutableList.of(
                 new Swim(0.8F),
                 new LookAtTargetSink(45, 90),
                 new MoveToTargetSink(),
@@ -97,8 +144,8 @@ public class XoonglinAi {
      * Free time. All behaviors whose conditions hold run at once, so strolling steps aside while
      * visiting a structure or talking, and visiting steps aside while talking.
      */
-    private static void initIdleActivity(Brain<XoonglinEntity> pBrain) {
-        pBrain.addActivity(Activity.IDLE, ImmutableList.of(
+    private static void initIdleActivity(ActivityBehaviors activities) {
+        activities.addActivity(Activity.IDLE, ImmutableList.of(
                 Pair.of(1, new ConverseBehavior()),
                 Pair.of(2, new VisitStructureBehavior()),
                 Pair.of(3, new RandomStrollBehavior(ImmutableMap.of(
@@ -112,8 +159,8 @@ public class XoonglinAi {
      * The Xoonglin's own errands, which take it away from work and free time: finding a home,
      * fetching goods, fluids or energy for its needs, claiming a structure and attending rituals.
      */
-    private static void initInvestigateActivity(Brain<XoonglinEntity> pBrain) {
-        pBrain.addActivity(Activity.INVESTIGATE, ImmutableList.of(
+    private static void initInvestigateActivity(ActivityBehaviors activities) {
+        activities.addActivity(Activity.INVESTIGATE, ImmutableList.of(
                 Pair.of(0, new FindAndClaimHomeBehavior()),
                 Pair.of(1, new GetSuppliesBehavior(
                         Map.of(CftMemoryModuleType.HOME_CONTAINER.get(), MemoryStatus.VALUE_PRESENT,
@@ -132,21 +179,21 @@ public class XoonglinAi {
         ));
     }
 
-    private static void initMateActivity(Brain<XoonglinEntity> pBrain) {
-        pBrain.addActivity(CftActivities.MATE.get(), ImmutableList.of(
+    private static void initMateActivity(ActivityBehaviors activities) {
+        activities.addActivity(CftActivities.MATE.get(), ImmutableList.of(
                 Pair.of(0, new MateBehavior(Map.of(CftMemoryModuleType.MATING_CANDIDATE.get(), MemoryStatus.VALUE_PRESENT)))
         ));
     }
 
-    private static void initRestActivity(Brain<XoonglinEntity> pBrain) {
-        pBrain.addActivity(Activity.REST, ImmutableList.of(
+    private static void initRestActivity(ActivityBehaviors activities) {
+        activities.addActivity(Activity.REST, ImmutableList.of(
                 Pair.of(0, new RestAtHomeBehavior())
         ));
     }
 
     /** Its job: each job type has a behavior, triggered by the MUST_* memory its job sets. */
-    private static void initWorkActivity(Brain<XoonglinEntity> pBrain) {
-        pBrain.addActivity(Activity.WORK, ImmutableList.of(
+    private static void initWorkActivity(ActivityBehaviors activities) {
+        activities.addActivity(Activity.WORK, ImmutableList.of(
                 Pair.of(2, new MustWorkAtHomeBehavior()),
                 Pair.of(2, new GatherBlocksBehavior()),
                 Pair.of(2, new GuardBehavior()),

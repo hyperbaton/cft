@@ -32,6 +32,7 @@ public record JobStatus(String key, int color, @Nullable Component detail) {
     public static final JobStatus WORKING = active("gui.cft.job_status.working");
     public static final JobStatus RESTING = new JobStatus("gui.cft.job_status.resting", DONE_COLOR);
     public static final JobStatus TRAVELING = new JobStatus("gui.cft.job_status.traveling", MOVING_COLOR);
+    public static final JobStatus PAUSED = new JobStatus("gui.cft.job_status.paused", MOVING_COLOR);
 
     // Shown instead of the job's status outside working time (see JobUtil#buildJobInfo)
     public static final JobStatus SLEEPING = new JobStatus("gui.cft.job_status.sleeping", SLEEPING_COLOR);

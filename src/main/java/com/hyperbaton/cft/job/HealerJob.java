@@ -10,6 +10,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ai.Brain;
@@ -174,6 +175,11 @@ public class HealerJob extends Job {
             brain.eraseMemory(CftMemoryModuleType.MUST_HEAL.get());
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         }
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_HEAL.get();
     }
 
     @Override

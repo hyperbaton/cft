@@ -7,6 +7,7 @@ import com.hyperbaton.cft.network.InventorySlotData;
 import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.ai.behavior.WorkStep;
 import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
 import com.hyperbaton.cft.structure.Structure;
@@ -16,6 +17,8 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -57,7 +60,23 @@ public final class JobUtil {
             JobStatus status = xoonglin.getBrain().isActive(Activity.REST) ? JobStatus.AT_HOME : freeTimeStatus(xoonglin);
             return new JobInfoData(status, info.entries());
         }
+        // Errands pause the job, so its status would describe work it isn't doing now
+        if (ErrandUtils.hasErrands(xoonglin)) {
+            return new JobInfoData(JobStatus.PAUSED.withDetail(errandsText(xoonglin)), info.entries());
+        }
         return info;
+    }
+
+    /** The errands pausing its job, as named by their lang entries {@code errand.<namespace>.<path>}. */
+    private static Component errandsText(XoonglinEntity xoonglin) {
+        MutableComponent text = Component.empty();
+        for (ResourceLocation errand : ErrandUtils.errands(xoonglin)) {
+            if (!text.getSiblings().isEmpty()) {
+                text.append(", ");
+            }
+            text.append(Component.translatable("errand." + errand.getNamespace() + "." + errand.getPath()));
+        }
+        return text;
     }
 
     /** {@link JobStatus#WORKING}, with the step of its work it's on if its behavior shows one. */

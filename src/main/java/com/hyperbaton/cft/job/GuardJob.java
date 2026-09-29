@@ -10,6 +10,7 @@ import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.level.Level;
 
@@ -87,6 +88,11 @@ public class GuardJob extends Job {
         } else {
             brain.eraseMemory(CftMemoryModuleType.MUST_GUARD.get());
         }
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_GUARD.get();
     }
 
     @Override

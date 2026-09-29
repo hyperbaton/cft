@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.need.satisfaction;
 
+import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.GoodsNeed;
@@ -53,9 +54,10 @@ public class ConsumeItemNeedSatisfier extends NeedSatisfier<GoodsNeed> {
                         new ArrayList<>(List.of(need.getIngredient())))
         );
 
-        findContainerWithSupplies(mob, need.getIngredient()).ifPresent(pos ->
-                mob.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER.get(), pos)
-        );
+        findContainerWithSupplies(mob, need.getIngredient()).ifPresent(pos -> {
+            mob.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER.get(), pos);
+            ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.SUPPLIES, CftMemoryModuleType.SUPPLY_COOLDOWN.get());
+        });
     }
 
     private Optional<BlockPos> findContainerWithSupplies(XoonglinEntity mob, Ingredient ingredient) {

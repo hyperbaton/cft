@@ -14,6 +14,7 @@ import com.hyperbaton.cft.world.StructuresData;
 import com.hyperbaton.cft.job.data.TradeOffer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -201,6 +202,11 @@ public class TraderJob extends Job {
             }
         }
         return containers;
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_TRADE.get();
     }
 
     @Override

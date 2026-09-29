@@ -10,6 +10,7 @@ import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.network.JobStatus;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -123,6 +124,11 @@ public class FarmerJob extends Job {
             brain.eraseMemory(CftMemoryModuleType.MUST_FARM.get());
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         }
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_FARM.get();
     }
 
     @Override

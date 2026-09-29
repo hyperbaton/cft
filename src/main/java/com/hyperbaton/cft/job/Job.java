@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,6 +66,12 @@ public abstract class Job {
     public abstract void eraseMemories(XoonglinEntity xoonglin);
 
     public abstract JobInfoData getDisplayInfo(XoonglinEntity xoonglin, JobState state);
+
+    /**
+     * The memory this job sets while the Xoonglin has work to do. It triggers the job's behavior in
+     * the WORK activity and tells whether the Xoonglin is working.
+     */
+    public abstract MemoryModuleType<Boolean> getWorkMemory();
 
     String idHint() { return getClass().getSimpleName(); }
 

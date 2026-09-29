@@ -9,6 +9,7 @@ import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ai.Brain;
@@ -111,6 +112,11 @@ public class BuilderJob extends Job {
             brain.eraseMemory(CftMemoryModuleType.MUST_BUILD.get());
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         }
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_BUILD.get();
     }
 
     @Override

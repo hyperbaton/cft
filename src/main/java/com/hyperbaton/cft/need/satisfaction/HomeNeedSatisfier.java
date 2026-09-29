@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.need.satisfaction;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.HomeNeed;
@@ -41,6 +42,7 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
 
             mob.setHome(null);
             mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
+            ErrandUtils.finish(mob, ErrandUtils.SUPPLIES);
             this.unsatisfy(need.getFrequency(), mob);
             mob.decreaseHappiness(need);
             addMemoriesForSatisfaction(mob);

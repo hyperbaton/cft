@@ -20,6 +20,7 @@ import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.hyperbaton.cft.job.data.TextBank;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -245,6 +246,11 @@ public class WriterJob extends Job {
             }
         }
         return containers;
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_WRITE.get();
     }
 
     @Override

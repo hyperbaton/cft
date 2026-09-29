@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.need.satisfaction;
 
 import com.hyperbaton.cft.CftDataComponents;
+import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.item.ManuscriptData;
@@ -74,9 +75,10 @@ public class ReadingNeedSatisfier extends NeedSatisfier<ReadingNeed> {
                 () -> mob.getBrain().setMemory(suppliesNeededMemoryType(), new ArrayList<>(List.of(wanted)))
         );
 
-        findContainerWithBook(mob, wanted).ifPresent(pos ->
-                mob.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER.get(), pos)
-        );
+        findContainerWithBook(mob, wanted).ifPresent(pos -> {
+            mob.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER.get(), pos);
+            ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.SUPPLIES, CftMemoryModuleType.SUPPLY_COOLDOWN.get());
+        });
     }
 
     /** Whichever roster entry is currently "wanted" by this Xoonglin, or empty if none. */

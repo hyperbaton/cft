@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.need.satisfaction;
 
 import com.hyperbaton.cft.CftConfig;
+import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.EnergyNeed;
@@ -50,10 +51,12 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
                     if (simulatedExtract >= requiredEnergy) {
                         LOGGER.trace("Sufficient energy available, executing extraction.");
                         mob.getBrain().eraseMemory(energyContainerMemoryType());
+                        ErrandUtils.finish(mob, ErrandUtils.ENERGY);
                         return tryExtractEnergy(mob, handler, requiredEnergy);
                     } else {
                         LOGGER.trace("Not enough energy available. Removing memory of container.");
                         mob.getBrain().eraseMemory(energyContainerMemoryType());
+                        ErrandUtils.finish(mob, ErrandUtils.ENERGY);
                         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get(),
                                 true, CftConfig.SUPPLY_COOLDOWN.get());
                         this.unsatisfy(need.getFrequency(), mob);
@@ -64,10 +67,12 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
                     LOGGER.trace("No valid energy handler found at remembered container position. Xoonglin {} will forget it.",
                             mob.getCustomName().getString());
                     mob.getBrain().eraseMemory(energyContainerMemoryType());
+                    ErrandUtils.finish(mob, ErrandUtils.ENERGY);
                 }
             } else {
                 LOGGER.trace("Xoonglin {} is too far from the remembered container. Cannot extract energy.",
                         mob.getCustomName().getString());
+                ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.ENERGY, CftMemoryModuleType.ENERGY_SUPPLY_COOLDOWN.get());
                 this.unsatisfy(need.getFrequency(), mob);
                 mob.decreaseHappiness(need);
                 return false;
@@ -81,10 +86,12 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
                 LOGGER.trace("Found a new energy container for Xoonglin {} at {}",
                         mob.getCustomName().getString(), validEnergyContainer.get());
                 mob.getBrain().setMemory(energyContainerMemoryType(), validEnergyContainer.get());
+                ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.ENERGY, CftMemoryModuleType.ENERGY_SUPPLY_COOLDOWN.get());
             } else {
                 LOGGER.trace("No energy container found for Xoonglin {}. Need cannot be satisfied.",
                         mob.getCustomName().getString());
                 mob.getBrain().eraseMemory(energyContainerMemoryType());
+                ErrandUtils.finish(mob, ErrandUtils.ENERGY);
             }
         }
 
@@ -95,9 +102,10 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
 
     @Override
     public void addMemoriesForSatisfaction(XoonglinEntity mob) {
-        findEnergyContainer(mob, this.need.getEnergyAmount()).ifPresent(pos ->
-                mob.getBrain().setMemory(energyContainerMemoryType(), pos)
-        );
+        findEnergyContainer(mob, this.need.getEnergyAmount()).ifPresent(pos -> {
+            mob.getBrain().setMemory(energyContainerMemoryType(), pos);
+            ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.ENERGY, CftMemoryModuleType.ENERGY_SUPPLY_COOLDOWN.get());
+        });
     }
 
     private Optional<BlockPos> findEnergyContainer(XoonglinEntity mob, int requiredEnergy) {

@@ -13,6 +13,7 @@ import com.hyperbaton.cft.job.data.AttendanceRule;
 import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.level.Level;
@@ -152,6 +153,11 @@ public class OfficiantJob extends Job {
             brain.eraseMemory(CftMemoryModuleType.MUST_PERFORM_RITUAL.get());
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         }
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_PERFORM_RITUAL.get();
     }
 
     @Override

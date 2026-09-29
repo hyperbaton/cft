@@ -12,6 +12,7 @@ import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfierMapper;
 import com.hyperbaton.cft.need.NeedUtils;
 import com.hyperbaton.cft.entity.CftEntities;
+import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.ai.XoonglinAi;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
@@ -168,14 +169,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (!level().isClientSide && jobId != null) {
             Job job = CftRegistry.JOBS.get(jobId);
             if (job != null) {
-                if (getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())) {
-                    // Attending a ritual preempts the day job
-                    job.eraseMemories(this);
-                } else if (ScheduleUtils.isOffDuty(this)) {
-                    // Outside the working hours of its schedule
-                    job.eraseMemories(this);
-                } else if (isFetchingSupplies()) {
-                    // Its needs come first: the job resumes once it has fetched what it needs
+                if (isJobPaused()) {
                     job.eraseMemories(this);
                 } else {
                     job.tick(this, jobState);
@@ -198,6 +192,19 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
     }
 
+    /**
+     * Whether its job is paused right now: it doesn't tick, so it neither counts worked time nor
+     * sets its work memory, and its behavior stops.
+     */
+    private boolean isJobPaused() {
+        // Attending a ritual preempts the day job
+        return getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())
+                // Outside the working hours of its schedule
+                || ScheduleUtils.isOffDuty(this)
+                // Errands like fetching supplies come first: the job resumes once they're done
+                || ErrandUtils.hasErrands(this);
+    }
+
     @Override
     protected void customServerAiStep() {
         Brain<XoonglinEntity> brain = this.getBrain();
@@ -207,23 +214,18 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         updateActivity();
     }
 
-    /**
-     * Picks the activity: attending a ritual, then working, resting, mating, errands and free time,
-     * in that order. Fetching supplies still comes before work, because it pauses the job (see
-     * {@link #tick()}), so the job's memories are gone by then.
-     */
     private void updateActivity() {
-        boolean resting = shouldRest();
-
         if (this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())) {
+            setActivity(Activity.INVESTIGATE);
+        } else if (ErrandUtils.hasErrands(this) && !this.isSleeping()) {
             setActivity(Activity.INVESTIGATE);
         } else if (isWorkingAtJob()) {
             setActivity(Activity.WORK);
-        } else if (resting) {
-            setActivity(hasSuppliesToFetch() ? Activity.INVESTIGATE : Activity.REST);
+        } else if (shouldRest()) {
+            setActivity(Activity.REST);
         } else if (isReadyToMate()) {
             setActivity(CftActivities.MATE.get());
-        } else if (isWorkInterrupted()) {
+        } else if (hasFreeTimeErrands()) {
             setActivity(Activity.INVESTIGATE);
         } else {
             setActivity(Activity.IDLE);
@@ -241,57 +243,21 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     /**
-     * Whether its job has it working right now: jobs set their MUST_* memory while there's work to
-     * do, within working hours and when the Xoonglin can work.
+     * Whether its job has it working right now: jobs set their work memory
      */
     public boolean isWorkingAtJob() {
-        Brain<XoonglinEntity> brain = this.getBrain();
-        return brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_GATHER.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_GUARD.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_FARM.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_HAUL.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_BUILD.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_PERFORM_RITUAL.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_CRAFT.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_SMELT.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_CHOP.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_FISH.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_HEAL.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_BLESS.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_MINE.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_ENCHANT.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_RANCH.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_WRITE.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_SCRIBE.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_TRADE.get());
+        Job job = jobId != null ? CftRegistry.JOBS.get(jobId) : null;
+        return job != null && this.getBrain().hasMemoryValue(job.getWorkMemory());
     }
 
     /**
-     * Whether it has something to do outside its job's behaviors
+     * Whether it has errands for its free time, which don't pause its work
      */
-    private boolean isWorkInterrupted() {
+    private boolean hasFreeTimeErrands() {
         Brain<XoonglinEntity> brain = this.getBrain();
         return brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
-                || isFetchingSupplies()
                 || (brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get())
                 && !brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_SEARCH_COOLDOWN.get()));
-    }
-
-    /** Whether it has goods, fluid or energy to fetch from a container it knows of. */
-    private boolean isFetchingSupplies() {
-        return hasSuppliesToFetch() || hasFluidOrEnergyToFetch();
-    }
-
-    /**
-     * Whether a fluid or energy need found a container to draw from
-     */
-    private boolean hasFluidOrEnergyToFetch() {
-        Brain<XoonglinEntity> brain = this.getBrain();
-        return (brain.hasMemoryValue(CftMemoryModuleType.FLUID_CONTAINER.get())
-                && !brain.hasMemoryValue(CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get()))
-                || (brain.hasMemoryValue(CftMemoryModuleType.ENERGY_CONTAINER.get())
-                && !brain.hasMemoryValue(CftMemoryModuleType.ENERGY_SUPPLY_COOLDOWN.get()));
     }
 
     /** At home during the rest time of its schedule, or whenever it's time to go to bed. */
@@ -302,15 +268,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private boolean shouldSleep() {
         return ScheduleUtils.isSleepTime(this)
                 && (this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_SLEEP.get()) || this.isSleeping());
-    }
-
-    /** Whether it needs goods that a container it knows of holds, and isn't waiting to retry. */
-    private boolean hasSuppliesToFetch() {
-        Brain<XoonglinEntity> brain = this.getBrain();
-        return !this.isSleeping()
-                && brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
-                && brain.hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER.get())
-                && !brain.hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
     }
 
     @Override
@@ -382,7 +339,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     @Override
     protected Brain.Provider<XoonglinEntity> brainProvider() {
-        return Brain.provider(XoonglinAi.MEMORY_TYPES, XoonglinAi.SENSOR_TYPES);
+        return XoonglinAi.brainProvider();
     }
 
     @Override
@@ -544,6 +501,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (this.home != null) {
             this.home = null;
             this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
+            ErrandUtils.finish(this, ErrandUtils.SUPPLIES);
             this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
         }
         removeFromAllStructures();

@@ -11,6 +11,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.ItemStack;
@@ -115,6 +116,11 @@ public class HomeArtisanJob extends Job {
         } else {
             brain.eraseMemory(CftMemoryModuleType.MUST_WORK_AT_HOME.get());
         }
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_WORK_AT_HOME.get();
     }
 
     @Override

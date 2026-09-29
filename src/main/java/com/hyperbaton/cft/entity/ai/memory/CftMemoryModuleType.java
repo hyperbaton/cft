@@ -6,6 +6,7 @@ import com.hyperbaton.cft.need.codec.CftCodec;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.bus.api.IEventBus;
@@ -14,6 +15,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class CftMemoryModuleType {
     public static final DeferredRegister<MemoryModuleType<?>> MEMORY_TYPES = DeferredRegister.create(Registries.MEMORY_MODULE_TYPE, CftMod.MOD_ID);
@@ -60,6 +62,7 @@ public class CftMemoryModuleType {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> MUST_ATTEND_RITUAL = registerMemory("must_attend_ritual", BlockPos.CODEC);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<String>> STRUCTURE_NEEDED = registerMemory("structure_needed", Codec.STRING);
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> STRUCTURE_SEARCH_COOLDOWN = registerMemory("structure_search_cooldown", Codec.BOOL);
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Set<ResourceLocation>>> ERRANDS_PAUSING_WORK = registerMemory("errands_pausing_work");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> STRUCTURE_CANDIDATE_POSITION = registerMemory("structure_candidate_position", BlockPos.CODEC);
 
     public static <T> DeferredHolder<MemoryModuleType<?>, MemoryModuleType<T>> registerMemory(String name)

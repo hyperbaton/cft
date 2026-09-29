@@ -11,6 +11,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.Brain;
@@ -131,6 +132,11 @@ public class CrafterJob extends Job {
 
     private boolean isAtStructure(XoonglinEntity xoonglin, BlockPos structurePos) {
         return structurePos.closerToCenterThan(xoonglin.position(), CftConfig.HOME_WORK_RADIUS.get());
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_CRAFT.get();
     }
 
     @Override

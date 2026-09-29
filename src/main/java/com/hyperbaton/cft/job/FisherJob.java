@@ -10,6 +10,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -229,6 +230,11 @@ public class FisherJob extends Job {
             brain.eraseMemory(CftMemoryModuleType.MUST_FISH.get());
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         }
+    }
+
+    @Override
+    public MemoryModuleType<Boolean> getWorkMemory() {
+        return CftMemoryModuleType.MUST_FISH.get();
     }
 
     @Override
