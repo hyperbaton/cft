@@ -5,7 +5,6 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.structure.EnclosedBuildingBlockGroup;
 import com.hyperbaton.cft.structure.home.HouseStructure;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.schedule.Activity;
@@ -119,18 +118,12 @@ public class RestAtHomeBehavior extends Behavior<XoonglinEntity> {
     /** A random spot inside the home where the Xoonglin can stand, or the entrance if none. */
     private BlockPos findRestSpot(ServerLevel level, XoonglinEntity xoonglin) {
         List<BlockPos> candidates = interior.stream()
-                .filter(pos -> canStandAt(level, pos))
+                .filter(pos -> BehaviorUtils.canStandAt(level, pos))
                 .toList();
         if (candidates.isEmpty()) {
             return xoonglin.getHome().getEntrance();
         }
         return candidates.get(xoonglin.getRandom().nextInt(candidates.size()));
-    }
-
-    private static boolean canStandAt(ServerLevel level, BlockPos pos) {
-        return level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()
-                && level.getBlockState(pos.above()).getCollisionShape(level, pos.above()).isEmpty()
-                && level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP);
     }
 
     /** Interior blocks of every storey, since multi-storey homes store one group per storey. */

@@ -1,0 +1,13 @@
+{
+  "type": "cft:socialize",
+  "id": "cft:conversation_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 2.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 0.5,
+  "hidden": false,
+  "classes": [],
+  "radius": 24,
+  "duration": 160
+}

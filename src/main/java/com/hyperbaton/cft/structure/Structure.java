@@ -6,6 +6,7 @@ import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 import java.util.*;
 
@@ -164,5 +165,15 @@ public class Structure {
 
     public Map<String, List<BlockPos>> getBlockPositions() {
         return blockPositions;
+    }
+
+    /** Every block of the structure, from all its block groups. */
+    public List<BlockPos> getAllBlockPositions() {
+        return blockPositions.values().stream().flatMap(List::stream).toList();
+    }
+
+    /** The box enclosing all the blocks of this structure, or empty if it has none. */
+    public Optional<BoundingBox> getBounds() {
+        return BoundingBox.encapsulatingPositions(getAllBlockPositions());
     }
 }

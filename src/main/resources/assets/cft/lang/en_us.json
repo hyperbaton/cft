@@ -217,5 +217,13 @@
   "gui.cft.job_status.at_home": "At home",
   "gui.cft.job_status.free_time": "Free time",
   "cft:sleep_need": "Sleep",
-  "need.cft.sleep_need.tooltip": "Needs to sleep in a bed of its home at night, or during the rest time of its schedule."
+  "need.cft.sleep_need.tooltip": "Needs to sleep in a bed of its home at night, or during the rest time of its schedule.",
+  "gui.cft.need_type.visit": "Visit",
+  "gui.cft.need_type.socialize": "Socialize",
+  "gui.cft.job_status.visiting": "Visiting",
+  "gui.cft.job_status.chatting": "Chatting",
+  "cft:plaza_visit_need": "Plaza",
+  "need.cft.plaza_visit_need.tooltip": "Likes to spend some of its free time at the village square.",
+  "cft:conversation_need": "Conversation",
+  "need.cft.conversation_need.tooltip": "Wants to chat with another Xoonglin in its free time."
 }

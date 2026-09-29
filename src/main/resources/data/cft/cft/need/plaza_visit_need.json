@@ -1,0 +1,13 @@
+{
+  "type": "cft:visit",
+  "id": "cft:plaza_visit_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 4.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 1.0,
+  "hidden": false,
+  "required_structure": "cft:village_square",
+  "search_radius": 64,
+  "stay_duration": 1200
+}

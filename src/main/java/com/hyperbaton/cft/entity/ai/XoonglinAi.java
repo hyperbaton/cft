@@ -56,6 +56,10 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_SCRIBE.get(),
             CftMemoryModuleType.MUST_TRADE.get(),
             CftMemoryModuleType.MUST_SLEEP.get(),
+            CftMemoryModuleType.MUST_VISIT.get(),
+            CftMemoryModuleType.VISITING.get(),
+            CftMemoryModuleType.MUST_SOCIALIZE.get(),
+            CftMemoryModuleType.CONVERSATION_PARTNER.get(),
             CftMemoryModuleType.QUARRY_FLOODED.get(),
             CftMemoryModuleType.QUARRY_NEEDS_LADDERS.get(),
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
@@ -85,9 +89,19 @@ public class XoonglinAi {
                 new OpenDoorBehavior()));
     }
 
+    /**
+     * Free time. All behaviors whose conditions hold run at once, so strolling steps aside while
+     * visiting a structure or talking, and visiting steps aside while talking.
+     */
     private static void initIdleActivity(Brain<XoonglinEntity> pBrain) {
         pBrain.addActivity(Activity.IDLE, ImmutableList.of(
-                Pair.of(3, new RandomStrollBehavior(ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT)))));
+                Pair.of(1, new ConverseBehavior()),
+                Pair.of(2, new VisitStructureBehavior()),
+                Pair.of(3, new RandomStrollBehavior(ImmutableMap.of(
+                        MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT,
+                        CftMemoryModuleType.MUST_VISIT.get(), MemoryStatus.VALUE_ABSENT,
+                        CftMemoryModuleType.VISITING.get(), MemoryStatus.VALUE_ABSENT,
+                        CftMemoryModuleType.CONVERSATION_PARTNER.get(), MemoryStatus.VALUE_ABSENT)))));
     }
 
     private static void initInvestigateActivity(Brain<XoonglinEntity> pBrain) {

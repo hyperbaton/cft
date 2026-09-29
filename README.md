@@ -673,6 +673,81 @@ lasts about 17 hours after waking up.
 For the common fields, look at the goods need example. This need has no extra fields.
 </details>
 
+#### Visit Need
+
+The Xoonglin wants to spend some of its free time at a structure of some type: a tavern, a
+market, a plaza... When the need is unsatisfied, it walks to the nearest structure of that type
+(of its leader, and within `search_radius` of its home) and it is satisfied as soon as it gets
+there. Then it stays for a while, strolling around the structure, before going back to what it
+was doing. How often it goes there is just the need's `frequency`.
+
+Visits only happen in free time: during leisure hours if the Xoonglin has a
+[schedule](#schedules), or whenever it isn't working otherwise.
+
+<details>
+    <summary>Sample visit need file</summary>
+
+```json
+{
+  "type": "cft:visit",
+  "id": "cft:plaza_visit_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 4.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 1.0,
+  "required_structure": "cft:village_square",
+  "search_radius": 64,
+  "stay_duration": 1200
+}
+```
+
+For the common fields, look at the goods need example.
+
+- `required_structure`: A reference to the structure type to visit.
+- `search_radius`: _(Optional, default: 64)_ How far from the Xoonglin's home the structure
+  can be (Manhattan distance).
+- `stay_duration`: _(Optional, default: 1200)_ How long the Xoonglin stays once it arrives, in
+  ticks (20 ticks = 1 second).
+</details>
+
+#### Socialize Need
+
+The Xoonglin wants to spend some of its free time with another Xoonglin. Unlike the social need,
+which only checks who lives nearby, this one makes two Xoonglins actually meet. For now,
+socializing means having a conversation: the Xoonglin walks to the nearest one that is free
+(awake, not working, not busy with its own needs), of the same leader and of an accepted class.
+They face each other and talk for a while, and then the socialize needs of both of them are
+satisfied, as long as each one accepts the other's class. The partner doesn't need to have a
+socialize need itself.
+
+<details>
+    <summary>Sample socialize need file</summary>
+
+```json
+{
+  "type": "cft:socialize",
+  "id": "cft:conversation_need",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 2.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 0.5,
+  "classes": [],
+  "radius": 24,
+  "duration": 160
+}
+```
+
+For the common fields, look at the goods need example.
+
+- `classes`: _(Optional)_ The social classes of the Xoonglins it is willing to talk to. If empty
+  or omitted, anyone will do.
+- `radius`: _(Optional, default: 24)_ How far away it looks for someone to talk to.
+- `duration`: _(Optional, default: 160)_ How long a conversation lasts once they are
+  together, in ticks (20 ticks = 1 second).
+</details>
+
 ### Jobs
 
 Jobs define what Xoonglins do during the day. They are assigned via the `jobs` field in
