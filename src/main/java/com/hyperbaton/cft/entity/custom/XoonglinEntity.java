@@ -174,6 +174,9 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 } else if (ScheduleUtils.isOffDuty(this)) {
                     // Outside the working hours of its schedule
                     job.eraseMemories(this);
+                } else if (isFetchingSupplies()) {
+                    // Its needs come first: the job resumes once it has fetched what it needs
+                    job.eraseMemories(this);
                 } else {
                     job.tick(this, jobState);
                 }
@@ -207,7 +210,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private void updateActivity() {
         boolean resting = shouldRest();
 
-        if (isActivelyWorking() || (resting && canFetchSupplies())) {
+        if (isActivelyWorking() || (resting && hasSuppliesToFetch())) {
             setActivity(Activity.INVESTIGATE);
         } else if (resting) {
             setActivity(Activity.REST);
@@ -261,12 +264,20 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_TRADE.get());
     }
 
+    /**
+     * Whether it has something to do outside its job's behaviors
+     */
     private boolean isWorkInterrupted() {
         Brain<XoonglinEntity> brain = this.getBrain();
         return brain.hasMemoryValue(CftMemoryModuleType.HOME_NEEDED.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get())
-                || hasFluidOrEnergyToFetch();
+                || isFetchingSupplies()
+                || (brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get())
+                && !brain.hasMemoryValue(CftMemoryModuleType.STRUCTURE_SEARCH_COOLDOWN.get()));
+    }
+
+    /** Whether it has goods, fluid or energy to fetch from a container it knows of. */
+    private boolean isFetchingSupplies() {
+        return hasSuppliesToFetch() || hasFluidOrEnergyToFetch();
     }
 
     /**
@@ -290,11 +301,13 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 && (this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_SLEEP.get()) || this.isSleeping());
     }
 
-    private boolean canFetchSupplies() {
+    /** Whether it needs goods that a container it knows of holds, and isn't waiting to retry. */
+    private boolean hasSuppliesToFetch() {
         Brain<XoonglinEntity> brain = this.getBrain();
         return !this.isSleeping()
                 && brain.hasMemoryValue(CftMemoryModuleType.SUPPLIES_NEEDED.get())
-                && brain.hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER.get());
+                && brain.hasMemoryValue(CftMemoryModuleType.HOME_CONTAINER.get())
+                && !brain.hasMemoryValue(CftMemoryModuleType.SUPPLY_COOLDOWN.get());
     }
 
     @Override

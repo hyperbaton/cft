@@ -21,11 +21,14 @@ import java.util.Optional;
 public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int MAX_SEARCHING_TIME = 2000;
+    /** How long it waits to look again after finding no structure to claim, in ticks. */
+    private static final int SEARCH_COOLDOWN = 400;
 
     private int currentSearchingTime;
 
     public FindAndClaimStructureBehavior() {
-        super(ImmutableMap.of(CftMemoryModuleType.STRUCTURE_NEEDED.get(), MemoryStatus.VALUE_PRESENT));
+        super(ImmutableMap.of(CftMemoryModuleType.STRUCTURE_NEEDED.get(), MemoryStatus.VALUE_PRESENT,
+                CftMemoryModuleType.STRUCTURE_SEARCH_COOLDOWN.get(), MemoryStatus.VALUE_ABSENT), MAX_SEARCHING_TIME);
     }
 
     @Override
@@ -94,6 +97,11 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
     @Override
     protected void stop(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
         xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get());
+        if (xoonglin.getBrain().hasMemoryValue(CftMemoryModuleType.STRUCTURE_NEEDED.get())) {
+            // Nothing to claim, or it couldn't get there: it gets on with other things for a while
+            xoonglin.getBrain().setMemoryWithExpiry(CftMemoryModuleType.STRUCTURE_SEARCH_COOLDOWN.get(), true,
+                    SEARCH_COOLDOWN);
+        }
     }
 
     /** Re-detects the structure at its key block to confirm it is still standing. */

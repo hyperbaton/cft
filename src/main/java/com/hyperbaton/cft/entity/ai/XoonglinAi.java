@@ -67,6 +67,7 @@ public class XoonglinAi {
             CftMemoryModuleType.QUARRY_NEEDS_LADDERS.get(),
             CftMemoryModuleType.STRUCTURE_NEEDED.get(),
             CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get(),
+            CftMemoryModuleType.STRUCTURE_SEARCH_COOLDOWN.get(),
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.LOOK_TARGET
     );

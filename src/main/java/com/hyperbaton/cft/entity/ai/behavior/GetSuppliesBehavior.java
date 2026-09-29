@@ -22,9 +22,14 @@ import java.util.Optional;
 
 public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
     private static final Logger LOGGER = LogUtils.getLogger();
+    /** Long enough to walk to the container from anywhere nearby; it stops earlier on arrival. */
+    private static final int MAX_DURATION = 1200;
+    private static final int REPATH_INTERVAL = 40;
+
+    private int repathTimer;
 
     public GetSuppliesBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition);
+        super(pEntryCondition, MAX_DURATION);
     }
 
     @Override
@@ -36,6 +41,7 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void start(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
+        repathTimer = 0;
         mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER.get()).ifPresent(pos -> {
             LOGGER.trace("Xoonglin {} is moving towards supply container at {}", mob.getCustomName().getString(), pos);
             mob.getNavigation().moveTo(pos.getX(), pos.getY(), pos.getZ(), 1.0);
@@ -46,6 +52,11 @@ public class GetSuppliesBehavior extends Behavior<XoonglinEntity> {
     protected void tick(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
         if (isCloseEnoughToContainer(mob)) {
             mob.getNavigation().stop();
+        } else if (++repathTimer >= REPATH_INTERVAL || mob.getNavigation().isDone()) {
+            // Keep heading there: long paths get recomputed as the Xoonglin gets closer
+            repathTimer = 0;
+            mob.getBrain().getMemory(CftMemoryModuleType.HOME_CONTAINER.get())
+                    .ifPresent(pos -> mob.getNavigation().moveTo(pos.getX(), pos.getY(), pos.getZ(), 1.0));
         }
     }
 

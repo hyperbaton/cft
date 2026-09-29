@@ -18,9 +18,14 @@ import java.util.Optional;
 public class GetEnergyBehavior extends Behavior<XoonglinEntity> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    /** Long enough to walk to the container from anywhere nearby; it stops earlier on arrival. */
+    private static final int MAX_DURATION = 1200;
+    private static final int REPATH_INTERVAL = 40;
+
+    private int repathTimer;
 
     public GetEnergyBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition);
+        super(pEntryCondition, MAX_DURATION);
     }
 
     @Override
@@ -37,6 +42,7 @@ public class GetEnergyBehavior extends Behavior<XoonglinEntity> {
     @Override
     protected void start(ServerLevel level, XoonglinEntity mob, long gameTime) {
         Optional<BlockPos> energyContainerPos = mob.getBrain().getMemory(energyContainerMemoryType());
+        repathTimer = 0;
 
         energyContainerPos.ifPresentOrElse(pos -> {
             LOGGER.trace("Xoonglin {} is moving towards energy container at {}", mob.getCustomName().getString(), pos);
@@ -49,8 +55,11 @@ public class GetEnergyBehavior extends Behavior<XoonglinEntity> {
         if (isCloseEnoughToContainer(mob)) {
             LOGGER.trace("Xoonglin {} reached energy container, stopping movement.", mob.getCustomName().getString());
             mob.getNavigation().stop();
-        } else {
-            LOGGER.trace("Xoonglin {} is still moving towards energy container.", mob.getCustomName().getString());
+        } else if (++repathTimer >= REPATH_INTERVAL || mob.getNavigation().isDone()) {
+            // Keep heading there: long paths get recomputed as the Xoonglin gets closer
+            repathTimer = 0;
+            mob.getBrain().getMemory(energyContainerMemoryType())
+                    .ifPresent(pos -> mob.getNavigation().moveTo(pos.getX(), pos.getY(), pos.getZ(), 1.0));
         }
     }
 
@@ -81,8 +90,12 @@ public class GetEnergyBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
-        LOGGER.trace("Xoonglin {} finished energy retrieval behavior, setting cooldown.", mob.getCustomName().getString());
-        mob.getBrain().setMemoryWithExpiry(energySupplyCooldownMemoryType(), true, CftConfig.SUPPLY_COOLDOWN.get());
+        // Once there, it waits by the container until the energy need draws from it, which forgets the
+        // container. Only when it couldn't get there does it give up for a while.
+        if (!isCloseEnoughToContainer(mob)) {
+            LOGGER.trace("Xoonglin {} couldn't reach the energy container, setting cooldown.", mob.getCustomName().getString());
+            mob.getBrain().setMemoryWithExpiry(energySupplyCooldownMemoryType(), true, CftConfig.SUPPLY_COOLDOWN.get());
+        }
     }
 
     private MemoryModuleType<BlockPos> energyContainerMemoryType() {

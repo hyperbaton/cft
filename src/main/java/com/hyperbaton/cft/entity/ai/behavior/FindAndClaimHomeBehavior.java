@@ -17,7 +17,6 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import org.slf4j.Logger;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 

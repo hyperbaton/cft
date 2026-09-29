@@ -19,9 +19,14 @@ import org.slf4j.Logger;
 public class GetFluidBehavior extends Behavior<XoonglinEntity> {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    /** Long enough to walk to the container from anywhere nearby; it stops earlier on arrival. */
+    private static final int MAX_DURATION = 1200;
+    private static final int REPATH_INTERVAL = 40;
+
+    private int repathTimer;
 
     public GetFluidBehavior(Map<MemoryModuleType<?>, MemoryStatus> pEntryCondition) {
-        super(pEntryCondition);
+        super(pEntryCondition, MAX_DURATION);
     }
 
     @Override
@@ -38,6 +43,7 @@ public class GetFluidBehavior extends Behavior<XoonglinEntity> {
     @Override
     protected void start(ServerLevel level, XoonglinEntity mob, long gameTime) {
         Optional<BlockPos> fluidContainerPos = mob.getBrain().getMemory(fluidContainerMemoryType());
+        repathTimer = 0;
 
         fluidContainerPos.ifPresentOrElse(pos -> {
             LOGGER.trace("Xoonglin {} is moving towards fluid container at {}", mob.getCustomName().getString(), pos);
@@ -50,8 +56,11 @@ public class GetFluidBehavior extends Behavior<XoonglinEntity> {
         if (isCloseEnoughToContainer(mob)) {
             LOGGER.trace("Xoonglin {} reached fluid container, stopping movement.", mob.getCustomName().getString());
             mob.getNavigation().stop(); // Stop moving once close
-        } else {
-            LOGGER.trace("Xoonglin {} is still moving towards fluid container.", mob.getCustomName().getString());
+        } else if (++repathTimer >= REPATH_INTERVAL || mob.getNavigation().isDone()) {
+            // Keep heading there: long paths get recomputed as the Xoonglin gets closer
+            repathTimer = 0;
+            mob.getBrain().getMemory(fluidContainerMemoryType())
+                    .ifPresent(pos -> mob.getNavigation().moveTo(pos.getX(), pos.getY(), pos.getZ(), 1.0));
         }
     }
 
@@ -81,8 +90,12 @@ public class GetFluidBehavior extends Behavior<XoonglinEntity> {
 
     @Override
     protected void stop(ServerLevel pLevel, XoonglinEntity mob, long pGameTime) {
-        LOGGER.trace("Xoonglin {} finished fluid retrieval behavior, setting cooldown.", mob.getCustomName().getString());
-        mob.getBrain().setMemoryWithExpiry(fluidSupplyCooldownMemoryType(), true, CftConfig.SUPPLY_COOLDOWN.get());
+        // Once there, it waits by the container until the fluid need drinks from it, which forgets the
+        // container. Only when it couldn't get there does it give up for a while.
+        if (!isCloseEnoughToContainer(mob)) {
+            LOGGER.trace("Xoonglin {} couldn't reach the fluid container, setting cooldown.", mob.getCustomName().getString());
+            mob.getBrain().setMemoryWithExpiry(fluidSupplyCooldownMemoryType(), true, CftConfig.SUPPLY_COOLDOWN.get());
+        }
     }
 
     private MemoryModuleType<BlockPos> fluidContainerMemoryType() {
