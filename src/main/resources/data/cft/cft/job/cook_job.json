@@ -1,0 +1,15 @@
+{
+  "type": "cft:smelter",
+  "hours_per_day": 6.0,
+  "required_structure": "cft:bakery",
+  "inputs": [
+    { "item": "minecraft:beef" },
+    { "item": "minecraft:porkchop" },
+    { "item": "minecraft:chicken" },
+    { "item": "minecraft:mutton" },
+    { "item": "minecraft:rabbit" },
+    { "item": "minecraft:cod" },
+    { "item": "minecraft:salmon" },
+    { "item": "minecraft:potato" }
+  ]
+}

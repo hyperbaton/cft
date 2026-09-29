@@ -46,6 +46,7 @@ public class XoonglinAi {
             CftMemoryModuleType.MUST_PERFORM_RITUAL.get(),
             CftMemoryModuleType.MUST_ATTEND_RITUAL.get(),
             CftMemoryModuleType.MUST_CRAFT.get(),
+            CftMemoryModuleType.MUST_SMELT.get(),
             CftMemoryModuleType.MUST_FISH.get(),
             CftMemoryModuleType.MUST_HEAL.get(),
             CftMemoryModuleType.MUST_BLESS.get(),
@@ -140,6 +141,9 @@ public class XoonglinAi {
                 )),
                 Pair.of(2, new CraftBehavior(
                         Map.of(CftMemoryModuleType.MUST_CRAFT.get(), MemoryStatus.VALUE_PRESENT)
+                )),
+                Pair.of(2, new SmeltBehavior(
+                        Map.of(CftMemoryModuleType.MUST_SMELT.get(), MemoryStatus.VALUE_PRESENT)
                 )),
                 Pair.of(2, new FishBehavior(
                         Map.of(CftMemoryModuleType.MUST_FISH.get(), MemoryStatus.VALUE_PRESENT)

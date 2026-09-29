@@ -1617,6 +1617,54 @@ miner rechecks periodically and resumes once it is dry.
 
 
 
+#### Smelter
+
+The Xoonglin works at a workshop with vanilla furnaces, smokers or blast furnaces, and keeps them
+running: every now and then it collects their results into the workshop's chests and loads them
+with things to cook and fuel taken from those same chests. The furnaces do the actual cooking, so
+recipes, fuel values and cooking times are vanilla's, and any item they can cook works (a smoker
+only takes food, a blast furnace only ores and metal, as usual).
+
+Only the three vanilla furnace types are tended; furnaces added by other mods are left alone.
+A cook is the same job at a structure with smokers, like the bakery, with its `inputs` limited
+to raw food.
+
+<details>
+    <summary>Sample smelter job file</summary>
+
+```json
+{
+  "type": "cft:smelter",
+  "hours_per_day": 8.0,
+  "required_structure": "cft:smeltery"
+}
+```
+- `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
+- `required_structure`: A reference to the structure type ID of the workshop. The smelter must
+  be a user of one, and works at its key block.
+- `inputs`: _(Optional)_ A list of items, in Ingredient format, that the smelter may put in the
+  furnaces. If empty or omitted, anything the furnaces can cook.
+- `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
+  Xoonglin to be able to work.
+</details>
+
+<details>
+    <summary>Sample cook job file</summary>
+
+```json
+{
+  "type": "cft:smelter",
+  "hours_per_day": 6.0,
+  "required_structure": "cft:bakery",
+  "inputs": [
+    { "item": "minecraft:beef" },
+    { "item": "minecraft:porkchop" },
+    { "item": "minecraft:potato" }
+  ]
+}
+```
+</details>
+
 ### Structures
 
 Structures define building types that the mod can recognize and validate in the world.

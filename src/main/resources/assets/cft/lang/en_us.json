@@ -228,5 +228,8 @@
   "need.cft.conversation_need.tooltip": "Wants to chat with another Xoonglin in its free time.",
   "cft:tavern": "Tavern",
   "cft:tavern_visit_need": "Tavern",
-  "need.cft.tavern_visit_need.tooltip": "Likes to have a drink at the tavern in its free time. While there, it can also eat and drink from the tavern's stock."
+  "need.cft.tavern_visit_need.tooltip": "Likes to have a drink at the tavern in its free time. While there, it can also eat and drink from the tavern's stock.",
+  "job.cft.smelter_job": "Smelter",
+  "job.cft.cook_job": "Cook",
+  "cft:smeltery": "Smeltery"
 }
