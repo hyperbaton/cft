@@ -865,6 +865,11 @@ home container.
 
 The Xoonglin patrols around their home and attacks hostile mobs that come nearby.
 
+By default, monsters leave Xoonglins alone. With `monstersHuntXoonglins` enabled in the mod
+config, zombies (including husks, drowned and zombie villagers) attack Xoonglins as they attack
+villagers, which makes nights dangerous and guards more useful. A good fit for that is a guard job
+with a `schedule` that works at night.
+
 <details>
     <summary>Sample guard job file</summary>
 
