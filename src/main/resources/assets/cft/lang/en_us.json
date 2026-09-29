@@ -159,6 +159,7 @@
   "cft:reading_need": "Reading",
   "job.cft.settler_builder_job": "Builder",
   "job.cft.trader_job": "Trader",
+  "job.cft.tavern_keeper_job": "Tavern Keeper",
   "gui.cft.job_trades": "Trades",
   "gui.cft.configure_trades": "Configure Trades",
   "gui.cft.no_trades": "No trades configured",

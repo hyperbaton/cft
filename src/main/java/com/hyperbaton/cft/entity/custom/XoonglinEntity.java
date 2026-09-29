@@ -231,6 +231,14 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private boolean isActivelyWorking() {
+        return isWorkingAtJob() || this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get());
+    }
+
+    /**
+     * Whether its job has it working right now: jobs set their MUST_* memory while there's work to
+     * do, within working hours and when the Xoonglin can work.
+     */
+    public boolean isWorkingAtJob() {
         Brain<XoonglinEntity> brain = this.getBrain();
         return brain.hasMemoryValue(CftMemoryModuleType.MUST_WORK_AT_HOME.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_GATHER.get())
@@ -239,7 +247,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_HAUL.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_BUILD.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_PERFORM_RITUAL.get())
-                || brain.hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_CRAFT.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_SMELT.get())
                 || brain.hasMemoryValue(CftMemoryModuleType.MUST_CHOP.get())

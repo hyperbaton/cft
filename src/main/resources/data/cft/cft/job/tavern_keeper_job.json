@@ -1,0 +1,11 @@
+{
+  "type": "cft:trader",
+  "hours_per_day": 8.0,
+  "required_structure": "cft:tavern",
+  "max_trades": 4,
+  "schedule": [
+    { "at": 6, "activity": "minecraft:idle" },
+    { "at": 14, "activity": "minecraft:work" },
+    { "at": 22, "activity": "minecraft:rest" }
+  ]
+}

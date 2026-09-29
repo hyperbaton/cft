@@ -32,6 +32,8 @@ public class VisitNeed extends Need {
             Codec.INT.optionalFieldOf("stay_duration", 1200).forGetter(VisitNeed::getStayDuration),
             ItemQuantity.CODEC.listOf().optionalFieldOf("consumes", List.of()).forGetter(VisitNeed::getConsumes),
             Codec.BOOL.optionalFieldOf("use_supplies", false).forGetter(VisitNeed::isUseSupplies),
+            Codec.BOOL.optionalFieldOf("requires_running", false).forGetter(VisitNeed::isRequiresRunning),
+            Codec.STRING.listOf().optionalFieldOf("running_work_steps", List.of()).forGetter(VisitNeed::getRunningWorkSteps),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(VisitNeed::getIcon)
     ).apply(instance, VisitNeed::new));
 
@@ -40,17 +42,22 @@ public class VisitNeed extends Need {
     private final int stayDuration;
     private final List<ItemQuantity> consumes;
     private final boolean useSupplies;
+    private final boolean requiresRunning;
+    private final List<String> runningWorkSteps;
 
     public VisitNeed(String id, double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                      String requiredStructure, int searchRadius, int stayDuration, List<ItemQuantity> consumes,
-                     boolean useSupplies, Optional<ResourceLocation> icon) {
+                     boolean useSupplies, boolean requiresRunning, List<String> runningWorkSteps,
+                     Optional<ResourceLocation> icon) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.requiredStructure = requiredStructure;
         this.searchRadius = searchRadius;
         this.stayDuration = stayDuration;
         this.consumes = List.copyOf(consumes);
         this.useSupplies = useSupplies;
+        this.requiresRunning = requiresRunning;
+        this.runningWorkSteps = List.copyOf(runningWorkSteps);
     }
 
     @Override
@@ -102,5 +109,15 @@ public class VisitNeed extends Need {
      */
     public boolean isUseSupplies() {
         return useSupplies;
+    }
+
+    /** Whether only running structures are visited: one of their workers is working right now. */
+    public boolean isRequiresRunning() {
+        return requiresRunning;
+    }
+
+    /** With {@link #isRequiresRunning()}, the work steps the worker must be on; empty for any. */
+    public List<String> getRunningWorkSteps() {
+        return runningWorkSteps;
     }
 }

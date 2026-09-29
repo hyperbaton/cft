@@ -343,6 +343,11 @@ For the common fields, look at the goods need example. The specific fields for s
   and interact with the structure; if false, the structure just needs to exist nearby.
 - `search_radius`: _(Optional, default: 64)_ How far (in blocks) the Xoonglin will search
   for the required structure.
+- `requires_running`: _(Optional, default: false)_ If true, only running structures are visited:
+  those where one of their workers is working right now, like a tavern whose keeper is on shift.
+  See the [structure need](#structure-need) for what counts as a worker.
+- `running_work_steps`: _(Optional)_ With `requires_running`, the work steps the worker must be on.
+  They are the steps shown in the job tab, named after their lang entries (`gui.cft.work_step.<step>`).
 </details>
 
 #### Altitude Need
@@ -718,13 +723,20 @@ For the common fields, look at the goods need example.
   with the ones in its home (and preferring the structure's). From there it only takes what
   it needs right now: `hoarding` only applies to its home. Leave it off for structures whose
   containers hold goods for other purposes, like a job's inputs or a ritual's ingredients.
+- `requires_running`: _(Optional, default: false)_ If true, only running structures are visited:
+  those where one of their workers is working right now, like a tavern whose keeper is on shift.
+  See the [structure need](#structure-need) for what counts as a worker.
+- `running_work_steps`: _(Optional)_ With `requires_running`, the work steps the worker must be on,
+  as in the structure need.
 </details>
 
 <details>
     <summary>Sample tavern visit need</summary>
 
 The mod ships this need together with a sample `cft:tavern` structure: an enclosed wooden
-building whose key block is a barrel, which can also hold the tavern's stock.
+building whose key block is a barrel, which can also hold the tavern's stock. The tavern is only
+open while a tavern keeper is working there: the sample `cft:tavern_keeper_job` is a trader at the
+tavern, working from 14:00 to 22:00.
 
 ```json
 {
@@ -739,7 +751,8 @@ building whose key block is a barrel, which can also hold the tavern's stock.
   "consumes": [
     { "item": { "item": "minecraft:honey_bottle" }, "quantity": 1 }
   ],
-  "use_supplies": true
+  "use_supplies": true,
+  "requires_running": true
 }
 ```
 </details>

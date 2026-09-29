@@ -7,7 +7,10 @@ import com.hyperbaton.cft.network.InventorySlotData;
 import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.entity.ai.behavior.WorkStep;
 import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
+import com.hyperbaton.cft.structure.Structure;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.core.BlockPos;
@@ -26,6 +29,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class JobUtil {
     private JobUtil() {}
@@ -116,6 +120,35 @@ public final class JobUtil {
                 return;
             }
         }
+    }
+
+    /**
+     * Whether the structure is running: one of its workers is working right now. A worker is a
+     * Xoonglin assigned to it through a job that requires its structure type. With work steps (e.g.
+     * "tending_furnaces"), the worker must also be on one of them, as shown in its job tab.
+     */
+    public static boolean isStructureRunning(ServerLevel level, Structure structure, List<String> workSteps) {
+        for (UUID userId : structure.getUserIds()) {
+            if (level.getEntity(userId) instanceof XoonglinEntity worker && isWorkingFor(worker, structure)
+                    && (workSteps.isEmpty() || isOnWorkStep(worker, workSteps))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isWorkingFor(XoonglinEntity worker, Structure structure) {
+        Job job = worker.getJob() != null ? CftRegistry.JOBS.get(worker.getJob()) : null;
+        String structureType = structure.getStructureTypeId();
+        return job != null && structureType.equals(job.getRequiredStructureType())
+                && structure.getKeyBlockPos().equals(worker.getAssignedStructurePos(structureType))
+                && worker.isWorkingAtJob();
+    }
+
+    private static boolean isOnWorkStep(XoonglinEntity worker, List<String> workSteps) {
+        return worker.getBrain().getMemory(CftMemoryModuleType.WORK_STEP.get())
+                .map(step -> workSteps.stream().anyMatch(name -> WorkStep.of(name).equals(step)))
+                .orElse(false);
     }
 
     public static boolean isAtHome(XoonglinEntity mob, double radius) {

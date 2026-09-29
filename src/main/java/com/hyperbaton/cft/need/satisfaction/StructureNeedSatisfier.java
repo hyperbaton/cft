@@ -4,9 +4,12 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.StructureNeed;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+
+import java.util.Optional;
 
 public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
 
@@ -27,13 +30,20 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
         if (need.isRequiresUsage()) {
             BlockPos assignedPos = mob.getAssignedStructurePos(need.getRequiredStructure());
             if (assignedPos != null) {
-                boolean structureExists = data.getStructures().stream()
-                        .anyMatch(s -> s.getKeyBlockPos().equals(assignedPos)
+                Optional<Structure> assigned = data.getStructures().stream()
+                        .filter(s -> s.getKeyBlockPos().equals(assignedPos)
                                 && s.getStructureTypeId().equals(need.getRequiredStructure())
-                                && s.isUser(mob.getUUID()));
-                if (structureExists) {
-                    super.satisfy(mob);
-                    return true;
+                                && s.isUser(mob.getUUID()))
+                        .findFirst();
+                if (assigned.isPresent()) {
+                    if (isRunningIfRequired(level, assigned.get())) {
+                        super.satisfy(mob);
+                        return true;
+                    }
+                    // It has its structure, but nobody is working there now: nothing to look for
+                    this.unsatisfy(need.getFrequency(), mob);
+                    mob.decreaseHappiness(need);
+                    return false;
                 }
             }
             // Not assigned yet — trigger behavior to find and claim
@@ -47,7 +57,8 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
             boolean found = data.getStructures().stream()
                     .filter(s -> s.getStructureTypeId().equals(need.getRequiredStructure()))
                     .filter(s -> s.getLeaderId().equals(mob.getLeaderId()))
-                    .anyMatch(s -> s.getKeyBlockPos().distManhattan(homePos) <= need.getSearchRadius());
+                    .filter(s -> s.getKeyBlockPos().distManhattan(homePos) <= need.getSearchRadius())
+                    .anyMatch(s -> isRunningIfRequired(level, s));
 
             if (found) {
                 super.satisfy(mob);
@@ -58,6 +69,10 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
             mob.decreaseHappiness(need);
             return false;
         }
+    }
+
+    private boolean isRunningIfRequired(ServerLevel level, Structure structure) {
+        return !need.isRequiresRunning() || JobUtil.isStructureRunning(level, structure, need.getRunningWorkSteps());
     }
 
     @Override

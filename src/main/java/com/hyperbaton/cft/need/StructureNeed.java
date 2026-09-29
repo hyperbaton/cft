@@ -25,21 +25,37 @@ public class StructureNeed extends Need {
             Codec.STRING.fieldOf("required_structure").forGetter(StructureNeed::getRequiredStructure),
             Codec.BOOL.optionalFieldOf("requires_usage", false).forGetter(StructureNeed::isRequiresUsage),
             Codec.INT.optionalFieldOf("search_radius", 64).forGetter(StructureNeed::getSearchRadius),
+            Codec.BOOL.optionalFieldOf("requires_running", false).forGetter(StructureNeed::isRequiresRunning),
+            Codec.STRING.listOf().optionalFieldOf("running_work_steps", List.of()).forGetter(StructureNeed::getRunningWorkSteps),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(StructureNeed::getIcon)
     ).apply(instance, StructureNeed::new));
 
     private final String requiredStructure;
     private final boolean requiresUsage;
     private final int searchRadius;
+    private final boolean requiresRunning;
+    private final List<String> runningWorkSteps;
 
     public StructureNeed(String id, double damage, double damageThreshold, double providedHappiness,
                          double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                          String requiredStructure, boolean requiresUsage, int searchRadius,
-                         Optional<ResourceLocation> icon) {
+                         boolean requiresRunning, List<String> runningWorkSteps, Optional<ResourceLocation> icon) {
         super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.requiredStructure = requiredStructure;
         this.requiresUsage = requiresUsage;
         this.searchRadius = searchRadius;
+        this.requiresRunning = requiresRunning;
+        this.runningWorkSteps = List.copyOf(runningWorkSteps);
+    }
+
+    /** Whether the structure only counts while running: one of its workers is working right now. */
+    public boolean isRequiresRunning() {
+        return requiresRunning;
+    }
+
+    /** With {@link #isRequiresRunning()}, the work steps its worker must be on; empty for any. */
+    public List<String> getRunningWorkSteps() {
+        return runningWorkSteps;
     }
 
     public String getRequiredStructure() {
