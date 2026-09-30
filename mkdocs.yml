@@ -1,0 +1,58 @@
+site_name: Care For Them
+site_url: https://hyperbaton.github.io/cft/
+site_description: Documentation for Care For Them, a Minecraft mod about caring for a population of Xoonglins.
+repo_url: https://github.com/hyperbaton/cft
+repo_name: hyperbaton/cft
+edit_uri: edit/1.21.x/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Datapacks:
+      - datapacks/index.md
+      - Social classes: datapacks/social-classes.md
+      - Schedules: datapacks/schedules.md
+      - Needs: datapacks/needs.md
+      - Jobs: datapacks/jobs.md
+      - Structures: datapacks/structures.md
+  - Addons: addons.md

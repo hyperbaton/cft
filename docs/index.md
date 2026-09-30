@@ -50,10 +50,6 @@ equipment needs.
 
 ## Documentation
 
-The full documentation is at **https://hyperbaton.github.io/cft/**:
-
-- [Datapacks](https://hyperbaton.github.io/cft/datapacks/): how to configure social classes, schedules, needs, jobs and
+- [Datapacks](datapacks/index.md): how to configure social classes, schedules, needs, jobs and
   structures.
-- [Addons](https://hyperbaton.github.io/cft/addons/): how other mods can add new kinds of needs, jobs and structures.
-
-Its sources are the Markdown files in the [docs](docs) folder.
+- [Addons](addons.md): how other mods can add new kinds of needs, jobs and structures.
