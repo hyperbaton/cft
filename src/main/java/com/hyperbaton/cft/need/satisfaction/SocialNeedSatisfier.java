@@ -40,7 +40,8 @@ public class SocialNeedSatisfier extends NeedSatisfier<SocialNeed> {
 
         // Count only those that match one of the accepted social class IDs
         long matching = nearby.stream()
-                .filter(nearbyXoonglin -> nearbyXoonglin.getLeaderId().equals(mob.getLeaderId()))
+                .filter(nearbyXoonglin -> mob.getLeaderId() != null
+                        && mob.getLeaderId().equals(nearbyXoonglin.getLeaderId()))
                 .filter(e -> {
                     if (acceptable == null || acceptable.isEmpty()) return true;
                     String classId = e.getSocialClassId();

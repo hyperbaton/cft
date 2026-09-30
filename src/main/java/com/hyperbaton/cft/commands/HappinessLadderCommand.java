@@ -40,7 +40,7 @@ public class HappinessLadderCommand {
 
     private Integer getHappinessForPlayer(ServerPlayer player, ServerLevel level) {
         return SocialStructureHelper.getAllXoonglins(level).stream()
-                .filter(xoonglin -> xoonglin.getLeaderId().equals(player.getUUID()))
+                .filter(xoonglin -> player.getUUID().equals(xoonglin.getLeaderId()))
                 .map(XoonglinEntity::getHappiness)
                 .reduce(0.0, Double::sum).intValue();
 

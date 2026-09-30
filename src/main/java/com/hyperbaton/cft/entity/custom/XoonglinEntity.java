@@ -43,6 +43,10 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
+import com.hyperbaton.cft.entity.spawner.XoonglinSpawner;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -324,6 +328,26 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
     }
 
+    /**
+     * Xoonglins from a spawn egg, a dispenser or a command get a random social class, and the
+     * nearest player as their leader.
+     */
+    @Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
+                                        MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+        SpawnGroupData groupData = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        if (this.socialClass == null && CftRegistry.SOCIAL_CLASSES != null
+                && (spawnType == MobSpawnType.SPAWN_EGG || spawnType == MobSpawnType.DISPENSER
+                || spawnType == MobSpawnType.COMMAND)) {
+            Player leader = level.getNearestPlayer(this, -1.0);
+            if (leader != null) {
+                CftRegistry.SOCIAL_CLASSES.getRandom(this.random).ifPresent(socialClass ->
+                        XoonglinSpawner.setUpXoonglin(this, socialClass.value(), leader.getUUID()));
+            }
+        }
+        return groupData;
+    }
+
     @Override
     public void updateDynamicGameEventListener(@NotNull BiConsumer<DynamicGameEventListener<?>, ServerLevel> listenerConsumer) {
         if (this.level() instanceof ServerLevel serverLevel) {
@@ -436,7 +460,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private void checkSocialClass() {
-        if (this.level().getPlayerByUUID(this.leaderId) == null) {
+        if (this.socialClass == null || this.leaderId == null || this.level().getPlayerByUUID(this.leaderId) == null) {
             return;
         }
         if (!downgradeSocialClass()) {
@@ -824,8 +848,12 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     @Override
     public void addAdditionalSaveData(final @NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putString(KEY_SOCIAL_CLASS, getSocialClassId());
-        tag.putUUID(KEY_LEADER_ID, leaderId);
+        if (socialClass != null) {
+            tag.putString(KEY_SOCIAL_CLASS, getSocialClassId());
+        }
+        if (leaderId != null) {
+            tag.putUUID(KEY_LEADER_ID, leaderId);
+        }
         tag.put(KEY_INVENTORY, inventory.createTag(this.registryAccess()));
         if (home != null) {
             tag.put(KEY_HOME, home.toTag());
@@ -857,7 +885,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private ListTag getNeedsTag(List<? extends NeedSatisfier<? extends Need>> needs) {
 
         ListTag needsTags = new ListTag();
-        if (!this.needs.isEmpty()) {
+        if (this.needs != null && !this.needs.isEmpty()) {
             for (NeedSatisfier<? extends Need> need : needs) {
                 needsTags.add(need.toTag());
             }

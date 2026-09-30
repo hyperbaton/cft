@@ -338,5 +338,9 @@
   "detection.cft.detail.storey": "Storey %s: %s",
   "detection.cft.detail.storey_floor_unmatched": "The floor matches neither the shared layer nor the layer above the previous ceiling",
   "detection.cft.detail.storey_floor_degenerate": "The floor region is degenerate",
-  "message.cft.not_leader": "You are not the leader of this Xoonglin."
+  "message.cft.not_leader": "You are not the leader of this Xoonglin.",
+  "commands.cft.xoonglin.summon.success": "Summoned %s (%s), led by %s",
+  "commands.cft.xoonglin.unknown_class": "Unknown social class: %s",
+  "commands.cft.xoonglin.no_classes": "There are no social classes to choose from",
+  "commands.cft.xoonglin.no_leader": "A leader must be given when the command isn't run by a player"
 }

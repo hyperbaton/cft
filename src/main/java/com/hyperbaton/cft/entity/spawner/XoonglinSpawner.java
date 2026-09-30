@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.entity.spawner;
 
+import org.jetbrains.annotations.Nullable;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -86,15 +87,23 @@ public class XoonglinSpawner implements CustomSpawner {
 
     public static void updateSpawnedXoonglin(XoonglinEntity xoonglin, Structure house, SocialClass socialClass, UUID leaderId) {
         house.addUser(xoonglin.getUUID());
-        xoonglin.setLeaderId(leaderId);
         xoonglin.setHome(HouseStructure.of(house));
+        setUpXoonglin(xoonglin, socialClass, leaderId);
+        LOGGER.trace("Xoonglin spawned");
+        LOGGER.trace("Home house {} with owner and leaderId: {}", house.getStructureTypeId(), house.getLeaderId());
+    }
+
+    /**
+     * Gives a new Xoonglin its leader and social class, and all that comes with the class: its
+     * name, needs, job and health.
+     */
+    public static void setUpXoonglin(XoonglinEntity xoonglin, SocialClass socialClass, @Nullable UUID leaderId) {
+        xoonglin.setLeaderId(leaderId);
         xoonglin.setSocialClass(socialClass);
         xoonglin.setCustomName(Component.literal(socialClass.generateName()));
         xoonglin.setNeeds(NeedUtils.getNeedsForClass(xoonglin.getSocialClass()));
         xoonglin.getEntityData().set(XoonglinEntity.SOCIAL_CLASS_NAME, xoonglin.getSocialClassId());
         xoonglin.setJob(socialClass.getRandomJob(xoonglin.getRandom(), xoonglin.isBaby()));
         xoonglin.applyClassMaxHealth();
-        LOGGER.trace("Xoonglin spawned");
-        LOGGER.trace("Home house {} with owner and leaderId: {}", house.getStructureTypeId(), house.getLeaderId());
     }
 }
