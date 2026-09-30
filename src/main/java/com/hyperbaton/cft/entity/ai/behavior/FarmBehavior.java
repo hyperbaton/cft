@@ -9,6 +9,7 @@ import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -185,6 +186,7 @@ public class FarmBehavior extends JobBehavior<FarmerJob> {
             List<ItemStack> drops = Block.getDrops(blockState, level, targetBlock,
                     level.getBlockEntity(targetBlock), entity, entity.getMainHandItem());
 
+            entity.swing(InteractionHand.MAIN_HAND);
             level.destroyBlock(targetBlock, false, entity);
 
             for (ItemStack drop : drops) {
@@ -214,6 +216,7 @@ public class FarmBehavior extends JobBehavior<FarmerJob> {
             if (consumeSeed(entity, job.getSeed())) {
                 BlockState cropState = job.getCropBlock().defaultBlockState();
                 if (cropState.canSurvive(level, targetBlock)) {
+                    entity.swing(InteractionHand.MAIN_HAND);
                     level.setBlock(targetBlock, cropState, 3);
                 }
             }

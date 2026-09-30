@@ -11,6 +11,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.ai.Brain;
@@ -26,6 +27,9 @@ import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
 public class HomeArtisanJob extends Job {
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    /** While working, it swings its arm this often (in ticks), to show it's busy. */
+    private static final int WORK_SWING_INTERVAL = 20;
 
     public static final Codec<HomeArtisanJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
@@ -79,6 +83,9 @@ public class HomeArtisanJob extends Job {
         if (JobUtil.isAtHome(xoonglin, CftConfig.HOME_WORK_RADIUS.get())
                 && canWork(xoonglin)) {
             state.workedTicksToday++;
+            if (state.workedTicksToday % WORK_SWING_INTERVAL == 0) {
+                xoonglin.swing(InteractionHand.MAIN_HAND);
+            }
         }
 
         // Credit the streak the instant today's quota is met

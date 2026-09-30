@@ -4,6 +4,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.GathererJob;
 import com.hyperbaton.cft.util.JobUtil;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -145,6 +146,7 @@ public class GatherBlocksBehavior extends JobBehavior<GathererJob> {
             List<ItemStack> drops = Block.getDrops(blockState, level, targetBlock,
                     level.getBlockEntity(targetBlock), entity, entity.getMainHandItem());
 
+            entity.swing(InteractionHand.MAIN_HAND);
             level.destroyBlock(targetBlock, false, entity);
 
             for (ItemStack drop : drops) {

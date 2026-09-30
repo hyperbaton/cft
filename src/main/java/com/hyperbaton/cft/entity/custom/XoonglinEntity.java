@@ -41,6 +41,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -100,6 +101,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState swingAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
 
     private UUID leaderId;
@@ -308,6 +310,17 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         super.ageBoundaryReached();
         if (!level().isClientSide) {
             assignEligibleJobIfNeeded();
+        }
+    }
+
+    /**
+     * On the client, a swing sent by the server also plays the model's swing animation.
+     */
+    @Override
+    public void swing(InteractionHand hand, boolean updateSelf) {
+        super.swing(hand, updateSelf);
+        if (this.level().isClientSide && this.swingTime == -1) {
+            this.swingAnimationState.start(this.tickCount);
         }
     }
 

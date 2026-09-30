@@ -16,6 +16,7 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
+import org.joml.Vector3f;
 
 public class XoonglinModel<T extends Entity> extends HierarchicalModel<T> implements ArmedModel {
     private final ModelPart torso;
@@ -31,6 +32,12 @@ public class XoonglinModel<T extends Entity> extends HierarchicalModel<T> implem
     private final ModelPart antenna;
     private final ModelPart right_ear;
     private final ModelPart left_ear;
+
+    /** Where each hand is in its shoulder's coordinates, in pixels: near the tip of the forearm. */
+    private static final Vector3f RIGHT_HAND = new Vector3f(-6.2F, 1.0F, 6.0F);
+    private static final Vector3f LEFT_HAND = new Vector3f(-5.4F, 1.0F, -5.8F);
+    /** How far up held items are tilted, around the hand. */
+    private static final float ITEM_TILT_DEGREES = 60.0F;
 
     public XoonglinModel(ModelPart root) {
         this.torso = root.getChild("torso");
@@ -108,6 +115,7 @@ public class XoonglinModel<T extends Entity> extends HierarchicalModel<T> implem
 
         this.animateWalk(XoonglinAnimations.XOONGLIN_WALK, limbSwing, limbSwingAmount, 2f, 2.5f);
         this.animate(((XoonglinEntity) entity).idleAnimationState, XoonglinAnimations.XOONGLIN_IDLE, ageInTicks, 1f);
+        this.animate(((XoonglinEntity) entity).swingAnimationState, XoonglinAnimations.XOONGLIN_SWING, ageInTicks, 1f);
     }
 
     private void applyHeadRotation(float pNetHeadYaw, float pHeadPitch, float pAgeInTicks) {
@@ -123,12 +131,21 @@ public class XoonglinModel<T extends Entity> extends HierarchicalModel<T> implem
         return torso;
     }
 
+    /**
+     * Moves to the hand, near the tip of the forearm, and turns to face forward like a humanoid arm,
+     * since the item layer places items the way humanoid models hold them.
+     */
     @Override
     public void translateToHand(HumanoidArm arm, PoseStack poseStack) {
-        ModelPart shoulder = arm == HumanoidArm.RIGHT ? this.right_shoulder : this.left_shoulder;
-        shoulder.translateAndRotate(poseStack);
-        float side = arm == HumanoidArm.RIGHT ? 1.0F : -1.0F;
-        poseStack.translate(0.7F, 0.4025F, side - 1.25F /** 0.206F*/);
-        poseStack.mulPose(Axis.XP.rotationDegrees(-45.0F));
+        // The shoulders hang from the torso, which is turned sideways (forward is its -X, right its +Z)
+        this.torso.translateAndRotate(poseStack);
+        (arm == HumanoidArm.RIGHT ? this.right_shoulder : this.left_shoulder).translateAndRotate(poseStack);
+        Vector3f hand = arm == HumanoidArm.RIGHT ? RIGHT_HAND : LEFT_HAND;
+        poseStack.translate(hand.x() / 16.0F, hand.y() / 16.0F, hand.z() / 16.0F);
+        poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
+        // Tilts the item up around the hand: a humanoid's arm hangs down, but the Xoonglin's reaches forward
+        poseStack.mulPose(Axis.XP.rotationDegrees(-ITEM_TILT_DEGREES));
+        // The item layer then moves 10 pixels down the arm and 2 forward, to where a humanoid's hand is
+        poseStack.translate(0.05F, -0.525F, 0.125F);
     }
 }

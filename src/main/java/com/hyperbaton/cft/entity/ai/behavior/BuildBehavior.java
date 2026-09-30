@@ -10,6 +10,7 @@ import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
 import net.minecraft.server.level.ServerLevel;
@@ -414,6 +415,7 @@ public class BuildBehavior extends JobBehavior<BuilderJob> {
 
             occupyTicks = 0;
             entity.getNavigation().stop();
+            entity.swing(InteractionHand.MAIN_HAND);
             level.setBlock(placement.target, placement.state, 3);
             if (placement.state.getBlock() instanceof DoorBlock) {
                 level.setBlock(placement.target.above(),

@@ -87,5 +87,13 @@ public class XoonglinAnimations {
             ))
             .build();
 
-
+    /** Plays once whenever the Xoonglin swings its arm: raises it and strikes down in front. */
+    public static final AnimationDefinition XOONGLIN_SWING = AnimationDefinition.Builder.withLength(0.3F)
+            .addAnimation("right_shoulder", new AnimationChannel(AnimationChannel.Targets.ROTATION,
+                    new Keyframe(0.0F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(0.1F, KeyframeAnimations.degreeVec(0.0F, 0.0F, -50.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(0.2F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 35.0F), AnimationChannel.Interpolations.CATMULLROM),
+                    new Keyframe(0.3F, KeyframeAnimations.degreeVec(0.0F, 0.0F, 0.0F), AnimationChannel.Interpolations.CATMULLROM)
+            ))
+            .build();
 }
