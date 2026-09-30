@@ -548,3 +548,53 @@ socialize need itself.
     - `radius`: _(Optional, default: 24)_ How far away it looks for someone to talk to.
     - `duration`: _(Optional, default: 160)_ How long a conversation lasts once they are
       together, in ticks (20 ticks = 1 second).
+
+## Hearing Need
+
+The Xoonglin wants to hear some sounds around it now and then: music, the bustle of a busy
+street... It can also be the opposite, a Xoonglin that wants quiet. The need is satisfied while
+the Xoonglin has heard the right number of those sounds recently, wherever it is; it doesn't go
+looking for them.
+
+A Xoonglin hears two kinds of sounds, and a need can list both:
+
+- **Sounds** played by the server, as far as a player would hear them: 16 blocks for most, and
+  further for loud ones (a bell reaches 32 blocks), up to 64 blocks. Type `/playsound ` in game
+  and press Tab to browse them. Some sounds are made only on the player's screen and can't be
+  heard: jukebox music, blocks breaking, campfires, rain.
+- **Game events**, the vibrations the Warden and sculk sensors react to: steps, blocks placed or
+  broken, doors, containers, eating, explosions, note blocks, jukeboxes playing (once per second),
+  goat horns... Most reach 16 blocks, and jukeboxes 10. The Minecraft wiki's "Game event" page
+  lists them.
+
+It never hears its own sounds. Some things make both a sound and a game event (a note block
+plays `block.note_block.harp` and sends `note_block_play`); listing both counts them twice.
+
+??? example "Sample hearing need file"
+
+    ```json
+    {
+      "type": "cft:hearing",
+      "damage": 0.0,
+      "damage_threshold": 0.0,
+      "provided_happiness": 4.0,
+      "satisfaction_threshold": 0.5,
+      "frequency": 1.0,
+      "bonus": true,
+      "game_events": ["minecraft:jukebox_play", "minecraft:note_block_play", "minecraft:instrument_play"],
+      "sounds": ["minecraft:block.bell.use"],
+      "min_events": 5,
+      "window": 60
+    }
+    ```
+
+    For the common fields, look at the goods need example.
+
+    - `sounds`: _(Optional)_ The sounds it wants to hear, by id, or by tag with a leading `#`.
+    - `game_events`: _(Optional)_ The game events it wants to hear, by id, or by tag with a
+      leading `#` (e.g. `"#minecraft:vibrations"`).
+    - `min_events`: _(Optional, default: 1)_ How many of them it must have heard within the
+      `window` for the need to be satisfied.
+    - `max_events`: _(Optional)_ If given, the need is not satisfied either if it heard more than
+      this. With `min_events` at 0, it makes a need for quiet.
+    - `window`: _(Optional, default: 60)_ How far back it remembers what it heard, in seconds.

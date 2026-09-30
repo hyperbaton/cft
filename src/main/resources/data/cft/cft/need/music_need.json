@@ -1,0 +1,13 @@
+{
+  "type": "cft:hearing",
+  "damage": 0.0,
+  "damage_threshold": 0.0,
+  "provided_happiness": 4.0,
+  "satisfaction_threshold": 0.5,
+  "frequency": 1.0,
+  "bonus": true,
+  "game_events": ["minecraft:jukebox_play", "minecraft:note_block_play", "minecraft:instrument_play"],
+  "sounds": ["minecraft:block.bell.use"],
+  "min_events": 5,
+  "window": 60
+}

@@ -53,6 +53,7 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +63,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -94,12 +96,14 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         // The constructor sizes entities after their EntityType, and vanilla only recomputes
         // the size when the pose, baby flag or scale change, which never happens for adults.
         this.refreshDimensions();
+        this.hearingListener = new DynamicGameEventListener<>(new XoonglinHearingListener(this));
     }
 
     public final AnimationState idleAnimationState = new AnimationState();
     private int idleAnimationTimeout = 0;
 
     private UUID leaderId;
+    private final DynamicGameEventListener<XoonglinHearingListener> hearingListener;
     private final SimpleContainer inventory = new SimpleContainer(27);
     private final List<com.hyperbaton.cft.job.data.TradeOffer> tradeOffers = new ArrayList<>();
 
@@ -304,6 +308,13 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         super.ageBoundaryReached();
         if (!level().isClientSide) {
             assignEligibleJobIfNeeded();
+        }
+    }
+
+    @Override
+    public void updateDynamicGameEventListener(@NotNull BiConsumer<DynamicGameEventListener<?>, ServerLevel> listenerConsumer) {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            listenerConsumer.accept(this.hearingListener, serverLevel);
         }
     }
 
