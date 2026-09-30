@@ -4,6 +4,7 @@
   "max_users": 1,
   "requires_container": true,
   "priority": 6,
+  "lighting": { "min_light": 1 },
   "floorBlocks": [
     {
       "block": "minecraft:polished_diorite",

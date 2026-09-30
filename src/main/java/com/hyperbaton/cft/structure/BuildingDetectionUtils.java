@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
@@ -149,6 +150,32 @@ public class BuildingDetectionUtils {
                                         Set<BlockPos> wallBlocks, Set<BlockPos> roofBlocks) {
         return interiorBlocks.stream()
                 .allMatch(block -> isBlockEnclosed(block, interiorBlocks, floorBlocks, wallBlocks, roofBlocks));
+    }
+
+    /**
+     * The spots of an interior where a Xoonglin can stand: right above the floor, and not filled
+     * by a solid block, which gets no light.
+     */
+    public static Set<BlockPos> findStandingSpots(ServerLevel level, Set<BlockPos> floorBlocks, Set<BlockPos> interiorBlocks) {
+        return interiorBlocks.stream()
+                .filter(pos -> floorBlocks.contains(pos.below()))
+                .filter(pos -> !level.getBlockState(pos).isSolidRender(level, pos))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Whether enough of the standing spots get enough light from blocks. Returns why not, or null
+     * if they do.
+     */
+    public static String checkLighting(ServerLevel level, Set<BlockPos> standingSpots, LightingRequirement lighting) {
+        if (standingSpots.isEmpty()) return null;
+        long litSpots = standingSpots.stream()
+                .filter(pos -> level.getBrightness(LightLayer.BLOCK, pos) >= lighting.minLight())
+                .count();
+        double litPercentage = (double) litSpots / standingSpots.size();
+        if (litPercentage >= lighting.minPercentage()) return null;
+        return String.format("Found %.0f%% of the floor lit to level %d or more, but the minimum required is %.0f%%",
+                litPercentage * 100, lighting.minLight(), lighting.minPercentage() * 100);
     }
 
     public static boolean hasContainers(ServerLevel level, Set<BlockPos> floorBlocks) {

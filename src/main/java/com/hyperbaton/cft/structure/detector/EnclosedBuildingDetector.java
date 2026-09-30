@@ -105,6 +105,16 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
 
+        // Lighting: enough of the floor must be lit by blocks
+        if (structureType.getLighting().isPresent()) {
+            String lightingError = BuildingDetectionUtils.checkLighting(level,
+                    BuildingDetectionUtils.findStandingSpots(level, floorBlockSet, interiorBlockSet),
+                    structureType.getLighting().get());
+            if (lightingError != null) {
+                return StructureDetectionResult.failure(StructureDetectionReasons.TOO_DARK, List.of(lightingError));
+            }
+        }
+
         // Size check
         if (allBlocks.size() > CftConfig.MAX_HOUSE_SIZE.get()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.STRUCTURE_TOO_LARGE);

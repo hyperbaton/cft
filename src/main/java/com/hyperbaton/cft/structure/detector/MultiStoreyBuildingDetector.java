@@ -52,6 +52,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         Map<String, List<BlockPos>> blockPositions = new HashMap<>();
         Set<BlockPos> allBlocks = Sets.newHashSet();
         Set<BlockPos> allFullFloors = Sets.newHashSet();
+        Set<BlockPos> standingSpots = Sets.newHashSet();
 
         // ---- Storey 1: detected like a plain enclosed building ----
         StoreyRule rule = structureType.getRuleForStorey(1);
@@ -86,6 +87,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
         int storeyCount = 1;
         addStoreyGroups(blockPositions, storeyCount, fullFloorBlocks, parts);
+        standingSpots.addAll(BuildingDetectionUtils.findStandingSpots(level, floorBlockSet, parts.interiorBlocks()));
         allBlocks.addAll(fullFloorBlocks);
         allFullFloors.addAll(fullFloorBlocks);
         addStoreyBlocks(allBlocks, parts);
@@ -143,6 +145,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
             storeyCount = storey;
             addStoreyGroups(blockPositions, storeyCount, floorRegion, parts);
+            standingSpots.addAll(BuildingDetectionUtils.findStandingSpots(level, floorBlockSet, parts.interiorBlocks()));
             allBlocks.addAll(floorRegion);
             allFullFloors.addAll(floorRegion);
             addStoreyBlocks(allBlocks, parts);
@@ -159,6 +162,13 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
         if (structureType.isRequiresContainer() && !BuildingDetectionUtils.hasContainers(level, allFullFloors)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
+        }
+
+        if (structureType.getLighting().isPresent()) {
+            String lightingError = BuildingDetectionUtils.checkLighting(level, standingSpots, structureType.getLighting().get());
+            if (lightingError != null) {
+                return StructureDetectionResult.failure(StructureDetectionReasons.TOO_DARK, List.of(lightingError));
+            }
         }
 
         if (allBlocks.size() > (long) CftConfig.MAX_HOUSE_SIZE.get() * storeyCount) {

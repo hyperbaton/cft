@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.type;
 
+import com.hyperbaton.cft.structure.LightingRequirement;
 import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.StoreyRule;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -35,20 +37,25 @@ public class MultiStoreyBuildingStructureType extends StructureType {
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
             Codec.INT.fieldOf("min_storeys").forGetter(MultiStoreyBuildingStructureType::getMinStoreys),
             Codec.INT.fieldOf("max_storeys").forGetter(MultiStoreyBuildingStructureType::getMaxStoreys),
-            StoreyRule.CODEC.listOf().fieldOf("storeyRules").forGetter(MultiStoreyBuildingStructureType::getStoreyRules)
+            StoreyRule.CODEC.listOf().fieldOf("storeyRules").forGetter(MultiStoreyBuildingStructureType::getStoreyRules),
+            LightingRequirement.CODEC.optionalFieldOf("lighting").forGetter(MultiStoreyBuildingStructureType::getLighting)
     ).apply(inst, MultiStoreyBuildingStructureType::new));
 
     private final int minStoreys;
     private final int maxStoreys;
     private final List<StoreyRule> storeyRules;
+    /** How well lit the inside of every storey must be, all together; null if it doesn't matter. */
+    private final LightingRequirement lighting;
 
     public MultiStoreyBuildingStructureType(RegistryEntries<Block> keyBlock,
                                             int maxUsers, boolean requiresContainer, int priority,
-                                            int minStoreys, int maxStoreys, List<StoreyRule> storeyRules) {
+                                            int minStoreys, int maxStoreys, List<StoreyRule> storeyRules,
+                                            Optional<LightingRequirement> lighting) {
         super(keyBlock, maxUsers, requiresContainer, priority);
         this.minStoreys = minStoreys;
         this.maxStoreys = maxStoreys;
         this.storeyRules = storeyRules;
+        this.lighting = lighting.orElse(null);
         validateStoreyRules();
     }
 
@@ -109,6 +116,10 @@ public class MultiStoreyBuildingStructureType extends StructureType {
 
     public List<StoreyRule> getStoreyRules() {
         return storeyRules;
+    }
+
+    public Optional<LightingRequirement> getLighting() {
+        return Optional.ofNullable(lighting);
     }
 
     public StoreyRule getRuleForStorey(int storey) {

@@ -30,6 +30,24 @@ Block rules are specified using `ValidBlock` objects with these fields:
 - `maxPercentage`: This part of the structure can't have more than this percentage of
   blocks of this type. Always in [0,1].
 
+### Lighting
+
+Buildings with an inside (houses, enclosed buildings and multi-storey buildings) can require it
+to be lit, with an optional `lighting` object:
+
+```json
+"lighting": { "min_light": 8, "min_percentage": 0.8 }
+```
+
+- `min_light`: The light (0 to 15) a spot needs to count as lit.
+- `min_percentage`: _(Optional, default: 1.0)_ The share of the floor that must be lit, in
+  [0,1].
+
+The light is measured on the spots where a Xoonglin can stand: right above the floor, on every
+storey. Only light from blocks counts (torches, lanterns, glowstone...), not daylight, so a
+building is lit or not at any time of day. With `"min_light": 1` and the default percentage, the
+building can have no dark corner, which is also where monsters can't spawn.
+
 ## House
 
 Houses are enclosed buildings that serve as homes for Xoonglins. They are a specialized
@@ -117,6 +135,7 @@ and include the container block (e.g. a chest) in the `interiorBlocks` list.
     - `interiorBlocks`: A list of valid block rules for the interior. Air should always be present.
       Include the container block (e.g. chest) if the house requires one.
     - `roofBlocks`: A list of valid block rules for the roof.
+    - `lighting`: _(Optional)_ How well lit the inside must be (see [Lighting](#lighting)).
 
 ## Enclosed Building
 
@@ -599,6 +618,8 @@ below an air opening).
         - `roofBlocks`: A list of valid block rules for the storey's roof (ceiling). Include
         connection blocks (ladders) or air openings here for storeys that must be reachable
         from below.
+    - `lighting`: _(Optional)_ How well lit the inside must be, all storeys together (see
+      [Lighting](#lighting)).
 
 ## Compound
 

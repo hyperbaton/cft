@@ -46,6 +46,7 @@ public enum StructureDetectionReasons {
     // --- Final checks: the structure is essentially complete ---
     MISSING_REQUIRED_STRUCTURES("Required nearby structures are missing or too far"),
     NO_CONTAINER("No container found (required by structure type)"),
+    TOO_DARK("The inside is not lit enough"),
     NOT_ENOUGH_ANIMALS("Not enough of the required animals present"),
     STRUCTURE_TOO_LARGE("Structure exceeds maximum size"),
 

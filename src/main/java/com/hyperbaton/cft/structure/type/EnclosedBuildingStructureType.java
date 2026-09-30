@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.type;
 
+import com.hyperbaton.cft.structure.LightingRequirement;
 import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.StructureDetectionResult;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class EnclosedBuildingStructureType extends StructureType {
@@ -26,23 +28,28 @@ public class EnclosedBuildingStructureType extends StructureType {
             ValidBlock.CODEC.listOf().fieldOf("floorBlocks").forGetter(EnclosedBuildingStructureType::getFloorBlocks),
             ValidBlock.CODEC.listOf().fieldOf("wallBlocks").forGetter(EnclosedBuildingStructureType::getWallBlocks),
             ValidBlock.CODEC.listOf().fieldOf("interiorBlocks").forGetter(EnclosedBuildingStructureType::getInteriorBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("roofBlocks").forGetter(EnclosedBuildingStructureType::getRoofBlocks)
+            ValidBlock.CODEC.listOf().fieldOf("roofBlocks").forGetter(EnclosedBuildingStructureType::getRoofBlocks),
+            LightingRequirement.CODEC.optionalFieldOf("lighting").forGetter(EnclosedBuildingStructureType::getLighting)
     ).apply(inst, EnclosedBuildingStructureType::new));
 
     private final List<ValidBlock> floorBlocks;
     private final List<ValidBlock> wallBlocks;
     private final List<ValidBlock> interiorBlocks;
     private final List<ValidBlock> roofBlocks;
+    /** How well lit the inside must be; null if it doesn't matter. */
+    private final LightingRequirement lighting;
 
     public EnclosedBuildingStructureType(RegistryEntries<Block> keyBlock,
                                          int maxUsers, boolean requiresContainer, int priority,
                                          List<ValidBlock> floorBlocks, List<ValidBlock> wallBlocks,
-                                         List<ValidBlock> interiorBlocks, List<ValidBlock> roofBlocks) {
+                                         List<ValidBlock> interiorBlocks, List<ValidBlock> roofBlocks,
+                                         Optional<LightingRequirement> lighting) {
         super(keyBlock, maxUsers, requiresContainer, priority);
         this.floorBlocks = floorBlocks;
         this.wallBlocks = wallBlocks;
         this.interiorBlocks = interiorBlocks;
         this.roofBlocks = roofBlocks;
+        this.lighting = lighting.orElse(null);
     }
 
     @Override
@@ -69,5 +76,9 @@ public class EnclosedBuildingStructureType extends StructureType {
 
     public List<ValidBlock> getRoofBlocks() {
         return roofBlocks;
+    }
+
+    public Optional<LightingRequirement> getLighting() {
+        return Optional.ofNullable(lighting);
     }
 }
