@@ -30,3 +30,16 @@ recipes or loot tables: `data/<namespace>/cft/<folder>/<name>.json` has the id
 | Structures | `data/<namespace>/cft/structure/` |
 
 Subfolders are part of the id: `data/cft/cft/need/food/bread.json` is `cft:food/bread`.
+
+## Game content
+
+Fields that refer to game content, like blocks, entity types, biomes or sounds, take it the way
+vanilla data does:
+
+- an id: `"minecraft:furnace"`;
+- a tag, with a leading `#`: `"#minecraft:logs"`, for anything in the tag;
+- or a list mixing both: `["minecraft:furnace", "#minecraft:campfires"]`.
+
+An id that doesn't exist stops the datapack from loading, with an error that names the file, so
+typos don't go unnoticed. Biomes are the exception: they come from datapacks themselves, so a
+wrong biome id just never matches. A tag that doesn't exist matches nothing.

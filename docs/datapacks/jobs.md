@@ -65,13 +65,12 @@ home container.
       "type": "cft:gatherer",
       "hours_per_day": 4.0,
       "gather_radius": 16,
-      "block_tag": "minecraft:flowers"
+      "block": "#minecraft:flowers"
     }
     ```
     - `hours_per_day`: How many Minecraft hours the Xoonglin needs to work each day.
     - `gather_radius`: How far from home the Xoonglin will search for blocks.
-    - `block`: _(Optional)_ A specific block to gather.
-    - `block_tag`: _(Optional)_ A block tag; any block in the tag will be gathered.
+    - `block`: The blocks to gather: a block, a block tag or a list of them (see [Game content](index.md#game-content)).
     - `required_needs`: _(Optional)_ A list of need IDs that must be satisfied for the
       Xoonglin to be able to work.
 
@@ -441,8 +440,8 @@ container if there is no structure.
       the body of blocks is searched for.
     - `required_structure`: _(Optional)_ A reference to a structure type ID the fisher must
       be a user of and stand on while fishing (e.g. a dock).
-    - `body_blocks`: _(Optional, default: water)_ A list of blocks that form the fished
-      body. Each entry has a `block` or a `tagBlock` field.
+    - `body_blocks`: _(Optional, default: `"minecraft:water"`)_ The blocks that form the fished
+      body: a block, a block tag or a list of them (see [Game content](index.md#game-content)).
     - `min_body_size`: _(Optional, default: 20)_ Minimum number of connected body blocks
       for a body to be fishable.
     - `catch_interval`: _(Optional, default: 300)_ Ticks between catch attempts.

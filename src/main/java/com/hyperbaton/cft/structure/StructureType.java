@@ -1,15 +1,14 @@
 package com.hyperbaton.cft.structure;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Optional;
 import java.util.UUID;
 
 public abstract class StructureType {
@@ -19,16 +18,13 @@ public abstract class StructureType {
                     .dispatch("type", StructureType::structureTypeCodec, codec -> MapCodec.assumeMapUnsafe(codec))
     );
 
-    private final Block keyBlock;
-    private final TagKey<Block> keyBlockTag;
+    private final RegistryEntries<Block> keyBlock;
     private final int maxUsers;
     private final boolean requiresContainer;
     private final int priority;
 
-    protected StructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
-                            int maxUsers, boolean requiresContainer, int priority) {
-        this.keyBlock = keyBlock.orElse(null);
-        this.keyBlockTag = keyBlockTag.orElse(null);
+    protected StructureType(RegistryEntries<Block> keyBlock, int maxUsers, boolean requiresContainer, int priority) {
+        this.keyBlock = keyBlock;
         this.maxUsers = maxUsers;
         this.requiresContainer = requiresContainer;
         this.priority = priority;
@@ -43,8 +39,7 @@ public abstract class StructureType {
     public abstract Codec<? extends StructureType> structureTypeCodec();
 
     public boolean matchesKeyBlock(BlockState state) {
-        if (keyBlock != null && state.is(keyBlock)) return true;
-        return keyBlockTag != null && state.is(keyBlockTag);
+        return keyBlock.contains(state.getBlockHolder());
     }
 
     public boolean isKeyBlock(BlockState state) {
@@ -55,12 +50,8 @@ public abstract class StructureType {
         return requiresContainer;
     }
 
-    public Block getKeyBlock() {
+    public RegistryEntries<Block> getKeyBlock() {
         return keyBlock;
-    }
-
-    public TagKey<Block> getKeyBlockTag() {
-        return keyBlockTag;
     }
 
     public int getMaxUsers() {

@@ -1,7 +1,8 @@
 package com.hyperbaton.cft.structure.type;
 
+import net.minecraft.world.entity.EntityType;
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.structure.EntityTypeMatcher;
 import com.hyperbaton.cft.structure.StructureDetectionResult;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.ValidBlock;
@@ -9,14 +10,11 @@ import com.hyperbaton.cft.structure.detector.PastureDetector;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -26,8 +24,7 @@ import java.util.UUID;
 public class PastureStructureType extends OpenAirPlatformStructureType {
 
     public static final Codec<PastureStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
-            TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
+            RegistryEntries.codec(Registries.BLOCK).fieldOf("key_block").forGetter(StructureType::getKeyBlock),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
@@ -35,29 +32,29 @@ public class PastureStructureType extends OpenAirPlatformStructureType {
             ValidBlock.CODEC.listOf().fieldOf("borderBlocks").forGetter(OpenAirPlatformStructureType::getBorderBlocks),
             ValidBlock.CODEC.listOf().fieldOf("groundPerimeterBlocks").forGetter(OpenAirPlatformStructureType::getGroundPerimeterBlocks),
             ValidBlock.CODEC.listOf().fieldOf("surfaceBlocks").forGetter(OpenAirPlatformStructureType::getSurfaceBlocks),
-            EntityTypeMatcher.CODEC.listOf().fieldOf("eligible_mobs").forGetter(PastureStructureType::getEligibleMobs),
+            RegistryEntries.codec(Registries.ENTITY_TYPE).fieldOf("eligible_mobs").forGetter(PastureStructureType::getEligibleMobs),
             Codec.INT.optionalFieldOf("min_mob_count", 1).forGetter(PastureStructureType::getMinMobCount),
             Codec.INT.optionalFieldOf("max_mob_count", Integer.MAX_VALUE).forGetter(PastureStructureType::getMaxMobCount)
     ).apply(inst, PastureStructureType::new));
 
-    private final List<EntityTypeMatcher> eligibleMobs;
+    private final RegistryEntries<EntityType<?>> eligibleMobs;
     private final int minMobCount;
     private final int maxMobCount;
 
-    public PastureStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public PastureStructureType(RegistryEntries<Block> keyBlock,
                                 int maxUsers, boolean requiresContainer, int priority,
                                 int wallHeight,
                                 List<ValidBlock> borderBlocks, List<ValidBlock> groundPerimeterBlocks,
                                 List<ValidBlock> surfaceBlocks,
-                                List<EntityTypeMatcher> eligibleMobs, int minMobCount, int maxMobCount) {
-        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority,
+                                RegistryEntries<EntityType<?>> eligibleMobs, int minMobCount, int maxMobCount) {
+        super(keyBlock, maxUsers, requiresContainer, priority,
                 wallHeight, borderBlocks, groundPerimeterBlocks, surfaceBlocks);
-        this.eligibleMobs = List.copyOf(eligibleMobs);
+        this.eligibleMobs = eligibleMobs;
         this.minMobCount = minMobCount;
         this.maxMobCount = maxMobCount;
     }
 
-    public List<EntityTypeMatcher> getEligibleMobs() {
+    public RegistryEntries<EntityType<?>> getEligibleMobs() {
         return eligibleMobs;
     }
 

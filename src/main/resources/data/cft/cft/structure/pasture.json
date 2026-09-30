@@ -7,7 +7,7 @@
   "wall_height": 2,
   "borderBlocks": [
     {
-      "tagBlock": "minecraft:fences",
+      "block": "#minecraft:fences",
       "minQuantity": 4,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -21,7 +21,7 @@
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:logs",
+      "block": "#minecraft:logs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -44,7 +44,7 @@
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:dirt",
+      "block": "#minecraft:dirt",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -60,7 +60,7 @@
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:dirt",
+      "block": "#minecraft:dirt",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

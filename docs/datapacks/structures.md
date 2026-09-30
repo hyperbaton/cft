@@ -10,10 +10,8 @@ All structure types share these base fields:
 - `type`: The structure type discriminator (e.g. `"cft:house"`, `"cft:enclosed_building"`,
   `"cft:open_air_platform"`, `"cft:pasture"`, `"cft:monument"`, `"cft:multi_storey_building"`,
   `"cft:compound"`).
-- `key_block`: _(Optional)_ A specific block that identifies the structure. Right clicking
-  this block with the leader staff will trigger detection.
-- `key_block_tag`: _(Optional)_ A block tag; any block in the tag can serve as the key block.
-  One of `key_block` or `key_block_tag` should be provided.
+- `key_block`: The block that identifies the structure: right clicking it with the leader staff
+  triggers detection. A block, a block tag or a list of them (see [Game content](index.md#game-content)).
 - `max_users`: _(Optional, default: 1)_ Maximum number of Xoonglins that can use this structure
   at the same time. Set to 0 for structures with no user limit (e.g. monuments).
 - `requires_container`: _(Optional, default: false)_ Whether the structure must contain a
@@ -23,9 +21,8 @@ All structure types share these base fields:
 
 Block rules are specified using `ValidBlock` objects with these fields:
 
-- `block`: A reference to a specific block (e.g. `"minecraft:stone_bricks"`).
-- `tagBlock`: **Alternatively**, a block tag (e.g. `"minecraft:planks"`) so all blocks
-  belonging to the tag are accepted.
+- `block`: The blocks the rule is about: a block (e.g. `"minecraft:stone_bricks"`), a block
+  tag (e.g. `"#minecraft:planks"`) or a list of them (see [Game content](index.md#game-content)).
 - `minQuantity`: At least this many blocks of this type must be present.
 - `maxQuantity`: No more than this many blocks of this type can be present.
 - `minPercentage`: This part of the structure must have at least this percentage of
@@ -51,13 +48,13 @@ and include the container block (e.g. a chest) in the `interiorBlocks` list.
     ```json
     {
       "type": "cft:house",
-      "key_block_tag": "minecraft:doors",
+      "key_block": "#minecraft:doors",
       "max_users": 1,
       "requires_container": true,
       "priority": 0,
       "floorBlocks": [
         {
-          "tagBlock": "minecraft:planks",
+          "block": "#minecraft:planks",
           "minQuantity": 9,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -66,21 +63,21 @@ and include the container block (e.g. a chest) in the `interiorBlocks` list.
       ],
       "wallBlocks": [
         {
-          "tagBlock": "minecraft:logs",
+          "block": "#minecraft:logs",
           "minQuantity": 14,
           "maxQuantity": 500,
           "minPercentage": 0.0,
           "maxPercentage": 1.0
         },
         {
-          "tagBlock": "minecraft:planks",
+          "block": "#minecraft:planks",
           "minQuantity": 0,
           "maxQuantity": 500,
           "minPercentage": 0.0,
           "maxPercentage": 1.0
         },
         {
-          "tagBlock": "minecraft:doors",
+          "block": "#minecraft:doors",
           "minQuantity": 1,
           "maxQuantity": 2,
           "minPercentage": 0.0,
@@ -105,7 +102,7 @@ and include the container block (e.g. a chest) in the `interiorBlocks` list.
       ],
       "roofBlocks": [
         {
-          "tagBlock": "minecraft:wooden_stairs",
+          "block": "#minecraft:wooden_stairs",
           "minQuantity": 0,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -137,7 +134,7 @@ are not homes. They are used as workplaces or other facilities (e.g. a smithy).
       "priority": 0,
       "floorBlocks": [
         {
-          "tagBlock": "minecraft:stone_bricks",
+          "block": "#minecraft:stone_bricks",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -146,7 +143,7 @@ are not homes. They are used as workplaces or other facilities (e.g. a smithy).
       ],
       "wallBlocks": [
         {
-          "tagBlock": "minecraft:stone_bricks",
+          "block": "#minecraft:stone_bricks",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -209,21 +206,21 @@ ground perimeter, and a surface.
     ```json
     {
       "type": "cft:open_air_platform",
-      "key_block_tag": "minecraft:fence_gates",
+      "key_block": "#minecraft:fence_gates",
       "max_users": 1,
       "requires_container": false,
       "priority": 0,
       "wall_height": 1,
       "borderBlocks": [
         {
-          "tagBlock": "minecraft:fences",
+          "block": "#minecraft:fences",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
           "maxPercentage": 1.0
         },
         {
-          "tagBlock": "minecraft:fence_gates",
+          "block": "#minecraft:fence_gates",
           "minQuantity": 1,
           "maxQuantity": 1,
           "minPercentage": 0.0,
@@ -239,7 +236,7 @@ ground perimeter, and a surface.
       ],
       "groundPerimeterBlocks": [
         {
-          "tagBlock": "minecraft:dirt",
+          "block": "#minecraft:dirt",
           "minQuantity": 0,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -269,7 +266,7 @@ ground perimeter, and a surface.
           "maxPercentage": 0.25
         },
         {
-          "tagBlock": "minecraft:dirt",
+          "block": "#minecraft:dirt",
           "minQuantity": 0,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -306,7 +303,7 @@ wandered empty is caught rather than staying claimed on stale data.
       "wall_height": 1,
       "borderBlocks": [
         {
-          "tagBlock": "minecraft:fences",
+          "block": "#minecraft:fences",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -342,10 +339,9 @@ wandered empty is caught rather than staying claimed on stale data.
 
     - `wall_height`, `borderBlocks`, `groundPerimeterBlocks`, `surfaceBlocks`: Same as open air
       platform.
-    - `eligible_mobs`: A list of entities that count toward the pasture's occupancy. Each
-      entry is either an entity type ID (e.g. `"minecraft:cow"`) or, prefixed with `#`, an
-      entity type tag (e.g. `"#minecraft:skeletons"`) — the two can be mixed freely in the
-      same list.
+    - `eligible_mobs`: The animals that count toward the pasture's occupancy: entity types
+      (e.g. `"minecraft:cow"`), entity type tags (e.g. `"#minecraft:skeletons"`) or a list of
+      them (see [Game content](index.md#game-content)).
     - `min_mob_count`: _(Optional, default: 1)_ Minimum number of eligible animals that must
       be inside the footprint.
     - `max_mob_count`: _(Optional, default: unlimited)_ Maximum number of eligible animals
@@ -468,7 +464,7 @@ below an air opening).
           "to": 1,
           "floorBlocks": [
             {
-              "tagBlock": "minecraft:planks",
+              "block": "#minecraft:planks",
               "minQuantity": 4,
               "maxQuantity": 500,
               "minPercentage": 0.0,
@@ -477,7 +473,7 @@ below an air opening).
           ],
           "wallBlocks": [
             {
-              "tagBlock": "minecraft:logs",
+              "block": "#minecraft:logs",
               "minQuantity": 4,
               "maxQuantity": 500,
               "minPercentage": 0.0,
@@ -516,7 +512,7 @@ below an air opening).
           ],
           "roofBlocks": [
             {
-              "tagBlock": "minecraft:planks",
+              "block": "#minecraft:planks",
               "minQuantity": 4,
               "maxQuantity": 500,
               "minPercentage": 0.0,
@@ -536,7 +532,7 @@ below an air opening).
           "to": 2,
           "floorBlocks": [
             {
-              "tagBlock": "minecraft:planks",
+              "block": "#minecraft:planks",
               "minQuantity": 4,
               "maxQuantity": 500,
               "minPercentage": 0.0,
@@ -552,7 +548,7 @@ below an air opening).
           ],
           "wallBlocks": [
             {
-              "tagBlock": "minecraft:logs",
+              "block": "#minecraft:logs",
               "minQuantity": 4,
               "maxQuantity": 500,
               "minPercentage": 0.0,
@@ -577,7 +573,7 @@ below an air opening).
           ],
           "roofBlocks": [
             {
-              "tagBlock": "minecraft:planks",
+              "block": "#minecraft:planks",
               "minQuantity": 4,
               "maxQuantity": 500,
               "minPercentage": 0.0,
@@ -632,7 +628,7 @@ a second key block on an already detected square will not create a second compou
       "priority": 0,
       "surfaceBlocks": [
         {
-          "tagBlock": "minecraft:stone_bricks",
+          "block": "#minecraft:stone_bricks",
           "minQuantity": 25,
           "maxQuantity": 500,
           "minPercentage": 0.0,

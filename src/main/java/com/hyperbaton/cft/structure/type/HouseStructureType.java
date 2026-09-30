@@ -1,23 +1,20 @@
 package com.hyperbaton.cft.structure.type;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.ValidBlock;
 import com.hyperbaton.cft.structure.StructureType;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
-import java.util.Optional;
 
 public class HouseStructureType extends EnclosedBuildingStructureType {
 
     public static final Codec<HouseStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
-            TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
+            RegistryEntries.codec(Registries.BLOCK).fieldOf("key_block").forGetter(StructureType::getKeyBlock),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
@@ -27,11 +24,11 @@ public class HouseStructureType extends EnclosedBuildingStructureType {
             ValidBlock.CODEC.listOf().fieldOf("roofBlocks").forGetter(EnclosedBuildingStructureType::getRoofBlocks)
     ).apply(inst, HouseStructureType::new));
 
-    public HouseStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public HouseStructureType(RegistryEntries<Block> keyBlock,
                               int maxUsers, boolean requiresContainer, int priority,
                               List<ValidBlock> floorBlocks, List<ValidBlock> wallBlocks,
                               List<ValidBlock> interiorBlocks, List<ValidBlock> roofBlocks) {
-        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority,
+        super(keyBlock, maxUsers, requiresContainer, priority,
                 floorBlocks, wallBlocks, interiorBlocks, roofBlocks);
     }
 

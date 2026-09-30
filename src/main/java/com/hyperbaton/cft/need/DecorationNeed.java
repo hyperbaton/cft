@@ -1,15 +1,14 @@
 package com.hyperbaton.cft.need;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.need.satisfaction.DecorationNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
@@ -25,39 +24,32 @@ public class DecorationNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(DecorationNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(DecorationNeed::isHidden),
             Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(DecorationNeed::isBonus),
-            BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block").forGetter(d -> Optional.ofNullable(d.getBlock())),
-            TagKey.codec(Registries.BLOCK).optionalFieldOf("block_tag").forGetter(d -> Optional.ofNullable(d.getBlockTag())),
+            RegistryEntries.codec(Registries.BLOCK).fieldOf("block").forGetter(DecorationNeed::getBlock),
             Codec.INT.fieldOf("min_count").forGetter(DecorationNeed::getMinCount),
             Codec.INT.fieldOf("radius").forGetter(DecorationNeed::getRadius),
             Codec.DOUBLE.optionalFieldOf("min_spread", 0.0).forGetter(DecorationNeed::getMinSpread),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(DecorationNeed::getIcon)
     ).apply(instance, DecorationNeed::new));
 
-    private final Block block;
-    private final TagKey<Block> blockTag;
+    private final RegistryEntries<Block> block;
     private final int minCount;
     private final int radius;
     private final double minSpread;
 
     public DecorationNeed(double damage, double damageThreshold, double providedHappiness,
                           double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                          Optional<Block> block, Optional<TagKey<Block>> blockTag,
+                          RegistryEntries<Block> block,
                           int minCount, int radius, double minSpread,
                           Optional<ResourceLocation> icon) {
         super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
-        this.block = block.orElse(null);
-        this.blockTag = blockTag.orElse(null);
+        this.block = block;
         this.minCount = minCount;
         this.radius = radius;
         this.minSpread = Math.max(0.0, Math.min(1.0, minSpread));
     }
 
-    public Block getBlock() {
+    public RegistryEntries<Block> getBlock() {
         return block;
-    }
-
-    public TagKey<Block> getBlockTag() {
-        return blockTag;
     }
 
     public int getMinCount() {
@@ -79,10 +71,9 @@ public class DecorationNeed extends Need {
 
     @Override
     public List<ResourceLocation> getDefaultIcons() {
-        if (block != null) {
-            return List.of(BuiltInRegistries.BLOCK.getKey(block));
-        }
-        return List.of(ResourceLocation.withDefaultNamespace("flower_pot"));
+        return block.ids().stream().findFirst()
+                .map(List::of)
+                .orElseGet(() -> List.of(ResourceLocation.withDefaultNamespace("flower_pot")));
     }
 
     @Override

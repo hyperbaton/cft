@@ -7,7 +7,7 @@
   "wall_height": 1,
   "borderBlocks": [
     {
-      "tagBlock": "minecraft:stone_bricks",
+      "block": "#minecraft:stone_bricks",
       "minQuantity": 4,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -23,14 +23,14 @@
   ],
   "groundPerimeterBlocks": [
     {
-      "tagBlock": "minecraft:base_stone_overworld",
+      "block": "#minecraft:base_stone_overworld",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:dirt",
+      "block": "#minecraft:dirt",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -39,14 +39,14 @@
   ],
   "surfaceBlocks": [
     {
-      "tagBlock": "minecraft:base_stone_overworld",
+      "block": "#minecraft:base_stone_overworld",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:dirt",
+      "block": "#minecraft:dirt",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

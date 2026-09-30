@@ -7,14 +7,14 @@
   "wall_height": 1,
   "borderBlocks": [
     {
-      "tagBlock": "minecraft:fences",
+      "block": "#minecraft:fences",
       "minQuantity": 4,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:fence_gates",
+      "block": "#minecraft:fence_gates",
       "minQuantity": 0,
       "maxQuantity": 2,
       "minPercentage": 0.0,
@@ -44,7 +44,7 @@
   ],
   "groundPerimeterBlocks": [
     {
-      "tagBlock": "minecraft:dirt",
+      "block": "#minecraft:dirt",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -60,7 +60,7 @@
   ],
   "surfaceBlocks": [
     {
-      "tagBlock": "minecraft:dirt",
+      "block": "#minecraft:dirt",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

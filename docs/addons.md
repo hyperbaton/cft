@@ -19,6 +19,10 @@ your `neoforge.mods.toml` and add the CFT jar to your build's dependencies.
 - **Types**: the `"type"` field of each need, job or structure file picks the codec that reads it,
   from one of three type registries: `cft:need_serializer`, `cft:job_serializer` and
   `cft:structure_serializer`. Adding a type means registering a codec there.
+- **Game content**: for fields that refer to blocks, entity types, biomes, sounds and such, use
+  `RegistryEntries.codec(registry)`. They then accept an id, a `#tag` or a list, like CFT's own
+  (see [Game content](datapacks/index.md#game-content)), and `contains(holder)` tells whether
+  something matches.
 
 ## Registering types
 
@@ -302,7 +306,7 @@ Look at `SmelterJob` and `SmeltBehavior` for a small, complete job.
 ## Adding a structure type
 
 Structure types detect structures in the world when the leader uses the staff on their key block.
-A type extends `StructureType` (whose constructor takes the `key_block`/`key_block_tag`,
+A type extends `StructureType` (whose constructor takes the `key_block`,
 `max_users`, `requires_container` and `priority` fields) and implements `detect(keyBlockPos,
 level, leaderId)`, returning a `StructureDetectionResult` with the detected `Structure` or the
 reason it failed. Register its codec on `STRUCTURE_TYPE_CODEC_KEY`. The built-in types in

@@ -6,7 +6,7 @@
   "priority": 0,
   "floorBlocks": [
     {
-      "tagBlock": "minecraft:planks",
+      "block": "#minecraft:planks",
       "minQuantity": 9,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -15,14 +15,14 @@
   ],
   "wallBlocks": [
     {
-      "tagBlock": "minecraft:logs",
+      "block": "#minecraft:logs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:doors",
+      "block": "#minecraft:doors",
       "minQuantity": 1,
       "maxQuantity": 2,
       "minPercentage": 0.0,
@@ -59,14 +59,14 @@
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:wooden_fences",
+      "block": "#minecraft:wooden_fences",
       "minQuantity": 0,
       "maxQuantity": 50,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:wooden_pressure_plates",
+      "block": "#minecraft:wooden_pressure_plates",
       "minQuantity": 0,
       "maxQuantity": 50,
       "minPercentage": 0.0,
@@ -89,21 +89,21 @@
   ],
   "roofBlocks": [
     {
-      "tagBlock": "minecraft:wooden_stairs",
+      "block": "#minecraft:wooden_stairs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:planks",
+      "block": "#minecraft:planks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:wooden_slabs",
+      "block": "#minecraft:wooden_slabs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

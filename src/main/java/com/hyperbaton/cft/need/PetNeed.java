@@ -1,5 +1,8 @@
 package com.hyperbaton.cft.need;
 
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.core.registries.Registries;
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.PetNeedSatisfier;
@@ -20,30 +23,30 @@ public class PetNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(PetNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(PetNeed::isHidden),
             Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(PetNeed::isBonus),
-            ResourceLocation.CODEC.listOf().fieldOf("entity_types").forGetter(PetNeed::getEntityTypes),
+            RegistryEntries.codec(Registries.ENTITY_TYPE).fieldOf("entity_types").forGetter(PetNeed::getEntityTypes),
             Codec.INT.fieldOf("min_count").forGetter(PetNeed::getMinCount),
             Codec.INT.fieldOf("max_count").forGetter(PetNeed::getMaxCount),
             Codec.INT.fieldOf("radius").forGetter(PetNeed::getRadius),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(PetNeed::getIcon)
     ).apply(instance, PetNeed::new));
 
-    private final List<ResourceLocation> entityTypes;
+    private final RegistryEntries<EntityType<?>> entityTypes;
     private final int minCount;
     private final int maxCount;
     private final int radius;
 
     public PetNeed(double damage, double damageThreshold, double providedHappiness,
                    double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                   List<ResourceLocation> entityTypes, int minCount, int maxCount, int radius,
+                   RegistryEntries<EntityType<?>> entityTypes, int minCount, int maxCount, int radius,
                    Optional<ResourceLocation> icon) {
         super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
-        this.entityTypes = List.copyOf(entityTypes);
+        this.entityTypes = entityTypes;
         this.minCount = minCount;
         this.maxCount = maxCount;
         this.radius = radius;
     }
 
-    public List<ResourceLocation> getEntityTypes() {
+    public RegistryEntries<EntityType<?>> getEntityTypes() {
         return entityTypes;
     }
 

@@ -1,6 +1,6 @@
 {
   "type": "cft:house",
-  "key_block_tag": "minecraft:doors",
+  "key_block": "#minecraft:doors",
   "max_users": 1,
   "requires_container": true,
   "priority": 3,
@@ -29,7 +29,7 @@
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:doors",
+      "block": "#minecraft:doors",
       "minQuantity": 1,
       "maxQuantity": 2,
       "minPercentage": 0.0,

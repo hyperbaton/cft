@@ -5,7 +5,7 @@
   "provided_happiness": 5.0,
   "satisfaction_threshold": 0.5,
   "frequency": 1.0,
-  "block_tag": "minecraft:flowers",
+  "block": "#minecraft:flowers",
   "min_count": 12,
   "radius": 10,
   "min_spread": 0.3

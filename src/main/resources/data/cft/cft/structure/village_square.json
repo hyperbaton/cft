@@ -6,7 +6,7 @@
   "priority": 0,
   "surfaceBlocks": [
     {
-      "tagBlock": "minecraft:stone_bricks",
+      "block": "#minecraft:stone_bricks",
       "minQuantity": 25,
       "maxQuantity": 500,
       "minPercentage": 0.0,

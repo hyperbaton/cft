@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.type;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.IdenticalLayerGroup;
 import com.hyperbaton.cft.structure.LayerRule;
@@ -11,15 +12,12 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class MonumentStructureType extends StructureType {
@@ -27,8 +25,7 @@ public class MonumentStructureType extends StructureType {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final Codec<MonumentStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
-            TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
+            RegistryEntries.codec(Registries.BLOCK).fieldOf("key_block").forGetter(StructureType::getKeyBlock),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
@@ -43,11 +40,11 @@ public class MonumentStructureType extends StructureType {
     private final List<LayerRule> layerRules;
     private final List<IdenticalLayerGroup> identicalLayerGroups;
 
-    public MonumentStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public MonumentStructureType(RegistryEntries<Block> keyBlock,
                                   int maxUsers, boolean requiresContainer, int priority,
                                   int minHeight, int maxHeight,
                                   List<LayerRule> layerRules, List<IdenticalLayerGroup> identicalLayerGroups) {
-        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
+        super(keyBlock, maxUsers, requiresContainer, priority);
         this.minHeight = minHeight;
         this.maxHeight = maxHeight;
         this.layerRules = layerRules;

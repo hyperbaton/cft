@@ -1,6 +1,6 @@
 {
   "type": "cft:house",
-  "key_block_tag": "minecraft:doors",
+  "key_block": "#minecraft:doors",
   "max_users": 1,
   "requires_container": true,
   "priority": 1,
@@ -15,21 +15,21 @@
   ],
   "wallBlocks": [
     {
-      "tagBlock": "minecraft:logs",
+      "block": "#minecraft:logs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:planks",
+      "block": "#minecraft:planks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:doors",
+      "block": "#minecraft:doors",
       "minQuantity": 1,
       "maxQuantity": 2,
       "minPercentage": 0.0,
@@ -54,7 +54,7 @@
   ],
   "roofBlocks": [
     {
-      "tagBlock": "minecraft:wooden_stairs",
+      "block": "#minecraft:wooden_stairs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

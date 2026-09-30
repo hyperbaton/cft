@@ -13,7 +13,7 @@ public class NeedSatisfierMapper {
 
     public static NeedSatisfier<? extends Need> mapNeedSatisfier(CompoundTag needSatisfactionTag) {
         CompoundTag needTag = needSatisfactionTag.getCompound(NeedSatisfier.TAG_NEED);
-        Need need = Need.NEED_CODEC.parse(NbtOps.INSTANCE, needTag).result().get();
+        Need need = Need.NEED_CODEC.parse(NbtOps.INSTANCE, needTag).getOrThrow();
         NeedSatisfier<? extends Need> satisfier = need.createSatisfier(needSatisfactionTag.getDouble(NeedSatisfier.TAG_SATISFACTION),
                 needSatisfactionTag.getBoolean(NeedSatisfier.TAG_IS_SATISFIED));
         satisfier.setNeedId(needSatisfactionTag.getString(NeedSatisfier.TAG_NEED_ID));

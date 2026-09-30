@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.job;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -11,23 +12,20 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
@@ -43,11 +41,14 @@ public class FisherJob extends Job {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    /** The fished body is made of water, unless the job says otherwise. */
+    private static final RegistryEntries<Block> WATER = RegistryEntries.of(ResourceLocation.withDefaultNamespace("water"));
+
     public static final Codec<FisherJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("radius", 32).forGetter(FisherJob::getRadius),
             Codec.STRING.optionalFieldOf("required_structure", "").forGetter(j -> j.requiredStructure),
-            BodyBlock.CODEC.listOf().optionalFieldOf("body_blocks", List.of(BodyBlock.WATER))
+            RegistryEntries.codec(Registries.BLOCK).optionalFieldOf("body_blocks", WATER)
                     .forGetter(FisherJob::getBodyBlocks),
             Codec.INT.optionalFieldOf("min_body_size", 20).forGetter(FisherJob::getMinBodySize),
             Codec.INT.optionalFieldOf("catch_interval", 300).forGetter(FisherJob::getCatchInterval),
@@ -57,23 +58,6 @@ public class FisherJob extends Job {
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, FisherJob::new));
-
-    /**
-     * A block (or block tag) that can form the fished body.
-     */
-    public record BodyBlock(Optional<Block> block, Optional<TagKey<Block>> tagBlock) {
-        public static final BodyBlock WATER = new BodyBlock(Optional.of(Blocks.WATER), Optional.empty());
-
-        public static final Codec<BodyBlock> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-                BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block").forGetter(BodyBlock::block),
-                TagKey.codec(Registries.BLOCK).optionalFieldOf("tagBlock").forGetter(BodyBlock::tagBlock)
-        ).apply(inst, BodyBlock::new));
-
-        public boolean matches(BlockState state) {
-            if (block.isPresent() && state.is(block.get())) return true;
-            return tagBlock.isPresent() && state.is(tagBlock.get());
-        }
-    }
 
     /**
      * A possible catch with its probability per roll.
@@ -89,19 +73,19 @@ public class FisherJob extends Job {
     private final double hoursPerDay;
     private final int radius;
     private final String requiredStructure;
-    private final List<BodyBlock> bodyBlocks;
+    private final RegistryEntries<Block> bodyBlocks;
     private final int minBodySize;
     private final int catchInterval;
     private final List<Catch> catches;
 
-    public FisherJob(double hoursPerDay, int radius, String requiredStructure, List<BodyBlock> bodyBlocks,
+    public FisherJob(double hoursPerDay, int radius, String requiredStructure, RegistryEntries<Block> bodyBlocks,
                      int minBodySize, int catchInterval, List<Catch> catches, List<String> requiredNeeds,
                      double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
         this.requiredStructure = requiredStructure;
-        this.bodyBlocks = List.copyOf(bodyBlocks);
+        this.bodyBlocks = bodyBlocks;
         this.minBodySize = minBodySize;
         this.catchInterval = catchInterval;
         this.catches = List.copyOf(catches);
@@ -121,7 +105,7 @@ public class FisherJob extends Job {
         return radius;
     }
 
-    public List<BodyBlock> getBodyBlocks() {
+    public RegistryEntries<Block> getBodyBlocks() {
         return bodyBlocks;
     }
 
@@ -143,7 +127,7 @@ public class FisherJob extends Job {
     }
 
     public boolean isBodyBlock(BlockState state) {
-        return bodyBlocks.stream().anyMatch(bodyBlock -> bodyBlock.matches(state));
+        return bodyBlocks.contains(state.getBlockHolder());
     }
 
     /**

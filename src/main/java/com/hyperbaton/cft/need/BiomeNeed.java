@@ -1,5 +1,8 @@
 package com.hyperbaton.cft.need;
 
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.core.registries.Registries;
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.need.satisfaction.BiomeNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
@@ -21,14 +24,14 @@ public class BiomeNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(BiomeNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(BiomeNeed::isHidden),
             Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(BiomeNeed::isBonus),
-            Codec.STRING.listOf().fieldOf("biomes").forGetter(BiomeNeed::getBiomes),
+            RegistryEntries.codec(Registries.BIOME).fieldOf("biomes").forGetter(BiomeNeed::getBiomes),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(BiomeNeed::getIcon)
     ).apply(instance, BiomeNeed::new));
 
-    private List<String> biomes;
+    private RegistryEntries<Biome> biomes;
 
     public BiomeNeed(double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, List<String> biomes,
+                     double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, RegistryEntries<Biome> biomes,
                      Optional<ResourceLocation> icon) {
         super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.biomes = biomes;
@@ -54,11 +57,11 @@ public class BiomeNeed extends Need {
         return new BiomeNeedSatisfier(satisfaction, isSatisfied, this);
     }
 
-    public List<String> getBiomes() {
+    public RegistryEntries<Biome> getBiomes() {
         return biomes;
     }
 
-    public void setBiomes(List<String> biomes) {
+    public void setBiomes(RegistryEntries<Biome> biomes) {
         this.biomes = biomes;
     }
 }

@@ -15,7 +15,7 @@
   ],
   "wallBlocks": [
     {
-      "tagBlock": "minecraft:doors",
+      "block": "#minecraft:doors",
       "minQuantity": 1,
       "maxQuantity": 2,
       "minPercentage": 0.0,

@@ -6,7 +6,7 @@
   "priority": 0,
   "floorBlocks": [
     {
-      "tagBlock": "minecraft:stone_bricks",
+      "block": "#minecraft:stone_bricks",
       "minQuantity": 4,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -15,7 +15,7 @@
   ],
   "wallBlocks": [
     {
-      "tagBlock": "minecraft:planks",
+      "block": "#minecraft:planks",
       "minQuantity": 4,
       "maxQuantity": 500,
       "minPercentage": 0.0,

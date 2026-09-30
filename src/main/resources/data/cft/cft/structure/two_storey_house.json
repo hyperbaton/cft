@@ -12,7 +12,7 @@
       "to": 1,
       "floorBlocks": [
         {
-          "tagBlock": "minecraft:planks",
+          "block": "#minecraft:planks",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -21,7 +21,7 @@
       ],
       "wallBlocks": [
         {
-          "tagBlock": "minecraft:logs",
+          "block": "#minecraft:logs",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -60,7 +60,7 @@
       ],
       "roofBlocks": [
         {
-          "tagBlock": "minecraft:planks",
+          "block": "#minecraft:planks",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -80,7 +80,7 @@
       "to": 2,
       "floorBlocks": [
         {
-          "tagBlock": "minecraft:planks",
+          "block": "#minecraft:planks",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -96,7 +96,7 @@
       ],
       "wallBlocks": [
         {
-          "tagBlock": "minecraft:logs",
+          "block": "#minecraft:logs",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,
@@ -121,7 +121,7 @@
       ],
       "roofBlocks": [
         {
-          "tagBlock": "minecraft:planks",
+          "block": "#minecraft:planks",
           "minQuantity": 4,
           "maxQuantity": 500,
           "minPercentage": 0.0,

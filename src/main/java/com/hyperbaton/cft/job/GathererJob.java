@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.job;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
@@ -11,9 +12,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -21,15 +20,13 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class GathererJob extends Job {
 
     public static final Codec<GathererJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.fieldOf("gather_radius").forGetter(j -> j.gatherRadius),
-            BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block").forGetter(j -> Optional.ofNullable(j.block)),
-            TagKey.codec(Registries.BLOCK).optionalFieldOf("block_tag").forGetter(j -> Optional.ofNullable(j.blockTag)),
+            RegistryEntries.codec(Registries.BLOCK).fieldOf("block").forGetter(j -> j.block),
             Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
@@ -38,25 +35,21 @@ public class GathererJob extends Job {
 
     private final double hoursPerDay;
     private final int gatherRadius;
-    private final Block block;
-    private final TagKey<Block> blockTag;
+    private final RegistryEntries<Block> block;
 
 
 
-    public GathererJob(double hoursPerDay, int gatherRadius, Optional<Block> block,
-                       Optional<TagKey<Block>> blockTag, List<String> requiredNeeds, double minHappiness,
+    public GathererJob(double hoursPerDay, int gatherRadius, RegistryEntries<Block> block,
+                       List<String> requiredNeeds, double minHappiness,
                        boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.gatherRadius = gatherRadius;
-        this.block = block.orElse(null);
-        this.blockTag = blockTag.orElse(null);
+        this.block = block;
     }
 
     public boolean matchesBlock(BlockState state) {
-        if (block != null && state.is(block)) return true;
-        if (blockTag != null && state.is(blockTag)) return true;
-        return false;
+        return block.contains(state.getBlockHolder());
     }
 
     public int getGatherRadius() {
@@ -129,10 +122,8 @@ public class GathererJob extends Job {
         List<JobDisplayEntry> entries = new ArrayList<>();
         entries.add(JobDisplayEntry.progress("gui.cft.job_today", state.workedTicksToday, neededTicks,
                 JobUtil.formatWorkTime(state.workedTicksToday, hoursPerDay)));
-        if (block != null) {
-            entries.add(JobDisplayEntry.item("gui.cft.job_gathering",
-                    BuiltInRegistries.BLOCK.getKey(block), 0));
-        }
+        block.ids().stream().findFirst()
+                .ifPresent(id -> entries.add(JobDisplayEntry.item("gui.cft.job_gathering", id, 0)));
 
         return new JobInfoData(status, entries);
     }

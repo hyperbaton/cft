@@ -3,6 +3,7 @@ package com.hyperbaton.cft.structure;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -207,13 +208,7 @@ public class BuildingDetectionUtils {
     }
 
     public static boolean isValidBlock(BlockState blockState, ValidBlock validBlock) {
-        if (validBlock.getTagBlock() != null) {
-            return blockState.is(validBlock.getTagBlock());
-        } else if (validBlock.getBlock() != null) {
-            return blockState.is(validBlock.getBlock());
-        } else {
-            throw new IllegalArgumentException("ValidBlock doesn't have a valid block nor tag");
-        }
+        return validBlock.getBlock().contains(blockState.getBlockHolder());
     }
 
     private static boolean isWallBlock(BlockState blockState, List<ValidBlock> validBlocks,
@@ -301,9 +296,10 @@ public class BuildingDetectionUtils {
     }
 
     private static String getBlockDescription(ValidBlock validBlock) {
-        if (validBlock.getBlock() != null) {
-            return Component.translatable(validBlock.getBlock().getDescriptionId()).getString();
-        }
-        return "#" + validBlock.getTagBlock().location();
+        return validBlock.getBlock().entries().stream()
+                .map(entry -> entry.map(
+                        tag -> "#" + tag.location(),
+                        id -> Component.translatable(BuiltInRegistries.BLOCK.get(id).getDescriptionId()).getString()))
+                .collect(Collectors.joining(", "));
     }
 }

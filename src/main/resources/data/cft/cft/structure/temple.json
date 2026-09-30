@@ -6,7 +6,7 @@
   "priority": 0,
   "floorBlocks": [
     {
-      "tagBlock": "minecraft:stone_bricks",
+      "block": "#minecraft:stone_bricks",
       "minQuantity": 9,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -15,7 +15,7 @@
   ],
   "wallBlocks": [
     {
-      "tagBlock": "minecraft:stone_bricks",
+      "block": "#minecraft:stone_bricks",
       "minQuantity": 4,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -59,7 +59,7 @@
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:candles",
+      "block": "#minecraft:candles",
       "minQuantity": 0,
       "maxQuantity": 20,
       "minPercentage": 0.0,

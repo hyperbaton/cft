@@ -1,16 +1,13 @@
 package com.hyperbaton.cft.need.satisfaction;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.PetNeed;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class PetNeedSatisfier extends NeedSatisfier<PetNeed> {
 
@@ -29,15 +26,11 @@ public class PetNeedSatisfier extends NeedSatisfier<PetNeed> {
             max = min;
         }
 
-        Set<EntityType<?>> acceptedTypes = need.getEntityTypes().stream()
-                .map(BuiltInRegistries.ENTITY_TYPE::get)
-                .collect(Collectors.toSet());
-
         AABB area = new AABB(mob.blockPosition()).inflate(radius);
         List<Entity> nearby = mob.level().getEntities(
                 mob,
                 area,
-                e -> e.isAlive() && acceptedTypes.contains(e.getType())
+                e -> e.isAlive() && need.getEntityTypes().contains(e.getType().builtInRegistryHolder())
         );
 
         long matching = nearby.size();

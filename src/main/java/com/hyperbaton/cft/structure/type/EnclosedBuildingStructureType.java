@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.type;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.StructureDetectionResult;
 import com.hyperbaton.cft.structure.ValidBlock;
@@ -8,21 +9,17 @@ import com.hyperbaton.cft.structure.detector.EnclosedBuildingDetector;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class EnclosedBuildingStructureType extends StructureType {
 
     public static final Codec<EnclosedBuildingStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
-            TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
+            RegistryEntries.codec(Registries.BLOCK).fieldOf("key_block").forGetter(StructureType::getKeyBlock),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
@@ -37,11 +34,11 @@ public class EnclosedBuildingStructureType extends StructureType {
     private final List<ValidBlock> interiorBlocks;
     private final List<ValidBlock> roofBlocks;
 
-    public EnclosedBuildingStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public EnclosedBuildingStructureType(RegistryEntries<Block> keyBlock,
                                          int maxUsers, boolean requiresContainer, int priority,
                                          List<ValidBlock> floorBlocks, List<ValidBlock> wallBlocks,
                                          List<ValidBlock> interiorBlocks, List<ValidBlock> roofBlocks) {
-        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
+        super(keyBlock, maxUsers, requiresContainer, priority);
         this.floorBlocks = floorBlocks;
         this.wallBlocks = wallBlocks;
         this.interiorBlocks = interiorBlocks;

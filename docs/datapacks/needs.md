@@ -198,8 +198,9 @@ The Xoonglin needs to live in a given biome (or a set of biomes).
       ]
     }
     ```
-    Apart from the common fields, this need includes a list of biomes:
-    - `biomes`: A list of biomes. The Xoonglin must be in any of them for the need to be satisfied.
+    Apart from the common fields, this need includes the biomes:
+    - `biomes`: The biomes the Xoonglin must be in: a biome, a biome tag (e.g.
+      `"#minecraft:is_mountain"`) or a list of them (see [Game content](index.md#game-content)).
 
 ## Fluid Need
 
@@ -298,7 +299,8 @@ need can also be used for limiting the presence of some mobs, e.g. hostile ones)
       "radius": 16
     }
     ```
-    - `entity_types`: A list of entity type IDs that count as valid pets.
+    - `entity_types`: The entities that count as pets: entity types, entity type tags or a list of
+      them (see [Game content](index.md#game-content)).
     - `min_count`: Minimum number of matching pets needed.
     - `max_count`: Maximum number of pets that count toward satisfaction.
     - `radius`: How far to search for pets.
@@ -340,13 +342,14 @@ The Xoonglin needs specific decorative blocks placed near their home.
       "provided_happiness": 5.0,
       "satisfaction_threshold": 0.75,
       "frequency": 1.0,
-      "block_tag": "minecraft:flowers",
+      "block": "#minecraft:flowers",
       "min_count": 6,
       "radius": 8,
       "min_spread": 0.3
     }
     ```
-    - `block` or `block_tag`: The decorative block or tag of blocks to look for.
+    - `block`: The decorative blocks to look for: a block, a block tag or a list of them
+      (see [Game content](index.md#game-content)).
     - `min_count`: Minimum number of matching blocks required.
     - `radius`: Search radius around the home entrance.
     - `min_spread`: _(Optional, default: 0.0)_ Minimum spatial spread of the blocks (0 to 1).
@@ -590,9 +593,10 @@ plays `block.note_block.harp` and sends `note_block_play`); listing both counts 
 
     For the common fields, look at the goods need example.
 
-    - `sounds`: _(Optional)_ The sounds it wants to hear, by id, or by tag with a leading `#`.
-    - `game_events`: _(Optional)_ The game events it wants to hear, by id, or by tag with a
-      leading `#` (e.g. `"#minecraft:vibrations"`).
+    - `sounds`: _(Optional)_ The sounds it wants to hear: a sound, a sound tag or a list of them
+      (see [Game content](index.md#game-content)).
+    - `game_events`: _(Optional)_ The game events it wants to hear: a game event, a game event
+      tag (e.g. `"#minecraft:vibrations"`) or a list of them (see [Game content](index.md#game-content)).
     - `min_events`: _(Optional, default: 1)_ How many of them it must have heard within the
       `window` for the need to be satisfied.
     - `max_events`: _(Optional)_ If given, the need is not satisfied either if it heard more than

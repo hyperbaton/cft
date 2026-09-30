@@ -6,7 +6,7 @@
   "priority": 0,
   "floorBlocks": [
     {
-      "tagBlock": "minecraft:stone_bricks",
+      "block": "#minecraft:stone_bricks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
@@ -29,7 +29,7 @@
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:doors",
+      "block": "#minecraft:doors",
       "minQuantity": 1,
       "maxQuantity": 2,
       "minPercentage": 0.0,
@@ -89,21 +89,21 @@
   ],
   "roofBlocks": [
     {
-      "tagBlock": "minecraft:stairs",
+      "block": "#minecraft:stairs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:slabs",
+      "block": "#minecraft:slabs",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,
       "maxPercentage": 1.0
     },
     {
-      "tagBlock": "minecraft:stone_bricks",
+      "block": "#minecraft:stone_bricks",
       "minQuantity": 0,
       "maxQuantity": 500,
       "minPercentage": 0.0,

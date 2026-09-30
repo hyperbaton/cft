@@ -1,11 +1,10 @@
 package com.hyperbaton.cft.need.satisfaction;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.DecorationNeed;
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -83,12 +82,7 @@ public class DecorationNeedSatisfier extends NeedSatisfier<DecorationNeed> {
     }
 
     private boolean matchesBlock(BlockState state, DecorationNeed need) {
-        Block block = need.getBlock();
-        TagKey<Block> tag = need.getBlockTag();
-
-        if (block != null && state.is(block)) return true;
-        if (tag != null && state.is(tag)) return true;
-        return false;
+        return need.getBlock().contains(state.getBlockHolder());
     }
 
     @Override

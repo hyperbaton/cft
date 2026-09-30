@@ -1,8 +1,8 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
-import com.hyperbaton.cft.structure.EntityTypeMatcher;
 import com.hyperbaton.cft.structure.OpenAirPlatformBlockGroup;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.StructureDetectionReasons;
@@ -91,16 +91,9 @@ public class PastureDetector implements StructureDetector<PastureStructureType> 
         return new AABB(minX, minY, minZ, maxX + 1, maxY + 2, maxZ + 1);
     }
 
-    private int countEligibleMobs(ServerLevel level, AABB area, List<EntityTypeMatcher> eligibleMobs) {
+    private int countEligibleMobs(ServerLevel level, AABB area, RegistryEntries<EntityType<?>> eligibleMobs) {
         List<Entity> nearby = level.getEntities((Entity) null, area,
-                entity -> entity.isAlive() && matchesAny(entity.getType(), eligibleMobs));
+                entity -> entity.isAlive() && eligibleMobs.contains(entity.getType().builtInRegistryHolder()));
         return nearby.size();
-    }
-
-    private boolean matchesAny(EntityType<?> type, List<EntityTypeMatcher> eligibleMobs) {
-        for (EntityTypeMatcher matcher : eligibleMobs) {
-            if (matcher.matches(type)) return true;
-        }
-        return false;
     }
 }
