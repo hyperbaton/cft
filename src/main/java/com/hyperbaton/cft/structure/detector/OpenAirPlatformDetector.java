@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.structure.*;
@@ -99,7 +100,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
 
         Structure structure = new Structure(
                 keyBlockPos, allBlocks.size(), leaderId,
-                structureType.getId(), structureType.getMaxUsers(), blockPositions
+                CftRegistry.getStructureTypeId(structureType), structureType.getMaxUsers(), blockPositions
         );
 
         return StructureDetectionResult.success(structure);

@@ -13,7 +13,9 @@ your `neoforge.mods.toml` and add the CFT jar to your build's dependencies.
 
 - **Data**: social classes, needs, jobs and structure types are datapack registries. Their files
   go in `data/<namespace>/cft/socialclass/`, `.../cft/need/`, `.../cft/job/` and
-  `.../cft/structure/`. A social class lists the needs and jobs of its Xoonglins by id.
+  `.../cft/structure/`, and each file's id comes from its name, as with any datapack registry:
+  `data/myaddon/cft/need/campfire_need.json` is `myaddon:campfire_need`. A social class lists the
+  needs and jobs of its Xoonglins by id.
 - **Types**: the `"type"` field of each need, job or structure file picks the codec that reads it,
   from one of three type registries: `cft:need_serializer`, `cft:job_serializer` and
   `cft:structure_serializer`. Adding a type means registering a codec there.
@@ -44,7 +46,7 @@ registries are synced to clients with them.
 A need type is two classes:
 
 - **`Need`**: the configuration, read from JSON. Its constructor takes the fields every need has
-  (`id`, `damage`, `damage_threshold`, `provided_happiness`, `satisfaction_threshold`,
+  (`damage`, `damage_threshold`, `provided_happiness`, `satisfaction_threshold`,
   `frequency`, `hidden`, `bonus` and `icon`), so declare those in your codec along with your own
   fields. Implement:
     - `needType()`: your registered codec.
@@ -61,7 +63,8 @@ A need type is two classes:
     `addMemoriesForSatisfaction(mob)`, and return `false`.
     - `addMemoriesForSatisfaction(mob)`: set the memories that send the Xoonglin to meet the need.
 
-  Use `getNeed()` to reach your need's configuration from the satisfier.
+  Use `getNeed()` to reach your need's configuration from the satisfier, and `getNeedId()` for its
+  id.
 
 Needs that are met instantly (e.g. by being near something) only need those two classes. When the
 Xoonglin has to go somewhere, the need also needs a memory and a behavior, and it chooses when that
@@ -80,7 +83,6 @@ lit campfire; otherwise it leaves whatever it's doing to walk to the nearest one
 ```java
 public class WarmthNeed extends Need {
     public static final Codec<WarmthNeed> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(Need::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(Need::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(Need::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(Need::getProvidedHappiness),
@@ -94,10 +96,10 @@ public class WarmthNeed extends Need {
 
     private final int searchRadius;
 
-    public WarmthNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public WarmthNeed(double damage, double damageThreshold, double providedHappiness,
                       double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                       int searchRadius, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.searchRadius = searchRadius;
     }
 
@@ -194,12 +196,12 @@ public class MyAddonBrainEvents {
 ```
 
 `MyAddonMemories.CAMPFIRE` is a regular memory type, registered with a `DeferredRegister` on
-`Registries.MEMORY_MODULE_TYPE`. A datapack then defines the need, and a social class lists it:
+`Registries.MEMORY_MODULE_TYPE`. A datapack then defines the need in
+`data/myaddon/cft/need/campfire_need.json`, and a social class lists it as `myaddon:campfire_need`:
 
 ```json
 {
   "type": "myaddon:warmth",
-  "id": "myaddon:campfire_need",
   "damage": 0.0,
   "damage_threshold": 0.0,
   "provided_happiness": 3.0,
@@ -300,7 +302,7 @@ Look at `SmelterJob` and `SmeltBehavior` for a small, complete job.
 ## Adding a structure type
 
 Structure types detect structures in the world when the leader uses the staff on their key block.
-A type extends `StructureType` (whose constructor takes the `id`, `key_block`/`key_block_tag`,
+A type extends `StructureType` (whose constructor takes the `key_block`/`key_block_tag`,
 `max_users`, `requires_container` and `priority` fields) and implements `detect(keyBlockPos,
 level, leaderId)`, returning a `StructureDetectionResult` with the detected `Structure` or the
 reason it failed. Register its codec on `STRUCTURE_TYPE_CODEC_KEY`. The built-in types in
@@ -350,10 +352,10 @@ the same time, avoid two of them steering the Xoonglin's navigation at once.
 
 | Text | Lang key |
 |---|---|
-| A need's name | the need's `id`, e.g. `myaddon:campfire_need` |
-| A need's description, in its tooltip | `need.<namespace>.<path>.tooltip` of the need's `id` |
+| A need's name | the need's id, e.g. `myaddon:campfire_need` |
+| A need's description, in its tooltip | `need.<namespace>.<path>.tooltip` of the need's id |
 | A job's name | `job.<namespace>.<path>` of the job file's id, e.g. `job.myaddon.beekeeper_job` |
-| A structure type's name | the structure type's `id` |
+| A structure type's name | the structure type's id |
 | A work step | the key of its `WorkStep` (`gui.cft.work_step.<name>` with `WorkStep.of(name)`) |
 | An errand | `errand.<namespace>.<path>` of its id |
 | A job status | the key of its `JobStatus` |

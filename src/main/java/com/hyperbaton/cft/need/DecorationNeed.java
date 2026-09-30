@@ -18,7 +18,6 @@ import java.util.Optional;
 public class DecorationNeed extends Need {
 
     public static final Codec<DecorationNeed> DECORATION_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(DecorationNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(DecorationNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(DecorationNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(DecorationNeed::getProvidedHappiness),
@@ -40,12 +39,12 @@ public class DecorationNeed extends Need {
     private final int radius;
     private final double minSpread;
 
-    public DecorationNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public DecorationNeed(double damage, double damageThreshold, double providedHappiness,
                           double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                           Optional<Block> block, Optional<TagKey<Block>> blockTag,
                           int minCount, int radius, double minSpread,
                           Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.block = block.orElse(null);
         this.blockTag = blockTag.orElse(null);
         this.minCount = minCount;

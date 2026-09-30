@@ -1,6 +1,5 @@
 {
   "type": "cft:decoration",
-  "id": "cft:flower_garden_need",
   "damage": 0.0,
   "damage_threshold": 0.3,
   "provided_happiness": 5.0,

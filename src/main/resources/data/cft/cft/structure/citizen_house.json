@@ -1,6 +1,5 @@
 {
   "type": "cft:house",
-  "id": "cft:citizen_house",
   "key_block_tag": "minecraft:doors",
   "max_users": 1,
   "requires_container": true,

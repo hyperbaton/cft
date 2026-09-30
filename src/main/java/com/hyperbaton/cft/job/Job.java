@@ -107,7 +107,7 @@ public abstract class Job {
 
         Optional<String> damagingNeed = xoonglin.getNeeds().stream()
                 .filter(ns -> ns.getNeed().getDamage() > 0.0 && !ns.isSatisfied())
-                .map(ns -> ns.getNeed().getId())
+                .map(NeedSatisfier::getNeedId)
                 .findFirst();
         if (damagingNeed.isPresent()) {
             return Optional.of(unsatisfiedNeedReason(damagingNeed.get()));
@@ -120,7 +120,7 @@ public abstract class Job {
 
         for (String needId : requiredNeeds) {
             boolean satisfied = xoonglin.getNeeds().stream()
-                    .filter(ns -> ns.getNeed().getId().equals(needId))
+                    .filter(ns -> needId.equals(ns.getNeedId()))
                     .anyMatch(NeedSatisfier::isSatisfied);
             if (!satisfied) return Optional.of(unsatisfiedNeedReason(needId));
         }

@@ -1,5 +1,4 @@
 {
-  "id": "cft:soldier",
   "maxHappiness": 750.0,
   "matingHappinessThreshold": 600.0,
   "spontaneouslySpawnPopulation": 0,

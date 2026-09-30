@@ -14,7 +14,6 @@ import java.util.Optional;
 
 public class EnergyNeed extends Need {
     public static final Codec<EnergyNeed> ENERGY_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(EnergyNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(EnergyNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(EnergyNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(EnergyNeed::getProvidedHappiness),
@@ -30,10 +29,10 @@ public class EnergyNeed extends Need {
 
     public static final String TAG_ENERGY_AMOUNT = "energy_amount";
 
-    public EnergyNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public EnergyNeed(double damage, double damageThreshold, double providedHappiness,
                       double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                       int energyAmount, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.energyAmount = energyAmount;
     }
 

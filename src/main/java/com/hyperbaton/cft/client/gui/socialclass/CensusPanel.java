@@ -324,11 +324,11 @@ public class CensusPanel {
     }
 
     private Optional<SocialClass> findClass(String classId) {
-        return socialClassRegistry.stream().filter(socialClass -> socialClass.getId().equals(classId)).findFirst();
+        return Optional.ofNullable(socialClassRegistry.get(ResourceLocation.tryParse(classId)));
     }
 
     private Need findNeed(String needId) {
-        return needRegistry.stream().filter(need -> need.getId().equals(needId)).findFirst().orElse(null);
+        return needRegistry.get(ResourceLocation.tryParse(needId));
     }
 
     private static String jobTranslationKey(String jobId) {

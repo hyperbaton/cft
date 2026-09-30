@@ -1,6 +1,5 @@
 {
   "type": "cft:lighting",
-  "id": "cft:high_lighting_need",
   "damage": 0.4,
   "damage_threshold": 0.2,
   "provided_happiness": 0.8,

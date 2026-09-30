@@ -1,6 +1,5 @@
 {
   "type": "cft:compound",
-  "id": "cft:village_square",
   "key_block": "minecraft:bell",
   "max_users": 0,
   "requires_container": false,

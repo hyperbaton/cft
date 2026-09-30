@@ -4,7 +4,6 @@ import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.structure.Structure;
-import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.type.HouseStructureType;
 import com.hyperbaton.cft.world.StructuresData;
 import io.netty.buffer.ByteBuf;
@@ -79,11 +78,6 @@ public record RequestStructureLabelsPacket() implements CustomPacketPayload {
 
     private static boolean isOccupiedSingleUserHouse(Structure structure) {
         if (structure.getMaxUsers() != 1 || structure.getUserIds().isEmpty()) return false;
-        if (CftRegistry.STRUCTURES == null) return false;
-        StructureType type = CftRegistry.STRUCTURES.stream()
-                .filter(st -> st.getId().equals(structure.getStructureTypeId()))
-                .findFirst()
-                .orElse(null);
-        return type instanceof HouseStructureType;
+        return CftRegistry.getStructureType(structure.getStructureTypeId()) instanceof HouseStructureType;
     }
 }

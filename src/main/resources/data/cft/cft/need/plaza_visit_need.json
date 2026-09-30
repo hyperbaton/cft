@@ -1,6 +1,5 @@
 {
   "type": "cft:visit",
-  "id": "cft:plaza_visit_need",
   "damage": 0.0,
   "damage_threshold": 0.0,
   "provided_happiness": 4.0,

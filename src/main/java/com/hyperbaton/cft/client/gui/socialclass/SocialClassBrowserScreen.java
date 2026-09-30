@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +76,8 @@ public class SocialClassBrowserScreen extends Screen {
         detailPanelX = graphPanelWidth;
         detailPanelWidth = this.width - graphPanelWidth;
 
-        List<SocialClass> allClasses = socialClassRegistry.stream().toList();
+        Map<String, SocialClass> allClasses = new LinkedHashMap<>();
+        socialClassRegistry.entrySet().forEach(entry -> allClasses.put(entry.getKey().location().toString(), entry.getValue()));
         GraphLayoutEngine.LayoutResult layout = GraphLayoutEngine.computeLayout(
                 allClasses, this.font, graphPanelWidth, this.height
         );
@@ -177,7 +179,7 @@ public class SocialClassBrowserScreen extends Screen {
         for (SocialClassNode node : nodes) {
             boolean hovered = isMouseOverNode(node, mouseX, mouseY);
             boolean selected = node == selectedNode;
-            int pop = populationData.getOrDefault(node.socialClass().getId(), 0);
+            int pop = populationData.getOrDefault(node.id(), 0);
             node.render(graphics, this.font, offsetX, offsetY, hovered, selected, pop);
         }
 
@@ -211,7 +213,7 @@ public class SocialClassBrowserScreen extends Screen {
             for (SocialClassNode node : nodes) {
                 if (isMouseOverNode(node, (int) mouseX, (int) mouseY)) {
                     selectedNode = node;
-                    detailPanel.setSelectedClass(node.socialClass());
+                    detailPanel.setSelectedClass(node.id(), node.socialClass());
                     return true;
                 }
             }

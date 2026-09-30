@@ -15,7 +15,6 @@ import java.util.Optional;
 
 public class FluidNeed extends Need {
     public static final Codec<FluidNeed> FLUID_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(FluidNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(FluidNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(FluidNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(FluidNeed::getProvidedHappiness),
@@ -29,10 +28,10 @@ public class FluidNeed extends Need {
 
     private final FluidStack fluidStack;
 
-    public FluidNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public FluidNeed(double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                      FluidStack fluidStack, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.fluidStack = fluidStack;
     }
 

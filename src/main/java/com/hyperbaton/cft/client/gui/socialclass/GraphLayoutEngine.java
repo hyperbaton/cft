@@ -23,14 +23,12 @@ public class GraphLayoutEngine {
             int contentHeight
     ) {}
 
-    public static LayoutResult computeLayout(List<SocialClass> classes, Font font, int panelWidth, int panelHeight) {
-        if (classes.isEmpty()) {
+    /**
+     * @param classById the social classes by their id, in the order they should be laid out
+     */
+    public static LayoutResult computeLayout(Map<String, SocialClass> classById, Font font, int panelWidth, int panelHeight) {
+        if (classById.isEmpty()) {
             return new LayoutResult(List.of(), List.of(), 0, 0);
-        }
-
-        Map<String, SocialClass> classById = new LinkedHashMap<>();
-        for (SocialClass sc : classes) {
-            classById.put(sc.getId(), sc);
         }
 
         // Build adjacency from upgrade edges
@@ -38,40 +36,41 @@ public class GraphLayoutEngine {
         Map<String, Set<String>> upgradeSourcesOf = new HashMap<>();
         // Undirected adjacency for component detection (includes both upgrades and downgrades)
         Map<String, Set<String>> undirectedAdj = new HashMap<>();
-        for (SocialClass sc : classes) {
-            upgradeTargets.put(sc.getId(), new HashSet<>());
-            upgradeSourcesOf.put(sc.getId(), new HashSet<>());
-            undirectedAdj.put(sc.getId(), new HashSet<>());
+        for (String id : classById.keySet()) {
+            upgradeTargets.put(id, new HashSet<>());
+            upgradeSourcesOf.put(id, new HashSet<>());
+            undirectedAdj.put(id, new HashSet<>());
         }
-        for (SocialClass sc : classes) {
-            for (SocialClassUpdate upgrade : sc.getUpgrades()) {
+        for (Map.Entry<String, SocialClass> entry : classById.entrySet()) {
+            String id = entry.getKey();
+            for (SocialClassUpdate upgrade : entry.getValue().getUpgrades()) {
                 String targetId = upgrade.getNextClass();
                 if (classById.containsKey(targetId)) {
-                    upgradeTargets.get(sc.getId()).add(targetId);
-                    upgradeSourcesOf.get(targetId).add(sc.getId());
-                    undirectedAdj.get(sc.getId()).add(targetId);
-                    undirectedAdj.get(targetId).add(sc.getId());
+                    upgradeTargets.get(id).add(targetId);
+                    upgradeSourcesOf.get(targetId).add(id);
+                    undirectedAdj.get(id).add(targetId);
+                    undirectedAdj.get(targetId).add(id);
                 }
             }
-            for (SocialClassUpdate downgrade : sc.getDowngrades()) {
+            for (SocialClassUpdate downgrade : entry.getValue().getDowngrades()) {
                 String targetId = downgrade.getNextClass();
                 if (classById.containsKey(targetId)) {
-                    undirectedAdj.get(sc.getId()).add(targetId);
-                    undirectedAdj.get(targetId).add(sc.getId());
+                    undirectedAdj.get(id).add(targetId);
+                    undirectedAdj.get(targetId).add(id);
                 }
             }
         }
 
         // Find connected components
-        List<List<String>> components = findConnectedComponents(classes, undirectedAdj);
+        List<List<String>> components = findConnectedComponents(classById.keySet(), undirectedAdj);
 
         // Compute display names and node widths
         Map<String, String> displayNames = new HashMap<>();
         Map<String, Integer> nodeWidths = new HashMap<>();
-        for (SocialClass sc : classes) {
-            String name = Component.translatable(sc.getId()).getString();
-            displayNames.put(sc.getId(), name);
-            nodeWidths.put(sc.getId(), font.width(name) + NODE_PADDING_X * 2);
+        for (String id : classById.keySet()) {
+            String name = Component.translatable(id).getString();
+            displayNames.put(id, name);
+            nodeWidths.put(id, font.width(name) + NODE_PADDING_X * 2);
         }
 
         // Lay out each component independently, then place side by side
@@ -79,8 +78,7 @@ public class GraphLayoutEngine {
         List<ComponentLayout> componentLayouts = new ArrayList<>();
 
         for (List<String> component : components) {
-            List<SocialClass> compClasses = component.stream().map(classById::get).toList();
-            Map<String, Integer> layerAssignment = assignLayers(compClasses, upgradeTargets, upgradeSourcesOf);
+            Map<String, Integer> layerAssignment = assignLayers(component, upgradeTargets, upgradeSourcesOf);
 
             int maxLayer = layerAssignment.values().stream().mapToInt(Integer::intValue).max().orElse(0);
             globalMaxLayer = Math.max(globalMaxLayer, maxLayer);
@@ -147,7 +145,7 @@ public class GraphLayoutEngine {
                 for (String id : layer) {
                     int w = nodeWidths.get(id);
                     SocialClassNode node = new SocialClassNode(
-                            classById.get(id), x, y, w, NODE_HEIGHT, displayNames.get(id)
+                            id, classById.get(id), x, y, w, NODE_HEIGHT, displayNames.get(id)
                     );
                     nodeMap.put(id, node);
                     x += w + NODE_SPACING;
@@ -160,17 +158,17 @@ public class GraphLayoutEngine {
 
         // Build edge list
         List<GraphEdge> edgeList = new ArrayList<>();
-        for (SocialClass sc : classes) {
-            SocialClassNode fromNode = nodeMap.get(sc.getId());
+        for (Map.Entry<String, SocialClass> entry : classById.entrySet()) {
+            SocialClassNode fromNode = nodeMap.get(entry.getKey());
             if (fromNode == null) continue;
 
-            for (SocialClassUpdate upgrade : sc.getUpgrades()) {
+            for (SocialClassUpdate upgrade : entry.getValue().getUpgrades()) {
                 SocialClassNode toNode = nodeMap.get(upgrade.getNextClass());
                 if (toNode != null) {
                     edgeList.add(new GraphEdge(fromNode, toNode, true));
                 }
             }
-            for (SocialClassUpdate downgrade : sc.getDowngrades()) {
+            for (SocialClassUpdate downgrade : entry.getValue().getDowngrades()) {
                 SocialClassNode toNode = nodeMap.get(downgrade.getNextClass());
                 if (toNode != null) {
                     edgeList.add(new GraphEdge(fromNode, toNode, false));
@@ -183,14 +181,13 @@ public class GraphLayoutEngine {
     }
 
     private static List<List<String>> findConnectedComponents(
-            List<SocialClass> classes,
+            Collection<String> classIds,
             Map<String, Set<String>> undirectedAdj
     ) {
         Set<String> visited = new HashSet<>();
         List<List<String>> components = new ArrayList<>();
 
-        for (SocialClass sc : classes) {
-            String id = sc.getId();
+        for (String id : classIds) {
             if (visited.contains(id)) continue;
 
             List<String> component = new ArrayList<>();
@@ -218,34 +215,34 @@ public class GraphLayoutEngine {
     }
 
     private static Map<String, Integer> assignLayers(
-            List<SocialClass> classes,
+            List<String> classIds,
             Map<String, Set<String>> upgradeTargets,
             Map<String, Set<String>> upgradeSourcesOf
     ) {
         Map<String, Integer> layers = new HashMap<>();
 
         Set<String> roots = new HashSet<>();
-        for (SocialClass sc : classes) {
-            if (upgradeSourcesOf.get(sc.getId()).isEmpty()) {
-                roots.add(sc.getId());
+        for (String id : classIds) {
+            if (upgradeSourcesOf.get(id).isEmpty()) {
+                roots.add(id);
             }
         }
 
         if (roots.isEmpty()) {
-            String minIncoming = classes.get(0).getId();
+            String minIncoming = classIds.get(0);
             int minCount = Integer.MAX_VALUE;
-            for (SocialClass sc : classes) {
-                int count = upgradeSourcesOf.get(sc.getId()).size();
+            for (String id : classIds) {
+                int count = upgradeSourcesOf.get(id).size();
                 if (count < minCount) {
                     minCount = count;
-                    minIncoming = sc.getId();
+                    minIncoming = id;
                 }
             }
             roots.add(minIncoming);
         }
 
-        for (SocialClass sc : classes) {
-            layers.put(sc.getId(), -1);
+        for (String id : classIds) {
+            layers.put(id, -1);
         }
 
         Queue<String> queue = new LinkedList<>(roots);

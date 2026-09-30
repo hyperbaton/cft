@@ -1,5 +1,4 @@
 {
-  "id": "cft:coal_need",
   "type": "cft:goods",
   "damage": 0.2,
   "damage_threshold": 0.25,

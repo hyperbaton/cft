@@ -21,7 +21,6 @@ as often.
 
     ```json
     {
-      "id": "cft:bread_need",
       "type": "cft:goods",
       "damage": 0.5,
       "damage_threshold": 0.5,
@@ -36,7 +35,6 @@ as often.
     }
     ```
 
-    - `id`: Identifier of this need.
     - `type`: Must be `"cft:goods"` to indicate this is a goods need.
     - `damage`: Amount of damage per second if the need is unsatisfied.
     - `damage_threshold`: The Xoonglin will receive damage if satisfaction falls below this level.
@@ -68,7 +66,6 @@ if it's valid. A message will appear in chat informing if it is or not.
 
     ```json
     {
-      "id": "cft:settler_home",
       "type": "cft:home",
       "damage": 0.0,
       "damage_threshold": 0.0,
@@ -95,7 +92,6 @@ over time and will eventually need to be replaced.
 
     ```json
     {
-      "id": "cft:citizen_iron_sword_need",
       "type": "cft:equipment",
       "damage": 0.0,
       "damage_threshold": 0.0,
@@ -126,7 +122,6 @@ requires a workplace or facility (e.g. a smithy) without it being their home.
     ```json
     {
       "type": "cft:structure",
-      "id": "cft:smithy_access_need",
       "damage": 0.0,
       "damage_threshold": 0.0,
       "provided_happiness": 5.0,
@@ -160,7 +155,6 @@ The Xoonglin needs to live in some altitude range (given by Y coordinate).
 
     ```json
     {
-      "id": "cft:high_altitude_need",
       "type": "cft:altitude",
       "damage": 0.4,
       "damage_threshold": 0.5,
@@ -183,7 +177,6 @@ The Xoonglin needs to live in a given biome (or a set of biomes).
 
     ```json
     {
-      "id": "cft:mountain_biomes_need",
       "type": "cft:biome",
       "damage": 0.4,
       "damage_threshold": 0.5,
@@ -218,7 +211,6 @@ satisfy the need.
 
     ```json
     {
-      "id": "cft:water_need",
       "type": "cft:fluid",
       "damage": 0.5,
       "damage_threshold": 0.6,
@@ -247,7 +239,6 @@ not be able to extract it. This can be tuned by balancing amount and frequency.
     ```json
     {
       "type": "cft:energy",
-      "id": "basic_energy_need",
       "damage": 1.0,
       "damage_threshold": 0.2,
       "provided_happiness": 1.0,
@@ -268,7 +259,6 @@ The Xoonglin needs companions of a specific social class nearby.
     ```json
     {
       "type": "cft:social",
-      "id": "cft:settlers_companions_need",
       "damage": 0.5,
       "damage_threshold": 0.2,
       "provided_happiness": 1.0,
@@ -296,7 +286,6 @@ need can also be used for limiting the presence of some mobs, e.g. hostile ones)
     ```json
     {
       "type": "cft:pet",
-      "id": "cft:cat_companion_need",
       "damage": 0.5,
       "damage_threshold": 0.2,
       "provided_happiness": 3.0,
@@ -323,7 +312,6 @@ The Xoonglin needs a certain light level around them.
     ```json
     {
       "type": "cft:lighting",
-      "id": "cft:well_lit_need",
       "damage": 0.3,
       "damage_threshold": 0.5,
       "provided_happiness": 2.0,
@@ -346,7 +334,6 @@ The Xoonglin needs specific decorative blocks placed near their home.
 
     ```json
     {
-      "id": "cft:flower_garden_need",
       "type": "cft:decoration",
       "damage": 0.2,
       "damage_threshold": 0.5,
@@ -377,7 +364,6 @@ satisfied when a ritual with a matching `ritual_id` completes within the given r
     ```json
     {
       "type": "cft:ritual",
-      "id": "cft:communion_need",
       "damage": 0.0,
       "damage_threshold": 0.0,
       "provided_happiness": 5.0,
@@ -412,7 +398,6 @@ and remembered, so there's nothing to configure about which title.
 
     ```json
     {
-      "id": "cft:reading_need",
       "type": "cft:reading",
       "damage": 0.0,
       "damage_threshold": 0.0,
@@ -446,7 +431,6 @@ lasts about 17 hours after waking up.
 
     ```json
     {
-      "id": "cft:sleep_need",
       "type": "cft:sleep",
       "damage": 0.0,
       "damage_threshold": 0.0,
@@ -474,7 +458,6 @@ Visits only happen in free time: during leisure hours if the Xoonglin has a
     ```json
     {
       "type": "cft:visit",
-      "id": "cft:plaza_visit_need",
       "damage": 0.0,
       "damage_threshold": 0.0,
       "provided_happiness": 4.0,
@@ -518,7 +501,6 @@ Visits only happen in free time: during leisure hours if the Xoonglin has a
     ```json
     {
       "type": "cft:visit",
-      "id": "cft:tavern_visit_need",
       "damage": 0.0,
       "damage_threshold": 0.0,
       "provided_happiness": 6.0,
@@ -548,7 +530,6 @@ socialize need itself.
     ```json
     {
       "type": "cft:socialize",
-      "id": "cft:conversation_need",
       "damage": 0.0,
       "damage_threshold": 0.0,
       "provided_happiness": 2.0,

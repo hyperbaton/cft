@@ -19,16 +19,14 @@ public abstract class StructureType {
                     .dispatch("type", StructureType::structureTypeCodec, codec -> MapCodec.assumeMapUnsafe(codec))
     );
 
-    private final String id;
     private final Block keyBlock;
     private final TagKey<Block> keyBlockTag;
     private final int maxUsers;
     private final boolean requiresContainer;
     private final int priority;
 
-    protected StructureType(String id, Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    protected StructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
                             int maxUsers, boolean requiresContainer, int priority) {
-        this.id = id;
         this.keyBlock = keyBlock.orElse(null);
         this.keyBlockTag = keyBlockTag.orElse(null);
         this.maxUsers = maxUsers;
@@ -55,10 +53,6 @@ public abstract class StructureType {
 
     public boolean isRequiresContainer() {
         return requiresContainer;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public Block getKeyBlock() {

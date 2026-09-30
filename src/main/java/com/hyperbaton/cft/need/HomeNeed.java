@@ -14,7 +14,6 @@ import java.util.Optional;
 public class HomeNeed extends Need {
 
     public static final Codec<HomeNeed> HOME_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(HomeNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(HomeNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(HomeNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(HomeNeed::getProvidedHappiness),
@@ -28,10 +27,10 @@ public class HomeNeed extends Need {
 
     private final String requiredStructure;
 
-    public HomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public HomeNeed(double damage, double damageThreshold, double providedHappiness,
                     double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                     String requiredStructure, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.requiredStructure = requiredStructure;
     }
 

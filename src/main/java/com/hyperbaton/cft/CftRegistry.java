@@ -34,6 +34,7 @@ import com.hyperbaton.cft.structure.type.PastureStructureType;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.TicketType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -180,5 +181,18 @@ public class CftRegistry {
 
     public static Registry<StructureType> getStructureTypesRegistry(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.STRUCTURE_TYPE_KEY);
+    }
+
+    public static String getSocialClassId(SocialClass socialClass) {
+        return SOCIAL_CLASSES.getKey(socialClass).toString();
+    }
+
+    public static String getStructureTypeId(StructureType structureType) {
+        return STRUCTURES.getKey(structureType).toString();
+    }
+
+    public static StructureType getStructureType(String structureTypeId) {
+        ResourceLocation id = ResourceLocation.tryParse(structureTypeId);
+        return STRUCTURES != null && id != null ? STRUCTURES.get(id) : null;
     }
 }

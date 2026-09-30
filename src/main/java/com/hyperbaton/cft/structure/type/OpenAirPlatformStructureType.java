@@ -21,7 +21,6 @@ import java.util.UUID;
 public class OpenAirPlatformStructureType extends StructureType {
 
     public static final Codec<OpenAirPlatformStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.STRING.fieldOf("id").forGetter(StructureType::getId),
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
@@ -38,12 +37,12 @@ public class OpenAirPlatformStructureType extends StructureType {
     private final List<ValidBlock> groundPerimeterBlocks;
     private final List<ValidBlock> surfaceBlocks;
 
-    public OpenAirPlatformStructureType(String id, Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public OpenAirPlatformStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
                                          int maxUsers, boolean requiresContainer, int priority,
                                          int wallHeight,
                                          List<ValidBlock> borderBlocks, List<ValidBlock> groundPerimeterBlocks,
                                          List<ValidBlock> surfaceBlocks) {
-        super(id, keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
+        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
         this.wallHeight = wallHeight;
         this.borderBlocks = borderBlocks;
         this.groundPerimeterBlocks = groundPerimeterBlocks;

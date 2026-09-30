@@ -432,10 +432,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 && socialClassUpdate.getRequiredHappiness() < this.happiness
                 && socialClassUpdate.getRequiredNeeds().stream().allMatch(needRequirement ->
                 this.getNeeds().stream()
-                        .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
+                        .filter(need -> needRequirement.getNeed().equals(need.getNeedId()))
                         .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold()))
                 && checkSocialStructureForUpgrade(
-                getSocialStructureWithUpgrade(this.socialClass.getId(), socialClassUpdate.getNextClass()),
+                getSocialStructureWithUpgrade(getSocialClassId(), socialClassUpdate.getNextClass()),
                 socialClassUpdate);
     }
 
@@ -461,7 +461,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 && ((socialClassUpdate.getRequiredHappiness() > this.happiness
                 && socialClassUpdate.getRequiredNeeds().stream().anyMatch(needRequirement ->
                 this.getNeeds().stream()
-                        .filter(need -> need.getNeed().getId().equals(needRequirement.getNeed()))
+                        .filter(need -> needRequirement.getNeed().equals(need.getNeedId()))
                         .anyMatch(need -> need.getSatisfaction() < needRequirement.getSatisfactionThreshold())))
                 || checkSocialStructureForDowngrade(getSocialStructure(), socialClassUpdate));
     }
@@ -488,11 +488,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private void changeSocialClass(String nextClass, boolean upgrade) {
-        String previousClass = this.socialClass != null ? this.socialClass.getId() : null;
+        String previousClass = getSocialClassId();
         this.socialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(nextClass));
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
-            this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
+            this.entityData.set(SOCIAL_CLASS_NAME, nextClass);
             assignEligibleJobIfNeeded();
             resetMatingDelay();
             applyClassMaxHealth();
@@ -518,7 +518,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private void notifyLeaderOfClassChange(String previousClass, boolean upgrade) {
         if (leaderId != null && level().getPlayerByUUID(leaderId) instanceof ServerPlayer leader) {
             PacketDistributor.sendToPlayer(leader, new ClassChangeNotificationPacket(
-                    getName().getString(), previousClass != null ? previousClass : "", socialClass.getId(), upgrade));
+                    getName().getString(), previousClass != null ? previousClass : "", getSocialClassId(), upgrade));
         }
     }
 
@@ -724,6 +724,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.socialClass = socialClass;
     }
 
+    public String getSocialClassId() {
+        return socialClass != null ? CftRegistry.getSocialClassId(socialClass) : null;
+    }
+
     public List<? extends NeedSatisfier<? extends Need>> getNeeds() {
         return needs;
     }
@@ -796,7 +800,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     @Override
     public void addAdditionalSaveData(final @NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.putString(KEY_SOCIAL_CLASS, socialClass.getId());
+        tag.putString(KEY_SOCIAL_CLASS, getSocialClassId());
         tag.putUUID(KEY_LEADER_ID, leaderId);
         tag.put(KEY_INVENTORY, inventory.createTag(this.registryAccess()));
         if (home != null) {
@@ -842,7 +846,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         super.readAdditionalSaveData(tag);
         if (tag.contains(KEY_SOCIAL_CLASS, Tag.TAG_STRING)) {
             setSocialClass(CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(tag.getString(KEY_SOCIAL_CLASS))));
-            this.entityData.set(SOCIAL_CLASS_NAME, this.socialClass.getId());
+            this.entityData.set(SOCIAL_CLASS_NAME, tag.getString(KEY_SOCIAL_CLASS));
             applyClassMaxHealth();
         }
         if (tag.contains(KEY_LEADER_ID)) {

@@ -1,6 +1,5 @@
 {
   "type": "cft:pet",
-  "id": "cft:cat_companion_need",
   "damage": 0.5,
   "damage_threshold": 0.2,
   "provided_happiness": 3.0,

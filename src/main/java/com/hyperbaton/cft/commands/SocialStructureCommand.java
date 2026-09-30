@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.commands;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialStructureHelper;
 import com.mojang.brigadier.CommandDispatcher;
@@ -38,7 +39,7 @@ public class SocialStructureCommand {
                 .append(Component.translatable("cft.socialstructure.population").withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(String.valueOf(population)).withStyle(ChatFormatting.DARK_AQUA))
                 .append(Component.literal("\n"));
-        socialStructure.forEach((key, value) -> formattedSocialStructure.append(Component.translatable(key.getId())
+        socialStructure.forEach((key, value) -> formattedSocialStructure.append(Component.translatable(CftRegistry.getSocialClassId(key))
                         .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal("    "))
                 .append(Component.literal(value.toString()).withStyle(ChatFormatting.DARK_AQUA))

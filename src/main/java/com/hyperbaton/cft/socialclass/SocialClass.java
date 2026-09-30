@@ -15,7 +15,6 @@ import java.util.Optional;
 
 public class SocialClass {
     public static final Codec<SocialClass> SOCIAL_CLASS_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(SocialClass::getId),
             Codec.DOUBLE.fieldOf("maxHappiness").forGetter(SocialClass::getMaxHappiness),
             Codec.DOUBLE.fieldOf("matingHappinessThreshold").forGetter(SocialClass::getMatingHappinessThreshold),
             Codec.INT.fieldOf("spontaneouslySpawnPopulation").forGetter(SocialClass::getSpontaneouslySpawnPopulation),
@@ -31,7 +30,6 @@ public class SocialClass {
             ScheduleDefinition.CODEC.optionalFieldOf("schedule").forGetter(SocialClass::getSchedule)
     ).apply(instance, SocialClass::new));
 
-    private String id;
     private double maxHappiness;
     private double matingHappinessThreshold;
     private int spontaneouslySpawnPopulation;
@@ -50,12 +48,11 @@ public class SocialClass {
     /** Daily routine for this class; null if its Xoonglins don't follow any. */
     private final ScheduleDefinition schedule;
 
-    public SocialClass(String id, double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
+    public SocialClass(double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
                        List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades,
                        List<ResourceLocation> jobs, boolean canUpgradeAsBaby, boolean canDowngradeAsBaby,
                        int matingDelay, double maxHealth, List<String> nameSamples,
                        Optional<ScheduleDefinition> schedule) {
-        this.id = id;
         this.maxHappiness = maxHappiness;
         this.matingHappinessThreshold = matingHappinessThreshold;
         this.spontaneouslySpawnPopulation = spontaneouslySpawnPopulation;
@@ -69,14 +66,6 @@ public class SocialClass {
         this.maxHealth = maxHealth;
         this.nameSamples = nameSamples != null ? List.copyOf(nameSamples) : List.of();
         this.schedule = schedule.orElse(null);
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public double getMaxHappiness() {

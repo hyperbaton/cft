@@ -21,7 +21,6 @@ import java.util.UUID;
 public class EnclosedBuildingStructureType extends StructureType {
 
     public static final Codec<EnclosedBuildingStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.STRING.fieldOf("id").forGetter(StructureType::getId),
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
@@ -38,11 +37,11 @@ public class EnclosedBuildingStructureType extends StructureType {
     private final List<ValidBlock> interiorBlocks;
     private final List<ValidBlock> roofBlocks;
 
-    public EnclosedBuildingStructureType(String id, Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public EnclosedBuildingStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
                                          int maxUsers, boolean requiresContainer, int priority,
                                          List<ValidBlock> floorBlocks, List<ValidBlock> wallBlocks,
                                          List<ValidBlock> interiorBlocks, List<ValidBlock> roofBlocks) {
-        super(id, keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
+        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
         this.floorBlocks = floorBlocks;
         this.wallBlocks = wallBlocks;
         this.interiorBlocks = interiorBlocks;

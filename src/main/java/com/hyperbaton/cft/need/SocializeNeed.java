@@ -20,7 +20,6 @@ import java.util.Optional;
 public class SocializeNeed extends Need {
 
     public static final Codec<SocializeNeed> SOCIALIZE_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(SocializeNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(SocializeNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(SocializeNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(SocializeNeed::getProvidedHappiness),
@@ -38,11 +37,11 @@ public class SocializeNeed extends Need {
     private final int radius;
     private final int duration;
 
-    public SocializeNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public SocializeNeed(double damage, double damageThreshold, double providedHappiness,
                             double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                             List<String> acceptedSocialClassIds, int radius, int duration,
                             Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.acceptedSocialClassIds = List.copyOf(acceptedSocialClassIds);
         this.radius = radius;
         this.duration = duration;

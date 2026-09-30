@@ -14,7 +14,6 @@ import java.util.Optional;
 public class LightingNeed extends Need {
 
     public static final Codec<LightingNeed> LIGHTING_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(LightingNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(LightingNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(LightingNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(LightingNeed::getProvidedHappiness),
@@ -31,7 +30,6 @@ public class LightingNeed extends Need {
     private final int radius;   // sampling radius; 0 = only mob position
 
     public LightingNeed(
-            String id,
             double damage,
             double damageThreshold,
             double providedHappiness,
@@ -43,7 +41,7 @@ public class LightingNeed extends Need {
             int radius,
             Optional<ResourceLocation> icon
     ) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.minLight = Math.max(0, Math.min(15, minLight));
         this.radius = Math.max(0, radius);
     }

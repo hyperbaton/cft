@@ -1,6 +1,5 @@
 {
   "type": "cft:pasture",
-  "id": "cft:pasture",
   "key_block": "minecraft:hay_block",
   "max_users": 1,
   "requires_container": true,

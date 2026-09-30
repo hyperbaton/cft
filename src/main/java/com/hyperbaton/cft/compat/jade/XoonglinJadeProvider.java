@@ -56,7 +56,7 @@ public enum XoonglinJadeProvider implements IEntityComponentProvider, IServerDat
         }
 
         xoonglin.getWorstNeed().ifPresent(worst -> {
-            data.putString(KEY_WORST_NEED, worst.getNeed().getId());
+            data.putString(KEY_WORST_NEED, worst.getNeedId());
             data.putBoolean(KEY_WORST_NEED_CRITICAL, XoonglinEntity.isCritical(worst));
         });
         data.putInt(KEY_UNSATISFIED, xoonglin.getUnsatisfiedVisibleNeeds().size());

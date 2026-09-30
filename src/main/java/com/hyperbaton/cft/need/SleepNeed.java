@@ -18,7 +18,6 @@ import java.util.Optional;
 public class SleepNeed extends Need {
 
     public static final Codec<SleepNeed> SLEEP_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(SleepNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(SleepNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(SleepNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(SleepNeed::getProvidedHappiness),
@@ -29,10 +28,10 @@ public class SleepNeed extends Need {
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(SleepNeed::getIcon)
     ).apply(instance, SleepNeed::new));
 
-    public SleepNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public SleepNeed(double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                      Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
     }
 
     @Override

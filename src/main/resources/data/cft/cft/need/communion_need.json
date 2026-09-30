@@ -1,6 +1,5 @@
 {
   "type": "cft:ritual",
-  "id": "cft:communion_need",
   "damage": 0.0,
   "damage_threshold": 0.0,
   "provided_happiness": 5.0,

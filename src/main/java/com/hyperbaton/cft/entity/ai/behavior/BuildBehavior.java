@@ -159,7 +159,7 @@ public class BuildBehavior extends JobBehavior<BuilderJob> {
                     if (abandonedSites.contains(normalizedPos)) continue;
 
                     for (String typeId : job.getBuildableStructures()) {
-                        StructureType structureType = findStructureType(typeId);
+                        StructureType structureType = CftRegistry.getStructureType(typeId);
                         if (structureType == null) continue;
                         if (!structureType.matchesKeyBlock(blockState)) continue;
 
@@ -648,13 +648,6 @@ public class BuildBehavior extends JobBehavior<BuilderJob> {
             }
         }
         return -1;
-    }
-
-    private StructureType findStructureType(String typeId) {
-        if (CftRegistry.STRUCTURES == null) return null;
-        return CftRegistry.STRUCTURES.stream()
-                .filter(st -> st.getId().equals(typeId))
-                .findFirst().orElse(null);
     }
 
     private boolean entityOccupies(XoonglinEntity entity, BlockPos pos) {

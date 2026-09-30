@@ -22,7 +22,6 @@ import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 public class EquipmentNeed extends Need {
 
     public static final Codec<EquipmentNeed> EQUIPMENT_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(EquipmentNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(EquipmentNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(EquipmentNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(EquipmentNeed::getProvidedHappiness),
@@ -39,10 +38,10 @@ public class EquipmentNeed extends Need {
     private final EquipmentSlot slot;
     private final String slotName;
 
-    public EquipmentNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public EquipmentNeed(double damage, double damageThreshold, double providedHappiness,
                          double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, boolean bonus,
                          String slotName, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.item = item;
         this.slotName = slotName;
         this.slot = parseSlot(slotName);

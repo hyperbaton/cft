@@ -66,13 +66,13 @@ public record CensusStats(
         Map<String, Integer> jobs = new HashMap<>();
 
         for (XoonglinEntity xoonglin : xoonglins) {
-            String classId = xoonglin.getSocialClass().getId();
+            String classId = xoonglin.getSocialClassId();
             population.merge(classId, 1, Integer::sum);
             happinessSums.merge(classId, xoonglin.getHappiness(), Double::sum);
             jobs.merge(xoonglin.getJob() != null ? xoonglin.getJob().toString() : NO_JOB, 1, Integer::sum);
 
             for (NeedSatisfier<? extends Need> satisfier : xoonglin.getUnsatisfiedVisibleNeeds()) {
-                int[] counts = issueCounts.computeIfAbsent(satisfier.getNeed().getId(), id -> new int[2]);
+                int[] counts = issueCounts.computeIfAbsent(satisfier.getNeedId(), id -> new int[2]);
                 counts[0]++;
                 if (XoonglinEntity.isCritical(satisfier)) {
                     counts[1]++;
@@ -119,7 +119,7 @@ public record CensusStats(
         Map<String, Integer> counts = new HashMap<>();
         double happinessSum = 0;
         for (XoonglinEntity xoonglin : xoonglins) {
-            counts.merge(xoonglin.getSocialClass().getId(), 1, Integer::sum);
+            counts.merge(xoonglin.getSocialClassId(), 1, Integer::sum);
             happinessSum += xoonglin.getHappiness();
         }
         return new PopulationSnapshot(day, counts, xoonglins.isEmpty() ? 0 : happinessSum / xoonglins.size());

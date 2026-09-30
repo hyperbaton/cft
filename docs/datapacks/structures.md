@@ -10,7 +10,6 @@ All structure types share these base fields:
 - `type`: The structure type discriminator (e.g. `"cft:house"`, `"cft:enclosed_building"`,
   `"cft:open_air_platform"`, `"cft:pasture"`, `"cft:monument"`, `"cft:multi_storey_building"`,
   `"cft:compound"`).
-- `id`: Identifier of this structure type.
 - `key_block`: _(Optional)_ A specific block that identifies the structure. Right clicking
   this block with the leader staff will trigger detection.
 - `key_block_tag`: _(Optional)_ A block tag; any block in the tag can serve as the key block.
@@ -52,7 +51,6 @@ and include the container block (e.g. a chest) in the `interiorBlocks` list.
     ```json
     {
       "type": "cft:house",
-      "id": "cft:settler_house",
       "key_block_tag": "minecraft:doors",
       "max_users": 1,
       "requires_container": true,
@@ -133,7 +131,6 @@ are not homes. They are used as workplaces or other facilities (e.g. a smithy).
     ```json
     {
       "type": "cft:enclosed_building",
-      "id": "cft:smithy",
       "key_block": "minecraft:anvil",
       "max_users": 2,
       "requires_container": true,
@@ -212,7 +209,6 @@ ground perimeter, and a surface.
     ```json
     {
       "type": "cft:open_air_platform",
-      "id": "cft:farm",
       "key_block_tag": "minecraft:fence_gates",
       "max_users": 1,
       "requires_container": false,
@@ -303,7 +299,6 @@ wandered empty is caught rather than staying claimed on stale data.
     ```json
     {
       "type": "cft:pasture",
-      "id": "cft:pasture",
       "key_block": "minecraft:hay_block",
       "max_users": 1,
       "requires_container": false,
@@ -367,7 +362,6 @@ at different height ranges.
     ```json
     {
       "type": "cft:monument",
-      "id": "cft:obelisk",
       "key_block": "minecraft:chiseled_quartz_block",
       "max_users": 0,
       "requires_container": false,
@@ -462,7 +456,6 @@ below an air opening).
     ```json
     {
       "type": "cft:multi_storey_building",
-      "id": "cft:two_storey_house",
       "key_block": "minecraft:oak_door",
       "max_users": 2,
       "requires_container": true,
@@ -633,7 +626,6 @@ a second key block on an already detected square will not create a second compou
     ```json
     {
       "type": "cft:compound",
-      "id": "cft:village_square",
       "key_block": "minecraft:bell",
       "max_users": 0,
       "requires_container": false,

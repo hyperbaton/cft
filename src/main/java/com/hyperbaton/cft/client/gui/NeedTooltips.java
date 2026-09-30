@@ -61,7 +61,7 @@ public class NeedTooltips {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return null;
         return minecraft.level.registryAccess().registry(CftDatapackRegistryEvents.NEED_KEY)
-                .flatMap(registry -> registry.stream().filter(need -> need.getId().equals(needId)).findFirst())
+                .map(registry -> registry.get(ResourceLocation.tryParse(needId)))
                 .orElse(null);
     }
 

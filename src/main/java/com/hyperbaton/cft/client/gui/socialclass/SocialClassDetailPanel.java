@@ -41,6 +41,7 @@ public class SocialClassDetailPanel {
     private final Font font;
     private final Registry<Need> needRegistry;
 
+    private String selectedClassId;
     private SocialClass selectedClass;
     private List<DetailLine> cachedLines = new ArrayList<>();
     private double scrollOffset = 0;
@@ -57,7 +58,8 @@ public class SocialClassDetailPanel {
         this.needRegistry = needRegistry;
     }
 
-    public void setSelectedClass(SocialClass socialClass) {
+    public void setSelectedClass(String socialClassId, SocialClass socialClass) {
+        this.selectedClassId = socialClassId;
         this.selectedClass = socialClass;
         this.scrollOffset = 0;
         rebuildLines();
@@ -120,7 +122,7 @@ public class SocialClassDetailPanel {
         cachedLines.clear();
         if (selectedClass == null) return;
 
-        String className = Component.translatable(selectedClass.getId()).getString();
+        String className = Component.translatable(selectedClassId).getString();
         cachedLines.add(new StaticLine(className, HEADER_COLOR, 0, LINE_HEIGHT + 4, true));
 
         if (!selectedClass.getJobs().isEmpty()) {
@@ -140,9 +142,9 @@ public class SocialClassDetailPanel {
         ));
 
         for (String needId : selectedClass.getNeeds()) {
-            Need need = findNeed(needId);
+            Need need = needRegistry.get(ResourceLocation.tryParse(needId));
             if (need != null && !need.isHidden()) {
-                renderNeedInfo(need);
+                renderNeedInfo(needId, need);
             }
         }
 
@@ -174,12 +176,12 @@ public class SocialClassDetailPanel {
         cachedLines.add(new StaticLine(label, LABEL_COLOR, 4, LINE_HEIGHT, false));
     }
 
-    private void renderNeedInfo(Need need) {
-        String needName = Component.translatable(need.getId()).getString();
+    private void renderNeedInfo(String needId, Need need) {
+        String needName = Component.translatable(needId).getString();
         String typeName = getNeedTypeName(need);
         String line = needName + " (" + typeName + ")";
         List<ResourceLocation> icons = need.getIcons();
-        cachedLines.add(new IconNeedLine(need.getId(), line, VALUE_COLOR, 4, icons));
+        cachedLines.add(new IconNeedLine(needId, line, VALUE_COLOR, 4, icons));
 
         double freq = need.getFrequency();
         String freqText = (freq % 1 == 0) ? String.format("%.0f", freq) : String.format("%.1f", freq);
@@ -227,15 +229,6 @@ public class SocialClassDetailPanel {
                     LABEL_COLOR, 8, LINE_HEIGHT, false
             ));
         }
-    }
-
-    private Need findNeed(String needId) {
-        for (Need need : needRegistry) {
-            if (need.getId().equals(needId)) {
-                return need;
-            }
-        }
-        return null;
     }
 
     private String getNeedTypeName(Need need) {

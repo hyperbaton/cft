@@ -106,10 +106,7 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
 
     /** Re-detects the structure at its key block to confirm it is still standing. */
     private boolean stillValid(ServerLevel level, Structure structure) {
-        StructureType type = CftRegistry.STRUCTURES == null ? null : CftRegistry.STRUCTURES.stream()
-                .filter(t -> t.getId().equals(structure.getStructureTypeId()))
-                .findFirst()
-                .orElse(null);
+        StructureType type = CftRegistry.getStructureType(structure.getStructureTypeId());
         return type != null && type.detect(structure.getKeyBlockPos(), level, structure.getLeaderId())
                 .success();
     }

@@ -87,7 +87,7 @@ public class LeaderStaff extends Item {
 
         return new CheckOnXoonglinPacket(
                 entity.getCustomName(),
-                entity.getSocialClass().getId(),
+                entity.getSocialClassId(),
                 entity.getJob(),
                 entity.getHappiness(),
                 needsData,
@@ -127,7 +127,7 @@ public class LeaderStaff extends Item {
             if (result.success()) {
                 structuresData.addStructure(result.structure());
 
-                return new StructureDetectionPacket(true, structureType.getId(),
+                return new StructureDetectionPacket(true, CftRegistry.getStructureTypeId(structureType),
                         StructureDetectionReasons.STRUCTURE_DETECTED, Collections.emptyList());
             }
             if (bestFailure == null || result.reason().ordinal() > bestFailure.reason().ordinal()) {
@@ -139,7 +139,7 @@ public class LeaderStaff extends Item {
         if (bestFailure != null) {
             // Several structure types can share a key block; sending the type id lets
             // the client label the failure with the (translated) type that came closest
-            return new StructureDetectionPacket(false, bestFailureType.getId(),
+            return new StructureDetectionPacket(false, CftRegistry.getStructureTypeId(bestFailureType),
                     bestFailure.reason(), bestFailure.validationDetails());
         }
 

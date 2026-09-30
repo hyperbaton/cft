@@ -22,9 +22,16 @@ public abstract class NeedSatisfier<T extends Need> {
 
     T need;
 
+    /**
+     * The id of the need, which is the name of its file. Kept here because the Xoonglin keeps its
+     * own copy of the need, which isn't in the registry
+     */
+    String needId;
+
     public static final String TAG_SATISFACTION = "satisfaction";
     public static final String TAG_IS_SATISFIED = "isSatisfied";
     public static final String TAG_NEED = "need";
+    public static final String TAG_NEED_ID = "needId";
 
     public NeedSatisfier(double satisfaction, boolean isSatisfied, T need) {
         this.satisfaction = satisfaction;
@@ -78,10 +85,19 @@ public abstract class NeedSatisfier<T extends Need> {
         this.need = need;
     }
 
+    public String getNeedId() {
+        return needId;
+    }
+
+    public void setNeedId(String needId) {
+        this.needId = needId;
+    }
+
     public CompoundTag toTag(){
         CompoundTag tag = new CompoundTag();
         tag.putDouble(TAG_SATISFACTION, satisfaction);
         tag.putBoolean(TAG_IS_SATISFIED, isSatisfied);
+        tag.putString(TAG_NEED_ID, needId);
         tag.put(TAG_NEED, Need.NEED_CODEC.encodeStart(NbtOps.INSTANCE, need).result().get());
         return tag;
     }

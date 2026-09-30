@@ -1,5 +1,4 @@
 {
-  "id": "cft:high_altitude_need",
   "type": "cft:altitude",
   "damage": 0.4,
   "damage_threshold": 0.5,

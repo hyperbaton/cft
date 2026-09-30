@@ -14,7 +14,6 @@ import java.util.Optional;
 public class StructureNeed extends Need {
 
     public static final Codec<StructureNeed> STRUCTURE_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(StructureNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(StructureNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(StructureNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(StructureNeed::getProvidedHappiness),
@@ -36,11 +35,11 @@ public class StructureNeed extends Need {
     private final boolean requiresRunning;
     private final List<String> runningWorkSteps;
 
-    public StructureNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public StructureNeed(double damage, double damageThreshold, double providedHappiness,
                          double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                          String requiredStructure, boolean requiresUsage, int searchRadius,
                          boolean requiresRunning, List<String> runningWorkSteps, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.requiredStructure = requiredStructure;
         this.requiresUsage = requiresUsage;
         this.searchRadius = searchRadius;

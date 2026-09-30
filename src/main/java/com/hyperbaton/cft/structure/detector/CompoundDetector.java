@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.structure.*;
@@ -128,7 +129,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
 
         Structure structure = new Structure(
                 keyBlockPos, surfaceBlocks.size(), leaderId,
-                structureType.getId(), structureType.getMaxUsers(), blockPositions
+                CftRegistry.getStructureTypeId(structureType), structureType.getMaxUsers(), blockPositions
         );
         return StructureDetectionResult.success(structure);
     }
@@ -165,10 +166,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
     }
 
     private boolean isCompoundType(String structureTypeId) {
-        if (com.hyperbaton.cft.CftRegistry.STRUCTURES == null) return false;
-        return com.hyperbaton.cft.CftRegistry.STRUCTURES.stream()
-                .filter(st -> st.getId().equals(structureTypeId))
-                .anyMatch(st -> st instanceof CompoundStructureType);
+        return CftRegistry.getStructureType(structureTypeId) instanceof CompoundStructureType;
     }
 
     private int distanceToSurface(BlockPos pos, Set<BlockPos> surfaceBlocks) {

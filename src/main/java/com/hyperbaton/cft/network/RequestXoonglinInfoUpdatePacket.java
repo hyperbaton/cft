@@ -47,7 +47,7 @@ public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements Custom
 
                         XoonglinInfoUpdatePacket updatePacket = new XoonglinInfoUpdatePacket(
                                 xoonglin.getCustomName(),
-                                xoonglin.getSocialClass().getId(),
+                                xoonglin.getSocialClassId(),
                                 xoonglin.getJob(),
                                 xoonglin.getHappiness(),
                                 needsData,

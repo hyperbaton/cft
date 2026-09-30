@@ -1,5 +1,4 @@
 {
-  "id": "cft:mountain_biomes_need",
   "type": "cft:biome",
   "damage": 0.4,
   "damage_threshold": 0.5,

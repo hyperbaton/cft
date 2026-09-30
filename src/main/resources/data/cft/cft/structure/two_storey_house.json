@@ -1,6 +1,5 @@
 {
   "type": "cft:multi_storey_building",
-  "id": "cft:two_storey_house",
   "key_block": "minecraft:oak_door",
   "max_users": 2,
   "requires_container": true,

@@ -1,5 +1,4 @@
 {
-  "id": "cft:citizen",
   "maxHappiness": 200.0,
   "matingHappinessThreshold": 40.0,
   "spontaneouslySpawnPopulation": 0,

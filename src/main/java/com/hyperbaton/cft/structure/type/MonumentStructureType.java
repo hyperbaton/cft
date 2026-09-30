@@ -27,7 +27,6 @@ public class MonumentStructureType extends StructureType {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final Codec<MonumentStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.STRING.fieldOf("id").forGetter(StructureType::getId),
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
@@ -44,11 +43,11 @@ public class MonumentStructureType extends StructureType {
     private final List<LayerRule> layerRules;
     private final List<IdenticalLayerGroup> identicalLayerGroups;
 
-    public MonumentStructureType(String id, Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public MonumentStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
                                   int maxUsers, boolean requiresContainer, int priority,
                                   int minHeight, int maxHeight,
                                   List<LayerRule> layerRules, List<IdenticalLayerGroup> identicalLayerGroups) {
-        super(id, keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
+        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
         this.minHeight = minHeight;
         this.maxHeight = maxHeight;
         this.layerRules = layerRules;
@@ -60,20 +59,20 @@ public class MonumentStructureType extends StructureType {
         for (int i = 0; i < layerRules.size(); i++) {
             LayerRule a = layerRules.get(i);
             if (a.from() > a.to()) {
-                LOGGER.error("Monument structure type '{}': layerRule[{}] has from ({}) > to ({})",
-                        getId(), i, a.from(), a.to());
+                LOGGER.error("Monument structure type: layerRule[{}] has from ({}) > to ({})",
+                        i, a.from(), a.to());
                 throw new IllegalArgumentException(
-                        String.format("Monument '%s': layerRule[%d] has from (%d) > to (%d)",
-                                getId(), i, a.from(), a.to()));
+                        String.format("Monument: layerRule[%d] has from (%d) > to (%d)",
+                                i, a.from(), a.to()));
             }
             for (int j = i + 1; j < layerRules.size(); j++) {
                 LayerRule b = layerRules.get(j);
                 if (a.from() <= b.to() && b.from() <= a.to()) {
-                    LOGGER.error("Monument structure type '{}': layerRules[{}] ({}-{}) and [{}] ({}-{}) overlap",
-                            getId(), i, a.from(), a.to(), j, b.from(), b.to());
+                    LOGGER.error("Monument structure type: layerRules[{}] ({}-{}) and [{}] ({}-{}) overlap",
+                            i, a.from(), a.to(), j, b.from(), b.to());
                     throw new IllegalArgumentException(
-                            String.format("Monument '%s': layerRules[%d] (%d-%d) and [%d] (%d-%d) overlap",
-                                    getId(), i, a.from(), a.to(), j, b.from(), b.to()));
+                            String.format("Monument: layerRules[%d] (%d-%d) and [%d] (%d-%d) overlap",
+                                    i, a.from(), a.to(), j, b.from(), b.to()));
                 }
             }
         }

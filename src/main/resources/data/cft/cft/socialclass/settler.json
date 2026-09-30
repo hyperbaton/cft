@@ -1,5 +1,4 @@
 {
-  "id": "cft:settler",
   "maxHappiness": 100.0,
   "matingHappinessThreshold": 5.0,
   "spontaneouslySpawnPopulation": 3,

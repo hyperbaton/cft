@@ -127,7 +127,7 @@ public class ConverseBehavior extends Behavior<XoonglinEntity> {
         xoonglin.getNeeds().stream()
                 .filter(SocializeNeedSatisfier.class::isInstance)
                 .map(SocializeNeedSatisfier.class::cast)
-                .filter(satisfier -> satisfier.getNeed().acceptsClass(partner.getSocialClass().getId()))
+                .filter(satisfier -> satisfier.getNeed().acceptsClass(partner.getSocialClassId()))
                 .forEach(satisfier -> satisfier.onSocialized(xoonglin));
     }
 
@@ -157,7 +157,7 @@ public class ConverseBehavior extends Behavior<XoonglinEntity> {
                                 && isAvailable(candidate)
                                 && !candidate.getBrain().hasMemoryValue(CftMemoryModuleType.CONVERSATION_PARTNER.get())
                                 && !candidate.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_VISIT.get())
-                                && needs.stream().anyMatch(need -> need.acceptsClass(candidate.getSocialClass().getId())))
+                                && needs.stream().anyMatch(need -> need.acceptsClass(candidate.getSocialClassId())))
                 .stream()
                 .min(Comparator.comparingDouble(xoonglin::distanceToSqr));
     }

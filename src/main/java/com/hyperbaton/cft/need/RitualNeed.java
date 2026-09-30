@@ -20,7 +20,6 @@ import java.util.Optional;
 public class RitualNeed extends Need {
 
     public static final Codec<RitualNeed> RITUAL_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(RitualNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(RitualNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(RitualNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(RitualNeed::getProvidedHappiness),
@@ -38,11 +37,11 @@ public class RitualNeed extends Need {
     private final int radius;
     private final boolean requiresPresence;
 
-    public RitualNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public RitualNeed(double damage, double damageThreshold, double providedHappiness,
                       double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                       String ritualId, int radius, boolean requiresPresence,
                       Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.ritualId = ritualId;
         this.radius = radius;
         this.requiresPresence = requiresPresence;

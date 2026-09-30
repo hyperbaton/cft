@@ -27,7 +27,6 @@ import java.util.UUID;
 public class CompoundStructureType extends StructureType {
 
     public static final Codec<CompoundStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.STRING.fieldOf("id").forGetter(StructureType::getId),
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
             Codec.INT.optionalFieldOf("max_users", 0).forGetter(StructureType::getMaxUsers),
@@ -42,11 +41,11 @@ public class CompoundStructureType extends StructureType {
     private final List<RequiredStructure> requiredStructures;
     private final boolean requiresSkyAccess;
 
-    public CompoundStructureType(String id, Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public CompoundStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
                                  int maxUsers, boolean requiresContainer, int priority,
                                  List<ValidBlock> surfaceBlocks, List<RequiredStructure> requiredStructures,
                                  boolean requiresSkyAccess) {
-        super(id, keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
+        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
         this.surfaceBlocks = surfaceBlocks;
         this.requiredStructures = requiredStructures;
         this.requiresSkyAccess = requiresSkyAccess;

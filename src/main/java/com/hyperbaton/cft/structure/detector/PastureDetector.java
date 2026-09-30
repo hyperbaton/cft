@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.structure.EntityTypeMatcher;
 import com.hyperbaton.cft.structure.OpenAirPlatformBlockGroup;
@@ -39,7 +40,7 @@ public class PastureDetector implements StructureDetector<PastureStructureType> 
         // A pasture cannot share blocks with an already registered pasture: two key
         // blocks (e.g. two hay bales) in the same pen would otherwise each detect their
         // own overlapping copy of it
-        if (overlapsAnotherPasture(level, keyBlockPos, shapeResult.structure(), structureType.getId())) {
+        if (overlapsAnotherPasture(level, keyBlockPos, shapeResult.structure(), CftRegistry.getStructureTypeId(structureType))) {
             return StructureDetectionResult.failure(StructureDetectionReasons.OVERLAPPING_STRUCTURE);
         }
 

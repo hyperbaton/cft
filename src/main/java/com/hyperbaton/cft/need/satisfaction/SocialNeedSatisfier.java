@@ -43,7 +43,7 @@ public class SocialNeedSatisfier extends NeedSatisfier<SocialNeed> {
                 .filter(nearbyXoonglin -> nearbyXoonglin.getLeaderId().equals(mob.getLeaderId()))
                 .filter(e -> {
                     if (acceptable == null || acceptable.isEmpty()) return true;
-                    String classId = e.getSocialClass().getId();
+                    String classId = e.getSocialClassId();
                     return classId != null && acceptable.contains(classId);
                 }).count();
 

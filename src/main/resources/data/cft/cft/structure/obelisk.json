@@ -1,6 +1,5 @@
 {
   "type": "cft:monument",
-  "id": "cft:obelisk",
   "key_block": "minecraft:chiseled_quartz_block",
   "max_users": 0,
   "requires_container": false,

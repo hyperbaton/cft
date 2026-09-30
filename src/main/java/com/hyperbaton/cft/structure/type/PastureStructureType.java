@@ -26,7 +26,6 @@ import java.util.UUID;
 public class PastureStructureType extends OpenAirPlatformStructureType {
 
     public static final Codec<PastureStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.STRING.fieldOf("id").forGetter(StructureType::getId),
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
@@ -45,13 +44,13 @@ public class PastureStructureType extends OpenAirPlatformStructureType {
     private final int minMobCount;
     private final int maxMobCount;
 
-    public PastureStructureType(String id, Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public PastureStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
                                 int maxUsers, boolean requiresContainer, int priority,
                                 int wallHeight,
                                 List<ValidBlock> borderBlocks, List<ValidBlock> groundPerimeterBlocks,
                                 List<ValidBlock> surfaceBlocks,
                                 List<EntityTypeMatcher> eligibleMobs, int minMobCount, int maxMobCount) {
-        super(id, keyBlock, keyBlockTag, maxUsers, requiresContainer, priority,
+        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority,
                 wallHeight, borderBlocks, groundPerimeterBlocks, surfaceBlocks);
         this.eligibleMobs = List.copyOf(eligibleMobs);
         this.minMobCount = minMobCount;

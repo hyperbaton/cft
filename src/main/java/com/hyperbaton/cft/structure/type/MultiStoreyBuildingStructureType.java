@@ -31,7 +31,6 @@ public class MultiStoreyBuildingStructureType extends StructureType {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final Codec<MultiStoreyBuildingStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            Codec.STRING.fieldOf("id").forGetter(StructureType::getId),
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("key_block").forGetter(s -> Optional.ofNullable(s.getKeyBlock())),
             TagKey.codec(Registries.BLOCK).optionalFieldOf("key_block_tag").forGetter(s -> Optional.ofNullable(s.getKeyBlockTag())),
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
@@ -46,10 +45,10 @@ public class MultiStoreyBuildingStructureType extends StructureType {
     private final int maxStoreys;
     private final List<StoreyRule> storeyRules;
 
-    public MultiStoreyBuildingStructureType(String id, Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
+    public MultiStoreyBuildingStructureType(Optional<Block> keyBlock, Optional<TagKey<Block>> keyBlockTag,
                                             int maxUsers, boolean requiresContainer, int priority,
                                             int minStoreys, int maxStoreys, List<StoreyRule> storeyRules) {
-        super(id, keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
+        super(keyBlock, keyBlockTag, maxUsers, requiresContainer, priority);
         this.minStoreys = minStoreys;
         this.maxStoreys = maxStoreys;
         this.storeyRules = storeyRules;
@@ -58,37 +57,37 @@ public class MultiStoreyBuildingStructureType extends StructureType {
 
     private void validateStoreyRules() {
         if (minStoreys < 1 || maxStoreys < minStoreys) {
-            LOGGER.error("Multi-storey structure type '{}': invalid storey bounds min={} max={}",
-                    getId(), minStoreys, maxStoreys);
+            LOGGER.error("Multi-storey structure type: invalid storey bounds min={} max={}",
+                    minStoreys, maxStoreys);
             throw new IllegalArgumentException(
-                    String.format("Multi-storey building '%s': invalid storey bounds min=%d max=%d",
-                            getId(), minStoreys, maxStoreys));
+                    String.format("Multi-storey building: invalid storey bounds min=%d max=%d",
+                            minStoreys, maxStoreys));
         }
         for (int i = 0; i < storeyRules.size(); i++) {
             StoreyRule a = storeyRules.get(i);
             if (a.from() > a.to()) {
-                LOGGER.error("Multi-storey structure type '{}': storeyRule[{}] has from ({}) > to ({})",
-                        getId(), i, a.from(), a.to());
+                LOGGER.error("Multi-storey structure type: storeyRule[{}] has from ({}) > to ({})",
+                        i, a.from(), a.to());
                 throw new IllegalArgumentException(
-                        String.format("Multi-storey building '%s': storeyRule[%d] has from (%d) > to (%d)",
-                                getId(), i, a.from(), a.to()));
+                        String.format("Multi-storey building: storeyRule[%d] has from (%d) > to (%d)",
+                                i, a.from(), a.to()));
             }
             for (int j = i + 1; j < storeyRules.size(); j++) {
                 StoreyRule b = storeyRules.get(j);
                 if (a.from() <= b.to() && b.from() <= a.to()) {
-                    LOGGER.error("Multi-storey structure type '{}': storeyRules[{}] ({}-{}) and [{}] ({}-{}) overlap",
-                            getId(), i, a.from(), a.to(), j, b.from(), b.to());
+                    LOGGER.error("Multi-storey structure type: storeyRules[{}] ({}-{}) and [{}] ({}-{}) overlap",
+                            i, a.from(), a.to(), j, b.from(), b.to());
                     throw new IllegalArgumentException(
-                            String.format("Multi-storey building '%s': storeyRules[%d] (%d-%d) and [%d] (%d-%d) overlap",
-                                    getId(), i, a.from(), a.to(), j, b.from(), b.to()));
+                            String.format("Multi-storey building: storeyRules[%d] (%d-%d) and [%d] (%d-%d) overlap",
+                                    i, a.from(), a.to(), j, b.from(), b.to()));
                 }
             }
         }
         for (int storey = 1; storey <= maxStoreys; storey++) {
             if (getRuleForStorey(storey) == null) {
-                LOGGER.error("Multi-storey structure type '{}': no storeyRule covers storey {}", getId(), storey);
+                LOGGER.error("Multi-storey structure type: no storeyRule covers storey {}", storey);
                 throw new IllegalArgumentException(
-                        String.format("Multi-storey building '%s': no storeyRule covers storey %d", getId(), storey));
+                        String.format("Multi-storey building: no storeyRule covers storey %d", storey));
             }
         }
     }

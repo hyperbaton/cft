@@ -19,7 +19,6 @@ import java.util.Optional;
 public class VisitNeed extends Need {
 
     public static final Codec<VisitNeed> VISIT_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(VisitNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(VisitNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(VisitNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(VisitNeed::getProvidedHappiness),
@@ -45,12 +44,12 @@ public class VisitNeed extends Need {
     private final boolean requiresRunning;
     private final List<String> runningWorkSteps;
 
-    public VisitNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public VisitNeed(double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                      String requiredStructure, int searchRadius, int stayDuration, List<ItemQuantity> consumes,
                      boolean useSupplies, boolean requiresRunning, List<String> runningWorkSteps,
                      Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.requiredStructure = requiredStructure;
         this.searchRadius = searchRadius;
         this.stayDuration = stayDuration;

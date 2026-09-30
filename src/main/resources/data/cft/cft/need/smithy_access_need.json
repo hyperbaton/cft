@@ -1,6 +1,5 @@
 {
   "type": "cft:structure",
-  "id": "cft:smithy_access_need",
   "damage": 0.0,
   "damage_threshold": 0.0,
   "provided_happiness": 5.0,

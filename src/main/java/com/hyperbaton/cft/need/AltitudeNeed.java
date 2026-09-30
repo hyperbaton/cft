@@ -14,7 +14,6 @@ import java.util.Optional;
 public class AltitudeNeed extends Need {
 
     public static final Codec<AltitudeNeed> ALTITUDE_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(AltitudeNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(AltitudeNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(AltitudeNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(AltitudeNeed::getProvidedHappiness),
@@ -30,10 +29,10 @@ public class AltitudeNeed extends Need {
     private double minAltitude;
     private double maxAltitude;
 
-    public AltitudeNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public AltitudeNeed(double damage, double damageThreshold, double providedHappiness,
                         double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, double minAltitude,
                         double maxAltitude, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.minAltitude = minAltitude;
         this.maxAltitude = maxAltitude;
     }

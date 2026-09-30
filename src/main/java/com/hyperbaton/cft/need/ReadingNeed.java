@@ -20,7 +20,6 @@ import java.util.Optional;
 public class ReadingNeed extends Need {
 
     public static final Codec<ReadingNeed> READING_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(ReadingNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(ReadingNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(ReadingNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(ReadingNeed::getProvidedHappiness),
@@ -31,10 +30,10 @@ public class ReadingNeed extends Need {
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(ReadingNeed::getIcon)
     ).apply(instance, ReadingNeed::new));
 
-    public ReadingNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public ReadingNeed(double damage, double damageThreshold, double providedHappiness,
                        double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                        Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
     }
 
     @Override

@@ -14,3 +14,19 @@ These pages document each kind of datapack file:
 - [Needs](needs.md): what Xoonglins need to be happy.
 - [Jobs](jobs.md): the work Xoonglins do.
 - [Structures](structures.md): the buildings the mod recognizes, like homes and workshops.
+
+## Files and ids
+
+Each kind of file goes in its own folder, and its id is given by where it is, as with vanilla
+recipes or loot tables: `data/<namespace>/cft/<folder>/<name>.json` has the id
+`<namespace>:<name>`. Files refer to each other by these ids. For example, a social class with
+`cft:bread_need` in its `needs` uses the need in `data/cft/cft/need/bread_need.json`.
+
+| Kind | Folder |
+|---|---|
+| Social classes | `data/<namespace>/cft/socialclass/` |
+| Needs | `data/<namespace>/cft/need/` |
+| Jobs | `data/<namespace>/cft/job/` |
+| Structures | `data/<namespace>/cft/structure/` |
+
+Subfolders are part of the id: `data/cft/cft/need/food/bread.json` is `cft:food/bread`.

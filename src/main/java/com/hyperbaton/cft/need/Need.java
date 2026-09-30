@@ -17,7 +17,6 @@ public abstract class Need {
     public static final Codec<Need> NEED_CODEC = Codec.lazyInitialized(() -> CftRegistry.NEEDS_CODEC_REGISTRY.byNameCodec()
             .dispatch("type", Need::needType, codec -> MapCodec.assumeMapUnsafe(codec)));
 
-    private final String id;
     private double damage;
 
     private double damageThreshold;
@@ -45,7 +44,6 @@ public abstract class Need {
 
     private final ResourceLocation icon;
 
-    public static final String TAG_ID = "id";
     public static final String TAG_DAMAGE = "damage";
     public static final String TAG_DAMAGE_THRESHOLD = "damageThreshold";
     public static final String TAG_PROVIDED_HAPPINESS = "providedHappiness";
@@ -54,10 +52,9 @@ public abstract class Need {
     public static final String TAG_HIDDEN = "hidden";
     public static final String TAG_BONUS = "bonus";
 
-    public Need(String id, double damage, double damageThreshold, double providedHappiness,
+    public Need(double damage, double damageThreshold, double providedHappiness,
                 double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                 Optional<ResourceLocation> icon) {
-        this.id = id;
         this.damage = damage;
         this.damageThreshold = damageThreshold;
         this.providedHappiness = providedHappiness;
@@ -66,10 +63,6 @@ public abstract class Need {
         this.hidden = hidden;
         this.bonus = bonus;
         this.icon = icon.orElse(null);
-    }
-
-    public String getId() {
-        return id;
     }
 
     public abstract Codec<? extends Need> needType();
@@ -153,7 +146,6 @@ public abstract class Need {
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putString(TAG_ID, id);
         tag.putDouble(TAG_DAMAGE, damage);
         tag.putDouble(TAG_DAMAGE_THRESHOLD, damageThreshold);
         tag.putDouble(TAG_PROVIDED_HAPPINESS, providedHappiness);

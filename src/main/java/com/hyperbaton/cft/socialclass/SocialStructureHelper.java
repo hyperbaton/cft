@@ -52,7 +52,7 @@ public class SocialStructureHelper {
      */
     public static double computeScopedPercentage(Map<SocialClass, Integer> counts, String target, List<String> scope) {
         int numerator = counts.entrySet().stream()
-                .filter(entry -> entry.getKey().getId().equals(target))
+                .filter(entry -> CftRegistry.getSocialClassId(entry.getKey()).equals(target))
                 .mapToInt(Map.Entry::getValue)
                 .findFirst().orElse(0);
 
@@ -61,7 +61,7 @@ public class SocialStructureHelper {
             denominator = counts.values().stream().mapToInt(Integer::intValue).sum();
         } else {
             denominator = counts.entrySet().stream()
-                    .filter(entry -> scope.contains(entry.getKey().getId()))
+                    .filter(entry -> scope.contains(CftRegistry.getSocialClassId(entry.getKey())))
                     .mapToInt(Map.Entry::getValue)
                     .sum();
         }

@@ -13,7 +13,6 @@ import java.util.Optional;
 
 public class PetNeed extends Need {
     public static final Codec<PetNeed> PET_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(PetNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(PetNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(PetNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(PetNeed::getProvidedHappiness),
@@ -33,11 +32,11 @@ public class PetNeed extends Need {
     private final int maxCount;
     private final int radius;
 
-    public PetNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public PetNeed(double damage, double damageThreshold, double providedHappiness,
                    double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
                    List<ResourceLocation> entityTypes, int minCount, int maxCount, int radius,
                    Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.entityTypes = List.copyOf(entityTypes);
         this.minCount = minCount;
         this.maxCount = maxCount;

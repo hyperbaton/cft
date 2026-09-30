@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 
 public record SocialClassNode(
+        String id,
         SocialClass socialClass,
         int x,
         int y,

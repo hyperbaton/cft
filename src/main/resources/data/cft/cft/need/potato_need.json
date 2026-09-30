@@ -1,5 +1,4 @@
 {
-  "id": "cft:potato_need",
   "type": "cft:goods",
   "damage": 0.4,
   "damage_threshold": 0.5,

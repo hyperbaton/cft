@@ -21,7 +21,7 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
     public boolean satisfy(XoonglinEntity mob) {
         if (mob.getHome() != null) {
             String structureTypeId = mob.getHome().getStructureTypeId();
-            StructureType structureType = findStructureType(structureTypeId);
+            StructureType structureType = CftRegistry.getStructureType(structureTypeId);
 
             if (structureType != null) {
                 var result = structureType.detect(
@@ -66,13 +66,5 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
                 tag.getBoolean(TAG_IS_SATISFIED),
                 (HomeNeed) Need.NEED_CODEC.parse(NbtOps.INSTANCE, tag.getCompound(TAG_NEED)).result().orElse(null)
         );
-    }
-
-    private StructureType findStructureType(String structureTypeId) {
-        if (CftRegistry.STRUCTURES == null) return null;
-        return CftRegistry.STRUCTURES.stream()
-                .filter(st -> st.getId().equals(structureTypeId))
-                .findFirst()
-                .orElse(null);
     }
 }

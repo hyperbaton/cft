@@ -1,5 +1,4 @@
 {
-  "id": "cft:settler_home",
   "type": "cft:home",
   "damage": 0.0,
   "damage_threshold": 0.0,

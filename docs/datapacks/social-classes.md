@@ -14,7 +14,6 @@ Each class is a file in `data/<namespace>/cft/socialclass/`.
 
     ```json
     {
-      "id": "cft:settler",
       "maxHappiness": 100.0,
       "matingHappinessThreshold": 5.0,
       "spontaneouslySpawnPopulation": 3,
@@ -49,7 +48,6 @@ Each class is a file in `data/<namespace>/cft/socialclass/`.
     }
     ```
 
-- `id`: Identifier of the social class.
 - `maxHappiness`: Happiness for a single Xoonglin of this class will not get greater
   than this.
 - `matingHappinessThreshold`: The happiness value a Xoonglin needs to achieve to consider

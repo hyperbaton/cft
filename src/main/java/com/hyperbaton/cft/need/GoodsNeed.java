@@ -22,7 +22,6 @@ import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 public class GoodsNeed extends Need {
 
     public static final Codec<GoodsNeed> GOODS_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(GoodsNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(GoodsNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(GoodsNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(GoodsNeed::getProvidedHappiness),
@@ -45,10 +44,10 @@ public class GoodsNeed extends Need {
     public static final String TAG_QUANTITY = "quantity";
     public static final String TAG_HOARDING = "hoarding";
 
-    public GoodsNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public GoodsNeed(double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, boolean bonus, int quantity,
                      int hoarding, Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.quantity = quantity;
         this.hoarding = hoarding > 0 ? hoarding : quantity;
         this.item = item;

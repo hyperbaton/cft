@@ -14,7 +14,6 @@ import java.util.Optional;
 public class BiomeNeed extends Need {
 
     public static final Codec<BiomeNeed> BIOME_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("id").forGetter(BiomeNeed::getId),
             Codec.DOUBLE.fieldOf("damage").forGetter(BiomeNeed::getDamage),
             Codec.DOUBLE.fieldOf("damage_threshold").forGetter(BiomeNeed::getDamageThreshold),
             Codec.DOUBLE.fieldOf("provided_happiness").forGetter(BiomeNeed::getProvidedHappiness),
@@ -28,10 +27,10 @@ public class BiomeNeed extends Need {
 
     private List<String> biomes;
 
-    public BiomeNeed(String id, double damage, double damageThreshold, double providedHappiness,
+    public BiomeNeed(double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, List<String> biomes,
                      Optional<ResourceLocation> icon) {
-        super(id, damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.biomes = biomes;
     }
 

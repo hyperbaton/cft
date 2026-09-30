@@ -31,3 +31,6 @@ run-data
 
 # Generated data
 /src/generated/resources/.cache/**
+
+# MkDocs build output
+/site/

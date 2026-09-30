@@ -336,7 +336,7 @@ public class PerformRitualBehavior extends JobBehavior<OfficiantJob> {
     private boolean attendanceMinimumsMet(OfficiantJob job, List<XoonglinEntity> present) {
         for (AttendanceRule rule : job.getAttendanceRules()) {
             long count = present.stream()
-                    .filter(x -> x.getSocialClass() != null && rule.appliesTo(x.getSocialClass().getId()))
+                    .filter(x -> x.getSocialClass() != null && rule.appliesTo(x.getSocialClassId()))
                     .count();
             if (count < rule.min() || count > rule.max()) {
                 return false;
@@ -365,17 +365,17 @@ public class PerformRitualBehavior extends JobBehavior<OfficiantJob> {
 
         for (AttendanceRule rule : job.getAttendanceRules()) {
             long presentCount = present.stream()
-                    .filter(x -> rule.appliesTo(x.getSocialClass().getId()))
+                    .filter(x -> rule.appliesTo(x.getSocialClassId()))
                     .count();
             long summonedCount = candidates.stream()
-                    .filter(x -> rule.appliesTo(x.getSocialClass().getId()))
+                    .filter(x -> rule.appliesTo(x.getSocialClassId()))
                     .filter(x -> x.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get()))
                     .count();
             long shortfall = rule.min() - presentCount - summonedCount;
 
             for (XoonglinEntity candidate : candidates) {
                 if (shortfall <= 0 || totalCommitted >= job.getMaxAttendees()) break;
-                if (!rule.appliesTo(candidate.getSocialClass().getId())) continue;
+                if (!rule.appliesTo(candidate.getSocialClassId())) continue;
                 if (candidate.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())) continue;
                 candidate.getBrain().setMemory(CftMemoryModuleType.MUST_ATTEND_RITUAL.get(), ritual.getCenter());
                 shortfall--;
