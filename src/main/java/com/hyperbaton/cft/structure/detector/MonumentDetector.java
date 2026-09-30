@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
@@ -69,7 +70,7 @@ public class MonumentDetector implements StructureDetector<MonumentStructureType
             if (layerBlocks == null) {
                 return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_MONUMENT_LAYER);
             }
-            List<String> errors = BuildingDetectionUtils.checkValidBlocks(level, layers.get(i), layerBlocks, noSkip);
+            List<Component> errors = BuildingDetectionUtils.checkValidBlocks(level, layers.get(i), layerBlocks, noSkip);
             if (!errors.isEmpty()) {
                 return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_MONUMENT_LAYER, errors);
             }

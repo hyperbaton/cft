@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
@@ -35,7 +36,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
         Predicate<net.minecraft.world.level.block.state.BlockState> noSkip = bs -> false;
 
         Set<BlockPos> borderColumnBlocks = collectBorderColumn(borderBlocks, groundY, structureType.getWallHeight());
-        List<String> borderErrors = BuildingDetectionUtils.checkValidBlocks(level, borderColumnBlocks,
+        List<Component> borderErrors = BuildingDetectionUtils.checkValidBlocks(level, borderColumnBlocks,
                 structureType.getBorderBlocks(), noSkip);
         if (!borderErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_BORDER, borderErrors);
@@ -45,7 +46,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
         for (BlockPos borderPos : borderBlocks) {
             groundPerimeterBlocks.add(new BlockPos(borderPos.getX(), groundY, borderPos.getZ()));
         }
-        List<String> groundPerimeterErrors = BuildingDetectionUtils.checkValidBlocks(level, groundPerimeterBlocks,
+        List<Component> groundPerimeterErrors = BuildingDetectionUtils.checkValidBlocks(level, groundPerimeterBlocks,
                 structureType.getGroundPerimeterBlocks(), noSkip);
         if (!groundPerimeterErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_GROUND_PERIMETER, groundPerimeterErrors);
@@ -64,7 +65,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE);
         }
 
-        List<String> surfaceErrors = BuildingDetectionUtils.checkValidBlocks(level, surfaceBlocks,
+        List<Component> surfaceErrors = BuildingDetectionUtils.checkValidBlocks(level, surfaceBlocks,
                 structureType.getSurfaceBlocks(), noSkip);
         if (!surfaceErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE, surfaceErrors);

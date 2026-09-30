@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
@@ -35,8 +36,8 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
     /** Result of detecting the phases of one storey above an already-known floor. */
     private record StoreyParts(Set<BlockPos> wallBlocks, Set<BlockPos> interiorBlocks,
                                Set<BlockPos> roofBlocks, StructureDetectionReasons failure,
-                               List<String> failureDetails) {
-        static StoreyParts failure(StructureDetectionReasons reason, List<String> details) {
+                               List<Component> failureDetails) {
+        static StoreyParts failure(StructureDetectionReasons reason, List<Component> details) {
             return new StoreyParts(null, null, null, reason, details);
         }
 
@@ -70,7 +71,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         Set<BlockPos> fullFloorBlocks = Sets.newHashSet();
         fullFloorBlocks.addAll(floorBlockSet);
         fullFloorBlocks.addAll(floorPerimeterBlocks);
-        List<String> floorErrors = BuildingDetectionUtils.checkValidBlocks(level, fullFloorBlocks,
+        List<Component> floorErrors = BuildingDetectionUtils.checkValidBlocks(level, fullFloorBlocks,
                 rule.floorBlocks(), NO_SKIP);
         if (!floorErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_FLOOR,
@@ -94,7 +95,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
         Set<BlockPos> previousCeiling = parts.roofBlocks();
         StructureDetectionReasons lastFailure = null;
-        List<String> lastFailureDetails = List.of();
+        List<Component> lastFailureDetails = List.of();
 
         // ---- Upper storeys: floors derived from the ceiling below, no flood fill ----
         while (storeyCount < structureType.getMaxStoreys()) {
@@ -114,8 +115,8 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
                 floorRegion = previousCeiling.stream().map(BlockPos::above).collect(Collectors.toSet());
                 if (!allValid(level, floorRegion, rule.floorBlocks())) {
                     lastFailure = StructureDetectionReasons.INVALID_FLOOR;
-                    lastFailureDetails = List.of(String.format("Storey %d: floor matches neither the shared "
-                            + "layer nor the layer above the previous ceiling", storey));
+                    lastFailureDetails = storeyDetails(storey, lastFailure,
+                            List.of(Component.translatable("detection.cft.detail.storey_floor_unmatched")));
                     break;
                 }
             }
@@ -124,10 +125,11 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
             floorPerimeterBlocks = Sets.newHashSet();
             if (!BuildingDetectionUtils.partitionFloorRegion(floorRegion, floorBlockSet, floorPerimeterBlocks)) {
                 lastFailure = StructureDetectionReasons.INVALID_FLOOR;
-                lastFailureDetails = List.of(String.format("Storey %d: floor region is degenerate", storey));
+                lastFailureDetails = storeyDetails(storey, lastFailure,
+                        List.of(Component.translatable("detection.cft.detail.storey_floor_degenerate")));
                 break;
             }
-            List<String> upperFloorErrors = BuildingDetectionUtils.checkValidBlocks(level, floorRegion,
+            List<Component> upperFloorErrors = BuildingDetectionUtils.checkValidBlocks(level, floorRegion,
                     rule.floorBlocks(), NO_SKIP);
             if (!upperFloorErrors.isEmpty()) {
                 lastFailure = StructureDetectionReasons.INVALID_FLOOR;
@@ -153,8 +155,8 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         }
 
         if (storeyCount < structureType.getMinStoreys()) {
-            List<String> details = new ArrayList<>();
-            details.add(String.format("Found %d storeys, but the minimum is %d",
+            List<Component> details = new ArrayList<>();
+            details.add(Component.translatable("detection.cft.detail.not_enough_storeys",
                     storeyCount, structureType.getMinStoreys()));
             details.addAll(lastFailureDetails);
             return StructureDetectionResult.failure(StructureDetectionReasons.NOT_ENOUGH_STOREYS, details);
@@ -165,7 +167,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         }
 
         if (structureType.getLighting().isPresent()) {
-            String lightingError = BuildingDetectionUtils.checkLighting(level, standingSpots, structureType.getLighting().get());
+            Component lightingError = BuildingDetectionUtils.checkLighting(level, standingSpots, structureType.getLighting().get());
             if (lightingError != null) {
                 return StructureDetectionResult.failure(StructureDetectionReasons.TOO_DARK, List.of(lightingError));
             }
@@ -197,7 +199,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         if (!foundWalls || wallBlockSet.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_WALLS, List.of());
         }
-        List<String> wallErrors = BuildingDetectionUtils.checkValidBlocks(level, wallBlockSet,
+        List<Component> wallErrors = BuildingDetectionUtils.checkValidBlocks(level, wallBlockSet,
                 rule.wallBlocks(), NO_SKIP);
         if (!wallErrors.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_WALLS, wallErrors);
@@ -218,7 +220,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         if (!foundInterior || interiorBlockSet.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_INTERIOR, List.of());
         }
-        List<String> interiorErrors = BuildingDetectionUtils.checkValidBlocks(level, interiorBlockSet,
+        List<Component> interiorErrors = BuildingDetectionUtils.checkValidBlocks(level, interiorBlockSet,
                 rule.interiorBlocks(), NO_SKIP);
         if (!interiorErrors.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_INTERIOR, interiorErrors);
@@ -228,7 +230,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         if (!foundRoof || roofCandidateBlocks.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_ROOF, List.of());
         }
-        List<String> roofErrors = BuildingDetectionUtils.checkValidBlocks(level, roofCandidateBlocks,
+        List<Component> roofErrors = BuildingDetectionUtils.checkValidBlocks(level, roofCandidateBlocks,
                 rule.roofBlocks(), NO_SKIP);
         if (!roofErrors.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_ROOF, roofErrors);
@@ -248,11 +250,13 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
      * Prefixes failure details with the storey they belong to, so the player knows
      * which floor of the building failed validation.
      */
-    private static List<String> storeyDetails(int storey, StructureDetectionReasons reason, List<String> details) {
+    private static List<Component> storeyDetails(int storey, StructureDetectionReasons reason, List<Component> details) {
         if (details.isEmpty()) {
-            return List.of("Storey " + storey + ": " + reason.getMessage());
+            return List.of(Component.translatable("detection.cft.detail.storey", storey, reason.getMessage()));
         }
-        return details.stream().map(detail -> "Storey " + storey + ": " + detail).toList();
+        return details.stream()
+                .map(detail -> (Component) Component.translatable("detection.cft.detail.storey", storey, detail))
+                .toList();
     }
 
     private boolean allValid(ServerLevel level, Set<BlockPos> region, List<ValidBlock> validBlocks) {

@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
@@ -48,11 +49,11 @@ public class PastureDetector implements StructureDetector<PastureStructureType> 
         int found = countEligibleMobs(level, area, structureType.getEligibleMobs());
 
         if (found < structureType.getMinMobCount() || found > structureType.getMaxMobCount()) {
-            String needed = structureType.getMaxMobCount() == Integer.MAX_VALUE
-                    ? "needs at least " + structureType.getMinMobCount()
-                    : "needs between " + structureType.getMinMobCount() + " and " + structureType.getMaxMobCount();
-            return StructureDetectionResult.failure(StructureDetectionReasons.NOT_ENOUGH_ANIMALS,
-                    List.of("Found " + found + " eligible animals, " + needed));
+            Component detail = structureType.getMaxMobCount() == Integer.MAX_VALUE
+                    ? Component.translatable("detection.cft.detail.animals_at_least", found, structureType.getMinMobCount())
+                    : Component.translatable("detection.cft.detail.animals_between", found,
+                            structureType.getMinMobCount(), structureType.getMaxMobCount());
+            return StructureDetectionResult.failure(StructureDetectionReasons.NOT_ENOUGH_ANIMALS, List.of(detail));
         }
 
         return shapeResult;

@@ -1,5 +1,9 @@
 package com.hyperbaton.cft.structure;
 
+import net.minecraft.network.chat.Component;
+
+import java.util.Locale;
+
 /**
  * Reasons a structure detection attempt can fail (or succeed).
  *
@@ -14,51 +18,46 @@ package com.hyperbaton.cft.structure;
  */
 public enum StructureDetectionReasons {
     // --- Preconditions: detection could not even start ---
-    NOT_A_KEY_BLOCK("Not a key block for any structure type"),
-    ALREADY_REGISTERED("Structure already registered at this position"),
-    OVERLAPPING_STRUCTURE("Structure overlaps an already registered structure"),
+    NOT_A_KEY_BLOCK,
+    ALREADY_REGISTERED,
+    OVERLAPPING_STRUCTURE,
 
     // --- Base shape: floor, border or first layer not found or invalid ---
-    NO_FLOOR("No valid floor found"),
-    FLOOR_TOO_BIG("Floor exceeds maximum size"),
-    INVALID_BORDER("Border does not form a valid perimeter"),
-    BORDER_NOT_CLOSED("Border is not a closed one-block-wide loop"),
-    INVALID_MONUMENT_LAYER("Monument layer blocks do not meet requirements"),
-    INVALID_FLOOR("Floor blocks do not meet requirements"),
-    INVALID_GROUND_PERIMETER("Ground perimeter blocks do not meet requirements"),
-    SURFACE_TOO_BIG("Surface exceeds maximum size"),
-    INVALID_SURFACE("Surface blocks do not meet requirements"),
+    NO_FLOOR,
+    FLOOR_TOO_BIG,
+    INVALID_BORDER,
+    BORDER_NOT_CLOSED,
+    INVALID_MONUMENT_LAYER,
+    INVALID_FLOOR,
+    INVALID_GROUND_PERIMETER,
+    SURFACE_TOO_BIG,
+    INVALID_SURFACE,
 
     // --- Body: walls, interior, roof and enclosure ---
-    INVALID_WALLS("Wall blocks do not meet requirements"),
-    INVALID_INTERIOR("Interior blocks do not meet requirements"),
-    INVALID_ROOF("Roof blocks do not meet requirements"),
-    CEILING_NOT_FLAT("Storey ceiling must be flat to support another storey"),
-    NO_CLOSURE("There is a gap in the structure"),
-    NO_SKY_ACCESS("Surface blocks must be open to the sky"),
+    INVALID_WALLS,
+    INVALID_INTERIOR,
+    INVALID_ROOF,
+    CEILING_NOT_FLAT,
+    NO_CLOSURE,
+    NO_SKY_ACCESS,
 
     // --- Aggregate checks: the body exists but has wrong proportions ---
-    MONUMENT_TOO_SHORT("Monument does not reach the minimum height"),
-    MONUMENT_TOO_TALL("Monument exceeds the maximum height"),
-    NOT_ENOUGH_STOREYS("Building does not reach the minimum number of storeys"),
-    LAYERS_NOT_IDENTICAL("Layers required to be identical differ in shape or block types"),
+    MONUMENT_TOO_SHORT,
+    MONUMENT_TOO_TALL,
+    NOT_ENOUGH_STOREYS,
+    LAYERS_NOT_IDENTICAL,
 
     // --- Final checks: the structure is essentially complete ---
-    MISSING_REQUIRED_STRUCTURES("Required nearby structures are missing or too far"),
-    NO_CONTAINER("No container found (required by structure type)"),
-    TOO_DARK("The inside is not lit enough"),
-    NOT_ENOUGH_ANIMALS("Not enough of the required animals present"),
-    STRUCTURE_TOO_LARGE("Structure exceeds maximum size"),
+    MISSING_REQUIRED_STRUCTURES,
+    NO_CONTAINER,
+    TOO_DARK,
+    NOT_ENOUGH_ANIMALS,
+    STRUCTURE_TOO_LARGE,
 
-    STRUCTURE_DETECTED("Structure detected successfully");
+    STRUCTURE_DETECTED;
 
-    private final String message;
-
-    StructureDetectionReasons(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
+    /** The reason, for the player: each one has a lang entry {@code detection.cft.reason.<name>}. */
+    public Component getMessage() {
+        return Component.translatable("detection.cft.reason." + name().toLowerCase(Locale.ROOT));
     }
 }

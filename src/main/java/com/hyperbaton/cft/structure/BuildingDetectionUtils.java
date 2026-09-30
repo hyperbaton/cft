@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure;
 
+import net.minecraft.network.chat.MutableComponent;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
 import com.mojang.logging.LogUtils;
@@ -167,15 +168,15 @@ public class BuildingDetectionUtils {
      * Whether enough of the standing spots get enough light from blocks. Returns why not, or null
      * if they do.
      */
-    public static String checkLighting(ServerLevel level, Set<BlockPos> standingSpots, LightingRequirement lighting) {
+    public static Component checkLighting(ServerLevel level, Set<BlockPos> standingSpots, LightingRequirement lighting) {
         if (standingSpots.isEmpty()) return null;
         long litSpots = standingSpots.stream()
                 .filter(pos -> level.getBrightness(LightLayer.BLOCK, pos) >= lighting.minLight())
                 .count();
         double litPercentage = (double) litSpots / standingSpots.size();
         if (litPercentage >= lighting.minPercentage()) return null;
-        return String.format("Found %.0f%% of the floor lit to level %d or more, but the minimum required is %.0f%%",
-                litPercentage * 100, lighting.minLight(), lighting.minPercentage() * 100);
+        return Component.translatable("detection.cft.detail.too_dark",
+                percent(litPercentage), lighting.minLight(), percent(lighting.minPercentage()));
     }
 
     public static boolean hasContainers(ServerLevel level, Set<BlockPos> floorBlocks) {
@@ -188,7 +189,7 @@ public class BuildingDetectionUtils {
         return false;
     }
 
-    public static List<String> checkValidBlocks(ServerLevel level, Set<BlockPos> blockList,
+    public static List<Component> checkValidBlocks(ServerLevel level, Set<BlockPos> blockList,
                                                 List<ValidBlock> validBlocks,
                                                 Predicate<BlockState> skipPredicate) {
         List<BlockState> states = blockList.stream()
@@ -203,14 +204,11 @@ public class BuildingDetectionUtils {
                         blockState -> isValidBlock(blockState, validBlocks)));
 
         // Blocks matching no rule are reported as disallowed, grouped by their name
-        Stream<String> disallowedErrors = byMatched.get(false).stream()
-                .collect(Collectors.groupingBy(
-                        blockState -> Component.translatable(blockState.getBlock().getDescriptionId()).getString(),
-                        LinkedHashMap::new, Collectors.counting()))
+        Stream<Component> disallowedErrors = byMatched.get(false).stream()
+                .collect(Collectors.groupingBy(BlockState::getBlock, LinkedHashMap::new, Collectors.counting()))
                 .entrySet().stream()
-                .map(entry -> String.format(
-                        "Found %d blocks of type %s, which is not allowed in this part of the structure",
-                        entry.getValue(), entry.getKey()));
+                .map(entry -> Component.translatable("detection.cft.detail.disallowed_blocks",
+                        entry.getValue(), Component.translatable(entry.getKey().getDescriptionId())));
 
         // Each matched block counts towards the first rule it satisfies (orElseThrow is
         // unreachable: only blocks that matched some rule reach this branch)
@@ -222,7 +220,7 @@ public class BuildingDetectionUtils {
                         Collectors.counting()));
 
         // Checked over every rule (not just the matched ones) so unmet minimums surface
-        Stream<String> conditionErrors = validBlocks.stream()
+        Stream<Component> conditionErrors = validBlocks.stream()
                 .map(validBlock -> satisfiesValidityConditions(
                         validBlock, counts.getOrDefault(validBlock, 0L).intValue(), total))
                 .filter(Objects::nonNull);
@@ -299,34 +297,46 @@ public class BuildingDetectionUtils {
         return count;
     }
 
-    private static String satisfiesValidityConditions(ValidBlock validBlock, int subsetSize, int totalSize) {
+    private static Component satisfiesValidityConditions(ValidBlock validBlock, int subsetSize, int totalSize) {
         if (subsetSize < validBlock.getMinQuantity()) {
-            return String.format("Found %d blocks of type %s, but the minimum required is %d",
+            return Component.translatable("detection.cft.detail.too_few_blocks",
                     subsetSize, getBlockDescription(validBlock), validBlock.getMinQuantity());
         }
         if (subsetSize > validBlock.getMaxQuantity()) {
-            return String.format("Found %d blocks of type %s, but the maximum allowed is %d",
+            return Component.translatable("detection.cft.detail.too_many_blocks",
                     subsetSize, getBlockDescription(validBlock), validBlock.getMaxQuantity());
         }
         double blockPercentage = totalSize == 0 ? 0.0 : BigDecimal.valueOf(subsetSize)
                 .divide(BigDecimal.valueOf(totalSize), 2, RoundingMode.HALF_UP)
                 .doubleValue();
         if (blockPercentage < validBlock.getMinPercentage()) {
-            return String.format("Found %.0f%% of blocks of type %s, but the minimum required is %.0f%%",
-                    blockPercentage * 100, getBlockDescription(validBlock), validBlock.getMinPercentage() * 100);
+            return Component.translatable("detection.cft.detail.too_small_share",
+                    percent(blockPercentage), getBlockDescription(validBlock), percent(validBlock.getMinPercentage()));
         }
         if (blockPercentage > validBlock.getMaxPercentage()) {
-            return String.format("Found %.0f%% of blocks of type %s, but the maximum allowed is %.0f%%",
-                    blockPercentage * 100, getBlockDescription(validBlock), validBlock.getMaxPercentage() * 100);
+            return Component.translatable("detection.cft.detail.too_large_share",
+                    percent(blockPercentage), getBlockDescription(validBlock), percent(validBlock.getMaxPercentage()));
         }
         return null;
     }
 
-    private static String getBlockDescription(ValidBlock validBlock) {
-        return validBlock.getBlock().entries().stream()
+    /** The blocks of a rule, by their name, or by tag. */
+    private static Component getBlockDescription(ValidBlock validBlock) {
+        MutableComponent description = Component.empty();
+        List<Component> names = validBlock.getBlock().entries().stream()
                 .map(entry -> entry.map(
-                        tag -> "#" + tag.location(),
-                        id -> Component.translatable(BuiltInRegistries.BLOCK.get(id).getDescriptionId()).getString()))
-                .collect(Collectors.joining(", "));
+                        tag -> (Component) Component.literal("#" + tag.location()),
+                        id -> Component.translatable(BuiltInRegistries.BLOCK.get(id).getDescriptionId())))
+                .toList();
+        for (int i = 0; i < names.size(); i++) {
+            if (i > 0) description.append(", ");
+            description.append(names.get(i));
+        }
+        return description;
+    }
+
+    /** A share in [0,1] as a whole percentage, for detection details. */
+    public static String percent(double share) {
+        return String.format(Locale.ROOT, "%.0f", share * 100);
     }
 }

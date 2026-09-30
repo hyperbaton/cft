@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
@@ -39,7 +40,7 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         fullFloorBlocks.addAll(floorBlockSet);
         fullFloorBlocks.addAll(floorPerimeterBlocks);
 
-        List<String> floorErrors = BuildingDetectionUtils.checkValidBlocks(level, fullFloorBlocks,
+        List<Component> floorErrors = BuildingDetectionUtils.checkValidBlocks(level, fullFloorBlocks,
                 structureType.getFloorBlocks(), noSkip);
         if (!floorErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_FLOOR, floorErrors);
@@ -59,7 +60,7 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         if (!foundWalls || wallBlockSet.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_WALLS);
         }
-        List<String> wallErrors = BuildingDetectionUtils.checkValidBlocks(level, wallBlockSet,
+        List<Component> wallErrors = BuildingDetectionUtils.checkValidBlocks(level, wallBlockSet,
                 structureType.getWallBlocks(), noSkip);
         if (!wallErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_WALLS, wallErrors);
@@ -74,7 +75,7 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         if (!foundInterior || interiorBlockSet.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_INTERIOR);
         }
-        List<String> interiorErrors = BuildingDetectionUtils.checkValidBlocks(level, interiorBlockSet,
+        List<Component> interiorErrors = BuildingDetectionUtils.checkValidBlocks(level, interiorBlockSet,
                 structureType.getInteriorBlocks(), noSkip);
         if (!interiorErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_INTERIOR, interiorErrors);
@@ -86,7 +87,7 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         if (!foundRoof || roofCandidateBlocks.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_ROOF);
         }
-        List<String> roofErrors = BuildingDetectionUtils.checkValidBlocks(level, roofCandidateBlocks,
+        List<Component> roofErrors = BuildingDetectionUtils.checkValidBlocks(level, roofCandidateBlocks,
                 structureType.getRoofBlocks(), noSkip);
         if (!roofErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_ROOF, roofErrors);
@@ -107,7 +108,7 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
 
         // Lighting: enough of the floor must be lit by blocks
         if (structureType.getLighting().isPresent()) {
-            String lightingError = BuildingDetectionUtils.checkLighting(level,
+            Component lightingError = BuildingDetectionUtils.checkLighting(level,
                     BuildingDetectionUtils.findStandingSpots(level, floorBlockSet, interiorBlockSet),
                     structureType.getLighting().get());
             if (lightingError != null) {

@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
@@ -42,7 +43,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
         }
         if (surfaceStart == null) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE,
-                    List.of("No compound surface found below the key block"));
+                    List.of(Component.translatable("detection.cft.detail.no_compound_surface")));
         }
 
         // Surface detection: flood fill valid surface blocks from the found start.
@@ -74,7 +75,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
         }
 
         Predicate<BlockState> noSkip = bs -> false;
-        List<String> surfaceErrors = BuildingDetectionUtils.checkValidBlocks(level, surfaceBlocks,
+        List<Component> surfaceErrors = BuildingDetectionUtils.checkValidBlocks(level, surfaceBlocks,
                 structureType.getSurfaceBlocks(), noSkip);
         if (!surfaceErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE, surfaceErrors);
@@ -94,7 +95,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
 
         // Required structures: count detected structures of each type close enough
         // to the compound's surface
-        List<String> structureErrors = new ArrayList<>();
+        List<Component> structureErrors = new ArrayList<>();
         for (RequiredStructure requirement : structureType.getRequiredStructures()) {
             long count = structuresData.getStructures().stream()
                     .filter(s -> s.getStructureTypeId().equals(requirement.structureType()))
@@ -102,13 +103,11 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
                     .filter(s -> distanceToSurface(s.getKeyBlockPos(), surfaceBlocks) <= requirement.maxDistance())
                     .count();
             if (count < requirement.min()) {
-                structureErrors.add(String.format(
-                        "Found %d structures of type %s within %d blocks, but at least %d are required",
-                        count, requirement.structureType(), requirement.maxDistance(), requirement.min()));
+                structureErrors.add(Component.translatable("detection.cft.detail.too_few_structures",
+                        count, Component.translatable(requirement.structureType()), requirement.maxDistance(), requirement.min()));
             } else if (count > requirement.max()) {
-                structureErrors.add(String.format(
-                        "Found %d structures of type %s within %d blocks, but at most %d are allowed",
-                        count, requirement.structureType(), requirement.maxDistance(), requirement.max()));
+                structureErrors.add(Component.translatable("detection.cft.detail.too_many_structures",
+                        count, Component.translatable(requirement.structureType()), requirement.maxDistance(), requirement.max()));
             }
         }
         if (!structureErrors.isEmpty()) {

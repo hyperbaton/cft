@@ -10,12 +10,12 @@ public class StructureDetectionPacketClient {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             if (!packet.structureTypeId().isBlank()) {
-                player.sendSystemMessage(Component.literal("Inspecting structure of type ")
-                        .append(Component.translatable(packet.structureTypeId())));
+                player.sendSystemMessage(Component.translatable("detection.cft.inspecting",
+                        Component.translatable(packet.structureTypeId())));
             }
-            player.sendSystemMessage(Component.literal(packet.detectionReason().getMessage()));
+            player.sendSystemMessage(packet.detectionReason().getMessage());
             if (!packet.validationDetails().isEmpty()) {
-                packet.validationDetails().forEach(detail -> player.sendSystemMessage(Component.literal(detail)));
+                packet.validationDetails().forEach(player::sendSystemMessage);
             }
         }
     }

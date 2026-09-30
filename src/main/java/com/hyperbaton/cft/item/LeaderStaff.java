@@ -74,7 +74,7 @@ public class LeaderStaff extends Item {
                 CheckOnXoonglinPacket message = createXoonglinInfoMessage((XoonglinEntity) entity);
                 PacketDistributor.sendToPlayer((ServerPlayer) playerIn, message);
             } else {
-                playerIn.sendSystemMessage(Component.literal("You are not the leader of this Xoonglin."));
+                playerIn.sendSystemMessage(Component.translatable("message.cft.not_leader"));
             }
             return InteractionResult.SUCCESS;
         } else {
