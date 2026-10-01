@@ -21,6 +21,7 @@ import com.hyperbaton.cft.job.ScribeJob;
 import com.hyperbaton.cft.job.TraderJob;
 import com.hyperbaton.cft.job.WriterJob;
 import com.hyperbaton.cft.need.*;
+import com.hyperbaton.cft.need.condition.*;
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.StructureType;
@@ -58,6 +59,9 @@ public class CftRegistry {
     public static final Registry<Codec<? extends Need>> NEEDS_CODEC_REGISTRY =
             new RegistryBuilder<>(CftDatapackRegistryEvents.NEED_CODEC_KEY).create();
 
+    public static final Registry<Codec<? extends NeedCondition>> NEED_CONDITIONS_CODEC_REGISTRY =
+            new RegistryBuilder<>(CftDatapackRegistryEvents.NEED_CONDITION_CODEC_KEY).create();
+
     public static final Registry<Codec<? extends Job>> JOBS_CODEC_REGISTRY =
             new RegistryBuilder<>(CftDatapackRegistryEvents.JOB_CODEC_KEY).create();
 
@@ -85,6 +89,16 @@ public class CftRegistry {
     public static final DeferredHolder<Codec<? extends Need>, Codec<VisitNeed>> VISIT_NEED = NEEDS_CODEC.register("visit", () -> VisitNeed.VISIT_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<SocializeNeed>> SOCIALIZE_NEED = NEEDS_CODEC.register("socialize", () -> SocializeNeed.SOCIALIZE_NEED_CODEC);
     public static final DeferredHolder<Codec<? extends Need>, Codec<HearingNeed>> HEARING_NEED = NEEDS_CODEC.register("hearing", () -> HearingNeed.HEARING_NEED_CODEC);
+
+    public static final DeferredRegister<Codec<? extends NeedCondition>> NEED_CONDITIONS_CODEC =
+            DeferredRegister.create(CftDatapackRegistryEvents.NEED_CONDITION_CODEC_KEY, CftMod.MOD_ID);
+
+    public static final DeferredHolder<Codec<? extends NeedCondition>, Codec<TimeCondition>> TIME_CONDITION = NEED_CONDITIONS_CODEC.register("time", () -> TimeCondition.CODEC);
+    public static final DeferredHolder<Codec<? extends NeedCondition>, Codec<WeatherCondition>> WEATHER_CONDITION = NEED_CONDITIONS_CODEC.register("weather", () -> WeatherCondition.CODEC);
+    public static final DeferredHolder<Codec<? extends NeedCondition>, Codec<DimensionCondition>> DIMENSION_CONDITION = NEED_CONDITIONS_CODEC.register("dimension", () -> DimensionCondition.CODEC);
+    public static final DeferredHolder<Codec<? extends NeedCondition>, Codec<BiomeCondition>> BIOME_CONDITION = NEED_CONDITIONS_CODEC.register("biome", () -> BiomeCondition.CODEC);
+    public static final DeferredHolder<Codec<? extends NeedCondition>, Codec<AnyOfCondition>> ANY_OF_CONDITION = NEED_CONDITIONS_CODEC.register("any_of", () -> AnyOfCondition.CODEC);
+    public static final DeferredHolder<Codec<? extends NeedCondition>, Codec<NotCondition>> NOT_CONDITION = NEED_CONDITIONS_CODEC.register("not", () -> NotCondition.CODEC);
 
     public static final DeferredRegister<Codec<? extends Job>> JOBS_CODEC =
             DeferredRegister.create(CftDatapackRegistryEvents.JOB_CODEC_KEY, CftMod.MOD_ID);

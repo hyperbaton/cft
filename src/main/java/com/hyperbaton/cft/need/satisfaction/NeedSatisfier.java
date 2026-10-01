@@ -23,6 +23,12 @@ public abstract class NeedSatisfier<T extends Need> {
      */
     boolean isSatisfied;
 
+    /**
+     * Whether the need applied at its last check (its {@code active_when} conditions held). While it
+     * doesn't, it isn't checked at all. Not saved: it's worked out again at the next check.
+     */
+    boolean active = true;
+
     T need;
 
     /**
@@ -104,6 +110,16 @@ public abstract class NeedSatisfier<T extends Need> {
             isSatisfied = satisfied;
             NeoForge.EVENT_BUS.post(new NeedStateChangeEvent(mob, this));
         }
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    /** Before the need is checked: whether it applies right now, which skips the check if it doesn't. */
+    public boolean updateActive(XoonglinEntity mob) {
+        active = need.isActive(mob);
+        return active;
     }
 
     public T getNeed() {

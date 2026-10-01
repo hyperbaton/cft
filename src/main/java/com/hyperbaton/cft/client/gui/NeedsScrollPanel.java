@@ -64,16 +64,16 @@ class NeedsScrollPanel extends ScrollPanel {
                 }
 
                 String needLabel = LangUtil.needName(need.getKey()).getString();
-                graphics.drawString(this.font, needLabel, textX, adjustedY, 0x404040, false);
+                graphics.drawString(this.font, needLabel, textX, adjustedY, NeedsBarRenderer.labelColor(data.active), false);
 
                 int barX = left + width - barWidth - 2 * SIDE_MARGIN;
                 boolean isHovered = NeedsBarRenderer.isMouseOver(mouseX, mouseY, barX, adjustedY, barWidth, barHeight);
                 NeedsBarRenderer.renderBar(graphics, barX, adjustedY, barWidth, barHeight,
-                    data.satisfaction, data.damageThreshold, data.satisfactionThreshold, isHovered);
+                    data.satisfaction, data.damageThreshold, data.satisfactionThreshold, data.active, isHovered);
 
                 boolean insidePanel = mouseY >= top && mouseY < top + height;
                 if (isHovered) {
-                    currentTooltip = List.of(NeedsBarRenderer.getTooltip(data.satisfaction).getVisualOrderText());
+                    currentTooltip = NeedsBarRenderer.getTooltip(data.satisfaction, data.active);
                     tooltipX = mouseX;
                     tooltipY = mouseY;
                 } else if (insidePanel && mouseX >= rowX && mouseX < barX - 2

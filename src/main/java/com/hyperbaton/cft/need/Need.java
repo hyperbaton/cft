@@ -1,6 +1,8 @@
 package com.hyperbaton.cft.need;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.need.condition.NeedCondition;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -26,10 +28,12 @@ public abstract class Need {
      * @param hidden                whether it's kept from the player, for "technical" needs
      * @param bonus                 bonus needs only add happiness when satisfied, and never subtract it
      * @param icon                  the item shown as its icon, instead of the type's default ones
+     * @param activeWhen            the conditions for it to apply, all of them; while one doesn't hold,
+     *                              it isn't checked at all
      */
     public record Properties(double damage, double damageThreshold, double providedHappiness,
                              double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                             Optional<ResourceLocation> icon) {
+                             Optional<ResourceLocation> icon, List<NeedCondition> activeWhen) {
         public static final MapCodec<Properties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 Codec.DOUBLE.fieldOf("damage").forGetter(Properties::damage),
                 Codec.DOUBLE.fieldOf("damage_threshold").forGetter(Properties::damageThreshold),
@@ -38,7 +42,8 @@ public abstract class Need {
                 Codec.DOUBLE.fieldOf("frequency").forGetter(Properties::frequency),
                 Codec.BOOL.optionalFieldOf("hidden", false).forGetter(Properties::hidden),
                 Codec.BOOL.optionalFieldOf("bonus", false).forGetter(Properties::bonus),
-                ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(Properties::icon)
+                ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(Properties::icon),
+                NeedCondition.CODEC.listOf().optionalFieldOf("active_when", List.of()).forGetter(Properties::activeWhen)
         ).apply(instance, Properties::new));
     }
 
@@ -57,6 +62,11 @@ public abstract class Need {
 
     public Properties getProperties() {
         return properties;
+    }
+
+    /** Whether it applies to the Xoonglin right now: all of its {@code active_when} conditions hold. */
+    public boolean isActive(XoonglinEntity xoonglin) {
+        return properties.activeWhen().stream().allMatch(condition -> condition.test(xoonglin));
     }
 
     public double getDamage() {

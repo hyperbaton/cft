@@ -1,14 +1,66 @@
 # Needs
 
-All needs have some basic fields: `id`, `type`, `damage`, `damage_threshold`, `satisfaction_threshold`,
-`frequency` and `provided_happiness`. Then depending on the `type`, they might have extra
-fields and they will work differently.
+All needs have some basic fields: `type`, `damage`, `damage_threshold`, `satisfaction_threshold`,
+`frequency` and `provided_happiness`, and optionally `hidden`, `bonus`, `icon` and `active_when`.
+Then depending on the `type`, they might have extra fields and they will work differently.
 
 All needs are checked every second for all Xoonglins. They have an internal value of
 satisfaction that goes from 0 to 1. If it's above the `satisfaction_threshold`, it is
 considered satisfied. In that case, happiness is increased and satisfaction is reduced.
 If it is unsatisfied, Xoonglin will try to initiate
 some action for satisfying the need. If it fails, happiness will decrease.
+
+## When a need applies
+
+A need can apply only at some times or places, with an `active_when` list of conditions. While any
+of them doesn't hold, the need is left as it is: it doesn't wear off, it doesn't give or take
+happiness, it can't hurt the Xoonglin, and the Xoonglin doesn't go and satisfy it. It doesn't count
+for class changes either: an upgrade's `required_needs` don't wait for it, and a downgrade's don't
+fall back on it. It shows greyed out in the Xoonglin's status screen, and it's never flagged above
+its head. Once all conditions
+hold again, the need carries on from where it was.
+
+??? example "A need for fuel that only applies on rainy nights"
+
+    ```json
+    {
+      "type": "cft:goods",
+      "damage": 0.0,
+      "damage_threshold": 0.0,
+      "provided_happiness": 5,
+      "satisfaction_threshold": 0.5,
+      "item": { "item": "minecraft:coal" },
+      "frequency": 0.5,
+      "quantity": 1,
+      "active_when": [
+        { "type": "cft:time", "from": 12000, "to": 0 },
+        { "type": "cft:weather", "weather": ["rain", "thunder"] }
+      ]
+    }
+    ```
+
+These are the conditions CFT provides; addons can add more.
+
+- `cft:time`: between two times of the day, in ticks (0 is sunrise, 6000 noon, 12000 sunset and
+  18000 midnight), from `from` until just before `to`. If `to` is smaller than `from`, the range
+  goes past midnight: `12000` to `0` is the night.
+- `cft:weather`: the weather is one of `weather`: `clear`, `rain` or `thunder`, one or a list.
+  It's the weather of the dimension, as set by the `/weather` command, even in biomes where it
+  doesn't rain.
+- `cft:dimension`: the Xoonglin is in one of `dimensions`, one or a list (e.g.
+  `"minecraft:the_nether"`).
+- `cft:biome`: the Xoonglin stands in one of `biomes`: a biome, a biome tag or a list of them (see
+  [Game content](index.md#game-content)).
+- `cft:any_of`: at least one of `conditions`, a list of conditions, holds. The `active_when` list
+  needs all of its conditions; use this one when any of them is enough.
+- `cft:not`: `condition`, a single condition, doesn't hold. For example, a need that applies
+  outside the Nether:
+
+    ```json
+    "active_when": [
+      { "type": "cft:not", "condition": { "type": "cft:dimension", "dimensions": "minecraft:the_nether" } }
+    ]
+    ```
 
 ## Goods Need
 
@@ -49,6 +101,8 @@ as often.
     - `hidden`: _(Optional, default: false)_ Whether this need should be hidden from interfaces.
     - `bonus`: _(Optional, default: false)_ If true, the need only adds happiness when satisfied and never
     subtracts it when unsatisfied — useful for festivals or luxuries.
+    - `active_when`: _(Optional)_ The conditions for the need to apply; see
+    [When a need applies](#when-a-need-applies).
     - `quantity`: How many items of the specified type are consumed each time the need is satisfied.
     - `hoarding`: _(Optional)_ How many items the Xoonglin will take from the container when
     resupplying. If omitted or set to 0, defaults to `quantity`. Setting this higher than

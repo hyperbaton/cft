@@ -1,7 +1,12 @@
 package com.hyperbaton.cft.client.gui;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class NeedsBarRenderer {
     private static final int BORDER_COLOR = 0xFF2F2F2F;
@@ -9,6 +14,9 @@ class NeedsBarRenderer {
     private static final int COLOR_RED = 0xFFCC0000;
     private static final int COLOR_ORANGE = 0xFFCC8800;
     private static final int THRESHOLD_INDICATOR_COLOR = 0x60FFFFFF;
+    private static final int COLOR_INACTIVE = 0xFF8A8A8A;
+    private static final int LABEL_COLOR = 0x404040;
+    private static final int LABEL_COLOR_INACTIVE = 0x6A6A6A;
 
     public static boolean isMouseOver(int mouseX, int mouseY, int barX, int barY, int width, int height) {
         return mouseX >= barX && mouseX <= barX + width &&
@@ -17,7 +25,7 @@ class NeedsBarRenderer {
 
     public static void renderBar(GuiGraphics graphics, int barX, int barY, int barWidth, int barHeight,
                                  double value, double damageThreshold, double satisfactionThreshold,
-                                 boolean showIndicators) {
+                                 boolean active, boolean showIndicators) {
         // Render a border
         graphics.fill(barX - 1, barY - 1, barX + barWidth + 1, barY + barHeight + 1, BORDER_COLOR);
 
@@ -28,7 +36,8 @@ class NeedsBarRenderer {
 
         // Render the bar with a gradient
         if (filledWidth > 0) {
-            int color = getBarColor(value, damageThreshold, satisfactionThreshold);
+            // A need that doesn't apply right now is greyed out
+            int color = active ? getBarColor(value, damageThreshold, satisfactionThreshold) : COLOR_INACTIVE;
             int shadowColor = getDarkerColor(color);
 
             for (int i = 0; i < filledWidth; i++) {
@@ -48,11 +57,18 @@ class NeedsBarRenderer {
         }
     }
 
-    public static Component getTooltip(double value) {
-        return Component.literal(String.format(
-                "Satisfaction: %d%%",
-                (int) (value * 100)
-        ));
+    public static List<FormattedCharSequence> getTooltip(double value, boolean active) {
+        List<FormattedCharSequence> lines = new ArrayList<>();
+        lines.add(Component.translatable("gui.cft.need_satisfaction", (int) (value * 100)).getVisualOrderText());
+        if (!active) {
+            lines.add(Component.translatable("gui.cft.need_inactive").withStyle(ChatFormatting.GRAY).getVisualOrderText());
+        }
+        return lines;
+    }
+
+    /** The color of a need's name, greyed out if it doesn't apply right now. */
+    public static int labelColor(boolean active) {
+        return active ? LABEL_COLOR : LABEL_COLOR_INACTIVE;
     }
 
     private static int getBarColor(double value, double damageThreshold, double satisfactionThreshold) {

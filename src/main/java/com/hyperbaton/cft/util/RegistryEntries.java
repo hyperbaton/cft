@@ -26,8 +26,7 @@ public record RegistryEntries<T>(List<Either<TagKey<T>, ResourceLocation>> entri
 
     public static <T> Codec<RegistryEntries<T>> codec(ResourceKey<? extends Registry<T>> registry) {
         Codec<Either<TagKey<T>, ResourceLocation>> entry = Codec.either(TagKey.hashedCodec(registry), idCodec(registry));
-        return Codec.withAlternative(entry.listOf(), entry.xmap(List::of, list -> list.get(0)))
-                .xmap(RegistryEntries::new, RegistryEntries::entries);
+        return CodecUtil.singleOrList(entry).xmap(RegistryEntries::new, RegistryEntries::entries);
     }
 
     private static Codec<ResourceLocation> idCodec(ResourceKey<? extends Registry<?>> registry) {

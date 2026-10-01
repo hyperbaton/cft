@@ -39,8 +39,8 @@ public static final DeferredHolder<Codec<? extends Need>, Codec<WarmthNeed>> WAR
 NEED_TYPES.register(modEventBus);
 ```
 
-Datapack files then use `"type": "myaddon:warmth"`. Jobs use `JOB_CODEC_KEY` and structure types
-`STRUCTURE_TYPE_CODEC_KEY` the same way.
+Datapack files then use `"type": "myaddon:warmth"`. Jobs use `JOB_CODEC_KEY`, structure types
+`STRUCTURE_TYPE_CODEC_KEY` and need conditions `NEED_CONDITION_CODEC_KEY` the same way.
 
 The codecs must encode as well as decode: CFT saves each Xoonglin's needs through them, and the
 registries are synced to clients with them.
@@ -51,7 +51,7 @@ A need type is two classes:
 
 - **`Need`**: the configuration, read from JSON. The fields every need has (`damage`,
   `damage_threshold`, `provided_happiness`, `satisfaction_threshold`, `frequency`, `hidden`,
-  `bonus` and `icon`) come together as a `Need.Properties`: start your codec with
+  `bonus`, `icon` and `active_when`) come together as a `Need.Properties`: start your codec with
   `propertiesCodec()`, which reads all of them as one field, then add your own fields, and pass the
   properties to `super`. Implement:
     - `needType()`: your registered codec.
@@ -205,6 +205,38 @@ public class MyAddonBrainEvents {
   "search_radius": 32
 }
 ```
+
+## Adding a need condition type
+
+A need's `active_when` list holds conditions; while any of them doesn't hold, CFT skips the need
+(see [When a need applies](datapacks/needs.md#when-a-need-applies)). A condition type implements
+`NeedCondition`:
+
+- `test(xoonglin)`: whether it holds for the Xoonglin right now. It's called once per second for
+  each need that has it, on the server, so keep it cheap.
+- `conditionType()`: your registered codec.
+
+This one holds on full moon nights:
+
+```java
+public record FullMoonCondition() implements NeedCondition {
+    public static final Codec<FullMoonCondition> CODEC = Codec.unit(new FullMoonCondition());
+
+    @Override
+    public boolean test(XoonglinEntity xoonglin) {
+        return xoonglin.level().isNight() && xoonglin.level().getMoonPhase() == 0;
+    }
+
+    @Override
+    public Codec<? extends NeedCondition> conditionType() {
+        return MyAddonRegistry.FULL_MOON.get();
+    }
+}
+```
+
+Register its codec on `NEED_CONDITION_CODEC_KEY` (see [Registering types](#registering-types)),
+and datapacks can use `{ "type": "myaddon:full_moon" }`. A condition that relies on another mod,
+such as its seasons, can be registered only when that mod is loaded.
 
 ## Adding a job type
 

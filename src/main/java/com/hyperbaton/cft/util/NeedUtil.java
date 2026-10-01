@@ -43,7 +43,8 @@ public class NeedUtil {
                     satisfier.getNeed().getDamageThreshold(),
                     satisfier.getNeed().getSatisfactionThreshold(),
                     satisfier.getNeed().getIcons(),
-                    extraTooltip
+                    extraTooltip,
+                    satisfier.isActive()
             ));
         }
         return result;

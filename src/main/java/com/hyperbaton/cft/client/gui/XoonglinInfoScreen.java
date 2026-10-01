@@ -389,16 +389,16 @@ public class XoonglinInfoScreen extends Screen {
             }
 
             String needLabel = LangUtil.needName(need.getKey()).getString();
-            graphics.drawString(this.font, needLabel, textX, barY, 0x404040, false);
+            graphics.drawString(this.font, needLabel, textX, barY, NeedsBarRenderer.labelColor(data.active), false);
 
             int barX = x + imageWidth - MARGIN_PIXELS - barWidth;
             boolean isHovered = NeedsBarRenderer.isMouseOver(mouseX, mouseY, barX, barY, barWidth, barHeight);
 
             NeedsBarRenderer.renderBar(graphics, barX, barY, barWidth, barHeight,
-                data.satisfaction, data.damageThreshold, data.satisfactionThreshold, isHovered);
+                data.satisfaction, data.damageThreshold, data.satisfactionThreshold, data.active, isHovered);
 
             if (isHovered) {
-                tooltip = List.of(NeedsBarRenderer.getTooltip(data.satisfaction).getVisualOrderText());
+                tooltip = NeedsBarRenderer.getTooltip(data.satisfaction, data.active);
             } else if (mouseX >= rowX && mouseX < barX - 2 && mouseY >= barY - 4 && mouseY < barY - 4 + ICON_SIZE) {
                 tooltip = NeedTooltips.build(this.font, need.getKey(), data.extraTooltip);
             }

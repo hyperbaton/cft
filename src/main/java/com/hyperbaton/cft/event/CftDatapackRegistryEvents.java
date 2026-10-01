@@ -3,6 +3,7 @@ package com.hyperbaton.cft.event;
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.need.Need;
+import com.hyperbaton.cft.need.condition.NeedCondition;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.StructureType;
 import com.mojang.logging.LogUtils;
@@ -22,6 +23,7 @@ public class CftDatapackRegistryEvents {
     public static final ResourceKey<Registry<StructureType>> STRUCTURE_TYPE_KEY = CftDatapackRegistryEvents.createRegistryKey("structure");
     public static final ResourceKey<Registry<Codec<? extends Need>>> NEED_CODEC_KEY = CftDatapackRegistryEvents.createRegistryKey("need_serializer");
     public static final ResourceKey<Registry<Codec<? extends Job>>> JOB_CODEC_KEY = CftDatapackRegistryEvents.createRegistryKey("job_serializer");
+    public static final ResourceKey<Registry<Codec<? extends NeedCondition>>> NEED_CONDITION_CODEC_KEY = CftDatapackRegistryEvents.createRegistryKey("need_condition_serializer");
     public static final ResourceKey<Registry<Codec<? extends StructureType>>> STRUCTURE_TYPE_CODEC_KEY = CftDatapackRegistryEvents.createRegistryKey("structure_serializer");
 
     @SubscribeEvent

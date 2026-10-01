@@ -4,6 +4,7 @@ import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.api.event.SocialClassChangeEvent;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.structure.Structure;
 import net.minecraft.core.BlockPos;
@@ -106,6 +107,40 @@ public class SocialClassChangeTests {
             NeoForge.EVENT_BUS.unregister(listener);
             removeLeader(helper, leader);
         });
+    }
+
+    @GameTest(template = EMPTY_TEMPLATE)
+    public static void inactiveNeedDoesNotBlockUpgrade(GameTestHelper helper) {
+        ServerPlayer leader = addOnlineLeader(helper);
+        XoonglinEntity settler = spawnUpgradingSettler(helper, leader);
+        // The potato need an upgrade requires, unsatisfied, but only applying in the nether
+        replaceNeed(settler, unsatisfiedPotatoNeed(onlyIn("minecraft:the_nether")));
+
+        helper.succeedWhen(() -> {
+            helper.assertTrue(CITIZEN.equals(settler.getSocialClassId()),
+                    "An unsatisfied need that doesn't apply stopped the upgrade");
+            removeLeader(helper, leader);
+        });
+    }
+
+    @GameTest(template = EMPTY_TEMPLATE, timeoutTicks = A_FEW_CHECKS + 20)
+    public static void unsatisfiedNeedBlocksUpgrade(GameTestHelper helper) {
+        ServerPlayer leader = addOnlineLeader(helper);
+        XoonglinEntity settler = spawnUpgradingSettler(helper, leader);
+        replaceNeed(settler, unsatisfiedPotatoNeed(onlyIn("minecraft:overworld")));
+
+        helper.runAfterDelay(A_FEW_CHECKS, () -> {
+            removeLeader(helper, leader);
+            helper.assertTrue(SETTLER.equals(settler.getSocialClassId()), "It upgraded with its potato need unsatisfied");
+            helper.succeed();
+        });
+    }
+
+    /** The settler's potato need, the one its upgrade requires, with no satisfaction at all. */
+    private static NeedSatisfier<? extends Need> unsatisfiedPotatoNeed(String activeWhen) {
+        NeedSatisfier<? extends Need> satisfier = potatoNeed(activeWhen).createSatisfier(0.0, false);
+        satisfier.setNeedId(cftId("potato_need"));
+        return satisfier;
     }
 
     /**

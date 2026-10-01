@@ -151,6 +151,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
         } else {
             for (NeedSatisfier currentNeed : needs) {
+                // A need that doesn't apply right now is left as it is
+                if (!currentNeed.updateActive(this)) continue;
                 Need need = currentNeed.getNeed();
                 if (currentNeed.getSatisfaction() < need.getSatisfactionThreshold()) {
                     currentNeed.satisfy(this);
@@ -479,10 +481,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private boolean appliesForUpgrade(SocialClassUpdate socialClassUpdate) {
         return (!this.isBaby() || this.socialClass.canUpgradeAsBaby())
                 && socialClassUpdate.getRequiredHappiness() < this.happiness
+                // A need that doesn't apply right now doesn't hold the Xoonglin back
                 && socialClassUpdate.getRequiredNeeds().stream().allMatch(needRequirement ->
                 this.getNeeds().stream()
                         .filter(need -> needRequirement.getNeed().equals(need.getNeedId()))
-                        .anyMatch(need -> need.getSatisfaction() > needRequirement.getSatisfactionThreshold()))
+                        .anyMatch(need -> !need.isActive() || need.getSatisfaction() > needRequirement.getSatisfactionThreshold()))
                 && checkSocialStructureForUpgrade(
                 getSocialStructureWithUpgrade(getSocialClassId(), socialClassUpdate.getNextClass()),
                 socialClassUpdate);
@@ -508,10 +511,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private boolean appliesForDowngrade(SocialClassUpdate socialClassUpdate) {
         return (!this.isBaby() || this.socialClass.canDowngradeAsBaby())
                 && ((socialClassUpdate.getRequiredHappiness() > this.happiness
+                // A need that doesn't apply right now doesn't bring the Xoonglin down
                 && socialClassUpdate.getRequiredNeeds().stream().anyMatch(needRequirement ->
                 this.getNeeds().stream()
                         .filter(need -> needRequirement.getNeed().equals(need.getNeedId()))
-                        .anyMatch(need -> need.getSatisfaction() < needRequirement.getSatisfactionThreshold())))
+                        .anyMatch(need -> need.isActive() && need.getSatisfaction() < needRequirement.getSatisfactionThreshold())))
                 || checkSocialStructureForDowngrade(getSocialStructure(), socialClassUpdate));
     }
 
@@ -603,11 +607,17 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                         .thenComparingDouble(NeedSatisfier::getSatisfaction));
     }
 
-    /** Unsatisfied needs that the player can see and that cause unhappiness. Server side only. */
+    /**
+     * Unsatisfied needs that the player can see and that cause unhappiness, among those that apply
+     * right now. Server side only.
+     */
     public List<NeedSatisfier<? extends Need>> getUnsatisfiedVisibleNeeds() {
         if (needs == null) return List.of();
         return needs.stream()
-                .filter(satisfier -> !satisfier.getNeed().isHidden() && !satisfier.getNeed().isBonus() && !satisfier.isSatisfied())
+                .filter(satisfier -> satisfier.isActive()
+                        && !satisfier.getNeed().isHidden()
+                        && !satisfier.getNeed().isBonus()
+                        && !satisfier.isSatisfied())
                 .toList();
     }
 
@@ -728,7 +738,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     public boolean allDamagingNeedsSatisfied() {
         return needs != null && needs.stream()
-                .filter(needSatisfier -> needSatisfier.getNeed().getDamage() > 0.0)
+                .filter(needSatisfier -> needSatisfier.isActive()
+                        && needSatisfier.getNeed().getDamage() > 0.0)
                 .allMatch(NeedSatisfier::isSatisfied);
     }
 

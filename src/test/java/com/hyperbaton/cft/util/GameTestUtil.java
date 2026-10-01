@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.util;
 
+import com.google.gson.JsonParser;
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.CftEntities;
@@ -14,6 +15,7 @@ import com.hyperbaton.cft.structure.StructureDetectionResult;
 import com.hyperbaton.cft.structure.home.HouseStructure;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +28,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -183,6 +187,34 @@ public final class GameTestUtil {
     public static void moveIn(XoonglinEntity xoonglin, Structure house) {
         house.addUser(xoonglin.getUUID());
         xoonglin.setHome(HouseStructure.of(house));
+    }
+
+    /**
+     * A harmless need for a potato, read like a datapack's, with the given {@code active_when} JSON
+     * array (see {@link #onlyIn} and {@link #inDimension}).
+     */
+    public static Need potatoNeed(String activeWhen) {
+        String json = "{\"type\": \"cft:goods\", \"damage\": 0, \"damage_threshold\": 0, \"provided_happiness\": 5,"
+                + " \"satisfaction_threshold\": 0.75, \"frequency\": 0.33, \"item\": {\"item\": \"minecraft:potato\"},"
+                + " \"quantity\": 1, \"active_when\": " + activeWhen + "}";
+        return Need.NEED_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(json)).getOrThrow();
+    }
+
+    /** An {@code active_when} array for a need that only applies in the given dimension. */
+    public static String onlyIn(String dimension) {
+        return "[" + inDimension(dimension) + "]";
+    }
+
+    /** A {@code cft:dimension} condition, as JSON. */
+    public static String inDimension(String dimension) {
+        return "{\"type\": \"cft:dimension\", \"dimensions\": \"" + dimension + "\"}";
+    }
+
+    /** Gives a Xoonglin a satisfier in place of the one it has for the same need. */
+    public static void replaceNeed(XoonglinEntity xoonglin, NeedSatisfier<? extends Need> satisfier) {
+        List<NeedSatisfier<? extends Need>> needs = new ArrayList<>(xoonglin.getNeeds());
+        needs.replaceAll(existing -> existing.getNeedId().equals(satisfier.getNeedId()) ? satisfier : existing);
+        xoonglin.setNeeds(needs);
     }
 
     /** A fresh satisfier for a need, to check it on a Xoonglin whatever its class. */

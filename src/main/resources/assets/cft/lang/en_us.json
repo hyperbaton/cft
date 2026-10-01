@@ -130,6 +130,8 @@
   "gui.cft.mating_threshold": "Mating Threshold",
   "gui.cft.max_happiness": "Max Happiness",
   "gui.cft.need_dissatisfied": "%s need dissatisfied",
+  "gui.cft.need_inactive": "Not needed right now",
+  "gui.cft.need_satisfaction": "Satisfaction: %s%%",
   "gui.cft.need_satisfied": "%s need satisfied",
   "gui.cft.need_tooltip.bonus_happiness": "Bonus: +%s happiness every %s day(s), never a penalty",
   "gui.cft.need_tooltip.happiness": "±%s happiness every %s day(s)",

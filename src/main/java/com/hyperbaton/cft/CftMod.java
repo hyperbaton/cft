@@ -41,6 +41,8 @@ public class CftMod
     {
         CftRegistry.NEEDS_CODEC.register(modEventBus);
 
+        CftRegistry.NEED_CONDITIONS_CODEC.register(modEventBus);
+
         CftRegistry.JOBS_CODEC.register(modEventBus);
 
         CftRegistry.STRUCTURE_TYPE_CODECS.register(modEventBus);
@@ -78,6 +80,7 @@ public class CftMod
 
     private void registerRegistries(NewRegistryEvent event) {
         event.register(CftRegistry.NEEDS_CODEC_REGISTRY);
+        event.register(CftRegistry.NEED_CONDITIONS_CODEC_REGISTRY);
         event.register(CftRegistry.JOBS_CODEC_REGISTRY);
         event.register(CftRegistry.STRUCTURE_TYPE_CODEC_REGISTRY);
     }

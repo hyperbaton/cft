@@ -60,7 +60,8 @@ public record XoonglinInfoUpdatePacket(
                 }
                 boolean hasExtraTooltip = ByteBufCodecs.BOOL.decode(buf);
                 String extraTooltip = hasExtraTooltip ? ByteBufCodecs.STRING_UTF8.decode(buf) : null;
-                needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold, icons, extraTooltip));
+                boolean active = ByteBufCodecs.BOOL.decode(buf);
+                needsData.put(needName, new NeedSatisfactionData(satisfaction, damageThreshold, satisfactionThreshold, icons, extraTooltip, active));
             }
             boolean hasJobInfo = ByteBufCodecs.BOOL.decode(buf);
             JobInfoData jobInfo = hasJobInfo ? JobInfoData.decode(buf) : null;
@@ -105,6 +106,7 @@ public record XoonglinInfoUpdatePacket(
                 if (entry.getValue().extraTooltip != null) {
                     ByteBufCodecs.STRING_UTF8.encode(buf, entry.getValue().extraTooltip);
                 }
+                ByteBufCodecs.BOOL.encode(buf, entry.getValue().active);
             }
             ByteBufCodecs.BOOL.encode(buf, packet.jobInfo != null);
             if (packet.jobInfo != null) {
