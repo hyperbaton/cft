@@ -13,10 +13,7 @@ public class AltitudeNeedSatisfier extends NeedSatisfier<AltitudeNeed> {
         if (mob.getY() > need.getMinAltitude() && mob.getY() < need.getMaxAltitude()) {
             super.satisfy(mob);
         } else {
-            this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need);
-            addMemoriesForSatisfaction(mob);
-            return false;
+            return failAndSeek(mob);
         }
         return true;
     }

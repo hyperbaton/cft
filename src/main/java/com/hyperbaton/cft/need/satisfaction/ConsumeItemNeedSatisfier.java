@@ -34,10 +34,7 @@ public class ConsumeItemNeedSatisfier extends NeedSatisfier<GoodsNeed> {
                 return true;
             }
         }
-        this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need);
-        addMemoriesForSatisfaction(mob);
-        return false;
+        return failAndSeek(mob);
     }
 
     @Override

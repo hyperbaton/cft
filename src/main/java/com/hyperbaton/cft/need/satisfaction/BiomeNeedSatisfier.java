@@ -15,10 +15,7 @@ public class BiomeNeedSatisfier extends NeedSatisfier<BiomeNeed> {
         if (!mob.level().isClientSide && need.getBiomes().contains(mob.level().getBiome(mob.getOnPos()))) {
             super.satisfy(mob);
         } else {
-            this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need);
-            addMemoriesForSatisfaction(mob);
-            return false;
+            return failAndSeek(mob);
         }
         return true;
     }

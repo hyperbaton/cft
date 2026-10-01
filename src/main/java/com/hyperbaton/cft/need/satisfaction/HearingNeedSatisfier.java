@@ -61,10 +61,7 @@ public class HearingNeedSatisfier extends NeedSatisfier<HearingNeed> implements 
             return true;
         }
 
-        this.unsatisfy(getNeed().getFrequency(), mob);
-        mob.decreaseHappiness(getNeed());
-        addMemoriesForSatisfaction(mob);
-        return false;
+        return failAndSeek(mob);
     }
 
     @Override

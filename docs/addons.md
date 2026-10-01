@@ -62,9 +62,10 @@ A need type is two classes:
   calls `unsatisfy(frequency, mob)`, which wears satisfaction off (and hurts the Xoonglin once it
   drops below `damage_threshold`, if the need has `damage`). Your satisfier implements:
     - `satisfy(mob)`: if the need can be met right now, meet it (e.g. consume an item) and return
-    `super.satisfy(mob)`, which refills satisfaction and adds happiness. Otherwise, by convention,
-    call `unsatisfy(getNeed().getFrequency(), mob)`, `mob.decreaseHappiness(getNeed())` and
-    `addMemoriesForSatisfaction(mob)`, and return `false`.
+    `super.satisfy(mob)`, which refills satisfaction and adds happiness. Otherwise return
+    `failAndSeek(mob)`: satisfaction wears off, the Xoonglin loses happiness, and
+    `addMemoriesForSatisfaction` sends it to meet the need. Return `fail(mob)` instead when there's
+    nothing to go and look for.
     - `addMemoriesForSatisfaction(mob)`: set the memories that send the Xoonglin to meet the need.
 
   Use `getNeed()` to reach your need's configuration from the satisfier, and `getNeedId()` for its
@@ -136,10 +137,7 @@ public class WarmthNeedSatisfier extends NeedSatisfier<WarmthNeed> {
         if (CampfireUtil.isNextToLitCampfire(mob)) {
             return super.satisfy(mob);
         }
-        unsatisfy(getNeed().getFrequency(), mob);
-        mob.decreaseHappiness(getNeed());
-        addMemoriesForSatisfaction(mob);
-        return false;
+        return failAndSeek(mob);
     }
 
     @Override

@@ -55,10 +55,7 @@ public class ReadingNeedSatisfier extends NeedSatisfier<ReadingNeed> {
             }
         }
 
-        this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need);
-        addMemoriesForSatisfaction(mob);
-        return false;
+        return failAndSeek(mob);
     }
 
     @Override

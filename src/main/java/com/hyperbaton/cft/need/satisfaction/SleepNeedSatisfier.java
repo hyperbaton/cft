@@ -21,10 +21,7 @@ public class SleepNeedSatisfier extends NeedSatisfier<SleepNeed> {
             mob.getBrain().eraseMemory(CftMemoryModuleType.MUST_SLEEP.get());
             return true;
         }
-        this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need);
-        addMemoriesForSatisfaction(mob);
-        return false;
+        return failAndSeek(mob);
     }
 
     /**

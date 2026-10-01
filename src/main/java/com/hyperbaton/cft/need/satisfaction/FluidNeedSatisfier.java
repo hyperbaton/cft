@@ -57,9 +57,7 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
                         mob.getBrain().eraseMemory(fluidContainerMemoryType());
                         ErrandUtils.finish(mob, ErrandUtils.FLUID);
                         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get(), true, CftConfig.SUPPLY_COOLDOWN.get());
-                        this.unsatisfy(need.getFrequency(), mob);
-                        mob.decreaseHappiness(need);
-                        return false;
+                        return fail(mob);
                     }
                 } else {
                     LOGGER.trace("No valid fluid handler found at remembered container position. Xoonglin {} will forget it.", mob.getCustomName().getString());
@@ -69,9 +67,7 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
             } else {
                 LOGGER.trace("Xoonglin {} is too far from the remembered container. Cannot retrieve fluid.", mob.getCustomName().getString());
                 ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.FLUID, CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get());
-                this.unsatisfy(need.getFrequency(), mob);
-                mob.decreaseHappiness(need);
-                return false;
+                return fail(mob);
             }
         } else {
             LOGGER.trace("Xoonglin {} does not remember a fluid container. Searching for one.", mob.getCustomName().getString());
@@ -88,9 +84,7 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
             }
         }
 
-        this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need);
-        return false;
+        return fail(mob);
     }
 
 

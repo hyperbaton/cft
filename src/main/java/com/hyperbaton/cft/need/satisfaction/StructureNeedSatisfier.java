@@ -37,16 +37,11 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
                         return true;
                     }
                     // It has its structure, but nobody is working there now: nothing to look for
-                    this.unsatisfy(need.getFrequency(), mob);
-                    mob.decreaseHappiness(need);
-                    return false;
+                    return fail(mob);
                 }
             }
             // Not assigned yet — trigger behavior to find and claim
-            this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need);
-            addMemoriesForSatisfaction(mob);
-            return false;
+            return failAndSeek(mob);
         } else {
             // Only requires presence within search radius
             BlockPos homePos = mob.getHome() != null ? mob.getHome().getEntrance() : mob.blockPosition();
@@ -61,9 +56,7 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
                 return true;
             }
 
-            this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need);
-            return false;
+            return fail(mob);
         }
     }
 

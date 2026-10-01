@@ -59,6 +59,28 @@ public abstract class NeedSatisfier<T extends Need> {
         }
     }
 
+    /**
+     * The need isn't satisfied on this check: it wears off and the Xoonglin loses happiness.
+     *
+     * @return false, for {@link #satisfy} to return
+     */
+    protected boolean fail(XoonglinEntity mob) {
+        unsatisfy(need.getFrequency(), mob);
+        mob.decreaseHappiness(need);
+        return false;
+    }
+
+    /**
+     * {@link #fail}, and the Xoonglin goes to satisfy it ({@link #addMemoriesForSatisfaction}).
+     *
+     * @return false, for {@link #satisfy} to return
+     */
+    protected boolean failAndSeek(XoonglinEntity mob) {
+        fail(mob);
+        addMemoriesForSatisfaction(mob);
+        return false;
+    }
+
     public abstract void addMemoriesForSatisfaction(XoonglinEntity mob);
 
     public double getSatisfaction() {

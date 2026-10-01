@@ -59,9 +59,7 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
                         ErrandUtils.finish(mob, ErrandUtils.ENERGY);
                         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get(),
                                 true, CftConfig.SUPPLY_COOLDOWN.get());
-                        this.unsatisfy(need.getFrequency(), mob);
-                        mob.decreaseHappiness(need);
-                        return false;
+                        return fail(mob);
                     }
                 } else {
                     LOGGER.trace("No valid energy handler found at remembered container position. Xoonglin {} will forget it.",
@@ -73,9 +71,7 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
                 LOGGER.trace("Xoonglin {} is too far from the remembered container. Cannot extract energy.",
                         mob.getCustomName().getString());
                 ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.ENERGY, CftMemoryModuleType.ENERGY_SUPPLY_COOLDOWN.get());
-                this.unsatisfy(need.getFrequency(), mob);
-                mob.decreaseHappiness(need);
-                return false;
+                return fail(mob);
             }
         } else {
             LOGGER.trace("Xoonglin {} does not remember an energy container. Searching for one.",
@@ -95,9 +91,7 @@ public class EnergyNeedSatisfier extends NeedSatisfier<EnergyNeed> {
             }
         }
 
-        this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need);
-        return false;
+        return fail(mob);
     }
 
     @Override

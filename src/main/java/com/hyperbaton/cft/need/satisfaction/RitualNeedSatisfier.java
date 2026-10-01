@@ -28,9 +28,7 @@ public class RitualNeedSatisfier extends NeedSatisfier<RitualNeed> {
 
         addMemoriesForSatisfaction(mob);
 
-        this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need);
-        return false;
+        return fail(mob);
     }
 
     @Override

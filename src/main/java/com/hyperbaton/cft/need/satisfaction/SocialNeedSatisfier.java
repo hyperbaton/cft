@@ -56,10 +56,7 @@ public class SocialNeedSatisfier extends NeedSatisfier<SocialNeed> {
         }
 
         // Not enough matching Xoonglins: unsatisfy
-        this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need);
-        addMemoriesForSatisfaction(mob);
-        return false;
+        return failAndSeek(mob);
     }
 
     @Override

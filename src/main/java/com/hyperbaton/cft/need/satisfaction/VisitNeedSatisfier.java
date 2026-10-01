@@ -49,10 +49,7 @@ public class VisitNeedSatisfier extends NeedSatisfier<VisitNeed> {
             return true;
         }
 
-        this.unsatisfy(need.getFrequency(), mob);
-        mob.decreaseHappiness(need);
-        addMemoriesForSatisfaction(mob);
-        return false;
+        return failAndSeek(mob);
     }
 
     /** Points the Xoonglin to the nearest structure to visit, which may change as it moves. */
