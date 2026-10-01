@@ -89,10 +89,6 @@
         {
           "social_class": "cft:settler",
           "percentage": 0.30
-        },
-        {
-          "social_class": "cft:settler",
-          "percentage": 0.30
         }
       ]
     }

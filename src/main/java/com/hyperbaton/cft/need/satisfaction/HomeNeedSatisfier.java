@@ -23,7 +23,7 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
             Optional<Structure> registered = StructureUtil.recheck((ServerLevel) mob.level(),
                     home.getEntrance(), home.getStructureTypeId());
             if (registered.isPresent()) {
-                if (registered.get().getBlockPositions() != home.getBlockPositions()) {
+                if (!registered.get().getBlockPositions().equals(home.getBlockPositions())) {
                     // Its blocks changed (e.g. a new room): its copy of the home catches up
                     mob.setHome(HouseStructure.of(registered.get()));
                 }

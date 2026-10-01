@@ -51,6 +51,13 @@
       "max_quantity": 1,
       "min_percentage": 0.0,
       "max_percentage": 1.0
+    },
+    {
+      "block": "minecraft:torch",
+      "min_quantity": 0,
+      "max_quantity": 10,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     }
   ],
   "roof_blocks": [

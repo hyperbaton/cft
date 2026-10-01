@@ -25,16 +25,18 @@ runs {
     }
 
     client {
-        systemProperty 'forge.enabledGameTestNamespaces', mod_id
+        systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
     }
 
     server {
-        systemProperty 'forge.enabledGameTestNamespaces', mod_id
+        systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         programArgument '--nogui'
     }
 
     gameTestServer {
-        systemProperty 'forge.enabledGameTestNamespaces', mod_id
+        systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        // The game tests and their template live in the test source set, part of the same mod
+        modSource project.sourceSets.test
     }
 
     data {
