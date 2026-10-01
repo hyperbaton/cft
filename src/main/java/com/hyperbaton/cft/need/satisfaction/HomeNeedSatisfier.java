@@ -1,58 +1,46 @@
 package com.hyperbaton.cft.need.satisfaction;
 
-import com.hyperbaton.cft.CftRegistry;
-import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.HomeNeed;
 import com.hyperbaton.cft.need.Need;
-import com.hyperbaton.cft.structure.StructureType;
-import com.hyperbaton.cft.world.StructuresData;
+import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.structure.StructureUtils;
+import com.hyperbaton.cft.structure.home.HouseStructure;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
+
+import java.util.Optional;
 
 public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
     public HomeNeedSatisfier(double satisfaction, boolean isSatisfied, HomeNeed need) {
         super(satisfaction, isSatisfied, need);
     }
 
+    /** Checks the home is still standing; if it isn't (or was unregistered), the Xoonglin loses it. */
     @Override
     public boolean satisfy(XoonglinEntity mob) {
-        if (mob.getHome() != null) {
-            String structureTypeId = mob.getHome().getStructureTypeId();
-            StructureType structureType = CftRegistry.getStructureType(structureTypeId);
-
-            if (structureType != null) {
-                var result = structureType.detect(
-                        mob.getHome().getEntrance(), (ServerLevel) mob.level(),
-                        mob.getLeaderId());
-                if (result.success()) {
-                    super.satisfy(mob);
-                    return true;
+        HouseStructure home = mob.getHome();
+        if (home != null) {
+            Optional<Structure> registered = StructureUtils.recheck((ServerLevel) mob.level(),
+                    home.getEntrance(), home.getStructureTypeId());
+            if (registered.isPresent()) {
+                if (registered.get().getBlockPositions() != home.getBlockPositions()) {
+                    // Its blocks changed (e.g. a new room): its copy of the home catches up
+                    mob.setHome(HouseStructure.of(registered.get()));
                 }
+                super.satisfy(mob);
+                return true;
+            } else {
+                mob.loseHome();
             }
-
-            if (!mob.level().isClientSide) {
-                StructuresData data = ((ServerLevel) mob.level()).getDataStorage()
-                        .computeIfAbsent(StructuresData.factory(), "structuresData");
-                data.getStructures().removeIf(s -> s.getKeyBlockPos().equals(mob.getHome().getEntrance()));
-                data.setDirty();
-            }
-
-            mob.setHome(null);
-            mob.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
-            ErrandUtils.finish(mob, ErrandUtils.SUPPLIES);
-            this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need);
-            addMemoriesForSatisfaction(mob);
-            return false;
-        } else {
-            this.unsatisfy(need.getFrequency(), mob);
-            mob.decreaseHappiness(need);
-            addMemoriesForSatisfaction(mob);
-            return false;
         }
+
+        this.unsatisfy(need.getFrequency(), mob);
+        mob.decreaseHappiness(need);
+        addMemoriesForSatisfaction(mob);
+        return false;
     }
 
     @Override

@@ -54,7 +54,8 @@ public enum StructureDetectionReasons {
     NOT_ENOUGH_ANIMALS,
     STRUCTURE_TOO_LARGE,
 
-    STRUCTURE_DETECTED;
+    STRUCTURE_DETECTED,
+    STRUCTURE_CONFIRMED;
 
     /** The reason, for the player: each one has a lang entry {@code detection.cft.reason.<name>}. */
     public Component getMessage() {

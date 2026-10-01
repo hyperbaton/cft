@@ -5,6 +5,25 @@ Each structure type specifies which blocks are valid for its different parts, an
 the building should be shaped. Structures are detected by right clicking their **key block**
 with the **Leader Staff**.
 
+### Keeping structures up to date
+
+A registered structure is detected again right before it's used, and unregistered if it no
+longer passes:
+
+- when a Xoonglin claims it as its home or for its job or needs;
+- when the [home need](needs.md#home-need) or a structure need with `requires_usage` is checked,
+  at the need's `frequency`;
+- when a Xoonglin arrives at it to satisfy a [visit need](needs.md);
+- when a Xoonglin starts working at it (each day, or after its work was paused);
+- when its leader right clicks its key block with the staff again. This works as a regular
+  detection: the structure is kept if it's still of the same type (taking any blocks added,
+  like a new chest), replaced if it now matches another type, and unregistered if it fails.
+
+Breaking the key block unregisters the structure right away. Xoonglins using an unregistered
+structure give it up at the next of those moments, and look for another one. The structure a
+job takes apart as it works (a miner's quarry, for example) isn't detected again while it's in use;
+the job retires it itself.
+
 All structure types share these base fields:
 
 - `type`: The structure type discriminator (e.g. `"cft:house"`, `"cft:enclosed_building"`,
@@ -36,7 +55,7 @@ Buildings with an inside (houses, enclosed buildings and multi-storey buildings)
 to be lit, with an optional `lighting` object:
 
 ```json
-"lighting": { "min_light": 8, "min_percentage": 0.8 }
+{"lighting": { "min_light": 8, "min_percentage": 0.8 }}
 ```
 
 - `min_light`: The light (0 to 15) a spot needs to count as lit.
@@ -306,9 +325,9 @@ ground perimeter, and a surface.
 
 A pasture is an open air platform (same border/ground perimeter/surface shape) that
 additionally requires a minimum — and optionally maximum — number of specific animals to
-be physically present inside its footprint. Detection re-checks the animal count every
-time the structure is validated (e.g. when a Xoonglin claims it), so a pen that's since
-wandered empty is caught rather than staying claimed on stale data.
+be physically present inside its footprint. The animals are counted again every time the
+structure is detected again (see [Keeping structures up to date](#keeping-structures-up-to-date)),
+so a pen that's since wandered empty is unregistered rather than staying claimed on stale data.
 
 ??? example "Sample pasture structure file"
 

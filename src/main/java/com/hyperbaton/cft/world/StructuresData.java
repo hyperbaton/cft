@@ -6,6 +6,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +32,11 @@ public class StructuresData extends SavedData {
 
     public static SavedData.Factory<StructuresData> factory() {
         return new SavedData.Factory<>(StructuresData::new, StructuresData::load);
+    }
+
+    /** The structures registered in a level. */
+    public static StructuresData get(ServerLevel level) {
+        return level.getDataStorage().computeIfAbsent(factory(), "structuresData");
     }
 
     @Override

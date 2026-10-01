@@ -18,15 +18,15 @@ whatever comes from the factories.
 - Xoonglins, new mobs that will expect the player to provide for their needs.
 - Xoonglins have **needs**, which can be of different kinds. They always need a physical
 home where to live and some items to be periodically delivered to their homes.
-- Each Xoonglin belongs to a **social class**. Each of these have a different set of social
+- Each Xoonglin belongs to a **social class**. Each of these has a different set of social
 needs. If their needs are satisfied and their happiness increases, they can upgrade to
 higher classes; however, if they get unhappy, they can demote to a lower class.
-- The **leader staff** can be used to designate a home (by right clicking on doors while
-crouching), detect structures (by right clicking on a structure's key block) or know
-current state of a Xoonglin.
+- The **leader staff** can be used to designate a home (by right-clicking on doors while
+crouching), detect structures (by right-clicking on a structure's key block, again to check
+a registered one) or know the current state of a Xoonglin.
 - The first Xoonglins will spawn spontaneously, but from then on, they will mate to increase
 their population. However, they will always respect a given social structure (a relation
-on the amount of Xoonglins of each class).
+ to the number of Xoonglins of each class).
 - You can compete with other players for getting the biggest and happiest Xoonglin
 population. The commands `\happinessLadder`, `\populationLadder` and `\socialstructure` give
 rankings and information on your Xoonglins.

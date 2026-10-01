@@ -6,6 +6,7 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.QuarryMinerJob;
 import com.hyperbaton.cft.structure.OpenAirPlatformBlockGroup;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.structure.StructureUtils;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
@@ -617,8 +618,7 @@ public class QuarryMineBehavior extends JobBehavior<QuarryMinerJob> {
     private void retireQuarry(ServerLevel level, XoonglinEntity entity, QuarryMinerJob job) {
         Structure structure = findStructure(level, entity, job);
         if (structure != null) {
-            StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
-            data.removeStructure(structure);
+            StructureUtils.unregister(level, structure);
         }
         entity.unassignStructure(job.getRequiredStructureType());
         LOGGER.info("[Quarry] {} depleted the quarry at {}; retiring it",

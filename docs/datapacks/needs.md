@@ -60,7 +60,9 @@ A Xoonglin needs a home of a specific structure type. The home need references a
 structure type (defined in the Structures section), which specifies the building rules.
 
 Once built, right clicking with the **Leader Staff** on the door of a house will check
-if it's valid. A message will appear in chat informing if it is or not.
+if it's valid. A message will appear in chat informing if it is or not. The house is checked
+again every time the need is checked (its `frequency`); if it no longer passes, the Xoonglin
+loses its home and looks for another one (see [Keeping structures up to date](structures.md#keeping-structures-up-to-date)).
 
 ??? example "Sample home need file"
 

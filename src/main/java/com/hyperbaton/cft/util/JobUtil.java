@@ -11,6 +11,8 @@ import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.ai.behavior.WorkStep;
 import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.structure.StructureUtils;
+import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.schedule.Activity;
@@ -154,6 +156,45 @@ public final class JobUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * The structure of a type the Xoonglin is assigned to, checked to be still standing right before
+     * it's used. If it's gone (torn down or unregistered), the Xoonglin gives it up, so its job or need
+     * looks for another one. A structure its job takes apart, like a quarry, isn't detected again.
+     */
+    public static Optional<Structure> checkAssignedStructure(XoonglinEntity xoonglin, String structureTypeId) {
+        BlockPos keyBlockPos = xoonglin.getAssignedStructurePos(structureTypeId);
+        if (keyBlockPos == null) return Optional.empty();
+        ServerLevel level = (ServerLevel) xoonglin.level();
+        Optional<Structure> structure = consumesStructure(xoonglin, structureTypeId)
+                ? StructuresData.get(level).findByKeyBlock(keyBlockPos)
+                        .filter(registered -> registered.getStructureTypeId().equals(structureTypeId))
+                : StructureUtils.recheck(level, keyBlockPos, structureTypeId);
+        if (structure.isEmpty()) {
+            xoonglin.unassignStructure(structureTypeId);
+        }
+        return structure;
+    }
+
+    /**
+     * For a job about to set its work memory: whether its workplace (if it has one) is still standing.
+     * It's only checked when the Xoonglin starts working (the memory isn't set yet), not on every
+     * tick of work; if it's gone, the Xoonglin gives it up and the job looks for another one.
+     */
+    public static boolean checkWorkplace(XoonglinEntity xoonglin, Job job) {
+        String structureTypeId = job.getRequiredStructureType();
+        if (structureTypeId == null || xoonglin.getAssignedStructurePos(structureTypeId) == null
+                || xoonglin.getBrain().hasMemoryValue(job.getWorkMemory())) {
+            return true;
+        }
+        return checkAssignedStructure(xoonglin, structureTypeId).isPresent();
+    }
+
+    /** Whether the structure type is its job's workplace and the job takes it apart, like a quarry. */
+    private static boolean consumesStructure(XoonglinEntity xoonglin, String structureTypeId) {
+        Job job = xoonglin.getJob() != null ? CftRegistry.JOBS.get(xoonglin.getJob()) : null;
+        return job != null && job.consumesStructure() && structureTypeId.equals(job.getRequiredStructureType());
     }
 
     private static boolean isWorkingFor(XoonglinEntity worker, Structure structure) {

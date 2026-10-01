@@ -117,7 +117,8 @@ public class FarmerJob extends Job {
         if (structurePos == null) {
             brain.setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), requiredStructure);
             brain.eraseMemory(CftMemoryModuleType.MUST_FARM.get());
-        } else if (state.workedTicksToday < neededTicks && canWork(xoonglin)) {
+        } else if (state.workedTicksToday < neededTicks && canWork(xoonglin)
+                && JobUtil.checkWorkplace(xoonglin, this)) {
             brain.setMemory(CftMemoryModuleType.MUST_FARM.get(), Boolean.TRUE);
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         } else {

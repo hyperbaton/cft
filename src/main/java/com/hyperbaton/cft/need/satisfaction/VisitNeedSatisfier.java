@@ -4,6 +4,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.VisitNeed;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.structure.StructureUtils;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.world.StructuresData;
@@ -31,9 +32,11 @@ public class VisitNeedSatisfier extends NeedSatisfier<VisitNeed> {
             return isSatisfied();
         }
 
+        // Checked once it gets there: if it was torn down, it's unregistered and it looks for another one
         Optional<Structure> visited = candidateStructures(mob)
                 .filter(structure -> isAt(mob, structure))
-                .findFirst();
+                .findFirst()
+                .filter(structure -> StructureUtils.recheck((ServerLevel) mob.level(), structure).success());
         if (visited.isPresent()) {
             if (!need.getConsumes().isEmpty()) {
                 ContainerUtil.consumeIngredients(ContainerUtil.findContainers((ServerLevel) mob.level(), visited.get()),

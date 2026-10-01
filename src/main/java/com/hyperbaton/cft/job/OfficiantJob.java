@@ -146,7 +146,8 @@ public class OfficiantJob extends Job {
         if (needsStructure) {
             brain.setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), requiredStructure);
             brain.eraseMemory(CftMemoryModuleType.MUST_PERFORM_RITUAL.get());
-        } else if (isRitualDue(level, state) && canWork(xoonglin)) {
+        } else if (isRitualDue(level, state) && canWork(xoonglin)
+                && JobUtil.checkWorkplace(xoonglin, this)) {
             brain.setMemory(CftMemoryModuleType.MUST_PERFORM_RITUAL.get(), Boolean.TRUE);
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         } else {

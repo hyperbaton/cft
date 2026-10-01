@@ -26,7 +26,8 @@ public class Structure {
     private final String structureTypeId;
     private final int maxUsers;
     private final List<UUID> userIds;
-    private final Map<String, List<BlockPos>> blockPositions;
+    private Map<String, List<BlockPos>> blockPositions;
+    private Optional<BoundingBox> bounds;
 
     public Structure(BlockPos keyBlockPos, int size, UUID leaderId,
                      String structureTypeId, int maxUsers,
@@ -68,6 +69,16 @@ public class Structure {
 
     public boolean isUser(UUID userId) {
         return userIds.contains(userId);
+    }
+
+    /**
+     * Takes the blocks of the same structure detected again, which may have changed (e.g. an added
+     * room or container), keeping its users.
+     */
+    public void update(Structure detected) {
+        this.size = detected.size;
+        this.blockPositions = detected.blockPositions;
+        this.bounds = null;
     }
 
     public CompoundTag toTag() {
@@ -174,6 +185,9 @@ public class Structure {
 
     /** The box enclosing all the blocks of this structure, or empty if it has none. */
     public Optional<BoundingBox> getBounds() {
-        return BoundingBox.encapsulatingPositions(getAllBlockPositions());
+        if (bounds == null) {
+            bounds = BoundingBox.encapsulatingPositions(getAllBlockPositions());
+        }
+        return bounds;
     }
 }

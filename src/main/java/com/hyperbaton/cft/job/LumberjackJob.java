@@ -115,7 +115,8 @@ public class LumberjackJob extends Job {
         if (requiredStructure != null && basePos == null) {
             brain.setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), requiredStructure);
             brain.eraseMemory(CftMemoryModuleType.MUST_CHOP.get());
-        } else if (basePos != null && state.workedTicksToday < neededTicks && canWork(xoonglin)) {
+        } else if (basePos != null && state.workedTicksToday < neededTicks && canWork(xoonglin)
+                && JobUtil.checkWorkplace(xoonglin, this)) {
             brain.setMemory(CftMemoryModuleType.MUST_CHOP.get(), Boolean.TRUE);
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         } else {

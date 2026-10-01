@@ -153,4 +153,13 @@ public abstract class Job {
         return null;
     }
 
+    /**
+     * Whether the work takes its structure apart (e.g. a quarry being dug out), so the structure stops
+     * passing detection while in use. Then the structure isn't detected again while the Xoonglin
+     * works it, and the job retires it itself.
+     */
+    public boolean consumesStructure() {
+        return false;
+    }
+
 }

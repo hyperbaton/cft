@@ -123,7 +123,8 @@ public class QuarryMinerJob extends Job {
             // quota does not advance while the quarry is unworkable
             brain.setMemory(CftMemoryModuleType.MUST_MINE.get(), Boolean.TRUE);
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
-        } else if ((state.workedTicksToday < neededTicks || hasCarriedBlocks(xoonglin)) && canWork(xoonglin)) {
+        } else if ((state.workedTicksToday < neededTicks || hasCarriedBlocks(xoonglin)) && canWork(xoonglin)
+                && JobUtil.checkWorkplace(xoonglin, this)) {
             brain.setMemory(CftMemoryModuleType.MUST_MINE.get(), Boolean.TRUE);
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
             if (state.workedTicksToday < neededTicks) state.workedTicksToday++;
@@ -136,6 +137,12 @@ public class QuarryMinerJob extends Job {
     @Override
     public MemoryModuleType<Boolean> getWorkMemory() {
         return CftMemoryModuleType.MUST_MINE.get();
+    }
+
+    /** Digging out the quarry stops it passing detection; it's retired once depleted instead. */
+    @Override
+    public boolean consumesStructure() {
+        return true;
     }
 
     @Override

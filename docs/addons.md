@@ -238,7 +238,13 @@ The `schedule` field is added to every job's codec by CFT. Implement:
 - `getRequiredStructureType()`: _(optional)_ the structure type the job works at. While the
   Xoonglin has none, set the `CftMemoryModuleType.STRUCTURE_NEEDED` memory to the type's id: CFT
   finds one with room and claims it in the Xoonglin's free time. Then
-  `xoonglin.getAssignedStructurePos(type)` gives its key block.
+  `xoonglin.getAssignedStructurePos(type)` gives its key block. Before setting the work memory,
+  call `JobUtil.checkWorkplace(xoonglin, this)`: when the Xoonglin is about to start working, it
+  checks the structure is still standing, and removes the assignment if it isn't (see
+  [Keeping structures up to date](datapacks/structures.md#keeping-structures-up-to-date)).
+- `consumesStructure()`: _(optional)_ true if the work takes the structure apart, like the quarry
+  miner's, so it stops passing detection. CFT then doesn't detect it again while the Xoonglin
+  works it, and the job retires it itself with `StructureUtils.unregister`.
 
 **The behavior** extends `JobBehavior<YourJob>`, which does the plumbing every job behavior shares:
 
@@ -311,6 +317,10 @@ A type extends `StructureType` (whose constructor takes the `key_block`,
 level, leaderId)`, returning a `StructureDetectionResult` with the detected `Structure` or the
 reason it failed. Register its codec on `STRUCTURE_TYPE_CODEC_KEY`. The built-in types in
 `com.hyperbaton.cft.structure.type` show how detection is done.
+
+`detect` also runs on registered structures, to check they're still there (see
+[Keeping structures up to date](datapacks/structures.md#keeping-structures-up-to-date)). A check
+against other registered structures, like overlapping, must skip the one at the same key block.
 
 ## Errands
 

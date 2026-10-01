@@ -28,13 +28,9 @@ public class StructureNeedSatisfier extends NeedSatisfier<StructureNeed> {
         StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
 
         if (need.isRequiresUsage()) {
-            BlockPos assignedPos = mob.getAssignedStructurePos(need.getRequiredStructure());
-            if (assignedPos != null) {
-                Optional<Structure> assigned = data.getStructures().stream()
-                        .filter(s -> s.getKeyBlockPos().equals(assignedPos)
-                                && s.getStructureTypeId().equals(need.getRequiredStructure())
-                                && s.isUser(mob.getUUID()))
-                        .findFirst();
+            if (mob.getAssignedStructurePos(need.getRequiredStructure()) != null) {
+                Optional<Structure> assigned = JobUtil.checkAssignedStructure(mob, need.getRequiredStructure())
+                        .filter(s -> s.isUser(mob.getUUID()));
                 if (assigned.isPresent()) {
                     if (isRunningIfRequired(level, assigned.get())) {
                         super.satisfy(mob);

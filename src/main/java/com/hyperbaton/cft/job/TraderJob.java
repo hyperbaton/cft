@@ -114,7 +114,8 @@ public class TraderJob extends Job {
         if (getRequiredStructureType() != null && structurePos == null) {
             brain.setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), requiredStructure);
             brain.eraseMemory(CftMemoryModuleType.MUST_TRADE.get());
-        } else if (hasBase && state.workedTicksToday < neededTicks) {
+        } else if (hasBase && state.workedTicksToday < neededTicks
+                && JobUtil.checkWorkplace(xoonglin, this)) {
             brain.setMemory(CftMemoryModuleType.MUST_TRADE.get(), Boolean.TRUE);
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         } else {

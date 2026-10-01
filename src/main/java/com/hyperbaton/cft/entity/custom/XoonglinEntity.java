@@ -123,7 +123,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private ResourceLocation jobId;
     private final JobState jobState = new JobState();
-
     private final Map<String, BlockPos> assignedStructurePositions = new HashMap<>();
 
     private int satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
@@ -546,13 +545,15 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             applyClassMaxHealth();
             notifyLeaderOfClassChange(previousClass, upgrade);
         }
-        if (this.home != null) {
-            this.home = null;
-            this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
-            ErrandUtils.finish(this, ErrandUtils.SUPPLIES);
-            this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
-        }
         removeFromAllStructures();
+    }
+
+    /** Leaves its home (it's gone, or no longer fits its class) and goes looking for another one. */
+    public void loseHome() {
+        this.home = null;
+        this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
+        ErrandUtils.finish(this, ErrandUtils.SUPPLIES);
+        this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
     }
 
     public void applyClassMaxHealth() {

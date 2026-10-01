@@ -163,7 +163,8 @@ public class WriterJob extends Job {
         if (getRequiredStructureType() != null && structurePos == null) {
             brain.setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), requiredStructure);
             brain.eraseMemory(CftMemoryModuleType.MUST_WRITE.get());
-        } else if (hasBase && state.workedTicksToday < neededTicks) {
+        } else if (hasBase && state.workedTicksToday < neededTicks
+                && JobUtil.checkWorkplace(xoonglin, this)) {
             brain.setMemory(CftMemoryModuleType.MUST_WRITE.get(), Boolean.TRUE);
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
         } else {

@@ -169,7 +169,8 @@ public class BlesserJob extends Job {
         if (needsStructure) {
             brain.setMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get(), requiredStructure);
             brain.eraseMemory(CftMemoryModuleType.MUST_BLESS.get());
-        } else if (hasBase && state.workedTicksToday < neededTicks && canWork(xoonglin)) {
+        } else if (hasBase && state.workedTicksToday < neededTicks && canWork(xoonglin)
+                && JobUtil.checkWorkplace(xoonglin, this)) {
             brain.setMemory(CftMemoryModuleType.MUST_BLESS.get(), Boolean.TRUE);
             brain.eraseMemory(CftMemoryModuleType.STRUCTURE_NEEDED.get());
             state.workedTicksToday++;
