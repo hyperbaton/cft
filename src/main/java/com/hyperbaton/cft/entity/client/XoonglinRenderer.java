@@ -4,6 +4,7 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -15,11 +16,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityAttachment;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<XoonglinEntity>> {
     /** Height of XoonglinModel from the feet to the tip of the antenna (34 px), before scaling. */
     private static final float CUSTOM_MODEL_HEIGHT = 34.0F / 16.0F;
     /** Space vanilla leaves between the name tag attachment point and the name tag. */
     private static final float NAME_TAG_GAP = 0.5F;
+    /** For Xoonglins whose class has no texture of its own, or that have no class yet. */
+    private static final ResourceLocation DEFAULT_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "textures/entity/xoonglin.png");
+
+    private final Map<String, ResourceLocation> classTextures = new HashMap<>();
 
     private final XoonglinModel<XoonglinEntity> customModel;
     private final HumanoidModel<XoonglinEntity> humanoidModel;
@@ -37,9 +46,18 @@ public class XoonglinRenderer extends MobRenderer<XoonglinEntity, EntityModel<Xo
 
     @Override
     public ResourceLocation getTextureLocation(XoonglinEntity xoonglinEntity) {
-        return ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "textures/entity/"
-                + xoonglinEntity.getEntityData().get(XoonglinEntity.SOCIAL_CLASS_NAME).replaceFirst("(.*?):", "")
-                + ".png");
+        return classTextures.computeIfAbsent(xoonglinEntity.getEntityData().get(XoonglinEntity.SOCIAL_CLASS_NAME),
+                XoonglinRenderer::classTexture);
+    }
+
+    /**
+     * A class's texture is in the class's own namespace, at {@code textures/entity/<path>.png}
+     */
+    private static ResourceLocation classTexture(String classId) {
+        ResourceLocation id = ResourceLocation.tryParse(classId);
+        if (id == null || id.getPath().isEmpty()) return DEFAULT_TEXTURE;
+        ResourceLocation texture = id.withPath(path -> "textures/entity/" + path + ".png");
+        return Minecraft.getInstance().getResourceManager().getResource(texture).isPresent() ? texture : DEFAULT_TEXTURE;
     }
 
     @Override

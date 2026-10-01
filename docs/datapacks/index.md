@@ -50,6 +50,12 @@ the path become dots too. Add the names to your resource pack's lang file:
 
 So `cft:food/bread` is named by `need.cft.food.bread`.
 
+### Textures
+
+Each social class can have its own Xoonglin texture, in a resource pack of the same namespace as
+the class: `assets/<namespace>/textures/entity/<path>.png`. For example, `cft:citizen` uses
+`assets/cft/textures/entity/citizen.png`. A class without one uses the default Xoonglin texture.
+
 ## Game content
 
 Fields that refer to game content, like blocks, entity types, biomes or sounds, take it the way
