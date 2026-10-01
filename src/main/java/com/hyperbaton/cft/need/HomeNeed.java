@@ -9,28 +9,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 public class HomeNeed extends Need {
 
     public static final Codec<HomeNeed> HOME_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(HomeNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(HomeNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(HomeNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(HomeNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(HomeNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(HomeNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(HomeNeed::isBonus),
-            ResourceLocation.CODEC.fieldOf("required_structure").forGetter(HomeNeed::getRequiredStructure),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(HomeNeed::getIcon)
+            propertiesCodec(),
+            ResourceLocation.CODEC.fieldOf("required_structure").forGetter(HomeNeed::getRequiredStructure)
     ).apply(instance, HomeNeed::new));
 
     private final ResourceLocation requiredStructure;
 
-    public HomeNeed(double damage, double damageThreshold, double providedHappiness,
-                    double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                    ResourceLocation requiredStructure, Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public HomeNeed(Properties properties, ResourceLocation requiredStructure) {
+        super(properties);
         this.requiredStructure = requiredStructure;
     }
 

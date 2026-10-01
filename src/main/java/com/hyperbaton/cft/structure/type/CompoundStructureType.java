@@ -1,6 +1,5 @@
 package com.hyperbaton.cft.structure.type;
 
-import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.RequiredStructure;
 import com.hyperbaton.cft.structure.StructureDetectionResult;
@@ -10,9 +9,7 @@ import com.hyperbaton.cft.structure.detector.CompoundDetector;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +22,7 @@ import java.util.UUID;
 public class CompoundStructureType extends StructureType {
 
     public static final Codec<CompoundStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            RegistryEntries.codec(Registries.BLOCK).fieldOf("key_block").forGetter(StructureType::getKeyBlock),
-            Codec.INT.optionalFieldOf("max_users", 0).forGetter(StructureType::getMaxUsers),
-            Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
-            Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
+            propertiesCodec(0),
             ValidBlock.CODEC.listOf().fieldOf("surface_blocks").forGetter(CompoundStructureType::getSurfaceBlocks),
             RequiredStructure.CODEC.listOf().fieldOf("required_structures").forGetter(CompoundStructureType::getRequiredStructures),
             Codec.BOOL.optionalFieldOf("requires_sky_access", true).forGetter(CompoundStructureType::isRequiresSkyAccess)
@@ -38,11 +32,9 @@ public class CompoundStructureType extends StructureType {
     private final List<RequiredStructure> requiredStructures;
     private final boolean requiresSkyAccess;
 
-    public CompoundStructureType(RegistryEntries<Block> keyBlock,
-                                 int maxUsers, boolean requiresContainer, int priority,
-                                 List<ValidBlock> surfaceBlocks, List<RequiredStructure> requiredStructures,
-                                 boolean requiresSkyAccess) {
-        super(keyBlock, maxUsers, requiresContainer, priority);
+    public CompoundStructureType(Properties properties, List<ValidBlock> surfaceBlocks,
+                                 List<RequiredStructure> requiredStructures, boolean requiresSkyAccess) {
+        super(properties);
         this.surfaceBlocks = surfaceBlocks;
         this.requiredStructures = requiredStructures;
         this.requiresSkyAccess = requiresSkyAccess;

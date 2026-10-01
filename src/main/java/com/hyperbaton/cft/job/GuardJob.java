@@ -1,6 +1,5 @@
 package com.hyperbaton.cft.job;
 
-import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
@@ -10,7 +9,6 @@ import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.level.Level;
@@ -24,13 +22,10 @@ public class GuardJob extends Job {
     private static final JobStatus PATROLLING = JobStatus.active("gui.cft.job_status.patrolling");
 
     public static final Codec<GuardJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.fieldOf("patrol_radius").forGetter(j -> j.patrolRadius),
-            Codec.INT.optionalFieldOf("detection_radius", 16).forGetter(j -> j.detectionRadius),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.INT.optionalFieldOf("detection_radius", 16).forGetter(j -> j.detectionRadius)
     ).apply(inst, GuardJob::new));
 
     private final double hoursPerDay;
@@ -39,9 +34,8 @@ public class GuardJob extends Job {
 
 
 
-    public GuardJob(double hoursPerDay, int patrolRadius, int detectionRadius, List<ResourceLocation> requiredNeeds,
-                    double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public GuardJob(Properties properties, double hoursPerDay, int patrolRadius, int detectionRadius) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.patrolRadius = patrolRadius;
         this.detectionRadius = detectionRadius;

@@ -13,33 +13,23 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
 public class EquipmentNeed extends Need {
 
     public static final Codec<EquipmentNeed> EQUIPMENT_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(EquipmentNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(EquipmentNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(EquipmentNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(EquipmentNeed::getSatisfactionThreshold),
+            propertiesCodec(),
             INGREDIENT_CODEC.fieldOf("item").forGetter(EquipmentNeed::getIngredient),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(EquipmentNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(EquipmentNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(EquipmentNeed::isBonus),
-            Codec.STRING.optionalFieldOf("slot", "mainhand").forGetter(EquipmentNeed::getSlotName),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(EquipmentNeed::getIcon)
+            Codec.STRING.optionalFieldOf("slot", "mainhand").forGetter(EquipmentNeed::getSlotName)
     ).apply(instance, EquipmentNeed::new));
 
     private final Ingredient item;
     private final EquipmentSlot slot;
     private final String slotName;
 
-    public EquipmentNeed(double damage, double damageThreshold, double providedHappiness,
-                         double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, boolean bonus,
-                         String slotName, Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public EquipmentNeed(Properties properties, Ingredient item, String slotName) {
+        super(properties);
         this.item = item;
         this.slotName = slotName;
         this.slot = parseSlot(slotName);

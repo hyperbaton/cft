@@ -12,28 +12,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 public class BiomeNeed extends Need {
 
     public static final Codec<BiomeNeed> BIOME_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(BiomeNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(BiomeNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(BiomeNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(BiomeNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(BiomeNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(BiomeNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(BiomeNeed::isBonus),
-            RegistryEntries.codec(Registries.BIOME).fieldOf("biomes").forGetter(BiomeNeed::getBiomes),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(BiomeNeed::getIcon)
+            propertiesCodec(),
+            RegistryEntries.codec(Registries.BIOME).fieldOf("biomes").forGetter(BiomeNeed::getBiomes)
     ).apply(instance, BiomeNeed::new));
 
     private final RegistryEntries<Biome> biomes;
 
-    public BiomeNeed(double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, RegistryEntries<Biome> biomes,
-                     Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public BiomeNeed(Properties properties, RegistryEntries<Biome> biomes) {
+        super(properties);
         this.biomes = biomes;
     }
 

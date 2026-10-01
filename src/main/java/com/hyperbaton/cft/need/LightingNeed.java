@@ -9,39 +9,20 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 public class LightingNeed extends Need {
 
     public static final Codec<LightingNeed> LIGHTING_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(LightingNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(LightingNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(LightingNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(LightingNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(LightingNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(LightingNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(LightingNeed::isBonus),
+            propertiesCodec(),
             Codec.INT.fieldOf("min_light").forGetter(LightingNeed::getMinLight),
-            Codec.INT.optionalFieldOf("radius", 0).forGetter(LightingNeed::getRadius),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(LightingNeed::getIcon)
+            Codec.INT.optionalFieldOf("radius", 0).forGetter(LightingNeed::getRadius)
     ).apply(instance, LightingNeed::new));
 
     private final int minLight; // 0..15
     private final int radius;   // sampling radius; 0 = only mob position
 
-    public LightingNeed(
-            double damage,
-            double damageThreshold,
-            double providedHappiness,
-            double satisfactionThreshold,
-            double frequency,
-            boolean hidden,
-            boolean bonus,
-            int minLight,
-            int radius,
-            Optional<ResourceLocation> icon
-    ) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public LightingNeed(Properties properties, int minLight, int radius) {
+        super(properties);
         this.minLight = Math.max(0, Math.min(15, minLight));
         this.radius = Math.max(0, radius);
     }

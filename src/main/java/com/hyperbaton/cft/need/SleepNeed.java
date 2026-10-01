@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The Xoonglin needs to sleep in a bed inside its home. It goes to bed during the rest time of
@@ -18,20 +17,11 @@ import java.util.Optional;
 public class SleepNeed extends Need {
 
     public static final Codec<SleepNeed> SLEEP_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(SleepNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(SleepNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(SleepNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(SleepNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(SleepNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(SleepNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(SleepNeed::isBonus),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(SleepNeed::getIcon)
+            propertiesCodec()
     ).apply(instance, SleepNeed::new));
 
-    public SleepNeed(double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                     Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public SleepNeed(Properties properties) {
+        super(properties);
     }
 
     @Override

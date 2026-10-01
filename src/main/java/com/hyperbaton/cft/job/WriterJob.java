@@ -53,16 +53,13 @@ public class WriterJob extends Job {
     private static final int WORK_SWING_INTERVAL = 20;
 
     public static final Codec<WriterJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.fieldOf("frequency_days").forGetter(j -> j.frequencyDays),
             ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
             Codec.INT.optionalFieldOf("pages_per_book", 6).forGetter(j -> j.pagesPerBook),
             ItemQuantity.CODEC.optionalFieldOf("input").forGetter(j -> j.input),
-            TextBank.CODEC.optionalFieldOf("text_bank", TextBank.DEFAULT).forGetter(j -> j.textBank),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            TextBank.CODEC.optionalFieldOf("text_bank", TextBank.DEFAULT).forGetter(j -> j.textBank)
     ).apply(inst, WriterJob::new));
 
     private final double hoursPerDay;
@@ -72,10 +69,10 @@ public class WriterJob extends Job {
     private final Optional<ItemQuantity> input;
     private final TextBank textBank;
 
-    public WriterJob(double hoursPerDay, int frequencyDays, Optional<ResourceLocation> requiredStructure, int pagesPerBook,
-                     Optional<ItemQuantity> input, TextBank textBank, List<ResourceLocation> requiredNeeds, double minHappiness,
-                     boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public WriterJob(Properties properties, double hoursPerDay, int frequencyDays,
+                     Optional<ResourceLocation> requiredStructure, int pagesPerBook,
+                     Optional<ItemQuantity> input, TextBank textBank) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.frequencyDays = Math.max(1, frequencyDays);
         this.requiredStructure = requiredStructure.orElse(null);

@@ -49,10 +49,11 @@ registries are synced to clients with them.
 
 A need type is two classes:
 
-- **`Need`**: the configuration, read from JSON. Its constructor takes the fields every need has
-  (`damage`, `damage_threshold`, `provided_happiness`, `satisfaction_threshold`,
-  `frequency`, `hidden`, `bonus` and `icon`), so declare those in your codec along with your own
-  fields. Implement:
+- **`Need`**: the configuration, read from JSON. The fields every need has (`damage`,
+  `damage_threshold`, `provided_happiness`, `satisfaction_threshold`, `frequency`, `hidden`,
+  `bonus` and `icon`) come together as a `Need.Properties`: start your codec with
+  `propertiesCodec()`, which reads all of them as one field, then add your own fields, and pass the
+  properties to `super`. Implement:
     - `needType()`: your registered codec.
     - `createSatisfier(satisfaction, isSatisfied)`: a new satisfier for a Xoonglin.
     - `getDefaultIcons()`: item ids shown as the need's icon when the JSON sets no `icon`.
@@ -89,23 +90,14 @@ lit campfire; otherwise it leaves whatever it's doing to walk to the nearest one
 ```java
 public class WarmthNeed extends Need {
     public static final Codec<WarmthNeed> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(Need::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(Need::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(Need::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(Need::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(Need::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", false).forGetter(Need::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", false).forGetter(Need::isBonus),
-            Codec.INT.optionalFieldOf("search_radius", 32).forGetter(WarmthNeed::getSearchRadius),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(Need::getIcon)
+            propertiesCodec(),
+            Codec.INT.optionalFieldOf("search_radius", 32).forGetter(WarmthNeed::getSearchRadius)
     ).apply(instance, WarmthNeed::new));
 
     private final int searchRadius;
 
-    public WarmthNeed(double damage, double damageThreshold, double providedHappiness,
-                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                      int searchRadius, Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public WarmthNeed(Properties properties, int searchRadius) {
+        super(properties);
         this.searchRadius = searchRadius;
     }
 
@@ -219,9 +211,9 @@ public class MyAddonBrainEvents {
 A job type is a `Job`, read from JSON, which decides when there's work to do, and a behavior that
 does it.
 
-**The `Job`** passes the fields every job has (`required_needs`, `min_happiness`,
-`available_to_babies`, `available_to_adults`) to its constructor, so declare those in your codec.
-The `schedule` field is added to every job's codec by CFT. Implement:
+**The `Job`** gets the fields every job has (`required_needs`, `min_happiness`,
+`available_to_babies`, `available_to_adults` and `schedule`) as a `Job.Properties`: start your
+codec with `propertiesCodec()` and pass the properties to `super`, as needs do. Implement:
 
 - `tick(xoonglin, state)`: called every tick while the job isn't paused. It keeps the daily quota
   in `state` (a `JobState` saved with the Xoonglin: worked ticks today, days in a row...), and
@@ -311,9 +303,10 @@ Look at `SmelterJob` and `SmeltBehavior` for a small, complete job.
 ## Adding a structure type
 
 Structure types detect structures in the world when the leader uses the staff on their key block.
-A type extends `StructureType` (whose constructor takes the `key_block`,
-`max_users`, `requires_container` and `priority` fields) and implements `detect(keyBlockPos,
-level, leaderId)`, returning a `StructureDetectionResult` with the detected `Structure` or the
+A type extends `StructureType`, whose constructor takes the fields every type has (`key_block`,
+`max_users`, `requires_container` and `priority`) as a `StructureType.Properties`: start your codec
+with `propertiesCodec()`, or `propertiesCodec(0)` if `max_users` should default to no limit. It
+implements `detect(keyBlockPos, level, leaderId)`, returning a `StructureDetectionResult` with the detected `Structure` or the
 reason it failed. Register its codec on `STRUCTURE_TYPE_CODEC_KEY`. The built-in types in
 `com.hyperbaton.cft.structure.type` show how detection is done.
 

@@ -12,22 +12,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 public class PetNeed extends Need {
     public static final Codec<PetNeed> PET_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(PetNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(PetNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(PetNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(PetNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(PetNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(PetNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(PetNeed::isBonus),
+            propertiesCodec(),
             RegistryEntries.codec(Registries.ENTITY_TYPE).fieldOf("entity_types").forGetter(PetNeed::getEntityTypes),
             Codec.INT.fieldOf("min_count").forGetter(PetNeed::getMinCount),
             Codec.INT.fieldOf("max_count").forGetter(PetNeed::getMaxCount),
-            Codec.INT.fieldOf("radius").forGetter(PetNeed::getRadius),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(PetNeed::getIcon)
+            Codec.INT.fieldOf("radius").forGetter(PetNeed::getRadius)
     ).apply(instance, PetNeed::new));
 
     private final RegistryEntries<EntityType<?>> entityTypes;
@@ -35,11 +27,9 @@ public class PetNeed extends Need {
     private final int maxCount;
     private final int radius;
 
-    public PetNeed(double damage, double damageThreshold, double providedHappiness,
-                   double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                   RegistryEntries<EntityType<?>> entityTypes, int minCount, int maxCount, int radius,
-                   Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public PetNeed(Properties properties, RegistryEntries<EntityType<?>> entityTypes, int minCount,
+                   int maxCount, int radius) {
+        super(properties);
         this.entityTypes = entityTypes;
         this.minCount = minCount;
         this.maxCount = maxCount;

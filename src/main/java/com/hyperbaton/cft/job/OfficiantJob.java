@@ -34,6 +34,7 @@ public class OfficiantJob extends Job {
     private static final JobStatus GATHERING_ATTENDEES = JobStatus.active("gui.cft.job_status.gathering_attendees");
 
     public static final Codec<OfficiantJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.STRING.fieldOf("ritual_id").forGetter(OfficiantJob::getRitualId),
             ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             Codec.DOUBLE.fieldOf("frequency").forGetter(OfficiantJob::getFrequency),
@@ -44,11 +45,7 @@ public class OfficiantJob extends Job {
             AttendanceRule.CODEC.listOf().optionalFieldOf("attendance", List.of()).forGetter(OfficiantJob::getAttendanceRules),
             Codec.INT.optionalFieldOf("max_attendees", Integer.MAX_VALUE).forGetter(OfficiantJob::getMaxAttendees),
             Codec.INT.optionalFieldOf("gathering_timeout", 1200).forGetter(OfficiantJob::getGatheringTimeout),
-            Codec.INT.optionalFieldOf("grace_period", 200).forGetter(OfficiantJob::getGracePeriod),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.INT.optionalFieldOf("grace_period", 200).forGetter(OfficiantJob::getGracePeriod)
     ).apply(inst, OfficiantJob::new));
 
     private final String ritualId;
@@ -63,12 +60,11 @@ public class OfficiantJob extends Job {
     private final int gatheringTimeout;
     private final int gracePeriod;
 
-    public OfficiantJob(String ritualId, ResourceLocation requiredStructure, double frequency, int duration,
-                        List<ItemQuantity> ingredients, int summonRadius, int ritualRadius,
-                        List<AttendanceRule> attendanceRules, int maxAttendees,
-                        int gatheringTimeout, int gracePeriod, List<ResourceLocation> requiredNeeds,
-                        double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public OfficiantJob(Properties properties, String ritualId, ResourceLocation requiredStructure,
+                        double frequency, int duration, List<ItemQuantity> ingredients, int summonRadius,
+                        int ritualRadius, List<AttendanceRule> attendanceRules, int maxAttendees,
+                        int gatheringTimeout, int gracePeriod) {
+        super(properties);
         this.ritualId = ritualId;
         this.requiredStructure = requiredStructure;
         this.frequency = frequency;

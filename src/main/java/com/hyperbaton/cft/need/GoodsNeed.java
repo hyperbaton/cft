@@ -8,29 +8,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 
 public class GoodsNeed extends Need {
 
     public static final Codec<GoodsNeed> GOODS_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(GoodsNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(GoodsNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(GoodsNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(GoodsNeed::getSatisfactionThreshold),
+            propertiesCodec(),
             INGREDIENT_CODEC.fieldOf("item").forGetter(GoodsNeed::getIngredient),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(GoodsNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(GoodsNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(GoodsNeed::isBonus),
             Codec.INT.fieldOf("quantity").forGetter(GoodsNeed::getQuantity),
-            Codec.INT.optionalFieldOf("hoarding", 0).forGetter(GoodsNeed::getHoarding),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(GoodsNeed::getIcon)
+            Codec.INT.optionalFieldOf("hoarding", 0).forGetter(GoodsNeed::getHoarding)
     ).apply(instance, GoodsNeed::new));
     private static final String GOODS_NEED_TYPE = "cft:goods_need";
 
@@ -38,10 +29,8 @@ public class GoodsNeed extends Need {
     private final int quantity;
     private final int hoarding;
 
-    public GoodsNeed(double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, boolean bonus, int quantity,
-                     int hoarding, Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public GoodsNeed(Properties properties, Ingredient item, int quantity, int hoarding) {
+        super(properties);
         this.quantity = quantity;
         this.hoarding = hoarding > 0 ? hoarding : quantity;
         this.item = item;

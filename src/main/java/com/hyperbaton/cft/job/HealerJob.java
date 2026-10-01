@@ -31,6 +31,7 @@ import java.util.List;
 public class HealerJob extends Job {
 
     public static final Codec<HealerJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("radius", 24).forGetter(HealerJob::getRadius),
             ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
@@ -38,11 +39,7 @@ public class HealerJob extends Job {
             Codec.DOUBLE.fieldOf("heal_amount").forGetter(HealerJob::getHealAmount),
             Codec.INT.optionalFieldOf("cooldown", 100).forGetter(HealerJob::getCooldown),
             Codec.INT.optionalFieldOf("doses_per_fetch", 16).forGetter(HealerJob::getDosesPerFetch),
-            Codec.BOOL.optionalFieldOf("heal_player", false).forGetter(HealerJob::isHealPlayer),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.BOOL.optionalFieldOf("heal_player", false).forGetter(HealerJob::isHealPlayer)
     ).apply(inst, HealerJob::new));
 
     private final double hoursPerDay;
@@ -54,11 +51,10 @@ public class HealerJob extends Job {
     private final int dosesPerFetch;
     private final boolean healPlayer;
 
-    public HealerJob(double hoursPerDay, int radius, Optional<ResourceLocation> requiredStructure, List<ItemQuantity> items,
-                     double healAmount, int cooldown, int dosesPerFetch, boolean healPlayer,
-                     List<ResourceLocation> requiredNeeds, double minHappiness,
-                     boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public HealerJob(Properties properties, double hoursPerDay, int radius,
+                     Optional<ResourceLocation> requiredStructure, List<ItemQuantity> items, double healAmount,
+                     int cooldown, int dosesPerFetch, boolean healPlayer) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
         this.requiredStructure = requiredStructure.orElse(null);

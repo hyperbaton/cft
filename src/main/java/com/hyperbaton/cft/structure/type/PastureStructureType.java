@@ -12,7 +12,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.Block;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,10 +23,7 @@ import java.util.UUID;
 public class PastureStructureType extends OpenAirPlatformStructureType {
 
     public static final Codec<PastureStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            RegistryEntries.codec(Registries.BLOCK).fieldOf("key_block").forGetter(StructureType::getKeyBlock),
-            Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
-            Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
-            Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
+            propertiesCodec(),
             Codec.INT.optionalFieldOf("wall_height", 1).forGetter(OpenAirPlatformStructureType::getWallHeight),
             ValidBlock.CODEC.listOf().fieldOf("border_blocks").forGetter(OpenAirPlatformStructureType::getBorderBlocks),
             ValidBlock.CODEC.listOf().fieldOf("ground_perimeter_blocks").forGetter(OpenAirPlatformStructureType::getGroundPerimeterBlocks),
@@ -41,14 +37,10 @@ public class PastureStructureType extends OpenAirPlatformStructureType {
     private final int minMobCount;
     private final int maxMobCount;
 
-    public PastureStructureType(RegistryEntries<Block> keyBlock,
-                                int maxUsers, boolean requiresContainer, int priority,
-                                int wallHeight,
-                                List<ValidBlock> borderBlocks, List<ValidBlock> groundPerimeterBlocks,
-                                List<ValidBlock> surfaceBlocks,
+    public PastureStructureType(Properties properties, int wallHeight, List<ValidBlock> borderBlocks,
+                                List<ValidBlock> groundPerimeterBlocks, List<ValidBlock> surfaceBlocks,
                                 RegistryEntries<EntityType<?>> eligibleMobs, int minMobCount, int maxMobCount) {
-        super(keyBlock, maxUsers, requiresContainer, priority,
-                wallHeight, borderBlocks, groundPerimeterBlocks, surfaceBlocks);
+        super(properties, wallHeight, borderBlocks, groundPerimeterBlocks, surfaceBlocks);
         this.eligibleMobs = eligibleMobs;
         this.minMobCount = minMobCount;
         this.maxMobCount = maxMobCount;

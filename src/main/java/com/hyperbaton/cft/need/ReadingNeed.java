@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Wants a book from the world's roster of writer-produced works to be present in the
@@ -20,20 +19,11 @@ import java.util.Optional;
 public class ReadingNeed extends Need {
 
     public static final Codec<ReadingNeed> READING_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(ReadingNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(ReadingNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(ReadingNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(ReadingNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(ReadingNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(ReadingNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(ReadingNeed::isBonus),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(ReadingNeed::getIcon)
+            propertiesCodec()
     ).apply(instance, ReadingNeed::new));
 
-    public ReadingNeed(double damage, double damageThreshold, double providedHappiness,
-                       double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                       Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public ReadingNeed(Properties properties) {
+        super(properties);
     }
 
     @Override

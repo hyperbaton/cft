@@ -11,27 +11,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
-import java.util.Optional;
 
 public class FluidNeed extends Need {
     public static final Codec<FluidNeed> FLUID_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(FluidNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(FluidNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(FluidNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(FluidNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(FluidNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(FluidNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(FluidNeed::isBonus),
-            FluidStack.CODEC.fieldOf("fluid_stack").forGetter(FluidNeed::getFluidStack),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(FluidNeed::getIcon)
+            propertiesCodec(),
+            FluidStack.CODEC.fieldOf("fluid_stack").forGetter(FluidNeed::getFluidStack)
     ).apply(instance, FluidNeed::new));
 
     private final FluidStack fluidStack;
 
-    public FluidNeed(double damage, double damageThreshold, double providedHappiness,
-                     double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                     FluidStack fluidStack, Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public FluidNeed(Properties properties, FluidStack fluidStack) {
+        super(properties);
         this.fluidStack = fluidStack;
     }
 

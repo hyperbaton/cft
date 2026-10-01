@@ -31,16 +31,13 @@ import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 public class FarmerJob extends Job {
 
     public static final Codec<FarmerJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             INGREDIENT_CODEC.fieldOf("seed").forGetter(j -> j.seed),
             INGREDIENT_CODEC.fieldOf("product").forGetter(j -> j.product),
             BuiltInRegistries.BLOCK.byNameCodec().fieldOf("crop_block").forGetter(j -> j.cropBlock),
-            Codec.unboundedMap(Codec.STRING, Codec.STRING).fieldOf("ripe_state").forGetter(j -> j.ripeState),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.unboundedMap(Codec.STRING, Codec.STRING).fieldOf("ripe_state").forGetter(j -> j.ripeState)
     ).apply(inst, FarmerJob::new));
 
     private final double hoursPerDay;
@@ -50,10 +47,9 @@ public class FarmerJob extends Job {
     private final Block cropBlock;
     private final Map<String, String> ripeState;
 
-    public FarmerJob(double hoursPerDay, ResourceLocation requiredStructure, Ingredient seed, Ingredient product,
-                     Block cropBlock, Map<String, String> ripeState, List<ResourceLocation> requiredNeeds,
-                     double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public FarmerJob(Properties properties, double hoursPerDay, ResourceLocation requiredStructure,
+                     Ingredient seed, Ingredient product, Block cropBlock, Map<String, String> ripeState) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.seed = seed;

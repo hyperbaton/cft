@@ -33,14 +33,11 @@ public class LumberjackJob extends Job {
     private static final JobStatus NEEDS_AXE = JobStatus.attention("gui.cft.job_status.needs_axe");
 
     public static final Codec<LumberjackJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("chop_radius", 16).forGetter(LumberjackJob::getChopRadius),
             ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
-            Codec.INT.optionalFieldOf("max_tree_size", 128).forGetter(LumberjackJob::getMaxTreeSize),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.INT.optionalFieldOf("max_tree_size", 128).forGetter(LumberjackJob::getMaxTreeSize)
     ).apply(inst, LumberjackJob::new));
 
     private final double hoursPerDay;
@@ -48,10 +45,9 @@ public class LumberjackJob extends Job {
     private final ResourceLocation requiredStructure;
     private final int maxTreeSize;
 
-    public LumberjackJob(double hoursPerDay, int chopRadius, Optional<ResourceLocation> requiredStructure, int maxTreeSize,
-                         List<ResourceLocation> requiredNeeds, double minHappiness, boolean availableToBabies,
-                         boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public LumberjackJob(Properties properties, double hoursPerDay, int chopRadius,
+                         Optional<ResourceLocation> requiredStructure, int maxTreeSize) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.chopRadius = chopRadius;
         this.requiredStructure = requiredStructure.orElse(null);

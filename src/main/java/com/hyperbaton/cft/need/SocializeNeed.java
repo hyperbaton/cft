@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The Xoonglin wants to spend some of its free time with another Xoonglin. Unlike the social
@@ -20,28 +19,19 @@ import java.util.Optional;
 public class SocializeNeed extends Need {
 
     public static final Codec<SocializeNeed> SOCIALIZE_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(SocializeNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(SocializeNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(SocializeNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(SocializeNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(SocializeNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(SocializeNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(SocializeNeed::isBonus),
+            propertiesCodec(),
             ResourceLocation.CODEC.listOf().optionalFieldOf("classes", List.of()).forGetter(SocializeNeed::getAcceptedSocialClassIds),
             Codec.INT.optionalFieldOf("radius", 24).forGetter(SocializeNeed::getRadius),
-            Codec.INT.optionalFieldOf("duration", 160).forGetter(SocializeNeed::getDuration),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(SocializeNeed::getIcon)
+            Codec.INT.optionalFieldOf("duration", 160).forGetter(SocializeNeed::getDuration)
     ).apply(instance, SocializeNeed::new));
 
     private final List<ResourceLocation> acceptedSocialClassIds;
     private final int radius;
     private final int duration;
 
-    public SocializeNeed(double damage, double damageThreshold, double providedHappiness,
-                            double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                            List<ResourceLocation> acceptedSocialClassIds, int radius, int duration,
-                            Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public SocializeNeed(Properties properties, List<ResourceLocation> acceptedSocialClassIds, int radius,
+                         int duration) {
+        super(properties);
         this.acceptedSocialClassIds = List.copyOf(acceptedSocialClassIds);
         this.radius = radius;
         this.duration = duration;

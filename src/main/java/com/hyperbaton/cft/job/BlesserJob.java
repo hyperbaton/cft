@@ -33,6 +33,7 @@ import java.util.List;
 public class BlesserJob extends Job {
 
     public static final Codec<BlesserJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("radius", 24).forGetter(BlesserJob::getRadius),
             ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
@@ -40,11 +41,7 @@ public class BlesserJob extends Job {
             EffectApplication.CODEC.listOf().fieldOf("effects").forGetter(BlesserJob::getEffects),
             Codec.INT.optionalFieldOf("cooldown", 100).forGetter(BlesserJob::getCooldown),
             Codec.INT.optionalFieldOf("doses_per_fetch", 16).forGetter(BlesserJob::getDosesPerFetch),
-            Codec.BOOL.optionalFieldOf("bless_player", false).forGetter(BlesserJob::isBlessPlayer),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.BOOL.optionalFieldOf("bless_player", false).forGetter(BlesserJob::isBlessPlayer)
     ).apply(inst, BlesserJob::new));
 
     private final double hoursPerDay;
@@ -56,11 +53,10 @@ public class BlesserJob extends Job {
     private final int dosesPerFetch;
     private final boolean blessPlayer;
 
-    public BlesserJob(double hoursPerDay, int radius, Optional<ResourceLocation> requiredStructure, List<ItemQuantity> items,
-                      List<EffectApplication> effects, int cooldown, int dosesPerFetch, boolean blessPlayer,
-                      List<ResourceLocation> requiredNeeds, double minHappiness,
-                      boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public BlesserJob(Properties properties, double hoursPerDay, int radius,
+                      Optional<ResourceLocation> requiredStructure, List<ItemQuantity> items,
+                      List<EffectApplication> effects, int cooldown, int dosesPerFetch, boolean blessPlayer) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
         this.requiredStructure = requiredStructure.orElse(null);

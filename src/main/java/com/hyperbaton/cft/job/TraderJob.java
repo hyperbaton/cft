@@ -38,22 +38,19 @@ import java.util.List;
 public class TraderJob extends Job {
 
     public static final Codec<TraderJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
-            Codec.INT.optionalFieldOf("max_trades", 4).forGetter(j -> j.maxTrades),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.INT.optionalFieldOf("max_trades", 4).forGetter(j -> j.maxTrades)
     ).apply(inst, TraderJob::new));
 
     private final double hoursPerDay;
     private final ResourceLocation requiredStructure;
     private final int maxTrades;
 
-    public TraderJob(double hoursPerDay, Optional<ResourceLocation> requiredStructure, int maxTrades, List<ResourceLocation> requiredNeeds,
-                      double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public TraderJob(Properties properties, double hoursPerDay, Optional<ResourceLocation> requiredStructure,
+                     int maxTrades) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure.orElse(null);
         this.maxTrades = Math.max(1, maxTrades);

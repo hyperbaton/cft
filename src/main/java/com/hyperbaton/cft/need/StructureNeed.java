@@ -9,24 +9,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 public class StructureNeed extends Need {
 
     public static final Codec<StructureNeed> STRUCTURE_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(StructureNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(StructureNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(StructureNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(StructureNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(StructureNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(StructureNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(StructureNeed::isBonus),
+            propertiesCodec(),
             ResourceLocation.CODEC.fieldOf("required_structure").forGetter(StructureNeed::getRequiredStructure),
             Codec.BOOL.optionalFieldOf("requires_usage", false).forGetter(StructureNeed::isRequiresUsage),
             Codec.INT.optionalFieldOf("search_radius", 64).forGetter(StructureNeed::getSearchRadius),
             Codec.BOOL.optionalFieldOf("requires_running", false).forGetter(StructureNeed::isRequiresRunning),
-            Codec.STRING.listOf().optionalFieldOf("running_work_steps", List.of()).forGetter(StructureNeed::getRunningWorkSteps),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(StructureNeed::getIcon)
+            Codec.STRING.listOf().optionalFieldOf("running_work_steps", List.of()).forGetter(StructureNeed::getRunningWorkSteps)
     ).apply(instance, StructureNeed::new));
 
     private final ResourceLocation requiredStructure;
@@ -35,11 +27,9 @@ public class StructureNeed extends Need {
     private final boolean requiresRunning;
     private final List<String> runningWorkSteps;
 
-    public StructureNeed(double damage, double damageThreshold, double providedHappiness,
-                         double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                         ResourceLocation requiredStructure, boolean requiresUsage, int searchRadius,
-                         boolean requiresRunning, List<String> runningWorkSteps, Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public StructureNeed(Properties properties, ResourceLocation requiredStructure, boolean requiresUsage,
+                         int searchRadius, boolean requiresRunning, List<String> runningWorkSteps) {
+        super(properties);
         this.requiredStructure = requiredStructure;
         this.requiresUsage = requiresUsage;
         this.searchRadius = searchRadius;

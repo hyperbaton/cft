@@ -9,30 +9,20 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 public class AltitudeNeed extends Need {
 
     public static final Codec<AltitudeNeed> ALTITUDE_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(AltitudeNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(AltitudeNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(AltitudeNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(AltitudeNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(AltitudeNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(AltitudeNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(AltitudeNeed::isBonus),
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("min_altitude").forGetter(AltitudeNeed::getMinAltitude),
-            Codec.DOUBLE.fieldOf("max_altitude").forGetter(AltitudeNeed::getMaxAltitude),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(AltitudeNeed::getIcon)
+            Codec.DOUBLE.fieldOf("max_altitude").forGetter(AltitudeNeed::getMaxAltitude)
     ).apply(instance, AltitudeNeed::new));
 
     private final double minAltitude;
     private final double maxAltitude;
 
-    public AltitudeNeed(double damage, double damageThreshold, double providedHappiness,
-                        double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, double minAltitude,
-                        double maxAltitude, Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public AltitudeNeed(Properties properties, double minAltitude, double maxAltitude) {
+        super(properties);
         this.minAltitude = minAltitude;
         this.maxAltitude = maxAltitude;
     }

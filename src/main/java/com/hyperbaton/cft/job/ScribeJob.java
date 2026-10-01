@@ -30,14 +30,11 @@ import java.util.List;
 public class ScribeJob extends Job {
 
     public static final Codec<ScribeJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             ItemQuantity.CODEC.fieldOf("input").forGetter(ScribeJob::getInput),
-            Codec.INT.optionalFieldOf("crafting_time", 200).forGetter(ScribeJob::getCraftingTime),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.INT.optionalFieldOf("crafting_time", 200).forGetter(ScribeJob::getCraftingTime)
     ).apply(inst, ScribeJob::new));
 
     private final double hoursPerDay;
@@ -45,10 +42,9 @@ public class ScribeJob extends Job {
     private final ItemQuantity input;
     private final int craftingTime;
 
-    public ScribeJob(double hoursPerDay, ResourceLocation requiredStructure, ItemQuantity input, int craftingTime,
-                     List<ResourceLocation> requiredNeeds, double minHappiness,
-                     boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public ScribeJob(Properties properties, double hoursPerDay, ResourceLocation requiredStructure,
+                     ItemQuantity input, int craftingTime) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.input = input;

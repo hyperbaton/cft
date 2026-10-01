@@ -9,22 +9,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 public class SocialNeed extends Need {
     public static final Codec<SocialNeed> SOCIAL_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(SocialNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(SocialNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(SocialNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(SocialNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(SocialNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(SocialNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(SocialNeed::isBonus),
+            propertiesCodec(),
             ResourceLocation.CODEC.listOf().fieldOf("classes").forGetter(SocialNeed::getAcceptedSocialClassIds),
             Codec.INT.fieldOf("min_count").forGetter(SocialNeed::getMinCount),
             Codec.INT.fieldOf("max_count").forGetter(SocialNeed::getMaxCount),
-            Codec.INT.fieldOf("radius").forGetter(SocialNeed::getRadius),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(SocialNeed::getIcon)
+            Codec.INT.fieldOf("radius").forGetter(SocialNeed::getRadius)
     ).apply(instance, SocialNeed::new));
 
     private final List<ResourceLocation> acceptedSocialClassIds;
@@ -32,19 +24,9 @@ public class SocialNeed extends Need {
     private final int maxCount;
     private final int radius;
 
-    public SocialNeed(
-            double damage,
-            double damageThreshold,
-            double providedHappiness,
-            double satisfactionThreshold,
-            double frequency,
-            boolean hidden, boolean bonus,
-            List<ResourceLocation> acceptedSocialClassIds,
-            int minCount, int maxCount,
-            int radius,
-            Optional<ResourceLocation> icon
-    ) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public SocialNeed(Properties properties, List<ResourceLocation> acceptedSocialClassIds, int minCount,
+                      int maxCount, int radius) {
+        super(properties);
         this.acceptedSocialClassIds = List.copyOf(acceptedSocialClassIds);
         this.minCount = minCount;
         this.maxCount = maxCount;

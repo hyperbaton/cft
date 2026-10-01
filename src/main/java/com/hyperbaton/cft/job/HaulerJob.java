@@ -25,22 +25,18 @@ import java.util.List;
 public class HaulerJob extends Job {
 
     public static final Codec<HaulerJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("radius", 64).forGetter(j -> j.radius),
-            HaulerErrand.CODEC.listOf().fieldOf("errands").forGetter(j -> j.errands),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            HaulerErrand.CODEC.listOf().fieldOf("errands").forGetter(j -> j.errands)
     ).apply(inst, HaulerJob::new));
 
     private final double hoursPerDay;
     private final int radius;
     private final List<HaulerErrand> errands;
 
-    public HaulerJob(double hoursPerDay, int radius, List<HaulerErrand> errands, List<ResourceLocation> requiredNeeds,
-                     double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public HaulerJob(Properties properties, double hoursPerDay, int radius, List<HaulerErrand> errands) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
         this.errands = List.copyOf(errands);

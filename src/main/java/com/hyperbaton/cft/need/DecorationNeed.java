@@ -12,23 +12,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
-import java.util.Optional;
 
 public class DecorationNeed extends Need {
 
     public static final Codec<DecorationNeed> DECORATION_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(DecorationNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(DecorationNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(DecorationNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(DecorationNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(DecorationNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(DecorationNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(DecorationNeed::isBonus),
+            propertiesCodec(),
             RegistryEntries.codec(Registries.BLOCK).fieldOf("block").forGetter(DecorationNeed::getBlock),
             Codec.INT.fieldOf("min_count").forGetter(DecorationNeed::getMinCount),
             Codec.INT.fieldOf("radius").forGetter(DecorationNeed::getRadius),
-            Codec.DOUBLE.optionalFieldOf("min_spread", 0.0).forGetter(DecorationNeed::getMinSpread),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(DecorationNeed::getIcon)
+            Codec.DOUBLE.optionalFieldOf("min_spread", 0.0).forGetter(DecorationNeed::getMinSpread)
     ).apply(instance, DecorationNeed::new));
 
     private final RegistryEntries<Block> block;
@@ -36,12 +28,9 @@ public class DecorationNeed extends Need {
     private final int radius;
     private final double minSpread;
 
-    public DecorationNeed(double damage, double damageThreshold, double providedHappiness,
-                          double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                          RegistryEntries<Block> block,
-                          int minCount, int radius, double minSpread,
-                          Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public DecorationNeed(Properties properties, RegistryEntries<Block> block, int minCount, int radius,
+                          double minSpread) {
+        super(properties);
         this.block = block;
         this.minCount = minCount;
         this.radius = radius;

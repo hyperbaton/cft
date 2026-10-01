@@ -7,10 +7,9 @@ import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.entity.ai.schedule.ScheduleDefinition;
 import com.hyperbaton.cft.util.LangUtil;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.nbt.CompoundTag;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -21,41 +20,37 @@ import java.util.Optional;
 public abstract class Job {
 
     public static final Codec<Job> JOB_CODEC = Codec.lazyInitialized(() -> CftRegistry.JOBS_CODEC_REGISTRY.byNameCodec()
-            .dispatch("type", Job::jobType, codec -> withCommonFields(codec)));
+            .dispatch("type", Job::jobType, codec -> MapCodec.assumeMapUnsafe(codec)));
 
     /**
-     * Adds the fields shared by every job type to its codec, so each job codec doesn't have
-     * to declare them (some are already at the codec builder's field limit).
+     * The fields every job has, read along with the job's own fields (they're in the same JSON
+     * object). A job type's codec includes them with {@link #propertiesCodec()} and passes them to
+     * the {@link Job} constructor, as vanilla blocks do with their properties.
+     *
+     * @param requiredNeeds     needs that must be satisfied for the Xoonglin to work
+     * @param minHappiness      the happiness the Xoonglin needs to work
+     * @param schedule          replaces the social class schedule for Xoonglins with this job
      */
-    private static <J extends Job> MapCodec<J> withCommonFields(Codec<J> codec) {
-        return Codec.mapPair(MapCodec.assumeMapUnsafe(codec), ScheduleDefinition.CODEC.optionalFieldOf("schedule"))
-                .xmap(pair -> {
-                    J job = pair.getFirst();
-                    ((Job) job).schedule = pair.getSecond().orElse(null);
-                    return job;
-                }, job -> Pair.of(job, job.getSchedule()));
+    public record Properties(List<ResourceLocation> requiredNeeds, double minHappiness, boolean availableToBabies,
+                             boolean availableToAdults, Optional<ScheduleDefinition> schedule) {
+        public static final MapCodec<Properties> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Properties::requiredNeeds),
+                Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Properties::minHappiness),
+                Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Properties::availableToBabies),
+                Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Properties::availableToAdults),
+                ScheduleDefinition.CODEC.optionalFieldOf("schedule").forGetter(Properties::schedule)
+        ).apply(instance, Properties::new));
     }
 
-    private final List<ResourceLocation> requiredNeeds;
-    /** Replaces the social class schedule for Xoonglins with this job; null to use the class one. */
-    private ScheduleDefinition schedule;
-    private final double minHappiness;
-    private final boolean availableToBabies;
-    private final boolean availableToAdults;
-
-    protected Job(List<ResourceLocation> requiredNeeds) {
-        this(requiredNeeds, 0.0);
+    /** The fields every job has, for a job type's codec; it takes a single field of the codec. */
+    protected static <J extends Job> RecordCodecBuilder<J, Properties> propertiesCodec() {
+        return Properties.MAP_CODEC.forGetter(Job::getProperties);
     }
 
-    protected Job(List<ResourceLocation> requiredNeeds, double minHappiness) {
-        this(requiredNeeds, minHappiness, false, true);
-    }
+    private final Properties properties;
 
-    protected Job(List<ResourceLocation> requiredNeeds, double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        this.requiredNeeds = requiredNeeds != null ? List.copyOf(requiredNeeds) : List.of();
-        this.minHappiness = minHappiness;
-        this.availableToBabies = availableToBabies;
-        this.availableToAdults = availableToAdults;
+    protected Job(Properties properties) {
+        this.properties = properties;
     }
 
     public abstract void tick(XoonglinEntity xoonglin, JobState state);
@@ -77,20 +72,24 @@ public abstract class Job {
 
     public abstract Codec<? extends Job> jobType();
 
+    public Properties getProperties() {
+        return properties;
+    }
+
     public List<ResourceLocation> getRequiredNeeds() {
-        return requiredNeeds;
+        return properties.requiredNeeds();
     }
 
     public double getMinHappiness() {
-        return minHappiness;
+        return properties.minHappiness();
     }
 
     public boolean isAvailableToBabies() {
-        return availableToBabies;
+        return properties.availableToBabies();
     }
 
     public boolean isAvailableToAdults() {
-        return availableToAdults;
+        return properties.availableToAdults();
     }
 
     public boolean canWork(XoonglinEntity xoonglin) {
@@ -113,12 +112,12 @@ public abstract class Job {
             return Optional.of(unsatisfiedNeedReason(damagingNeed.get()));
         }
 
-        if (xoonglin.getHappiness() < minHappiness) {
+        if (xoonglin.getHappiness() < getMinHappiness()) {
             return Optional.of(Component.translatable("gui.cft.job_detail.too_unhappy",
-                    String.format("%.2f", minHappiness)));
+                    String.format("%.2f", getMinHappiness())));
         }
 
-        for (ResourceLocation needId : requiredNeeds) {
+        for (ResourceLocation needId : getRequiredNeeds()) {
             boolean satisfied = xoonglin.getNeeds().stream()
                     .filter(ns -> needId.equals(ns.getNeedId()))
                     .anyMatch(NeedSatisfier::isSatisfied);
@@ -146,7 +145,7 @@ public abstract class Job {
     }
 
     public Optional<ScheduleDefinition> getSchedule() {
-        return Optional.ofNullable(schedule);
+        return properties.schedule();
     }
 
     public ResourceLocation getRequiredStructureType() {

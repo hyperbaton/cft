@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A need satisfied by a ritual (identified by ritual_id, performed by an officiant job
@@ -20,28 +19,18 @@ import java.util.Optional;
 public class RitualNeed extends Need {
 
     public static final Codec<RitualNeed> RITUAL_NEED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("damage").forGetter(RitualNeed::getDamage),
-            Codec.DOUBLE.fieldOf("damage_threshold").forGetter(RitualNeed::getDamageThreshold),
-            Codec.DOUBLE.fieldOf("provided_happiness").forGetter(RitualNeed::getProvidedHappiness),
-            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(RitualNeed::getSatisfactionThreshold),
-            Codec.DOUBLE.fieldOf("frequency").forGetter(RitualNeed::getFrequency),
-            Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(RitualNeed::isHidden),
-            Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(RitualNeed::isBonus),
+            propertiesCodec(),
             Codec.STRING.fieldOf("ritual_id").forGetter(RitualNeed::getRitualId),
             Codec.INT.optionalFieldOf("radius", 16).forGetter(RitualNeed::getRadius),
-            Codec.BOOL.optionalFieldOf("requires_presence", false).forGetter(RitualNeed::isRequiresPresence),
-            ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(RitualNeed::getIcon)
+            Codec.BOOL.optionalFieldOf("requires_presence", false).forGetter(RitualNeed::isRequiresPresence)
     ).apply(instance, RitualNeed::new));
 
     private final String ritualId;
     private final int radius;
     private final boolean requiresPresence;
 
-    public RitualNeed(double damage, double damageThreshold, double providedHappiness,
-                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                      String ritualId, int radius, boolean requiresPresence,
-                      Optional<ResourceLocation> icon) {
-        super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
+    public RitualNeed(Properties properties, String ritualId, int radius, boolean requiresPresence) {
+        super(properties);
         this.ritualId = ritualId;
         this.radius = radius;
         this.requiresPresence = requiresPresence;

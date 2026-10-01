@@ -1,7 +1,6 @@
 package com.hyperbaton.cft.structure.type;
 
 import com.hyperbaton.cft.structure.LightingRequirement;
-import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.StoreyRule;
 import com.hyperbaton.cft.structure.StructureDetectionResult;
@@ -11,9 +10,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -31,10 +28,7 @@ public class MultiStoreyBuildingStructureType extends StructureType {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final Codec<MultiStoreyBuildingStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            RegistryEntries.codec(Registries.BLOCK).fieldOf("key_block").forGetter(StructureType::getKeyBlock),
-            Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
-            Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
-            Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
+            propertiesCodec(),
             Codec.INT.fieldOf("min_storeys").forGetter(MultiStoreyBuildingStructureType::getMinStoreys),
             Codec.INT.fieldOf("max_storeys").forGetter(MultiStoreyBuildingStructureType::getMaxStoreys),
             StoreyRule.CODEC.listOf().fieldOf("storey_rules").forGetter(MultiStoreyBuildingStructureType::getStoreyRules),
@@ -47,11 +41,9 @@ public class MultiStoreyBuildingStructureType extends StructureType {
     /** How well lit the inside of every storey must be, all together; null if it doesn't matter. */
     private final LightingRequirement lighting;
 
-    public MultiStoreyBuildingStructureType(RegistryEntries<Block> keyBlock,
-                                            int maxUsers, boolean requiresContainer, int priority,
-                                            int minStoreys, int maxStoreys, List<StoreyRule> storeyRules,
+    public MultiStoreyBuildingStructureType(Properties properties, int minStoreys, int maxStoreys, List<StoreyRule> storeyRules,
                                             Optional<LightingRequirement> lighting) {
-        super(keyBlock, maxUsers, requiresContainer, priority);
+        super(properties);
         this.minStoreys = minStoreys;
         this.maxStoreys = maxStoreys;
         this.storeyRules = storeyRules;

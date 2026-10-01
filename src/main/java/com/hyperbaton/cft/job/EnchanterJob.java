@@ -34,15 +34,12 @@ import static com.hyperbaton.cft.need.codec.CftCodec.INGREDIENT_CODEC;
 public class EnchanterJob extends Job {
 
     public static final Codec<EnchanterJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             INGREDIENT_CODEC.fieldOf("input").forGetter(j -> j.input),
             EnchantmentOption.CODEC.listOf().fieldOf("repertoire").forGetter(EnchanterJob::getRepertoire),
-            Codec.INT.optionalFieldOf("enchanting_time", 200).forGetter(EnchanterJob::getEnchantingTime),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.INT.optionalFieldOf("enchanting_time", 200).forGetter(EnchanterJob::getEnchantingTime)
     ).apply(inst, EnchanterJob::new));
 
     private final double hoursPerDay;
@@ -51,10 +48,9 @@ public class EnchanterJob extends Job {
     private final List<EnchantmentOption> repertoire;
     private final int enchantingTime;
 
-    public EnchanterJob(double hoursPerDay, ResourceLocation requiredStructure, Ingredient input,
-                        List<EnchantmentOption> repertoire, int enchantingTime, List<ResourceLocation> requiredNeeds,
-                        double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public EnchanterJob(Properties properties, double hoursPerDay, ResourceLocation requiredStructure,
+                        Ingredient input, List<EnchantmentOption> repertoire, int enchantingTime) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.input = input;

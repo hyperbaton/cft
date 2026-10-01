@@ -33,14 +33,11 @@ public class QuarryMinerJob extends Job {
     private static final JobStatus NEEDS_LADDERS = JobStatus.attention("gui.cft.job_status.needs_ladders");
 
     public static final Codec<QuarryMinerJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             Codec.INT.optionalFieldOf("max_depth", 16).forGetter(QuarryMinerJob::getMaxDepth),
-            Codec.INT.optionalFieldOf("mine_speed", 20).forGetter(QuarryMinerJob::getMineSpeed),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.INT.optionalFieldOf("mine_speed", 20).forGetter(QuarryMinerJob::getMineSpeed)
     ).apply(inst, QuarryMinerJob::new));
 
     private final double hoursPerDay;
@@ -48,10 +45,9 @@ public class QuarryMinerJob extends Job {
     private final int maxDepth;
     private final int mineSpeed;
 
-    public QuarryMinerJob(double hoursPerDay, ResourceLocation requiredStructure, int maxDepth, int mineSpeed,
-                          List<ResourceLocation> requiredNeeds, double minHappiness,
-                          boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public QuarryMinerJob(Properties properties, double hoursPerDay, ResourceLocation requiredStructure,
+                          int maxDepth, int mineSpeed) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.maxDepth = maxDepth;

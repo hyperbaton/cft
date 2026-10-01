@@ -46,6 +46,7 @@ public class FisherJob extends Job {
     private static final RegistryEntries<Block> WATER = RegistryEntries.of(ResourceLocation.withDefaultNamespace("water"));
 
     public static final Codec<FisherJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("radius", 32).forGetter(FisherJob::getRadius),
             ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
@@ -53,11 +54,7 @@ public class FisherJob extends Job {
                     .forGetter(FisherJob::getBodyBlocks),
             Codec.INT.optionalFieldOf("min_body_size", 20).forGetter(FisherJob::getMinBodySize),
             Codec.INT.optionalFieldOf("catch_interval", 300).forGetter(FisherJob::getCatchInterval),
-            Catch.CODEC.listOf().fieldOf("catches").forGetter(FisherJob::getCatches),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Catch.CODEC.listOf().fieldOf("catches").forGetter(FisherJob::getCatches)
     ).apply(inst, FisherJob::new));
 
     /**
@@ -79,10 +76,10 @@ public class FisherJob extends Job {
     private final int catchInterval;
     private final List<Catch> catches;
 
-    public FisherJob(double hoursPerDay, int radius, Optional<ResourceLocation> requiredStructure, RegistryEntries<Block> bodyBlocks,
-                     int minBodySize, int catchInterval, List<Catch> catches, List<ResourceLocation> requiredNeeds,
-                     double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public FisherJob(Properties properties, double hoursPerDay, int radius,
+                     Optional<ResourceLocation> requiredStructure, RegistryEntries<Block> bodyBlocks,
+                     int minBodySize, int catchInterval, List<Catch> catches) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
         this.requiredStructure = requiredStructure.orElse(null);

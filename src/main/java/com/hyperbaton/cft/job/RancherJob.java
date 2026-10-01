@@ -31,6 +31,7 @@ import java.util.List;
 public class RancherJob extends Job {
 
     public static final Codec<RancherJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             ItemQuantity.CODEC.listOf().optionalFieldOf("feed", List.of()).forGetter(RancherJob::getFeed),
@@ -39,11 +40,7 @@ public class RancherJob extends Job {
             Codec.INT.optionalFieldOf("action_cooldown", 200).forGetter(RancherJob::getActionCooldown),
             Codec.INT.optionalFieldOf("doses_per_fetch", 16).forGetter(RancherJob::getDosesPerFetch),
             Codec.INT.optionalFieldOf("buckets_per_fetch", 4).forGetter(RancherJob::getBucketsPerFetch),
-            Codec.INT.optionalFieldOf("milk_regen_ticks", 6000).forGetter(RancherJob::getMilkRegenTicks),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            Codec.INT.optionalFieldOf("milk_regen_ticks", 6000).forGetter(RancherJob::getMilkRegenTicks)
     ).apply(inst, RancherJob::new));
 
     private final double hoursPerDay;
@@ -56,11 +53,10 @@ public class RancherJob extends Job {
     private final int bucketsPerFetch;
     private final int milkRegenTicks;
 
-    public RancherJob(double hoursPerDay, ResourceLocation requiredStructure, List<ItemQuantity> feed,
-                      boolean shearEnabled, boolean milkEnabled, int actionCooldown,
-                      int dosesPerFetch, int bucketsPerFetch, int milkRegenTicks, List<ResourceLocation> requiredNeeds,
-                      double minHappiness, boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public RancherJob(Properties properties, double hoursPerDay, ResourceLocation requiredStructure,
+                      List<ItemQuantity> feed, boolean shearEnabled, boolean milkEnabled, int actionCooldown,
+                      int dosesPerFetch, int bucketsPerFetch, int milkRegenTicks) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure;
         this.feed = List.copyOf(feed);

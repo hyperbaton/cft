@@ -11,7 +11,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.ItemStack;
@@ -24,16 +23,13 @@ import java.util.List;
 public class BuilderJob extends Job {
 
     public static final Codec<BuilderJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+            propertiesCodec(),
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
             ResourceLocation.CODEC.fieldOf("storage_structure").forGetter(j -> j.storageStructure),
             Codec.INT.optionalFieldOf("build_radius", 64).forGetter(j -> j.buildRadius),
             Codec.INT.optionalFieldOf("build_speed", 20).forGetter(j -> j.buildSpeed),
-            ResourceLocation.CODEC.listOf().fieldOf("buildable_structures").forGetter(j -> j.buildableStructures),
-            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
-            Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
-            Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
-            Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
+            ResourceLocation.CODEC.listOf().fieldOf("buildable_structures").forGetter(j -> j.buildableStructures)
     ).apply(inst, BuilderJob::new));
 
     private final double hoursPerDay;
@@ -43,11 +39,10 @@ public class BuilderJob extends Job {
     private final int buildSpeed;
     private final List<ResourceLocation> buildableStructures;
 
-    public BuilderJob(double hoursPerDay, Optional<ResourceLocation> requiredStructure, ResourceLocation storageStructure,
-                      int buildRadius, int buildSpeed, List<ResourceLocation> buildableStructures,
-                      List<ResourceLocation> requiredNeeds, double minHappiness,
-                      boolean availableToBabies, boolean availableToAdults) {
-        super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
+    public BuilderJob(Properties properties, double hoursPerDay, Optional<ResourceLocation> requiredStructure,
+                      ResourceLocation storageStructure, int buildRadius, int buildSpeed,
+                      List<ResourceLocation> buildableStructures) {
+        super(properties);
         this.hoursPerDay = hoursPerDay;
         this.requiredStructure = requiredStructure.orElse(null);
         this.storageStructure = storageStructure;

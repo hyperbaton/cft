@@ -1,6 +1,5 @@
 package com.hyperbaton.cft.structure.type;
 
-import com.hyperbaton.cft.util.RegistryEntries;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.structure.IdenticalLayerGroup;
 import com.hyperbaton.cft.structure.LayerRule;
@@ -12,9 +11,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.Block;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -25,10 +22,7 @@ public class MonumentStructureType extends StructureType {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final Codec<MonumentStructureType> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-            RegistryEntries.codec(Registries.BLOCK).fieldOf("key_block").forGetter(StructureType::getKeyBlock),
-            Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
-            Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
-            Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
+            propertiesCodec(),
             Codec.INT.fieldOf("min_height").forGetter(MonumentStructureType::getMinHeight),
             Codec.INT.fieldOf("max_height").forGetter(MonumentStructureType::getMaxHeight),
             LayerRule.CODEC.listOf().fieldOf("layer_rules").forGetter(MonumentStructureType::getLayerRules),
@@ -40,11 +34,9 @@ public class MonumentStructureType extends StructureType {
     private final List<LayerRule> layerRules;
     private final List<IdenticalLayerGroup> identicalLayerGroups;
 
-    public MonumentStructureType(RegistryEntries<Block> keyBlock,
-                                  int maxUsers, boolean requiresContainer, int priority,
-                                  int minHeight, int maxHeight,
-                                  List<LayerRule> layerRules, List<IdenticalLayerGroup> identicalLayerGroups) {
-        super(keyBlock, maxUsers, requiresContainer, priority);
+    public MonumentStructureType(Properties properties, int minHeight, int maxHeight, List<LayerRule> layerRules,
+                                 List<IdenticalLayerGroup> identicalLayerGroups) {
+        super(properties);
         this.minHeight = minHeight;
         this.maxHeight = maxHeight;
         this.layerRules = layerRules;
