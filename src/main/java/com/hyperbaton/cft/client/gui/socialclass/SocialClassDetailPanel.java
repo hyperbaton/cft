@@ -6,6 +6,7 @@ import com.hyperbaton.cft.socialclass.NeedSatisfaction;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
 import com.hyperbaton.cft.socialclass.SocialStructureRequirement;
+import com.hyperbaton.cft.util.LangUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Registry;
@@ -122,16 +123,15 @@ public class SocialClassDetailPanel {
         cachedLines.clear();
         if (selectedClass == null) return;
 
-        String className = Component.translatable(selectedClassId.toString()).getString();
+        String className = LangUtil.socialClassName(selectedClassId).getString();
         cachedLines.add(new StaticLine(className, HEADER_COLOR, 0, LINE_HEIGHT + 4, true));
 
         if (!selectedClass.getJobs().isEmpty()) {
             StringBuilder jobNames = new StringBuilder();
             for (int i = 0; i < selectedClass.getJobs().size(); i++) {
                 ResourceLocation jobId = selectedClass.getJobs().get(i);
-                String jobKey = "job." + jobId.getNamespace() + "." + jobId.getPath();
                 if (i > 0) jobNames.append(", ");
-                jobNames.append(Component.translatable(jobKey).getString());
+                jobNames.append(LangUtil.jobName(jobId).getString());
             }
             addStat("gui.cft.job", jobNames.toString());
         }
@@ -177,7 +177,7 @@ public class SocialClassDetailPanel {
     }
 
     private void renderNeedInfo(ResourceLocation needId, Need need) {
-        String needName = Component.translatable(needId.toString()).getString();
+        String needName = LangUtil.needName(needId).getString();
         String typeName = getNeedTypeName(need);
         String line = needName + " (" + typeName + ")";
         List<ResourceLocation> icons = need.getIcons();
@@ -205,23 +205,23 @@ public class SocialClassDetailPanel {
     }
 
     private void renderTransition(SocialClassUpdate update, boolean isUpgrade) {
-        String targetName = Component.translatable(update.getNextClass().toString()).getString();
+        String targetName = LangUtil.socialClassName(update.getNextClass()).getString();
         int color = isUpgrade ? UPGRADE_COLOR : DOWNGRADE_COLOR;
         cachedLines.add(new StaticLine("→ " + targetName, color, 4, LINE_HEIGHT, false));
 
         for (NeedSatisfaction ns : update.getRequiredNeeds()) {
-            String needName = Component.translatable(ns.getNeed().toString()).getString();
+            String needName = LangUtil.needName(ns.getNeed()).getString();
             String statusKey = isUpgrade ? "gui.cft.need_satisfied" : "gui.cft.need_dissatisfied";
             String status = Component.translatable(statusKey, needName).getString();
             cachedLines.add(new StaticLine("  " + status, LABEL_COLOR, 8, LINE_HEIGHT, false));
         }
 
         for (SocialStructureRequirement req : update.getSocialStructureRequirements()) {
-            String className = Component.translatable(req.getSocialClass().toString()).getString();
+            String className = LangUtil.socialClassName(req.getSocialClass()).getString();
             String scopeLabel = req.getScope() == null || req.getScope().isEmpty()
                     ? Component.translatable("gui.cft.of_population").getString()
                     : Component.translatable("gui.cft.of_scope",
-                            String.join(", ", req.getScope().stream().map(id -> Component.translatable(id.toString()).getString()).toList()))
+                            String.join(", ", req.getScope().stream().map(id -> LangUtil.socialClassName(id).getString()).toList()))
                             .getString();
             cachedLines.add(new StaticLine(
                     "  " + className + " ≥ " + String.format("%.0f%%", req.getPercentage() * 100)

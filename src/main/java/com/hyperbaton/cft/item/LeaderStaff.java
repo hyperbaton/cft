@@ -12,6 +12,7 @@ import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.StructureUtils;
 import com.hyperbaton.cft.util.JobUtil;
+import com.hyperbaton.cft.util.LangUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -149,7 +150,7 @@ public class LeaderStaff extends Item {
         if (registered.isPresent()) {
             StructureUtils.unregister(level, registered.get());
             details.add(Component.translatable("detection.cft.unregistered",
-                    Component.translatable(registered.get().getStructureTypeId().toString())));
+                    LangUtil.structureName(registered.get().getStructureTypeId())));
         }
 
         if (bestFailure != null) {

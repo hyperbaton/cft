@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.structure.*;
 import com.hyperbaton.cft.structure.type.CompoundStructureType;
+import com.hyperbaton.cft.util.LangUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -105,10 +106,10 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
                     .count();
             if (count < requirement.min()) {
                 structureErrors.add(Component.translatable("detection.cft.detail.too_few_structures",
-                        count, Component.translatable(requirement.structureType().toString()), requirement.maxDistance(), requirement.min()));
+                        count, LangUtil.structureName(requirement.structureType()), requirement.maxDistance(), requirement.min()));
             } else if (count > requirement.max()) {
                 structureErrors.add(Component.translatable("detection.cft.detail.too_many_structures",
-                        count, Component.translatable(requirement.structureType().toString()), requirement.maxDistance(), requirement.max()));
+                        count, LangUtil.structureName(requirement.structureType()), requirement.maxDistance(), requirement.max()));
             }
         }
         if (!structureErrors.isEmpty()) {

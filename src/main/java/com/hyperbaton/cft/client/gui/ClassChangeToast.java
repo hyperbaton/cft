@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.client.gui;
 
+import com.hyperbaton.cft.util.LangUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
@@ -63,7 +64,7 @@ public class ClassChangeToast implements Toast {
         Component title = Component.translatable(token.upgrade() ? "toast.cft.class_upgrade" : "toast.cft.class_downgrade");
         graphics.drawString(font, title, TEXT_X, 7, color, false);
 
-        Component className = Component.translatable(token.toClass().toString());
+        Component className = LangUtil.socialClassName(token.toClass());
         Component description = names.size() == 1
                 ? Component.translatable("toast.cft.class_change.single", names.get(0), className)
                 : Component.translatable("toast.cft.class_change.multiple", names.size(), className);

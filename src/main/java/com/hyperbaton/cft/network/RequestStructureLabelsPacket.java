@@ -5,6 +5,7 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.type.HouseStructureType;
+import com.hyperbaton.cft.util.LangUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
@@ -52,7 +53,7 @@ public record RequestStructureLabelsPacket() implements CustomPacketPayload {
                 for (Structure structure : data.getStructures()) {
                     if (!structure.getLeaderId().equals(player.getUUID())) continue;
 
-                    String label = buildLabel(structure, level);
+                    Component label = buildLabel(structure, level);
                     entries.add(new StructureLabelsPacket.Entry(structure.getKeyBlockPos(), label));
                 }
 
@@ -61,19 +62,17 @@ public record RequestStructureLabelsPacket() implements CustomPacketPayload {
         });
     }
 
-    private static String buildLabel(Structure structure, ServerLevel level) {
-        String translatedName = Component.translatable(structure.getStructureTypeId().toString()).getString();
-
+    private static Component buildLabel(Structure structure, ServerLevel level) {
         if (isOccupiedSingleUserHouse(structure)) {
             UUID userId = structure.getUserIds().get(0);
             Entity user = level.getEntity(userId);
             if (user instanceof XoonglinEntity xoonglin && xoonglin.getCustomName() != null) {
-                return Component.translatable("gui.cft.home_label.occupied",
-                        xoonglin.getCustomName().getString()).getString();
+                return Component.translatable("gui.cft.home_label.occupied", xoonglin.getCustomName());
             }
         }
 
-        return translatedName + " (" + structure.getUserIds().size() + "/" + structure.getMaxUsers() + ")";
+        return Component.translatable("gui.cft.structure_label", LangUtil.structureName(structure.getStructureTypeId()),
+                structure.getUserIds().size(), structure.getMaxUsers());
     }
 
     private static boolean isOccupiedSingleUserHouse(Structure structure) {

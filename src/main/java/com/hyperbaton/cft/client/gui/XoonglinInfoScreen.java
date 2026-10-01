@@ -2,6 +2,7 @@ package com.hyperbaton.cft.client.gui;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.network.*;
+import com.hyperbaton.cft.util.LangUtil;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import net.minecraft.ChatFormatting;
@@ -201,8 +202,7 @@ public class XoonglinInfoScreen extends Screen {
             List<ResourceLocation> availableJobs = packet.getAvailableJobs();
             boolean canSwitch = availableJobs.size() > 1;
 
-            String jobTranslationKey = "job." + packet.getJobId().getNamespace() + "." + packet.getJobId().getPath();
-            Component jobName = Component.translatable(jobTranslationKey).withStyle(ChatFormatting.BOLD);
+            Component jobName = LangUtil.jobName(packet.getJobId()).withStyle(ChatFormatting.BOLD);
 
             if (canSwitch) {
                 int arrowLeftX = x + MARGIN_PIXELS;
@@ -360,12 +360,11 @@ public class XoonglinInfoScreen extends Screen {
     }
 
     private void renderSocialClassAndJob(GuiGraphics graphics, int x, int y) {
-        String socialClass = Component.translatable(packet.getSocialClass().toString()).getString();
+        String socialClass = LangUtil.socialClassName(packet.getSocialClass()).getString();
         graphics.drawString(this.font, socialClass, x + MARGIN_PIXELS, y, 0x404040, false);
 
         if (packet.getJobId() != null) {
-            String jobTranslationKey = "job." + packet.getJobId().getNamespace() + "." + packet.getJobId().getPath();
-            String jobName = Component.translatable(jobTranslationKey).getString();
+            String jobName = LangUtil.jobName(packet.getJobId()).getString();
             int jobNameWidth = this.font.width(jobName);
             int jobNameRightX = x + imageWidth - MARGIN_PIXELS - jobNameWidth;
             graphics.drawString(this.font, jobName, jobNameRightX, y, 0x206020, false);
@@ -389,7 +388,7 @@ public class XoonglinInfoScreen extends Screen {
                 textX += ICON_SIZE + 2;
             }
 
-            String needLabel = Component.translatable(need.getKey().toString()).getString();
+            String needLabel = LangUtil.needName(need.getKey()).getString();
             graphics.drawString(this.font, needLabel, textX, barY, 0x404040, false);
 
             int barX = x + imageWidth - MARGIN_PIXELS - barWidth;

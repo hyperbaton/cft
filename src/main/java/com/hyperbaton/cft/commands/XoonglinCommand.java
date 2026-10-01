@@ -5,6 +5,7 @@ import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.spawner.XoonglinSpawner;
 import com.hyperbaton.cft.socialclass.SocialClass;
+import com.hyperbaton.cft.util.LangUtil;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -95,7 +96,7 @@ public class XoonglinCommand {
                 MobSpawnType.COMMAND, null);
         if (!level.tryAddFreshEntityWithPassengers(xoonglin)) throw FAILED.create();
 
-        Component className = Component.translatable(CftRegistry.getSocialClassId(socialClass).toString());
+        Component className = LangUtil.socialClassName(CftRegistry.getSocialClassId(socialClass));
         source.sendSuccess(() -> Component.translatable("commands.cft.xoonglin.summon.success",
                 xoonglin.getDisplayName(), className, leaderPlayer.getDisplayName()), true);
         return 1;

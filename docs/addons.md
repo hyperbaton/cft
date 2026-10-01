@@ -12,7 +12,7 @@ your `neoforge.mods.toml` and add the CFT jar to your build's dependencies.
 ## How it fits together
 
 - **Data**: social classes, needs, jobs and structure types are datapack registries. Their files
-  go in `data/<namespace>/cft/socialclass/`, `.../cft/need/`, `.../cft/job/` and
+  go in `data/<namespace>/cft/social_class/`, `.../cft/need/`, `.../cft/job/` and
   `.../cft/structure/`, and each file's id comes from its name, as with any datapack registry:
   `data/myaddon/cft/need/campfire_need.json` is `myaddon:campfire_need`. A social class lists the
   needs and jobs of its Xoonglins by id.
@@ -365,10 +365,14 @@ the same time, avoid two of them steering the Xoonglin's navigation at once.
 
 | Text | Lang key |
 |---|---|
-| A need's name | the need's id, e.g. `myaddon:campfire_need` |
+| A social class's name | `social_class.<namespace>.<path>` of its id, e.g. `social_class.myaddon.monk` |
+| A need's name | `need.<namespace>.<path>` of its id, e.g. `need.myaddon.campfire_need` |
 | A need's description, in its tooltip | `need.<namespace>.<path>.tooltip` of the need's id |
 | A job's name | `job.<namespace>.<path>` of the job file's id, e.g. `job.myaddon.beekeeper_job` |
-| A structure type's name | the structure type's id |
+| A structure type's name | `structure.<namespace>.<path>` of its id, e.g. `structure.myaddon.apiary` |
+
+To show one of these names, use `LangUtil` (`needName`, `socialClassName`, `jobName`,
+`structureName`) rather than building the key yourself.
 | A work step | the key of its `WorkStep` (`gui.cft.work_step.<name>` with `WorkStep.of(name)`) |
 | An errand | `errand.<namespace>.<path>` of its id |
 | A job status | the key of its `JobStatus` |

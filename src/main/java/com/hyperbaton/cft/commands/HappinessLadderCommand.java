@@ -29,7 +29,7 @@ public class HappinessLadderCommand {
     }
 
     private Component formatLadder(Map<Component, Integer> happinessPerPlayer) {
-        MutableComponent formattedladder = Component.translatable("cft.happinessladder.header")
+        MutableComponent formattedladder = Component.translatable("commands.cft.happiness_ladder.header")
                 .append(Component.literal("\n"));
         happinessPerPlayer.forEach((key, value) -> formattedladder.append(key)
                 .append(Component.literal("   "))

@@ -2,6 +2,7 @@ package com.hyperbaton.cft.client.gui.socialclass;
 
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
+import com.hyperbaton.cft.util.LangUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -69,7 +70,7 @@ public class GraphLayoutEngine {
         Map<ResourceLocation, String> displayNames = new HashMap<>();
         Map<ResourceLocation, Integer> nodeWidths = new HashMap<>();
         for (ResourceLocation id : classById.keySet()) {
-            String name = Component.translatable(id.toString()).getString();
+            String name = LangUtil.socialClassName(id).getString();
             displayNames.put(id, name);
             nodeWidths.put(id, font.width(name) + NODE_PADDING_X * 2);
         }

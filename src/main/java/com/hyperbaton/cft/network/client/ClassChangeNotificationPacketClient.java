@@ -4,6 +4,7 @@ import com.hyperbaton.cft.CftClientConfig;
 import com.hyperbaton.cft.CftClientConfig.NotificationMode;
 import com.hyperbaton.cft.client.gui.ClassChangeToast;
 import com.hyperbaton.cft.network.ClassChangeNotificationPacket;
+import com.hyperbaton.cft.util.LangUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -22,8 +23,8 @@ public class ClassChangeNotificationPacketClient {
             String key = packet.upgrade() ? "chat.cft.class_upgrade" : "chat.cft.class_downgrade";
             minecraft.player.displayClientMessage(
                     Component.translatable(key, packet.xoonglinName(),
-                                    Component.translatable(packet.fromClass().toString()),
-                                    Component.translatable(packet.toClass().toString()))
+                                    LangUtil.socialClassName(packet.fromClass()),
+                                    LangUtil.socialClassName(packet.toClass()))
                             .withStyle(packet.upgrade() ? ChatFormatting.GREEN : ChatFormatting.RED),
                     false);
         }

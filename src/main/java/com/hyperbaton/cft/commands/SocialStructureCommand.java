@@ -3,6 +3,7 @@ package com.hyperbaton.cft.commands;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialStructureHelper;
+import com.hyperbaton.cft.util.LangUtil;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.ChatFormatting;
@@ -33,13 +34,13 @@ public class SocialStructureCommand {
 
     private Component formatSocialStructure(Map<SocialClass, Integer> socialStructure) {
         int population = socialStructure.values().stream().reduce(0, Integer::sum);
-        MutableComponent formattedSocialStructure = Component.translatable("cft.socialstructure.message")
+        MutableComponent formattedSocialStructure = Component.translatable("commands.cft.social_structure.header")
                 .withStyle(ChatFormatting.BLUE)
                 .append(Component.literal("\n"))
-                .append(Component.translatable("cft.socialstructure.population").withStyle(ChatFormatting.YELLOW))
+                .append(Component.translatable("commands.cft.social_structure.population").withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(String.valueOf(population)).withStyle(ChatFormatting.DARK_AQUA))
                 .append(Component.literal("\n"));
-        socialStructure.forEach((key, value) -> formattedSocialStructure.append(Component.translatable(CftRegistry.getSocialClassId(key).toString())
+        socialStructure.forEach((key, value) -> formattedSocialStructure.append(LangUtil.socialClassName(CftRegistry.getSocialClassId(key))
                         .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal("    "))
                 .append(Component.literal(value.toString()).withStyle(ChatFormatting.DARK_AQUA))

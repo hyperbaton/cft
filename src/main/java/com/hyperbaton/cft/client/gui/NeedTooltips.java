@@ -2,6 +2,7 @@ package com.hyperbaton.cft.client.gui;
 
 import com.hyperbaton.cft.event.CftDatapackRegistryEvents;
 import com.hyperbaton.cft.need.Need;
+import com.hyperbaton.cft.util.LangUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -24,9 +25,9 @@ public class NeedTooltips {
 
     public static List<FormattedCharSequence> build(Font font, ResourceLocation needId, @Nullable String extraTooltip) {
         List<FormattedCharSequence> lines = new ArrayList<>();
-        lines.add(Component.translatable(needId.toString()).withStyle(ChatFormatting.YELLOW).getVisualOrderText());
+        lines.add(LangUtil.needName(needId).withStyle(ChatFormatting.YELLOW).getVisualOrderText());
 
-        String descriptionKey = descriptionKey(needId);
+        String descriptionKey = LangUtil.needDescriptionKey(needId);
         if (I18n.exists(descriptionKey)) {
             lines.addAll(font.split(Component.translatable(descriptionKey).withStyle(ChatFormatting.GRAY), MAX_WIDTH));
         }
@@ -48,10 +49,6 @@ public class NeedTooltips {
             lines.addAll(font.split(Component.literal(extraTooltip).withStyle(ChatFormatting.AQUA), MAX_WIDTH));
         }
         return lines;
-    }
-
-    private static String descriptionKey(ResourceLocation needId) {
-        return "need." + needId.getNamespace() + "." + needId.getPath() + ".tooltip";
     }
 
     @Nullable

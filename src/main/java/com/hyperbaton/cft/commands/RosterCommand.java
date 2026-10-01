@@ -26,7 +26,7 @@ public class RosterCommand {
     }
 
     private Component formatRoster(ServerLevel level, RostersData rosters) {
-        MutableComponent formatted = Component.translatable("cft.roster.header")
+        MutableComponent formatted = Component.translatable("commands.cft.roster.header")
                 .append(Component.literal("\n"));
         for (ServerPlayer player : level.players()) {
             List<BookEntry> entries = rosters.findByLeader(player.getUUID());

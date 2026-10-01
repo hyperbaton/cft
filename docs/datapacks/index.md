@@ -24,12 +24,28 @@ recipes or loot tables: `data/<namespace>/cft/<folder>/<name>.json` has the id
 
 | Kind | Folder |
 |---|---|
-| Social classes | `data/<namespace>/cft/socialclass/` |
+| Social classes | `data/<namespace>/cft/social_class/` |
 | Needs | `data/<namespace>/cft/need/` |
 | Jobs | `data/<namespace>/cft/job/` |
 | Structures | `data/<namespace>/cft/structure/` |
 
 Subfolders are part of the id: `data/cft/cft/need/food/bread.json` is `cft:food/bread`.
+
+### Names
+
+Social classes, needs, jobs and structures are shown by name, translated like vanilla content.
+Their lang key is the folder, the namespace and the path of the id, joined by dots; slashes in
+the path become dots too. Add the names to your resource pack's lang file:
+
+| Kind | Lang key | Example |
+|---|---|---|
+| Social class | `social_class.<namespace>.<path>` | `social_class.cft.citizen` |
+| Need | `need.<namespace>.<path>` | `need.cft.music_need` |
+| Need description, in its tooltip | `need.<namespace>.<path>.tooltip` | `need.cft.music_need.tooltip` |
+| Job | `job.<namespace>.<path>` | `job.cft.baker_job` |
+| Structure | `structure.<namespace>.<path>` | `structure.cft.smithy` |
+
+So `cft:food/bread` is named by `need.cft.food.bread`.
 
 ## Game content
 

@@ -8,7 +8,7 @@ proportions between classes that each class asks for. This way, a player's popul
 a few settlers into a society whose higher classes need more, and finer, things. In game, press
 `V` to see the classes of the loaded datapacks as a graph.
 
-Each class is a file in `data/<namespace>/cft/socialclass/`.
+Each class is a file in `data/<namespace>/cft/social_class/`.
 
 ??? example "Sample social class file"
 

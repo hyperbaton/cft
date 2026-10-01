@@ -27,7 +27,7 @@ public class PopulationLadderCommand {
     }
 
     private Component formatLadder(Map<Component, Integer> populationPerPlayer) {
-        MutableComponent formattedladder = Component.translatable("cft.populationladder.header")
+        MutableComponent formattedladder = Component.translatable("commands.cft.population_ladder.header")
                 .append(Component.literal("\n"));
         populationPerPlayer.forEach((key, value) -> formattedladder.append(key)
                 .append(Component.literal("   "))

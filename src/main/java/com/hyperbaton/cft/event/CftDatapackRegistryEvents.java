@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 public class CftDatapackRegistryEvents {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final ResourceKey<Registry<Need>> NEED_KEY = CftDatapackRegistryEvents.createRegistryKey("need");
-    public static final ResourceKey<Registry<SocialClass>> SOCIAL_CLASS_KEY = CftDatapackRegistryEvents.createRegistryKey("socialclass");
+    public static final ResourceKey<Registry<SocialClass>> SOCIAL_CLASS_KEY = CftDatapackRegistryEvents.createRegistryKey("social_class");
     public static final ResourceKey<Registry<Job>> JOB_KEY = CftDatapackRegistryEvents.createRegistryKey("job");
     public static final ResourceKey<Registry<StructureType>> STRUCTURE_TYPE_KEY = CftDatapackRegistryEvents.createRegistryKey("structure");
     public static final ResourceKey<Registry<Codec<? extends Need>>> NEED_CODEC_KEY = CftDatapackRegistryEvents.createRegistryKey("need_serializer");

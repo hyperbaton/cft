@@ -4,6 +4,7 @@ import com.hyperbaton.cft.client.gui.NeedTooltips;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.socialclass.CensusStats;
 import com.hyperbaton.cft.socialclass.SocialClass;
+import com.hyperbaton.cft.util.LangUtil;
 import com.hyperbaton.cft.world.PopulationSnapshot;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -182,14 +183,14 @@ public class CensusPanel {
         if (latest != null) classIds.addAll(latest.classCounts().keySet());
         List<ResourceLocation> sorted = new ArrayList<>(classIds);
         sorted.sort(Comparator.comparingInt((ResourceLocation id) -> stats.population().getOrDefault(id, 0)).reversed()
-                .thenComparing(id -> Component.translatable(id.toString()).getString()));
+                .thenComparing(id -> LangUtil.socialClassName(id).getString()));
 
         int barX = tableX + tableWidth - HAPPINESS_BAR_WIDTH;
         int countRightX = barX - 38;
         int deltaX = barX - 32;
         for (ResourceLocation classId : sorted) {
             int count = stats.population().getOrDefault(classId, 0);
-            String name = font.plainSubstrByWidth(Component.translatable(classId.toString()).getString(), countRightX - tableX - 18);
+            String name = font.plainSubstrByWidth(LangUtil.socialClassName(classId).getString(), countRightX - tableX - 18);
             graphics.drawString(font, name, tableX, drawY, count > 0 ? VALUE_COLOR : MUTED_COLOR, false);
 
             String countText = String.valueOf(count);
@@ -261,7 +262,7 @@ public class CensusPanel {
         int criticalX = rightX - font.width(critical);
         int unsatisfiedX = criticalX - (critical.isEmpty() ? 0 : 6) - font.width(unsatisfied);
 
-        String name = font.plainSubstrByWidth(Component.translatable(issue.needId().toString()).getString(), unsatisfiedX - textX - 4);
+        String name = font.plainSubstrByWidth(LangUtil.needName(issue.needId()).getString(), unsatisfiedX - textX - 4);
         graphics.drawString(font, name, textX, drawY + 4, VALUE_COLOR, false);
         graphics.drawString(font, unsatisfied, unsatisfiedX, drawY + 4, WARNING_COLOR, false);
         if (!critical.isEmpty()) {
@@ -283,7 +284,7 @@ public class CensusPanel {
             boolean noJob = job.getKey().equals(CensusStats.NO_JOB);
             String name = noJob
                     ? Component.translatable("gui.cft.census.no_job").getString()
-                    : Component.translatable(jobTranslationKey(job.getKey())).getString();
+                    : LangUtil.jobName(ResourceLocation.parse(job.getKey())).getString();
             String count = String.valueOf(job.getValue());
             name = font.plainSubstrByWidth(name, rowWidth - font.width(count) - 8);
             graphics.drawString(font, name, rowX, drawY, noJob ? MUTED_COLOR : VALUE_COLOR, false);
@@ -330,10 +331,5 @@ public class CensusPanel {
 
     private Need findNeed(ResourceLocation needId) {
         return needRegistry.get(needId);
-    }
-
-    private static String jobTranslationKey(String jobId) {
-        ResourceLocation id = ResourceLocation.tryParse(jobId);
-        return id == null ? jobId : "job." + id.getNamespace() + "." + id.getPath();
     }
 }

@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.client.gui;
 
 import com.hyperbaton.cft.network.NeedSatisfactionData;
+import com.hyperbaton.cft.util.LangUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -62,7 +63,7 @@ class NeedsScrollPanel extends ScrollPanel {
                     textX += ICON_SIZE + 2;
                 }
 
-                String needLabel = Component.translatable(need.getKey().toString()).getString();
+                String needLabel = LangUtil.needName(need.getKey()).getString();
                 graphics.drawString(this.font, needLabel, textX, adjustedY, 0x404040, false);
 
                 int barX = left + width - barWidth - 2 * SIDE_MARGIN;

@@ -2,6 +2,7 @@ package com.hyperbaton.cft.compat.jade;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.util.LangUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -68,13 +69,13 @@ public enum XoonglinJadeProvider implements IEntityComponentProvider, IServerDat
         if (!(accessor.getEntity() instanceof XoonglinEntity xoonglin)) return;
         CompoundTag data = accessor.getServerData();
 
-        Component classLine = Component.translatable(xoonglin.getEntityData().get(XoonglinEntity.SOCIAL_CLASS_NAME))
+        Component classLine = LangUtil.socialClassName(ResourceLocation.parse(xoonglin.getEntityData().get(XoonglinEntity.SOCIAL_CLASS_NAME)))
                 .withStyle(ChatFormatting.AQUA);
         if (data.contains(KEY_JOB)) {
             ResourceLocation jobId = ResourceLocation.parse(data.getString(KEY_JOB));
             classLine = classLine.copy()
                     .append(Component.literal(" · ").withStyle(ChatFormatting.GRAY))
-                    .append(Component.translatable("job." + jobId.getNamespace() + "." + jobId.getPath())
+                    .append(LangUtil.jobName(jobId)
                             .withStyle(ChatFormatting.GREEN));
         }
         tooltip.add(classLine);

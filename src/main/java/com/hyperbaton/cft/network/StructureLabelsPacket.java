@@ -2,50 +2,35 @@ package com.hyperbaton.cft.network;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.client.render.StructureLabelRenderer;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public record StructureLabelsPacket(List<Entry> entries) implements CustomPacketPayload {
 
-    public record Entry(BlockPos pos, String label) {}
+    /** A label shown above a structure's key block. */
+    public record Entry(BlockPos pos, Component label) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, Entry> STREAM_CODEC = StreamCodec.composite(
+                BlockPos.STREAM_CODEC, Entry::pos,
+                ComponentSerialization.STREAM_CODEC, Entry::label,
+                Entry::new
+        );
+    }
 
     public static final Type<StructureLabelsPacket> TYPE =
             new Type<>(ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "structure_labels"));
 
-    public static final StreamCodec<ByteBuf, StructureLabelsPacket> STREAM_CODEC = new StreamCodec<>() {
-        @Override
-        public StructureLabelsPacket decode(ByteBuf buf) {
-            int size = ByteBufCodecs.VAR_INT.decode(buf);
-            List<Entry> entries = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
-                int x = buf.readInt();
-                int y = buf.readInt();
-                int z = buf.readInt();
-                String label = ByteBufCodecs.STRING_UTF8.decode(buf);
-                entries.add(new Entry(new BlockPos(x, y, z), label));
-            }
-            return new StructureLabelsPacket(entries);
-        }
-
-        @Override
-        public void encode(ByteBuf buf, StructureLabelsPacket packet) {
-            ByteBufCodecs.VAR_INT.encode(buf, packet.entries.size());
-            for (Entry entry : packet.entries) {
-                buf.writeInt(entry.pos.getX());
-                buf.writeInt(entry.pos.getY());
-                buf.writeInt(entry.pos.getZ());
-                ByteBufCodecs.STRING_UTF8.encode(buf, entry.label);
-            }
-        }
-    };
+    // Labels are components, so each player reads them in their own language
+    public static final StreamCodec<RegistryFriendlyByteBuf, StructureLabelsPacket> STREAM_CODEC =
+            Entry.STREAM_CODEC.apply(ByteBufCodecs.list()).map(StructureLabelsPacket::new, StructureLabelsPacket::entries);
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

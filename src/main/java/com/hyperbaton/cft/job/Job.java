@@ -6,6 +6,7 @@ import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.entity.ai.schedule.ScheduleDefinition;
+import com.hyperbaton.cft.util.LangUtil;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -128,7 +129,7 @@ public abstract class Job {
     }
 
     private static Component unsatisfiedNeedReason(ResourceLocation needId) {
-        return Component.translatable("gui.cft.job_detail.unsatisfied_need", Component.translatable(needId.toString()));
+        return Component.translatable("gui.cft.job_detail.unsatisfied_need", LangUtil.needName(needId));
     }
 
     /** {@link JobStatus#CANT_WORK}, saying why. */
@@ -141,7 +142,7 @@ public abstract class Job {
         ResourceLocation structureType = getRequiredStructureType();
         return structureType == null ? JobStatus.NO_STRUCTURE
                 : JobStatus.NO_STRUCTURE.withDetail(Component.translatable("gui.cft.job_detail.needs_structure",
-                        Component.translatable(structureType.toString())));
+                        LangUtil.structureName(structureType)));
     }
 
     public Optional<ScheduleDefinition> getSchedule() {
