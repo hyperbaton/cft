@@ -4,23 +4,23 @@
   "max_users": 0,
   "requires_container": false,
   "priority": 0,
-  "surfaceBlocks": [
+  "surface_blocks": [
     {
       "block": "#minecraft:stone_bricks",
-      "minQuantity": 25,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 25,
+      "max_quantity": 500,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     },
     {
       "block": "minecraft:polished_andesite",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 0,
+      "max_quantity": 500,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     }
   ],
-  "requiredStructures": [
+  "required_structures": [
     {
       "structure_type": "cft:settler_house",
       "min": 3,

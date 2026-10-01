@@ -42,11 +42,11 @@ Block rules are specified using `ValidBlock` objects with these fields:
 
 - `block`: The blocks the rule is about: a block (e.g. `"minecraft:stone_bricks"`), a block
   tag (e.g. `"#minecraft:planks"`) or a list of them (see [Game content](index.md#game-content)).
-- `minQuantity`: At least this many blocks of this type must be present.
-- `maxQuantity`: No more than this many blocks of this type can be present.
-- `minPercentage`: This part of the structure must have at least this percentage of
+- `min_quantity`: At least this many blocks of this type must be present.
+- `max_quantity`: No more than this many blocks of this type can be present.
+- `min_percentage`: This part of the structure must have at least this percentage of
   blocks of this type. Always in [0,1].
-- `maxPercentage`: This part of the structure can't have more than this percentage of
+- `max_percentage`: This part of the structure can't have more than this percentage of
   blocks of this type. Always in [0,1].
 
 ### Lighting
@@ -78,7 +78,7 @@ upwards and must all be of the same height. The roof must be built resting on th
 and covering the full surface of the house.
 
 Houses that need to store supplies for their Xoonglin should declare `"requires_container": true`
-and include the container block (e.g. a chest) in the `interiorBlocks` list.
+and include the container block (e.g. a chest) in the `interior_blocks` list.
 
 ??? example "Sample house structure file"
 
@@ -89,71 +89,71 @@ and include the container block (e.g. a chest) in the `interiorBlocks` list.
       "max_users": 1,
       "requires_container": true,
       "priority": 0,
-      "floorBlocks": [
+      "floor_blocks": [
         {
           "block": "#minecraft:planks",
-          "minQuantity": 9,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 9,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "wallBlocks": [
+      "wall_blocks": [
         {
           "block": "#minecraft:logs",
-          "minQuantity": 14,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 14,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "#minecraft:planks",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "#minecraft:doors",
-          "minQuantity": 1,
-          "maxQuantity": 2,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 1,
+          "max_quantity": 2,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "interiorBlocks": [
+      "interior_blocks": [
         {
           "block": "minecraft:air",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "minecraft:chest",
-          "minQuantity": 1,
-          "maxQuantity": 1,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 1,
+          "max_quantity": 1,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "roofBlocks": [
+      "roof_blocks": [
         {
           "block": "#minecraft:wooden_stairs",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ]
     }
     ```
 
-    - `floorBlocks`: A list of valid block rules for the floor.
-    - `wallBlocks`: A list of valid block rules for the walls. Doors should be included here.
-    - `interiorBlocks`: A list of valid block rules for the interior. Air should always be present.
+    - `floor_blocks`: A list of valid block rules for the floor.
+    - `wall_blocks`: A list of valid block rules for the walls. Doors should be included here.
+    - `interior_blocks`: A list of valid block rules for the interior. Air should always be present.
       Include the container block (e.g. chest) if the house requires one.
-    - `roofBlocks`: A list of valid block rules for the roof.
+    - `roof_blocks`: A list of valid block rules for the roof.
     - `lighting`: _(Optional)_ How well lit the inside must be (see [Lighting](#lighting)).
 
 ## Enclosed Building
@@ -170,61 +170,61 @@ are not homes. They are used as workplaces or other facilities (e.g. a smithy).
       "max_users": 2,
       "requires_container": true,
       "priority": 0,
-      "floorBlocks": [
+      "floor_blocks": [
         {
           "block": "#minecraft:stone_bricks",
-          "minQuantity": 4,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 4,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "wallBlocks": [
+      "wall_blocks": [
         {
           "block": "#minecraft:stone_bricks",
-          "minQuantity": 4,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 4,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "minecraft:oak_door",
-          "minQuantity": 1,
-          "maxQuantity": 2,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 1,
+          "max_quantity": 2,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "interiorBlocks": [
+      "interior_blocks": [
         {
           "block": "minecraft:air",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "minecraft:chest",
-          "minQuantity": 1,
-          "maxQuantity": 1,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 1,
+          "max_quantity": 1,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "minecraft:anvil",
-          "minQuantity": 1,
-          "maxQuantity": 1,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 1,
+          "max_quantity": 1,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "roofBlocks": [
+      "roof_blocks": [
         {
           "block": "minecraft:oak_planks",
-          "minQuantity": 4,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 4,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ]
     }
@@ -249,76 +249,76 @@ ground perimeter, and a surface.
       "requires_container": false,
       "priority": 0,
       "wall_height": 1,
-      "borderBlocks": [
+      "border_blocks": [
         {
           "block": "#minecraft:fences",
-          "minQuantity": 4,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 4,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "#minecraft:fence_gates",
-          "minQuantity": 1,
-          "maxQuantity": 1,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 1,
+          "max_quantity": 1,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "minecraft:chest",
-          "minQuantity": 1,
-          "maxQuantity": 1,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 1,
+          "max_quantity": 1,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "groundPerimeterBlocks": [
+      "ground_perimeter_blocks": [
         {
           "block": "#minecraft:dirt",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "minecraft:grass_block",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "surfaceBlocks": [
+      "surface_blocks": [
         {
           "block": "minecraft:farmland",
-          "minQuantity": 4,
-          "maxQuantity": 500,
-          "minPercentage": 0.5,
-          "maxPercentage": 1.0
+          "min_quantity": 4,
+          "max_quantity": 500,
+          "min_percentage": 0.5,
+          "max_percentage": 1.0
         },
         {
           "block": "minecraft:water",
-          "minQuantity": 1,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 0.25
+          "min_quantity": 1,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 0.25
         },
         {
           "block": "#minecraft:dirt",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 0.25
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 0.25
         }
       ]
     }
     ```
 
     - `wall_height`: _(Optional, default: 1)_ Height of the border/wall around the platform.
-    - `borderBlocks`: A list of valid block rules for the border surrounding the platform
+    - `border_blocks`: A list of valid block rules for the border surrounding the platform
       (e.g. fences, fence gates).
-    - `groundPerimeterBlocks`: A list of valid block rules for the ground below the border.
-    - `surfaceBlocks`: A list of valid block rules for the interior surface of the platform
+    - `ground_perimeter_blocks`: A list of valid block rules for the ground below the border.
+    - `surface_blocks`: A list of valid block rules for the interior surface of the platform
       (e.g. farmland, water).
 
 ## Pasture
@@ -339,31 +339,31 @@ so a pen that's since wandered empty is unregistered rather than staying claimed
       "requires_container": false,
       "priority": 0,
       "wall_height": 1,
-      "borderBlocks": [
+      "border_blocks": [
         {
           "block": "#minecraft:fences",
-          "minQuantity": 4,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 4,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "groundPerimeterBlocks": [
+      "ground_perimeter_blocks": [
         {
           "block": "minecraft:grass_block",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "surfaceBlocks": [
+      "surface_blocks": [
         {
           "block": "minecraft:grass_block",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
       "eligible_mobs": [
@@ -375,7 +375,7 @@ so a pen that's since wandered empty is unregistered rather than staying claimed
     }
     ```
 
-    - `wall_height`, `borderBlocks`, `groundPerimeterBlocks`, `surfaceBlocks`: Same as open air
+    - `wall_height`, `border_blocks`, `ground_perimeter_blocks`, `surface_blocks`: Same as open air
       platform.
     - `eligible_mobs`: The animals that count toward the pasture's occupancy: entity types
       (e.g. `"minecraft:cow"`), entity type tags (e.g. `"#minecraft:skeletons"`) or a list of
@@ -402,24 +402,24 @@ at different height ranges.
       "priority": 0,
       "min_height": 5,
       "max_height": 15,
-      "layerRules": [
+      "layer_rules": [
         {
           "from": 0,
           "to": 0,
           "blocks": [
             {
               "block": "minecraft:chiseled_quartz_block",
-              "minQuantity": 1,
-              "maxQuantity": 1,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 1,
+              "max_quantity": 1,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             },
             {
               "block": "minecraft:quartz_block",
-              "minQuantity": 0,
-              "maxQuantity": 8,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 0,
+              "max_quantity": 8,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ]
         },
@@ -429,15 +429,15 @@ at different height ranges.
           "blocks": [
             {
               "block": "minecraft:quartz_block",
-              "minQuantity": 1,
-              "maxQuantity": 9,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 1,
+              "max_quantity": 9,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ]
         }
       ],
-      "identicalLayerGroups": [
+      "identical_layer_groups": [
         {
           "from": 1,
           "to": 14
@@ -448,12 +448,12 @@ at different height ranges.
 
     - `min_height`: Minimum height of the monument in blocks.
     - `max_height`: Maximum height of the monument in blocks.
-    - `layerRules`: A list of rules, each applying to a range of layers (from bottom to top).
+    - `layer_rules`: A list of rules, each applying to a range of layers (from bottom to top).
       Layer 0 is the base.
         - `from`: First layer index this rule applies to (inclusive).
         - `to`: Last layer index this rule applies to (inclusive).
         - `blocks`: A list of valid block rules for layers in this range.
-    - `identicalLayerGroups`: _(Optional)_ Groups of layers that must be identical to each other.
+    - `identical_layer_groups`: _(Optional)_ Groups of layers that must be identical to each other.
         - `from`: First layer index of the group (inclusive).
         - `to`: Last layer index of the group (inclusive).
 
@@ -467,8 +467,8 @@ storey or range of storeys, similar to how monument layer rules work.
 Two consecutive storeys can be connected in either of two ways, tried in this order:
 
 - **Shared layer**: the ceiling of the lower storey is at the same time the floor of the
-  upper one. That layer must satisfy both the lower storey's `roofBlocks` rules and the
-  upper storey's `floorBlocks` rules.
+  upper one. That layer must satisfy both the lower storey's `roof_blocks` rules and the
+  upper storey's `floor_blocks` rules.
 - **Separate layers**: the floor of the upper storey sits exactly one block above the
   ceiling of the lower one, forming a two-block-thick separation.
 
@@ -479,8 +479,8 @@ one no longer fits; the building is valid if at least `min_storeys` are found.
 
 Xoonglins need a way to move between storeys, and holes in a ceiling are controlled
 through the block rules: list the connection blocks (ladders, or air above stairs) in the
-lower storey's `roofBlocks` — and, when the layer is shared, in the upper storey's
-`floorBlocks` too. Using `minQuantity` and `maxQuantity` you can require a connection to
+lower storey's `roof_blocks` — and, when the layer is shared, in the upper storey's
+`floor_blocks` too. Using `min_quantity` and `max_quantity` you can require a connection to
 exist and limit how large the opening can be. The mod ships two examples:
 `two_storey_house.json` (ladder connection) and `two_storey_stairs_house.json` (stairs
 below an air opening).
@@ -496,126 +496,126 @@ below an air opening).
       "priority": 10,
       "min_storeys": 2,
       "max_storeys": 2,
-      "storeyRules": [
+      "storey_rules": [
         {
           "from": 1,
           "to": 1,
-          "floorBlocks": [
+          "floor_blocks": [
             {
               "block": "#minecraft:planks",
-              "minQuantity": 4,
-              "maxQuantity": 500,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 4,
+              "max_quantity": 500,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ],
-          "wallBlocks": [
+          "wall_blocks": [
             {
               "block": "#minecraft:logs",
-              "minQuantity": 4,
-              "maxQuantity": 500,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 4,
+              "max_quantity": 500,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             },
             {
               "block": "minecraft:oak_door",
-              "minQuantity": 1,
-              "maxQuantity": 2,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 1,
+              "max_quantity": 2,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ],
-          "interiorBlocks": [
+          "interior_blocks": [
             {
               "block": "minecraft:air",
-              "minQuantity": 0,
-              "maxQuantity": 500,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 0,
+              "max_quantity": 500,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             },
             {
               "block": "minecraft:ladder",
-              "minQuantity": 1,
-              "maxQuantity": 10,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 1,
+              "max_quantity": 10,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             },
             {
               "block": "minecraft:chest",
-              "minQuantity": 1,
-              "maxQuantity": 2,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 1,
+              "max_quantity": 2,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ],
-          "roofBlocks": [
+          "roof_blocks": [
             {
               "block": "#minecraft:planks",
-              "minQuantity": 4,
-              "maxQuantity": 500,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 4,
+              "max_quantity": 500,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             },
             {
               "block": "minecraft:ladder",
-              "minQuantity": 1,
-              "maxQuantity": 1,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 1,
+              "max_quantity": 1,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ]
         },
         {
           "from": 2,
           "to": 2,
-          "floorBlocks": [
+          "floor_blocks": [
             {
               "block": "#minecraft:planks",
-              "minQuantity": 4,
-              "maxQuantity": 500,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 4,
+              "max_quantity": 500,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             },
             {
               "block": "minecraft:ladder",
-              "minQuantity": 0,
-              "maxQuantity": 1,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 0,
+              "max_quantity": 1,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ],
-          "wallBlocks": [
+          "wall_blocks": [
             {
               "block": "#minecraft:logs",
-              "minQuantity": 4,
-              "maxQuantity": 500,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 4,
+              "max_quantity": 500,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ],
-          "interiorBlocks": [
+          "interior_blocks": [
             {
               "block": "minecraft:air",
-              "minQuantity": 0,
-              "maxQuantity": 500,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 0,
+              "max_quantity": 500,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             },
             {
               "block": "minecraft:ladder",
-              "minQuantity": 0,
-              "maxQuantity": 10,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 0,
+              "max_quantity": 10,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ],
-          "roofBlocks": [
+          "roof_blocks": [
             {
               "block": "#minecraft:planks",
-              "minQuantity": 4,
-              "maxQuantity": 500,
-              "minPercentage": 0.0,
-              "maxPercentage": 1.0
+              "min_quantity": 4,
+              "max_quantity": 500,
+              "min_percentage": 0.0,
+              "max_percentage": 1.0
             }
           ]
         }
@@ -625,16 +625,16 @@ below an air opening).
 
     - `min_storeys`: Minimum number of storeys the building must have.
     - `max_storeys`: Maximum number of storeys. Detection never looks beyond this.
-    - `storeyRules`: A list of rules, each applying to a range of storeys (from bottom to
+    - `storey_rules`: A list of rules, each applying to a range of storeys (from bottom to
       top). Storey 1 is the ground storey. Every storey from 1 to `max_storeys` must be
       covered by exactly one rule.
         - `from`: First storey this rule applies to (inclusive).
         - `to`: Last storey this rule applies to (inclusive).
-        - `floorBlocks`: A list of valid block rules for the storey's floor.
-        - `wallBlocks`: A list of valid block rules for the storey's walls. Doors should be
+        - `floor_blocks`: A list of valid block rules for the storey's floor.
+        - `wall_blocks`: A list of valid block rules for the storey's walls. Doors should be
         included in the ground storey's rules.
-        - `interiorBlocks`: A list of valid block rules for the storey's interior.
-        - `roofBlocks`: A list of valid block rules for the storey's roof (ceiling). Include
+        - `interior_blocks`: A list of valid block rules for the storey's interior.
+        - `roof_blocks`: A list of valid block rules for the storey's roof (ceiling). Include
         connection blocks (ladders) or air openings here for storeys that must be reachable
         from below.
     - `lighting`: _(Optional)_ How well lit the inside must be, all storeys together (see
@@ -666,23 +666,23 @@ a second key block on an already detected square will not create a second compou
       "max_users": 0,
       "requires_container": false,
       "priority": 0,
-      "surfaceBlocks": [
+      "surface_blocks": [
         {
           "block": "#minecraft:stone_bricks",
-          "minQuantity": 25,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 25,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         },
         {
           "block": "minecraft:polished_andesite",
-          "minQuantity": 0,
-          "maxQuantity": 500,
-          "minPercentage": 0.0,
-          "maxPercentage": 1.0
+          "min_quantity": 0,
+          "max_quantity": 500,
+          "min_percentage": 0.0,
+          "max_percentage": 1.0
         }
       ],
-      "requiredStructures": [
+      "required_structures": [
         {
           "structure_type": "cft:settler_house",
           "min": 3,
@@ -693,8 +693,8 @@ a second key block on an already detected square will not create a second compou
     }
     ```
 
-    - `surfaceBlocks`: A list of valid block rules for the compound's surface (the paving).
-    - `requiredStructures`: A list of requirements on nearby detected structures. All of them
+    - `surface_blocks`: A list of valid block rules for the compound's surface (the paving).
+    - `required_structures`: A list of requirements on nearby detected structures. All of them
       must be met for the compound to be valid.
         - `structure_type`: A reference to the structure type ID that must exist nearby.
         - `min`: _(Optional, default: 1)_ Minimum number of structures of this type.

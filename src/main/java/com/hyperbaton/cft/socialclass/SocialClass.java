@@ -15,17 +15,17 @@ import java.util.Optional;
 
 public class SocialClass {
     public static final Codec<SocialClass> SOCIAL_CLASS_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.DOUBLE.fieldOf("maxHappiness").forGetter(SocialClass::getMaxHappiness),
-            Codec.DOUBLE.fieldOf("matingHappinessThreshold").forGetter(SocialClass::getMatingHappinessThreshold),
-            Codec.INT.fieldOf("spontaneouslySpawnPopulation").forGetter(SocialClass::getSpontaneouslySpawnPopulation),
+            Codec.DOUBLE.fieldOf("max_happiness").forGetter(SocialClass::getMaxHappiness),
+            Codec.DOUBLE.fieldOf("mating_happiness_threshold").forGetter(SocialClass::getMatingHappinessThreshold),
+            Codec.INT.fieldOf("spontaneously_spawn_population").forGetter(SocialClass::getSpontaneouslySpawnPopulation),
             ResourceLocation.CODEC.listOf().fieldOf("needs").forGetter(SocialClass::getNeeds),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("upgrades").forGetter(SocialClass::getUpgrades),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("downgrades").forGetter(SocialClass::getDowngrades),
             ResourceLocation.CODEC.listOf().optionalFieldOf("jobs", List.of()).forGetter(SocialClass::getJobs),
-            Codec.BOOL.optionalFieldOf("canUpgradeAsBaby", false).forGetter(SocialClass::canUpgradeAsBaby),
-            Codec.BOOL.optionalFieldOf("canDowngradeAsBaby", true).forGetter(SocialClass::canDowngradeAsBaby),
-            Codec.INT.optionalFieldOf("matingDelay", -1).forGetter(SocialClass::getMatingDelay),
-            Codec.DOUBLE.optionalFieldOf("maxHealth", 20.0).forGetter(SocialClass::getMaxHealth),
+            Codec.BOOL.optionalFieldOf("can_upgrade_as_baby", false).forGetter(SocialClass::canUpgradeAsBaby),
+            Codec.BOOL.optionalFieldOf("can_downgrade_as_baby", true).forGetter(SocialClass::canDowngradeAsBaby),
+            Codec.INT.optionalFieldOf("mating_delay", -1).forGetter(SocialClass::getMatingDelay),
+            Codec.DOUBLE.optionalFieldOf("max_health", 20.0).forGetter(SocialClass::getMaxHealth),
             Codec.STRING.listOf().optionalFieldOf("name_samples", List.of()).forGetter(SocialClass::getNameSamples),
             ScheduleDefinition.CODEC.optionalFieldOf("schedule").forGetter(SocialClass::getSchedule)
     ).apply(instance, SocialClass::new));

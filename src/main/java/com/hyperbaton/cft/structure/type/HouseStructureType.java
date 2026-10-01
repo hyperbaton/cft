@@ -20,10 +20,10 @@ public class HouseStructureType extends EnclosedBuildingStructureType {
             Codec.INT.optionalFieldOf("max_users", 1).forGetter(StructureType::getMaxUsers),
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
-            ValidBlock.CODEC.listOf().fieldOf("floorBlocks").forGetter(EnclosedBuildingStructureType::getFloorBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("wallBlocks").forGetter(EnclosedBuildingStructureType::getWallBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("interiorBlocks").forGetter(EnclosedBuildingStructureType::getInteriorBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("roofBlocks").forGetter(EnclosedBuildingStructureType::getRoofBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("floor_blocks").forGetter(EnclosedBuildingStructureType::getFloorBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("wall_blocks").forGetter(EnclosedBuildingStructureType::getWallBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("interior_blocks").forGetter(EnclosedBuildingStructureType::getInteriorBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("roof_blocks").forGetter(EnclosedBuildingStructureType::getRoofBlocks),
             LightingRequirement.CODEC.optionalFieldOf("lighting").forGetter(EnclosedBuildingStructureType::getLighting)
     ).apply(inst, HouseStructureType::new));
 

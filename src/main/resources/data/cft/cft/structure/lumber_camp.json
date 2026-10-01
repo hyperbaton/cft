@@ -5,80 +5,80 @@
   "requires_container": true,
   "priority": 0,
   "wall_height": 1,
-  "borderBlocks": [
+  "border_blocks": [
     {
       "block": "#minecraft:fences",
-      "minQuantity": 4,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 4,
+      "max_quantity": 500,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     },
     {
       "block": "#minecraft:fence_gates",
-      "minQuantity": 0,
-      "maxQuantity": 2,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 0,
+      "max_quantity": 2,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     },
     {
       "block": "minecraft:grindstone",
-      "minQuantity": 1,
-      "maxQuantity": 1,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 1,
+      "max_quantity": 1,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     },
     {
       "block": "minecraft:chest",
-      "minQuantity": 1,
-      "maxQuantity": 2,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 1,
+      "max_quantity": 2,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     },
     {
       "block": "minecraft:barrel",
-      "minQuantity": 0,
-      "maxQuantity": 2,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 0,
+      "max_quantity": 2,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     }
   ],
-  "groundPerimeterBlocks": [
+  "ground_perimeter_blocks": [
     {
       "block": "#minecraft:dirt",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 0,
+      "max_quantity": 500,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     },
     {
       "block": "minecraft:grass_block",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 0,
+      "max_quantity": 500,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     }
   ],
-  "surfaceBlocks": [
+  "surface_blocks": [
     {
       "block": "#minecraft:dirt",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 0,
+      "max_quantity": 500,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     },
     {
       "block": "minecraft:grass_block",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 0,
+      "max_quantity": 500,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     },
     {
       "block": "minecraft:dirt_path",
-      "minQuantity": 0,
-      "maxQuantity": 500,
-      "minPercentage": 0.0,
-      "maxPercentage": 1.0
+      "min_quantity": 0,
+      "max_quantity": 500,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     }
   ]
 }

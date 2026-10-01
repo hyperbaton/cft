@@ -1,8 +1,8 @@
 {
-  "maxHappiness": 750.0,
-  "matingHappinessThreshold": 600.0,
-  "spontaneouslySpawnPopulation": 0,
-  "maxHealth": 40.0,
+  "max_happiness": 750.0,
+  "mating_happiness_threshold": 600.0,
+  "spontaneously_spawn_population": 0,
+  "max_health": 40.0,
   "jobs": ["cft:guard_job","cft:healer_job","cft:enchanter_job"],
   "needs": [
     "cft:flint_need",
@@ -14,15 +14,15 @@
   "upgrades": [],
   "downgrades": [
     {
-      "nextClass": "cft:citizen",
-      "requiredHappiness": 30,
-      "requiredNeeds": [
+      "next_class": "cft:citizen",
+      "required_happiness": 30,
+      "required_needs": [
         {
           "need": "cft:chicken_need",
-          "satisfactionThreshold": 0.30
+          "satisfaction_threshold": 0.30
         }
       ],
-      "socialStructureRequirements": []
+      "social_structure_requirements": []
     }
   ]
 }

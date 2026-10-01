@@ -31,8 +31,8 @@ public class MonumentStructureType extends StructureType {
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
             Codec.INT.fieldOf("min_height").forGetter(MonumentStructureType::getMinHeight),
             Codec.INT.fieldOf("max_height").forGetter(MonumentStructureType::getMaxHeight),
-            LayerRule.CODEC.listOf().fieldOf("layerRules").forGetter(MonumentStructureType::getLayerRules),
-            IdenticalLayerGroup.CODEC.listOf().optionalFieldOf("identicalLayerGroups", List.of()).forGetter(MonumentStructureType::getIdenticalLayerGroups)
+            LayerRule.CODEC.listOf().fieldOf("layer_rules").forGetter(MonumentStructureType::getLayerRules),
+            IdenticalLayerGroup.CODEC.listOf().optionalFieldOf("identical_layer_groups", List.of()).forGetter(MonumentStructureType::getIdenticalLayerGroups)
     ).apply(inst, MonumentStructureType::new));
 
     private final int minHeight;

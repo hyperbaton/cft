@@ -1,7 +1,7 @@
 {
-  "maxHappiness": 4000.0,
-  "matingHappinessThreshold": 800.0,
-  "spontaneouslySpawnPopulation": 0,
+  "max_happiness": 4000.0,
+  "mating_happiness_threshold": 800.0,
+  "spontaneously_spawn_population": 0,
   "jobs": ["cft:writer_job","cft:priest_job"],
   "needs": [
     "cft:gold_nugget_need",
@@ -12,17 +12,17 @@
   ],
   "upgrades": [
     {
-      "nextClass": "cft:noble",
-      "requiredHappiness": 1000,
-      "requiredNeeds": [
+      "next_class": "cft:noble",
+      "required_happiness": 1000,
+      "required_needs": [
         {
           "need": "cft:gold_nugget_need",
-          "satisfactionThreshold": 0.85
+          "satisfaction_threshold": 0.85
         }
       ],
-      "socialStructureRequirements": [
+      "social_structure_requirements": [
         {
-          "socialClass": "cft:patrician",
+          "social_class": "cft:patrician",
           "percentage": 0.06
         }
       ]
@@ -30,15 +30,15 @@
   ],
   "downgrades": [
     {
-      "nextClass": "cft:citizen",
-      "requiredHappiness": 60,
-      "requiredNeeds": [
+      "next_class": "cft:citizen",
+      "required_happiness": 60,
+      "required_needs": [
         {
           "need": "cft:gold_nugget_need",
-          "satisfactionThreshold": 0.40
+          "satisfaction_threshold": 0.40
         }
       ],
-      "socialStructureRequirements": []
+      "social_structure_requirements": []
     }
   ]
 }

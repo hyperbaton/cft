@@ -1,7 +1,7 @@
 {
-  "maxHappiness": 200.0,
-  "matingHappinessThreshold": 40.0,
-  "spontaneouslySpawnPopulation": 0,
+  "max_happiness": 200.0,
+  "mating_happiness_threshold": 40.0,
+  "spontaneously_spawn_population": 0,
   "jobs": ["cft:baker_job","cft:fisher_job","cft:rancher_job","cft:wheat_farmer_job"],
   "needs": [
     "cft:bread_need",
@@ -15,61 +15,61 @@
   ],
   "upgrades": [
     {
-      "nextClass": "cft:patrician",
-      "requiredHappiness": 90,
-      "requiredNeeds": [
+      "next_class": "cft:patrician",
+      "required_happiness": 90,
+      "required_needs": [
         {
           "need": "cft:citizen_book_need",
-          "satisfactionThreshold": 0.85
+          "satisfaction_threshold": 0.85
         }
       ],
-      "socialStructureRequirements": [
+      "social_structure_requirements": [
         {
-          "socialClass": "cft:settler",
+          "social_class": "cft:settler",
           "percentage": 0.30
         },
         {
-          "socialClass": "cft:citizen",
+          "social_class": "cft:citizen",
           "percentage": 0.30
         }
       ]
     },
     {
-      "nextClass": "cft:artisan",
-      "requiredHappiness": 60,
-      "requiredNeeds": [
+      "next_class": "cft:artisan",
+      "required_happiness": 60,
+      "required_needs": [
         {
           "need": "cft:citizen_terracotta_need",
-          "satisfactionThreshold": 0.80
+          "satisfaction_threshold": 0.80
         }
       ],
-      "socialStructureRequirements": [
+      "social_structure_requirements": [
         {
-          "socialClass": "cft:settler",
+          "social_class": "cft:settler",
           "percentage": 0.30
         },
         {
-          "socialClass": "cft:citizen",
+          "social_class": "cft:citizen",
           "percentage": 0.30
         }
       ]
     },
     {
-      "nextClass": "cft:soldier",
-      "requiredHappiness": 45,
-      "requiredNeeds": [
+      "next_class": "cft:soldier",
+      "required_happiness": 45,
+      "required_needs": [
         {
           "need": "cft:citizen_iron_sword_need",
-          "satisfactionThreshold": 0.80
+          "satisfaction_threshold": 0.80
         }
       ],
-      "socialStructureRequirements": [
+      "social_structure_requirements": [
         {
-          "socialClass": "cft:settler",
+          "social_class": "cft:settler",
           "percentage": 0.30
         },
         {
-          "socialClass": "cft:citizen",
+          "social_class": "cft:citizen",
           "percentage": 0.30
         }
       ]
@@ -77,21 +77,21 @@
   ],
   "downgrades": [
     {
-      "nextClass": "cft:settler",
-      "requiredHappiness": 10,
-      "requiredNeeds": [
+      "next_class": "cft:settler",
+      "required_happiness": 10,
+      "required_needs": [
         {
           "need": "cft:bread_need",
-          "satisfactionThreshold": 0.40
+          "satisfaction_threshold": 0.40
         }
       ],
-      "socialStructureRequirements": [
+      "social_structure_requirements": [
         {
-          "socialClass": "cft:settler",
+          "social_class": "cft:settler",
           "percentage": 0.30
         },
         {
-          "socialClass": "cft:settler",
+          "social_class": "cft:settler",
           "percentage": 0.30
         }
       ]

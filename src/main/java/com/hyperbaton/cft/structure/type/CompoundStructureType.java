@@ -29,8 +29,8 @@ public class CompoundStructureType extends StructureType {
             Codec.INT.optionalFieldOf("max_users", 0).forGetter(StructureType::getMaxUsers),
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
-            ValidBlock.CODEC.listOf().fieldOf("surfaceBlocks").forGetter(CompoundStructureType::getSurfaceBlocks),
-            RequiredStructure.CODEC.listOf().fieldOf("requiredStructures").forGetter(CompoundStructureType::getRequiredStructures),
+            ValidBlock.CODEC.listOf().fieldOf("surface_blocks").forGetter(CompoundStructureType::getSurfaceBlocks),
+            RequiredStructure.CODEC.listOf().fieldOf("required_structures").forGetter(CompoundStructureType::getRequiredStructures),
             Codec.BOOL.optionalFieldOf("requires_sky_access", true).forGetter(CompoundStructureType::isRequiresSkyAccess)
     ).apply(inst, CompoundStructureType::new));
 

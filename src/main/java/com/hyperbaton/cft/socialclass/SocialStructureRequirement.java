@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SocialStructureRequirement {
     public static final Codec<SocialStructureRequirement> SOCIAL_STRUCTURE_REQUIREMENT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf("socialClass").forGetter(SocialStructureRequirement::getSocialClass),
+            ResourceLocation.CODEC.fieldOf("social_class").forGetter(SocialStructureRequirement::getSocialClass),
             Codec.DOUBLE.fieldOf("percentage").forGetter(SocialStructureRequirement::getPercentage),
             ResourceLocation.CODEC.listOf().optionalFieldOf("scope", List.of()).forGetter(SocialStructureRequirement::getScope)
     ).apply(instance, SocialStructureRequirement::new));

@@ -29,9 +29,9 @@ public class PastureStructureType extends OpenAirPlatformStructureType {
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
             Codec.INT.optionalFieldOf("wall_height", 1).forGetter(OpenAirPlatformStructureType::getWallHeight),
-            ValidBlock.CODEC.listOf().fieldOf("borderBlocks").forGetter(OpenAirPlatformStructureType::getBorderBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("groundPerimeterBlocks").forGetter(OpenAirPlatformStructureType::getGroundPerimeterBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("surfaceBlocks").forGetter(OpenAirPlatformStructureType::getSurfaceBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("border_blocks").forGetter(OpenAirPlatformStructureType::getBorderBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("ground_perimeter_blocks").forGetter(OpenAirPlatformStructureType::getGroundPerimeterBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("surface_blocks").forGetter(OpenAirPlatformStructureType::getSurfaceBlocks),
             RegistryEntries.codec(Registries.ENTITY_TYPE).fieldOf("eligible_mobs").forGetter(PastureStructureType::getEligibleMobs),
             Codec.INT.optionalFieldOf("min_mob_count", 1).forGetter(PastureStructureType::getMinMobCount),
             Codec.INT.optionalFieldOf("max_mob_count", Integer.MAX_VALUE).forGetter(PastureStructureType::getMaxMobCount)

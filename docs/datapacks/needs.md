@@ -221,14 +221,13 @@ satisfy the need.
       "satisfaction_threshold": 0.8,
       "frequency": 1.0,
       "fluid_stack": {
-        "FluidName": "minecraft:water",
-        "Amount": 1000
+        "id": "minecraft:water",
+        "amount": 1000
       }
     }
     ```
-    Apart from the common fields, this need includes a fluid stack object. Yes, it's in PascalCase because it uses NeoForge
-    parsing method for FluidStack.
-    - `fluid_stack`: A FluidStack object that contains the reference of the fluid and the amount in millibuckets.
+    Apart from the common fields, this need includes a fluid stack object.
+    - `fluid_stack`: A fluid stack, as NeoForge reads it: the fluid's `id` and the `amount` in millibuckets.
 
 ## Energy Need
 
@@ -419,7 +418,7 @@ and remembered, so there's nothing to configure about which title.
 
 The Xoonglin needs to sleep in a bed inside its home, so its home needs a free bed for each
 Xoonglin living there that has this need (a house type can allow or require beds through its
-`interiorBlocks`).
+`interior_blocks`).
 
 While the need is unsatisfied, the Xoonglin will go to bed as soon as it's time to sleep: during
 the rest time of its [schedule](schedules.md) or, if it has no schedule, at night. It then sleeps

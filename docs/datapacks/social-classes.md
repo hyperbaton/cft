@@ -14,9 +14,9 @@ Each class is a file in `data/<namespace>/cft/socialclass/`.
 
     ```json
     {
-      "maxHappiness": 100.0,
-      "matingHappinessThreshold": 5.0,
-      "spontaneouslySpawnPopulation": 3,
+      "max_happiness": 100.0,
+      "mating_happiness_threshold": 5.0,
+      "spontaneously_spawn_population": 3,
       "needs": [
         "cft:settler_home",
         "cft:water_need",
@@ -27,17 +27,17 @@ Each class is a file in `data/<namespace>/cft/socialclass/`.
       "jobs": ["cft:wheat_farmer_job", "cft:gather_flowers_job"],
       "upgrades": [
         {
-          "nextClass": "cft:citizen",
-          "requiredHappiness": 20,
-          "requiredNeeds": [
+          "next_class": "cft:citizen",
+          "required_happiness": 20,
+          "required_needs": [
             {
               "need": "cft:potato_need",
-              "satisfactionThreshold": 0.70
+              "satisfaction_threshold": 0.70
             }
           ],
-          "socialStructureRequirements": [
+          "social_structure_requirements": [
             {
-              "socialClass": "cft:settler",
+              "social_class": "cft:settler",
               "percentage": 0.30,
               "scope": ["cft:settler", "cft:citizen"]
             }
@@ -48,23 +48,23 @@ Each class is a file in `data/<namespace>/cft/socialclass/`.
     }
     ```
 
-- `maxHappiness`: Happiness for a single Xoonglin of this class will not get greater
+- `max_happiness`: Happiness for a single Xoonglin of this class will not get greater
   than this.
-- `matingHappinessThreshold`: The happiness value a Xoonglin needs to achieve to consider
+- `mating_happiness_threshold`: The happiness value a Xoonglin needs to achieve to consider
   mating. Extra conditions may apply.
-- `spontaneouslySpawnPopulation`: The number of individuals of this class that will
+- `spontaneously_spawn_population`: The number of individuals of this class that will
   spawn (per player) if homes are available. Apart from these, they need to mate or come
   from other classes.
 - `needs`: The list of needs, as references, for this class.
 - `jobs`: _(Optional)_ A list of job references for this class. Each Xoonglin will randomly
   pick one of the listed jobs. If empty or omitted, the Xoonglin has no job.
-- `maxHealth`: _(Optional, default: 20.0)_ The max health for Xoonglins of this class.
+- `max_health`: _(Optional, default: 20.0)_ The max health for Xoonglins of this class.
   Useful for making combat-oriented classes tougher.
-- `canUpgradeAsBaby`: _(Optional, default: false)_ Whether baby Xoonglins of this class
+- `can_upgrade_as_baby`: _(Optional, default: false)_ Whether baby Xoonglins of this class
   can upgrade.
-- `canDowngradeAsBaby`: _(Optional, default: true)_ Whether baby Xoonglins of this class
+- `can_downgrade_as_baby`: _(Optional, default: true)_ Whether baby Xoonglins of this class
   can downgrade.
-- `matingDelay`: _(Optional, default: -1)_ Custom mating cooldown in ticks for this class.
+- `mating_delay`: _(Optional, default: -1)_ Custom mating cooldown in ticks for this class.
   If -1, uses the global config value.
 - `name_samples`: _(Optional)_ A list of example names. Xoonglins spawned or born into this
   class get a new name generated from them (with a Markov chain), so the names sound similar
@@ -76,21 +76,21 @@ Each class is a file in `data/<namespace>/cft/socialclass/`.
   free time and rest. See [Schedules](schedules.md). If omitted, they work from sunrise until
   their job's daily hours are done and are idle the rest of the time.
 - `upgrades`: A list of ways a Xoonglin can become a higher class.
-    - `nextClass`: Reference to next class.
-    - `requiredHappiness`: Minimum happiness level to consider upgrading.
-    - `requiredNeeds`: These needs have to be satisfied at the given value for the upgrade
+    - `next_class`: Reference to next class.
+    - `required_happiness`: Minimum happiness level to consider upgrading.
+    - `required_needs`: These needs have to be satisfied at the given value for the upgrade
       to be possible.
-    - `socialStructureRequirements`: A list of such requirements. Each social class mentioned
+    - `social_structure_requirements`: A list of such requirements. Each social class mentioned
       must represent a percentage lower or equal to this one. Always in the range [0,1].
         - `scope`: _(Optional)_ A list of social class IDs. If given, the percentage is
           computed among only those classes' combined population, instead of the whole
           population. If omitted or empty, the percentage is of the whole population.
 - `downgrades`: A list of ways a Xoonglin can become a lower class.
-    - `nextClass`: Reference to next class.
-    - `requiredHappiness`: If happiness gets lower than this, the Xoonglin will downgrade.
-    - `requiredNeeds`: These needs have to be satisfied at the given value or the Xoonglin will
+    - `next_class`: Reference to next class.
+    - `required_happiness`: If happiness gets lower than this, the Xoonglin will downgrade.
+    - `required_needs`: These needs have to be satisfied at the given value or the Xoonglin will
       downgrade.
-    - `socialStructureRequirements`: A list of such requirements. Each social class mentioned
+    - `social_structure_requirements`: A list of such requirements. Each social class mentioned
       must represent a percentage higher or equal to this one. Always in the range [0,1].
         - `scope`: _(Optional)_ A list of social class IDs. If given, the percentage is
           computed among only those classes' combined population, instead of the whole

@@ -8,7 +8,7 @@ public class NeedSatisfaction {
 
 public static final Codec<NeedSatisfaction> NEED_SATISFACTION_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("need").forGetter(NeedSatisfaction::getNeed),
-            Codec.DOUBLE.fieldOf("satisfactionThreshold").forGetter(NeedSatisfaction::getSatisfactionThreshold)
+            Codec.DOUBLE.fieldOf("satisfaction_threshold").forGetter(NeedSatisfaction::getSatisfactionThreshold)
     ).apply(instance, NeedSatisfaction::new));
 
     private ResourceLocation need;

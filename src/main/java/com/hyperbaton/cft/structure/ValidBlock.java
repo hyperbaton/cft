@@ -15,10 +15,10 @@ public class ValidBlock {
 
     public static final Codec<ValidBlock> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             RegistryEntries.codec(Registries.BLOCK).fieldOf("block").forGetter(ValidBlock::getBlock),
-            Codec.INT.orElse(ZERO_QUANTITY).fieldOf("minQuantity").forGetter(ValidBlock::getMinQuantity),
-            Codec.INT.orElse(INFINITE_QUANTITY).fieldOf("maxQuantity").forGetter(ValidBlock::getMaxQuantity),
-            Codec.DOUBLE.orElse(ZERO_PERCENTAGE).fieldOf("minPercentage").forGetter(ValidBlock::getMinPercentage),
-            Codec.DOUBLE.orElse(TOP_PERCENTAGE).fieldOf("maxPercentage").forGetter(ValidBlock::getMaxPercentage)
+            Codec.INT.orElse(ZERO_QUANTITY).fieldOf("min_quantity").forGetter(ValidBlock::getMinQuantity),
+            Codec.INT.orElse(INFINITE_QUANTITY).fieldOf("max_quantity").forGetter(ValidBlock::getMaxQuantity),
+            Codec.DOUBLE.orElse(ZERO_PERCENTAGE).fieldOf("min_percentage").forGetter(ValidBlock::getMinPercentage),
+            Codec.DOUBLE.orElse(TOP_PERCENTAGE).fieldOf("max_percentage").forGetter(ValidBlock::getMaxPercentage)
     ).apply(instance, ValidBlock::new));
     private RegistryEntries<Block> block;
 

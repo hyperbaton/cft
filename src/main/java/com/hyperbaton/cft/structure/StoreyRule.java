@@ -15,10 +15,10 @@ public record StoreyRule(int from, int to, List<ValidBlock> floorBlocks, List<Va
     public static final Codec<StoreyRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("from").forGetter(StoreyRule::from),
             Codec.INT.fieldOf("to").forGetter(StoreyRule::to),
-            ValidBlock.CODEC.listOf().fieldOf("floorBlocks").forGetter(StoreyRule::floorBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("wallBlocks").forGetter(StoreyRule::wallBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("interiorBlocks").forGetter(StoreyRule::interiorBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("roofBlocks").forGetter(StoreyRule::roofBlocks)
+            ValidBlock.CODEC.listOf().fieldOf("floor_blocks").forGetter(StoreyRule::floorBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("wall_blocks").forGetter(StoreyRule::wallBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("interior_blocks").forGetter(StoreyRule::interiorBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("roof_blocks").forGetter(StoreyRule::roofBlocks)
     ).apply(instance, StoreyRule::new));
 
     public boolean containsStorey(int storey) {

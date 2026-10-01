@@ -24,9 +24,9 @@ public class OpenAirPlatformStructureType extends StructureType {
             Codec.BOOL.optionalFieldOf("requires_container", false).forGetter(StructureType::isRequiresContainer),
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
             Codec.INT.optionalFieldOf("wall_height", 1).forGetter(OpenAirPlatformStructureType::getWallHeight),
-            ValidBlock.CODEC.listOf().fieldOf("borderBlocks").forGetter(OpenAirPlatformStructureType::getBorderBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("groundPerimeterBlocks").forGetter(OpenAirPlatformStructureType::getGroundPerimeterBlocks),
-            ValidBlock.CODEC.listOf().fieldOf("surfaceBlocks").forGetter(OpenAirPlatformStructureType::getSurfaceBlocks)
+            ValidBlock.CODEC.listOf().fieldOf("border_blocks").forGetter(OpenAirPlatformStructureType::getBorderBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("ground_perimeter_blocks").forGetter(OpenAirPlatformStructureType::getGroundPerimeterBlocks),
+            ValidBlock.CODEC.listOf().fieldOf("surface_blocks").forGetter(OpenAirPlatformStructureType::getSurfaceBlocks)
     ).apply(inst, OpenAirPlatformStructureType::new));
 
     private final int wallHeight;

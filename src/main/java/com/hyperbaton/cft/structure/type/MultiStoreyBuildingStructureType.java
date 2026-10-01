@@ -37,7 +37,7 @@ public class MultiStoreyBuildingStructureType extends StructureType {
             Codec.INT.optionalFieldOf("priority", 0).forGetter(StructureType::getPriority),
             Codec.INT.fieldOf("min_storeys").forGetter(MultiStoreyBuildingStructureType::getMinStoreys),
             Codec.INT.fieldOf("max_storeys").forGetter(MultiStoreyBuildingStructureType::getMaxStoreys),
-            StoreyRule.CODEC.listOf().fieldOf("storeyRules").forGetter(MultiStoreyBuildingStructureType::getStoreyRules),
+            StoreyRule.CODEC.listOf().fieldOf("storey_rules").forGetter(MultiStoreyBuildingStructureType::getStoreyRules),
             LightingRequirement.CODEC.optionalFieldOf("lighting").forGetter(MultiStoreyBuildingStructureType::getLighting)
     ).apply(inst, MultiStoreyBuildingStructureType::new));
 

@@ -1,7 +1,7 @@
 {
-  "maxHappiness": 100.0,
-  "matingHappinessThreshold": 5.0,
-  "spontaneouslySpawnPopulation": 3,
+  "max_happiness": 100.0,
+  "mating_happiness_threshold": 5.0,
+  "spontaneously_spawn_population": 3,
   "jobs": ["cft:wheat_hauler_job","cft:settler_builder_job","cft:gather_flowers_job"],
   "needs": [
     "cft:settler_home",
@@ -14,17 +14,17 @@
   ],
   "upgrades": [
     {
-      "nextClass": "cft:citizen",
-      "requiredHappiness": 20,
-      "requiredNeeds": [
+      "next_class": "cft:citizen",
+      "required_happiness": 20,
+      "required_needs": [
         {
           "need": "cft:potato_need",
-          "satisfactionThreshold": 0.70
+          "satisfaction_threshold": 0.70
         }
       ],
-      "socialStructureRequirements": [
+      "social_structure_requirements": [
         {
-          "socialClass": "cft:settler",
+          "social_class": "cft:settler",
           "percentage": 0.30
         }
       ]

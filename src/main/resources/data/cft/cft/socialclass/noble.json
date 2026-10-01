@@ -1,7 +1,7 @@
 {
-  "maxHappiness": 24000.0,
-  "matingHappinessThreshold": 2400.0,
-  "spontaneouslySpawnPopulation": 0,
+  "max_happiness": 24000.0,
+  "mating_happiness_threshold": 2400.0,
+  "spontaneously_spawn_population": 0,
   "jobs": ["cft:blesser_job"],
   "needs": [
     "cft:cake_need",
@@ -13,26 +13,26 @@
   "upgrades": [],
   "downgrades": [
     {
-      "nextClass": "cft:patrician",
-      "requiredHappiness": 600,
-      "requiredNeeds": [
+      "next_class": "cft:patrician",
+      "required_happiness": 600,
+      "required_needs": [
         {
           "need": "cft:diamond_need",
-          "satisfactionThreshold": 0.50
+          "satisfaction_threshold": 0.50
         }
       ],
-      "socialStructureRequirements": []
+      "social_structure_requirements": []
     },
     {
-      "nextClass": "cft:artisan",
-      "requiredHappiness": 400,
-      "requiredNeeds": [
+      "next_class": "cft:artisan",
+      "required_happiness": 400,
+      "required_needs": [
         {
           "need": "cft:cake_need",
-          "satisfactionThreshold": 0.40
+          "satisfaction_threshold": 0.40
         }
       ],
-      "socialStructureRequirements": []
+      "social_structure_requirements": []
     }
   ]
 }
