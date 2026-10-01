@@ -1,8 +1,15 @@
 {
   "max_happiness": 200.0,
   "mating_happiness_threshold": 40.0,
+  "name_samples": [
+    "Martin", "Clara", "Henry", "Agnes", "Peter", "Rose", "Walter", "Elena",
+    "Thomas", "Mabel", "Hugh", "Alice", "Robert", "Joan", "Simon", "Edith",
+    "Roger", "Beatrice", "Ralph", "Cecily", "Geoffrey", "Isabel", "Hugo", "Lucy",
+    "Adam", "Emma", "Gilbert", "Margery", "Stephen", "Juliana"
+  ],
   "spontaneously_spawn_population": 0,
-  "jobs": ["cft:baker_job","cft:fisher_job","cft:rancher_job","cft:wheat_farmer_job"],
+  "jobs": ["cft:baker_job","cft:fisher_job","cft:rancher_job","cft:wheat_farmer_job","cft:cook_job",
+           "cft:tavern_keeper_job","cft:trader_job"],
   "needs": [
     "cft:bread_need",
     "cft:coal_need",
@@ -11,7 +18,9 @@
     "cft:citizen_iron_sword_need",
     "cft:citizen_home",
     "cft:fishing_rod_need",
-    "cft:communion_need"
+    "cft:communion_need",
+    "cft:tavern_visit_need",
+    "cft:music_need"
   ],
   "upgrades": [
     {

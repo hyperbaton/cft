@@ -1,6 +1,7 @@
 {
   "type": "cft:gatherer",
   "hours_per_day": 4.0,
+  "available_to_babies": true,
   "gather_radius": 16,
   "block": "#minecraft:flowers"
 }

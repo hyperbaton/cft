@@ -1,6 +1,7 @@
 {
   "type": "cft:guard",
   "hours_per_day": 8.0,
+  "required_needs": ["cft:iron_sword_need"],
   "patrol_radius": 12,
   "detection_radius": 16
 }

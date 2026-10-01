@@ -1,6 +1,12 @@
 {
   "max_happiness": 4000.0,
   "mating_happiness_threshold": 800.0,
+  "name_samples": [
+    "Aurelius", "Cornelia", "Marcus", "Livia", "Tiberius", "Octavia", "Lucius", "Claudia",
+    "Gaius", "Julia", "Quintus", "Valeria", "Decimus", "Aemilia", "Septimus", "Servius",
+    "Domitia", "Publius", "Cassia", "Titus", "Lucilla", "Appius", "Fabia", "Severus",
+    "Antonia", "Cato", "Drusilla", "Gnaeus", "Vibia", "Marcellus"
+  ],
   "spontaneously_spawn_population": 0,
   "jobs": ["cft:writer_job","cft:priest_job"],
   "needs": [
@@ -8,7 +14,8 @@
     "cft:book_need",
     "cft:pork_need",
     "cft:patrician_home",
-    "cft:cat_companion_need"
+    "cft:cat_companion_need",
+    "cft:high_lighting_need"
   ],
   "upgrades": [
     {
@@ -24,6 +31,11 @@
         {
           "social_class": "cft:patrician",
           "percentage": 0.06
+        },
+        {
+          "social_class": "cft:patrician",
+          "percentage": 0.50,
+          "scope": ["cft:patrician", "cft:noble"]
         }
       ]
     }

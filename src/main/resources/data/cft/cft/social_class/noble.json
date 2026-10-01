@@ -1,6 +1,12 @@
 {
   "max_happiness": 24000.0,
   "mating_happiness_threshold": 2400.0,
+  "name_samples": [
+    "Aldebrand", "Rosamund", "Leopold", "Isolde", "Maximilian", "Gwendolyn", "Bartholomew", "Evangeline",
+    "Ferdinand", "Seraphina", "Montgomery", "Clementine", "Archibald", "Genevieve", "Reginald", "Ophelia",
+    "Percival", "Arabella", "Theodoric", "Philippa", "Alistair", "Guinevere", "Benedict", "Cordelia",
+    "Fitzwilliam", "Henrietta", "Sebastian", "Wilhelmina", "Augustin", "Marguerite"
+  ],
   "spontaneously_spawn_population": 0,
   "jobs": ["cft:blesser_job"],
   "needs": [
@@ -8,7 +14,8 @@
     "cft:diamond_need",
     "cft:beef_need",
     "cft:noble_home",
-    "cft:flower_garden_need"
+    "cft:flower_garden_need",
+    "cft:plaza_visit_need"
   ],
   "upgrades": [],
   "downgrades": [

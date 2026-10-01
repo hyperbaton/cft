@@ -50,6 +50,13 @@
       "max_quantity": 1,
       "min_percentage": 0.0,
       "max_percentage": 1.0
+    },
+    {
+      "block": "#minecraft:beds",
+      "min_quantity": 0,
+      "max_quantity": 2,
+      "min_percentage": 0.0,
+      "max_percentage": 1.0
     }
   ],
   "roof_blocks": [

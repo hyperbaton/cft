@@ -25,6 +25,11 @@
       "structure_type": "cft:settler_house",
       "min": 3,
       "max_distance": 16
+    },
+    {
+      "structure_type": "cft:obelisk",
+      "min": 1,
+      "max_distance": 8
     }
   ],
   "requires_sky_access": true

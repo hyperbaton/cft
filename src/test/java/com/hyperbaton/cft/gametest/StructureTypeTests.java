@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.LadderBlock;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -156,10 +157,10 @@ public class StructureTypeTests {
     public static void villageSquareWithHousesIsDetected(GameTestHelper helper) {
         buildVillageSquare(helper);
         UUID leaderId = UUID.randomUUID();
-        List<Structure> houses = registerFakeSettlerHouses(helper, leaderId);
+        List<Structure> around = registerFakeStructuresAround(helper, leaderId);
         boolean detected = detect(helper, VILLAGE_SQUARE, BELL, leaderId).success();
-        houses.forEach(StructuresData.get(helper.getLevel())::removeStructure);
-        helper.assertTrue(detected, "The village square wasn't detected with three houses around");
+        around.forEach(StructuresData.get(helper.getLevel())::removeStructure);
+        helper.assertTrue(detected, "The village square wasn't detected with three houses and an obelisk around");
         helper.succeed();
     }
 
@@ -261,14 +262,16 @@ public class StructureTypeTests {
     }
 
     /**
-     * Three settler houses of a leader around the square, registered without being built: the
-     * square only looks them up among the registered structures. The test removes them after.
+     * What the square requires around it, for a leader: three settler houses and an obelisk,
+     * registered without being built, since the square only looks them up among the registered
+     * structures. The test removes them after.
      */
-    private static List<Structure> registerFakeSettlerHouses(GameTestHelper helper, UUID leaderId) {
-        List<Structure> houses = List.of(new BlockPos(0, 1, 0), new BlockPos(8, 1, 0), new BlockPos(0, 1, 8)).stream()
+    private static List<Structure> registerFakeStructuresAround(GameTestHelper helper, UUID leaderId) {
+        List<Structure> around = new ArrayList<>(List.of(new BlockPos(0, 1, 0), new BlockPos(8, 1, 0), new BlockPos(0, 1, 8)).stream()
                 .map(pos -> new Structure(helper.absolutePos(pos), 1, leaderId, SETTLER_HOUSE, 1, Map.of()))
-                .toList();
-        houses.forEach(StructuresData.get(helper.getLevel())::addStructure);
-        return houses;
+                .toList());
+        around.add(new Structure(helper.absolutePos(new BlockPos(8, 1, 8)), 1, leaderId, OBELISK, 0, Map.of()));
+        around.forEach(StructuresData.get(helper.getLevel())::addStructure);
+        return around;
     }
 }

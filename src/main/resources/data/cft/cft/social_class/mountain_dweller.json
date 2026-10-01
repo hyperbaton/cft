@@ -1,14 +1,21 @@
 {
   "max_happiness": 100.0,
   "mating_happiness_threshold": 5.0,
+  "name_samples": [
+    "Grimvald", "Tharra", "Bjorn", "Kettil", "Hrolda", "Orsk", "Valka", "Dagny",
+    "Thrain", "Skarri", "Ulfa", "Brokk", "Eydis", "Krag", "Thrumi", "Gudrik",
+    "Halvar", "Rakka", "Sigrun", "Torvik", "Aslaug", "Borri", "Hilda", "Jorunn",
+    "Kolbein", "Mjoll", "Ragna", "Steinar", "Ulrik", "Ymma", "Grundi", "Hakon"
+  ],
   "spontaneously_spawn_population": 3,
-  "jobs": ["cft:quarry_miner_job"],
+  "jobs": ["cft:quarry_miner_job","cft:smelter_job"],
   "needs": [
     "cft:potato_need",
     "cft:wood_logs_need",
     "cft:mountain_dweller_home",
     "cft:mountain_biomes_need",
-    "cft:high_altitude_need"
+    "cft:high_altitude_need",
+    "cft:warmth_need"
   ],
   "upgrades": [
     {

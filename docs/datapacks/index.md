@@ -4,8 +4,9 @@ It is possible to configure the social classes, needs, structures and jobs of Xo
 via datapacks, and any aspect of them can be configured.
 
 Some sample classes and needs come packaged with the mod, but they are only intended
-as examples for the possibilities of the mod. It is strongly advised to create a
-datapack with specific classes for a given modpack.
+as examples for the possibilities of the mod: the [Sample datapack](sample-datapack.md) page
+tells what each one shows. It is strongly advised to create a datapack with specific classes for
+a given modpack.
 
 These pages document each kind of datapack file:
 
@@ -14,6 +15,8 @@ These pages document each kind of datapack file:
 - [Needs](needs.md): what Xoonglins need to be happy.
 - [Jobs](jobs.md): the work Xoonglins do.
 - [Structures](structures.md): the buildings the mod recognizes, like homes and workshops.
+- [Sample datapack](sample-datapack.md): the classes that come with the mod, and where to find an
+  example of each feature.
 
 ## Files and ids
 

@@ -2,6 +2,7 @@
   "type": "cft:officiant",
   "ritual_id": "cft:communion",
   "required_structure": "cft:temple",
+  "min_happiness": 80.0,
   "frequency": 1.0,
   "duration": 600,
   "ingredients": [

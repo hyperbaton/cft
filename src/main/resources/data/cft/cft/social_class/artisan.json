@@ -1,13 +1,20 @@
 {
   "max_happiness": 750.0,
   "mating_happiness_threshold": 300,
+  "name_samples": [
+    "Ambrose", "Bettina", "Cosimo", "Delphine", "Emeric", "Flavia", "Gianni", "Hortense",
+    "Ilario", "Jacinta", "Lorenzo", "Marisol", "Nico", "Ornella", "Paolo", "Rosalba",
+    "Silvio", "Tullia", "Umberto", "Valentina", "Benedetto", "Chiara", "Dario", "Elio",
+    "Fiora", "Gemma", "Leone", "Mirella", "Raffaele", "Sabina"
+  ],
   "spontaneously_spawn_population": 0,
   "jobs": ["cft:produce_paper_job","cft:scribe_job"],
   "needs": [
     "cft:clay_need",
     "cft:terracotta_need",
     "cft:chicken_need",
-    "cft:artisan_home"
+    "cft:artisan_home",
+    "cft:reading_need"
   ],
   "upgrades": [],
   "downgrades": [

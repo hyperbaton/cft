@@ -1,0 +1,21 @@
+{
+  "type": "cft:goods",
+  "damage": 0.2,
+  "damage_threshold": 0.25,
+  "provided_happiness": 4,
+  "satisfaction_threshold": 0.6,
+  "item": {
+    "tag": "minecraft:coals"
+  },
+  "frequency": 0.5,
+  "quantity": 1,
+  "active_when": [
+    {
+      "type": "cft:any_of",
+      "conditions": [
+        { "type": "cft:time", "from": 12000, "to": 0 },
+        { "type": "cft:biome", "biomes": "#c:is_cold" }
+      ]
+    }
+  ]
+}

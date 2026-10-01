@@ -1,8 +1,19 @@
 {
   "max_happiness": 750.0,
   "mating_happiness_threshold": 600.0,
+  "name_samples": [
+    "Brand", "Kael", "Roderic", "Gunnar", "Vex", "Thora", "Draven", "Marek",
+    "Sten", "Ilka", "Varn", "Bruna", "Cade", "Doran", "Eira", "Falk",
+    "Garrick", "Hask", "Jorund", "Kord", "Lyse", "Mott", "Ronan", "Sigrid",
+    "Tarn", "Ulric", "Vika", "Wulf", "Yorick", "Zora"
+  ],
   "spontaneously_spawn_population": 0,
   "max_health": 40.0,
+  "schedule": [
+    { "at": 5, "activity": "minecraft:work" },
+    { "at": 15, "activity": "minecraft:idle" },
+    { "at": 21, "activity": "minecraft:rest" }
+  ],
   "jobs": ["cft:guard_job","cft:healer_job","cft:enchanter_job"],
   "needs": [
     "cft:flint_need",

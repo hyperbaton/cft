@@ -55,4 +55,5 @@ nav:
       - Needs: datapacks/needs.md
       - Jobs: datapacks/jobs.md
       - Structures: datapacks/structures.md
+      - Sample datapack: datapacks/sample-datapack.md
   - Addons: addons.md

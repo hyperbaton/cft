@@ -8,5 +8,8 @@
   "fluid_stack": {
     "id": "minecraft:water",
     "amount": 1000
-  }
+  },
+  "active_when": [
+    { "type": "cft:not", "condition": { "type": "cft:weather", "weather": ["rain", "thunder"] } }
+  ]
 }

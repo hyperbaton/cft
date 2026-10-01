@@ -6,6 +6,7 @@
   "satisfaction_threshold": 0.5,
   "frequency": 1.0,
   "hidden": false,
+  "icon": "minecraft:bell",
   "required_structure": "cft:village_square",
   "search_radius": 64,
   "stay_duration": 1200

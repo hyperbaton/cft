@@ -1,16 +1,23 @@
 {
   "max_happiness": 100.0,
   "mating_happiness_threshold": 5.0,
+  "name_samples": [
+    "Bram", "Hollis", "Wren", "Tobin", "Edda", "Garr", "Milla", "Rook",
+    "Senna", "Fenn", "Tilda", "Oswin", "Bree", "Corwin", "Nell", "Haddon",
+    "Ivo", "Marla", "Pell", "Rufus", "Elsa", "Dunn", "Greta", "Tam",
+    "Wilda", "Alder", "Brina", "Cobb", "Hesta", "Lorn", "Merrit", "Odo"
+  ],
   "spontaneously_spawn_population": 3,
-  "jobs": ["cft:wheat_hauler_job","cft:settler_builder_job","cft:gather_flowers_job"],
+  "jobs": ["cft:wheat_hauler_job","cft:settler_builder_job","cft:gather_flowers_job","cft:lumberjack_job"],
   "needs": [
     "cft:settler_home",
     "cft:water_need",
     "cft:potato_need",
     "cft:wood_logs_need",
     "cft:bread_need",
-    "cft:communion_need",
-    "cft:settlers_companions_need"
+    "cft:settlers_companions_need",
+    "cft:sleep_need",
+    "cft:conversation_need"
   ],
   "upgrades": [
     {

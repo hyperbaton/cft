@@ -6,6 +6,7 @@
   "satisfaction_threshold": 0.5,
   "frequency": 1.0,
   "bonus": true,
+  "icon": "minecraft:note_block",
   "game_events": ["minecraft:jukebox_play", "minecraft:note_block_play", "minecraft:instrument_play"],
   "sounds": ["minecraft:block.bell.use"],
   "min_events": 5,
