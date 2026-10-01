@@ -3,6 +3,7 @@ package com.hyperbaton.cft.entity.ai.behavior;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.util.BehaviorUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -83,7 +84,7 @@ public class VisitStructureBehavior extends Behavior<XoonglinEntity> {
         if (!keyPos.equals(visitedKeyPos)) {
             visitedKeyPos = keyPos;
             strollSpots = findStructure(level, keyPos)
-                    .map(structure -> BehaviorUtils.standablePositions(level, structure.getAllBlockPositions()))
+                    .map(structure -> BehaviorUtil.standablePositions(level, structure.getAllBlockPositions()))
                     .orElse(List.of());
         }
         ticksUntilRetarget = MIN_STROLL_PAUSE + xoonglin.getRandom().nextInt(MAX_STROLL_PAUSE - MIN_STROLL_PAUSE + 1);

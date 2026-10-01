@@ -4,7 +4,7 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.HomeNeed;
 import com.hyperbaton.cft.structure.Structure;
-import com.hyperbaton.cft.structure.StructureUtils;
+import com.hyperbaton.cft.util.StructureUtil;
 import com.hyperbaton.cft.structure.home.HouseStructure;
 import net.minecraft.server.level.ServerLevel;
 
@@ -20,7 +20,7 @@ public class HomeNeedSatisfier extends NeedSatisfier<HomeNeed> {
     public boolean satisfy(XoonglinEntity mob) {
         HouseStructure home = mob.getHome();
         if (home != null) {
-            Optional<Structure> registered = StructureUtils.recheck((ServerLevel) mob.level(),
+            Optional<Structure> registered = StructureUtil.recheck((ServerLevel) mob.level(),
                     home.getEntrance(), home.getStructureTypeId());
             if (registered.isPresent()) {
                 if (registered.get().getBlockPositions() != home.getBlockPositions()) {

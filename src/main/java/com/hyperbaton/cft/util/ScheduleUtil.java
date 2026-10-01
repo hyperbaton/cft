@@ -1,6 +1,7 @@
-package com.hyperbaton.cft.entity.ai.schedule;
+package com.hyperbaton.cft.util;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.entity.ai.schedule.ScheduleDefinition;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.Job;
 import net.minecraft.world.entity.schedule.Activity;
@@ -15,8 +16,8 @@ import java.util.Optional;
  * A Xoonglin without a schedule keeps vanilla's {@link Schedule#EMPTY} on its brain and
  * behaves as default: working from sunrise until its daily hours are done.
  */
-public final class ScheduleUtils {
-    private ScheduleUtils() {}
+public final class ScheduleUtil {
+    private ScheduleUtil() {}
 
     /**
      * Puts on the brain the schedule of the Xoonglin's job or, if the job has none, the one
@@ -68,13 +69,13 @@ public final class ScheduleUtils {
         if (xoonglin.getJob() != null && CftRegistry.JOBS != null) {
             Job job = CftRegistry.JOBS.get(xoonglin.getJob());
             Optional<ScheduleDefinition> jobSchedule = job != null ? job.getSchedule() : Optional.empty();
-            if (jobSchedule.filter(ScheduleUtils::isDefined).isPresent()) {
+            if (jobSchedule.filter(ScheduleUtil::isDefined).isPresent()) {
                 return jobSchedule;
             }
         }
         return Optional.ofNullable(xoonglin.getSocialClass())
                 .flatMap(socialClass -> socialClass.getSchedule())
-                .filter(ScheduleUtils::isDefined);
+                .filter(ScheduleUtil::isDefined);
     }
 
     /** An empty list of transitions counts as no schedule, rather than as idling all day. */

@@ -2,7 +2,7 @@ package com.hyperbaton.cft.network;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.util.NeedUtil;
 import com.hyperbaton.cft.util.JobUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -43,7 +43,7 @@ public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements Custom
                     if (xoonglin.getLeaderId() != null &&
                             xoonglin.getLeaderId().equals(player.getUUID())) {
 
-                        Map<ResourceLocation, NeedSatisfactionData> needsData = NeedUtils.buildNeedsData(xoonglin);
+                        Map<ResourceLocation, NeedSatisfactionData> needsData = NeedUtil.buildNeedsData(xoonglin);
 
                         XoonglinInfoUpdatePacket updatePacket = new XoonglinInfoUpdatePacket(
                                 xoonglin.getCustomName(),

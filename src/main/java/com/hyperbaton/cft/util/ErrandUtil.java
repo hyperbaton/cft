@@ -1,4 +1,4 @@
-package com.hyperbaton.cft.entity.ai;
+package com.hyperbaton.cft.util;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
@@ -18,8 +18,8 @@ import java.util.Set;
  * errand, and the behavior doing it finishes it, whether it succeeded or gave up. Its id also
  * names its lang entry {@code errand.<namespace>.<path>}, shown in the job tab ("Paused: ...").
  */
-public final class ErrandUtils {
-    private ErrandUtils() {}
+public final class ErrandUtil {
+    private ErrandUtil() {}
 
     /** Fetching goods or equipment from a container. */
     public static final ResourceLocation SUPPLIES = ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, "supplies");

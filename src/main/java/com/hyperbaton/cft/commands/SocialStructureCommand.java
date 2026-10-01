@@ -2,7 +2,7 @@ package com.hyperbaton.cft.commands;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.socialclass.SocialClass;
-import com.hyperbaton.cft.socialclass.SocialStructureHelper;
+import com.hyperbaton.cft.util.SocialStructureUtil;
 import com.hyperbaton.cft.util.LangUtil;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -27,7 +27,7 @@ public class SocialStructureCommand {
     }
 
     private int getSocialStructure(CommandSourceStack sourceStack, ServerPlayer player) throws CommandSyntaxException {
-        Map<SocialClass, Integer> socialStructure = SocialStructureHelper.computeSocialStructureForPlayer(sourceStack.getLevel(), player);
+        Map<SocialClass, Integer> socialStructure = SocialStructureUtil.computeSocialStructureForPlayer(sourceStack.getLevel(), player);
         sourceStack.sendSuccess(() -> formatSocialStructure(socialStructure), true);
         return 0;
     }

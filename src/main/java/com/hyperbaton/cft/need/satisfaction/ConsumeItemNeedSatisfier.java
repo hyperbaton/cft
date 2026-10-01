@@ -1,10 +1,10 @@
 package com.hyperbaton.cft.need.satisfaction;
 
-import com.hyperbaton.cft.entity.ai.ErrandUtils;
+import com.hyperbaton.cft.util.ErrandUtil;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.GoodsNeed;
-import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.util.NeedUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
@@ -50,12 +50,12 @@ public class ConsumeItemNeedSatisfier extends NeedSatisfier<GoodsNeed> {
 
         findContainerWithSupplies(mob, need.getIngredient()).ifPresent(pos -> {
             mob.getBrain().setMemory(CftMemoryModuleType.HOME_CONTAINER.get(), pos);
-            ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.SUPPLIES, CftMemoryModuleType.SUPPLY_COOLDOWN.get());
+            ErrandUtil.startUnlessCoolingDown(mob, ErrandUtil.SUPPLIES, CftMemoryModuleType.SUPPLY_COOLDOWN.get());
         });
     }
 
     private Optional<BlockPos> findContainerWithSupplies(XoonglinEntity mob, Ingredient ingredient) {
-        return NeedUtils.supplySourcePositions(mob).stream()
+        return NeedUtil.supplySourcePositions(mob).stream()
                 .filter(pos -> {
                     if (!(mob.level().getBlockEntity(pos) instanceof Container container)) return false;
                     for (int i = 0; i < container.getContainerSize(); i++) {

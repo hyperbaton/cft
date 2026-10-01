@@ -1,7 +1,8 @@
-package com.hyperbaton.cft.socialclass;
+package com.hyperbaton.cft.util;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.socialclass.SocialClass;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,20 +12,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
-public class SocialStructureHelper {
+public class SocialStructureUtil {
 
     public static Map<SocialClass, Integer> computeSocialStructureForPlayer(ServerLevel level, ServerPlayer player) {
         Map<SocialClass, Integer> socialStructure = new HashMap<>();
-        List<XoonglinEntity> xoonglinList = getAllXoonglins(level);
-        for (XoonglinEntity xoonglin : xoonglinList) {
-            if (xoonglin.getLeaderId() != null &&
-                    xoonglin.getLeaderId().equals(player.getUUID())) {
-                if (socialStructure.containsKey(xoonglin.getSocialClass())) {
-                    socialStructure.replace(xoonglin.getSocialClass(), socialStructure.get(xoonglin.getSocialClass()) + 1);
-                } else {
-                    socialStructure.put(xoonglin.getSocialClass(), 1);
-                }
-            }
+        for (XoonglinEntity xoonglin : getLeaderXoonglins(level, player.getUUID())) {
+            socialStructure.merge(xoonglin.getSocialClass(), 1, Integer::sum);
         }
         return socialStructure;
     }
@@ -67,6 +60,16 @@ public class SocialStructureHelper {
         }
 
         return denominator <= 0 ? 0.0 : (double) numerator / denominator;
+    }
+
+    /**
+     * The Xoonglins loaded in this level that follow the given leader. Those without a social class
+     * yet are left out.
+     */
+    public static List<XoonglinEntity> getLeaderXoonglins(ServerLevel level, UUID leaderId) {
+        return getAllXoonglins(level).stream()
+                .filter(xoonglin -> leaderId.equals(xoonglin.getLeaderId()) && xoonglin.getSocialClass() != null)
+                .toList();
     }
 
     public static List<XoonglinEntity> getAllXoonglins(ServerLevel level) {

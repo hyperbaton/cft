@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.util.BuildingDetectionUtil;
 import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
@@ -59,7 +60,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         StoreyRule rule = structureType.getRuleForStorey(1);
         Set<BlockPos> floorBlockSet = Sets.newHashSet();
         Set<BlockPos> floorPerimeterBlocks = Sets.newHashSet();
-        boolean foundFloor = BuildingDetectionUtils.findFloor(level, keyBlockPos.below(), floorBlockSet,
+        boolean foundFloor = BuildingDetectionUtil.findFloor(level, keyBlockPos.below(), floorBlockSet,
                 floorPerimeterBlocks, rule.floorBlocks(), CftConfig.MAX_FLOOR_SIZE.get());
         if (floorBlockSet.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_FLOOR);
@@ -71,13 +72,13 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         Set<BlockPos> fullFloorBlocks = Sets.newHashSet();
         fullFloorBlocks.addAll(floorBlockSet);
         fullFloorBlocks.addAll(floorPerimeterBlocks);
-        List<Component> floorErrors = BuildingDetectionUtils.checkValidBlocks(level, fullFloorBlocks,
+        List<Component> floorErrors = BuildingDetectionUtil.checkValidBlocks(level, fullFloorBlocks,
                 rule.floorBlocks(), NO_SKIP);
         if (!floorErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_FLOOR,
                     storeyDetails(1, StructureDetectionReasons.INVALID_FLOOR, floorErrors));
         }
-        BuildingDetectionUtils.detectInnerCorners(floorBlockSet, floorPerimeterBlocks);
+        BuildingDetectionUtil.detectInnerCorners(floorBlockSet, floorPerimeterBlocks);
 
         StoreyParts parts = detectStoreyAboveFloor(level, rule, floorBlockSet, floorPerimeterBlocks,
                 fullFloorBlocks.size());
@@ -88,7 +89,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
         int storeyCount = 1;
         addStoreyGroups(blockPositions, storeyCount, fullFloorBlocks, parts);
-        standingSpots.addAll(BuildingDetectionUtils.findStandingSpots(level, floorBlockSet, parts.interiorBlocks()));
+        standingSpots.addAll(BuildingDetectionUtil.findStandingSpots(level, floorBlockSet, parts.interiorBlocks()));
         allBlocks.addAll(fullFloorBlocks);
         allFullFloors.addAll(fullFloorBlocks);
         addStoreyBlocks(allBlocks, parts);
@@ -102,7 +103,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
             int storey = storeyCount + 1;
             rule = structureType.getRuleForStorey(storey);
 
-            if (!BuildingDetectionUtils.isSingleYLayer(previousCeiling)) {
+            if (!BuildingDetectionUtil.isSingleYLayer(previousCeiling)) {
                 lastFailure = StructureDetectionReasons.CEILING_NOT_FLAT;
                 lastFailureDetails = storeyDetails(storeyCount, StructureDetectionReasons.CEILING_NOT_FLAT, List.of());
                 break;
@@ -123,20 +124,20 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
             floorBlockSet = Sets.newHashSet();
             floorPerimeterBlocks = Sets.newHashSet();
-            if (!BuildingDetectionUtils.partitionFloorRegion(floorRegion, floorBlockSet, floorPerimeterBlocks)) {
+            if (!BuildingDetectionUtil.partitionFloorRegion(floorRegion, floorBlockSet, floorPerimeterBlocks)) {
                 lastFailure = StructureDetectionReasons.INVALID_FLOOR;
                 lastFailureDetails = storeyDetails(storey, lastFailure,
                         List.of(Component.translatable("detection.cft.detail.storey_floor_degenerate")));
                 break;
             }
-            List<Component> upperFloorErrors = BuildingDetectionUtils.checkValidBlocks(level, floorRegion,
+            List<Component> upperFloorErrors = BuildingDetectionUtil.checkValidBlocks(level, floorRegion,
                     rule.floorBlocks(), NO_SKIP);
             if (!upperFloorErrors.isEmpty()) {
                 lastFailure = StructureDetectionReasons.INVALID_FLOOR;
                 lastFailureDetails = storeyDetails(storey, StructureDetectionReasons.INVALID_FLOOR, upperFloorErrors);
                 break;
             }
-            BuildingDetectionUtils.detectInnerCorners(floorBlockSet, floorPerimeterBlocks);
+            BuildingDetectionUtil.detectInnerCorners(floorBlockSet, floorPerimeterBlocks);
 
             parts = detectStoreyAboveFloor(level, rule, floorBlockSet, floorPerimeterBlocks, floorRegion.size());
             if (parts.failed()) {
@@ -147,7 +148,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
             storeyCount = storey;
             addStoreyGroups(blockPositions, storeyCount, floorRegion, parts);
-            standingSpots.addAll(BuildingDetectionUtils.findStandingSpots(level, floorBlockSet, parts.interiorBlocks()));
+            standingSpots.addAll(BuildingDetectionUtil.findStandingSpots(level, floorBlockSet, parts.interiorBlocks()));
             allBlocks.addAll(floorRegion);
             allFullFloors.addAll(floorRegion);
             addStoreyBlocks(allBlocks, parts);
@@ -162,12 +163,12 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
             return StructureDetectionResult.failure(StructureDetectionReasons.NOT_ENOUGH_STOREYS, details);
         }
 
-        if (structureType.isRequiresContainer() && !BuildingDetectionUtils.hasContainers(level, allFullFloors)) {
+        if (structureType.isRequiresContainer() && !BuildingDetectionUtil.hasContainers(level, allFullFloors)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
 
         if (structureType.getLighting().isPresent()) {
-            Component lightingError = BuildingDetectionUtils.checkLighting(level, standingSpots, structureType.getLighting().get());
+            Component lightingError = BuildingDetectionUtil.checkLighting(level, standingSpots, structureType.getLighting().get());
             if (lightingError != null) {
                 return StructureDetectionResult.failure(StructureDetectionReasons.TOO_DARK, List.of(lightingError));
             }
@@ -194,12 +195,12 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
                                                int fullFloorSize) {
         Set<BlockPos> wallBlockSet = Sets.newHashSet();
         Set<BlockPos> roofCandidateBlocks = Sets.newHashSet();
-        boolean foundWalls = BuildingDetectionUtils.findWalls(level, floorPerimeterBlocks, wallBlockSet,
+        boolean foundWalls = BuildingDetectionUtil.findWalls(level, floorPerimeterBlocks, wallBlockSet,
                 roofCandidateBlocks, rule.wallBlocks(), NO_SKIP, CftConfig.MAX_HOUSE_HEIGHT.get());
         if (!foundWalls || wallBlockSet.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_WALLS, List.of());
         }
-        List<Component> wallErrors = BuildingDetectionUtils.checkValidBlocks(level, wallBlockSet,
+        List<Component> wallErrors = BuildingDetectionUtil.checkValidBlocks(level, wallBlockSet,
                 rule.wallBlocks(), NO_SKIP);
         if (!wallErrors.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_WALLS, wallErrors);
@@ -210,34 +211,34 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         // through the ceiling into the storey above, misclassifying the ceiling layer
         // of the hole column as interior instead of roof.
         int interiorMaxHeight = CftConfig.MAX_HOUSE_HEIGHT.get();
-        if (BuildingDetectionUtils.isSingleYLayer(roofCandidateBlocks) && !roofCandidateBlocks.isEmpty()) {
+        if (BuildingDetectionUtil.isSingleYLayer(roofCandidateBlocks) && !roofCandidateBlocks.isEmpty()) {
             interiorMaxHeight = roofCandidateBlocks.iterator().next().getY();
         }
 
         Set<BlockPos> interiorBlockSet = Sets.newHashSet();
-        boolean foundInterior = BuildingDetectionUtils.findInterior(level, floorBlockSet, interiorBlockSet,
+        boolean foundInterior = BuildingDetectionUtil.findInterior(level, floorBlockSet, interiorBlockSet,
                 roofCandidateBlocks, rule.interiorBlocks(), fullFloorSize, interiorMaxHeight);
         if (!foundInterior || interiorBlockSet.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_INTERIOR, List.of());
         }
-        List<Component> interiorErrors = BuildingDetectionUtils.checkValidBlocks(level, interiorBlockSet,
+        List<Component> interiorErrors = BuildingDetectionUtil.checkValidBlocks(level, interiorBlockSet,
                 rule.interiorBlocks(), NO_SKIP);
         if (!interiorErrors.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_INTERIOR, interiorErrors);
         }
 
-        boolean foundRoof = BuildingDetectionUtils.verifyRoof(level, roofCandidateBlocks, rule.roofBlocks());
+        boolean foundRoof = BuildingDetectionUtil.verifyRoof(level, roofCandidateBlocks, rule.roofBlocks());
         if (!foundRoof || roofCandidateBlocks.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_ROOF, List.of());
         }
-        List<Component> roofErrors = BuildingDetectionUtils.checkValidBlocks(level, roofCandidateBlocks,
+        List<Component> roofErrors = BuildingDetectionUtil.checkValidBlocks(level, roofCandidateBlocks,
                 rule.roofBlocks(), NO_SKIP);
         if (!roofErrors.isEmpty()) {
             return StoreyParts.failure(StructureDetectionReasons.INVALID_ROOF, roofErrors);
         }
 
         Set<BlockPos> roofBlockSet = Sets.newHashSet(roofCandidateBlocks);
-        boolean closed = BuildingDetectionUtils.verifyClosure(interiorBlockSet, floorBlockSet,
+        boolean closed = BuildingDetectionUtil.verifyClosure(interiorBlockSet, floorBlockSet,
                 wallBlockSet, roofBlockSet);
         if (!closed) {
             return StoreyParts.failure(StructureDetectionReasons.NO_CLOSURE, List.of());
@@ -261,7 +262,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
     private boolean allValid(ServerLevel level, Set<BlockPos> region, List<ValidBlock> validBlocks) {
         return region.stream()
-                .allMatch(pos -> BuildingDetectionUtils.isValidBlock(level.getBlockState(pos), validBlocks));
+                .allMatch(pos -> BuildingDetectionUtil.isValidBlock(level.getBlockState(pos), validBlocks));
     }
 
     private void addStoreyGroups(Map<String, List<BlockPos>> blockPositions, int storey,

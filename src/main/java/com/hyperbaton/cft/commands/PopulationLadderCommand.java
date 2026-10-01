@@ -1,6 +1,6 @@
 package com.hyperbaton.cft.commands;
 
-import com.hyperbaton.cft.socialclass.SocialStructureHelper;
+import com.hyperbaton.cft.util.SocialStructureUtil;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -37,7 +37,7 @@ public class PopulationLadderCommand {
     }
 
     private Integer getPopulationForPlayer(ServerPlayer player, ServerLevel level) {
-        return SocialStructureHelper.computeSocialStructureForPlayer(level, player)
+        return SocialStructureUtil.computeSocialStructureForPlayer(level, player)
                 .values().stream().reduce(0, Integer::sum);
     }
 }

@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.entity.ai.behavior;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.entity.ai.ErrandUtils;
+import com.hyperbaton.cft.util.ErrandUtil;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.mojang.logging.LogUtils;
@@ -94,7 +94,7 @@ public class GetFluidBehavior extends Behavior<XoonglinEntity> {
         // Once there, it waits by the container until the fluid need drinks from it, which forgets the
         // container. Only when it couldn't get there does it give up for a while.
         if (!isCloseEnoughToContainer(mob)) {
-            ErrandUtils.finish(mob, ErrandUtils.FLUID);
+            ErrandUtil.finish(mob, ErrandUtil.FLUID);
             LOGGER.trace("Xoonglin {} couldn't reach the fluid container, setting cooldown.", mob.getCustomName().getString());
             mob.getBrain().setMemoryWithExpiry(fluidSupplyCooldownMemoryType(), true, CftConfig.SUPPLY_COOLDOWN.get());
         }

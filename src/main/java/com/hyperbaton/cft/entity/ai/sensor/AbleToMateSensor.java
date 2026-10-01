@@ -3,7 +3,7 @@ package com.hyperbaton.cft.entity.ai.sensor;
 import com.google.common.collect.ImmutableSet;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
-import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.util.NeedUtil;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.server.level.ServerLevel;
@@ -33,6 +33,6 @@ public class AbleToMateSensor extends Sensor<XoonglinEntity> {
                 .getStructures().stream()
                 .filter(Structure::hasCapacity)
                 .filter(s -> s.getLeaderId().equals(xoonglin.getLeaderId()))
-                .anyMatch(s -> NeedUtils.classMeetsStructureType(xoonglin.getSocialClass(), s.getStructureTypeId()));
+                .anyMatch(s -> NeedUtil.classMeetsStructureType(xoonglin.getSocialClass(), s.getStructureTypeId()));
     }
 }

@@ -5,7 +5,7 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 
-import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.util.NeedUtil;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.home.HouseStructure;
@@ -73,7 +73,7 @@ public class XoonglinSpawner implements CustomSpawner {
     }
 
     private boolean houseMeetsNeed(Structure structure, SocialClass socialClass) {
-        return NeedUtils.classMeetsStructureType(socialClass, structure.getStructureTypeId());
+        return NeedUtil.classMeetsStructureType(socialClass, structure.getStructureTypeId());
     }
 
     private boolean spawnXoonglin(ServerLevel serverLevel, Structure house, SocialClass socialClass, UUID leaderId) {
@@ -101,7 +101,7 @@ public class XoonglinSpawner implements CustomSpawner {
         xoonglin.setLeaderId(leaderId);
         xoonglin.setSocialClass(socialClass);
         xoonglin.setCustomName(Component.literal(socialClass.generateName()));
-        xoonglin.setNeeds(NeedUtils.getNeedsForClass(xoonglin.getSocialClass()));
+        xoonglin.setNeeds(NeedUtil.getNeedsForClass(xoonglin.getSocialClass()));
         xoonglin.getEntityData().set(XoonglinEntity.SOCIAL_CLASS_NAME, xoonglin.getSocialClassId().toString());
         xoonglin.setJob(socialClass.getRandomJob(xoonglin.getRandom(), xoonglin.isBaby()));
         xoonglin.applyClassMaxHealth();

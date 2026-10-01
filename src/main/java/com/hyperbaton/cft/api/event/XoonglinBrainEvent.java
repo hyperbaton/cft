@@ -1,6 +1,7 @@
-package com.hyperbaton.cft.entity.ai;
+package com.hyperbaton.cft.api.event;
 
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
+import com.hyperbaton.cft.util.ErrandUtil;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -20,7 +21,7 @@ import java.util.Map;
  * <p>For example, a new need can register the memory its behavior needs with
  * {@link RegisterMemories}, add that behavior to the INVESTIGATE activity with
  * {@link AddBehaviors}, and send the Xoonglin there by starting an errand with
- * {@link ErrandUtils}.
+ * {@link ErrandUtil}.
  */
 public abstract class XoonglinBrainEvent extends Event {
 
@@ -32,7 +33,7 @@ public abstract class XoonglinBrainEvent extends Event {
         private final List<MemoryModuleType<?>> memories;
         private final List<SensorType<? extends Sensor<? super XoonglinEntity>>> sensors;
 
-        RegisterMemories(List<MemoryModuleType<?>> memories,
+        public RegisterMemories(List<MemoryModuleType<?>> memories,
                          List<SensorType<? extends Sensor<? super XoonglinEntity>>> sensors) {
             this.memories = memories;
             this.sensors = sensors;
@@ -57,7 +58,7 @@ public abstract class XoonglinBrainEvent extends Event {
     public static class AddBehaviors extends XoonglinBrainEvent {
         private final Map<Activity, List<Pair<Integer, ? extends BehaviorControl<? super XoonglinEntity>>>> behaviors;
 
-        AddBehaviors(Map<Activity, List<Pair<Integer, ? extends BehaviorControl<? super XoonglinEntity>>>> behaviors) {
+        public AddBehaviors(Map<Activity, List<Pair<Integer, ? extends BehaviorControl<? super XoonglinEntity>>>> behaviors) {
             this.behaviors = behaviors;
         }
 

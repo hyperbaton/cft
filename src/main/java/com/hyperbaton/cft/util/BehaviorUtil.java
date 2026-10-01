@@ -1,4 +1,4 @@
-package com.hyperbaton.cft.entity.ai.behavior;
+package com.hyperbaton.cft.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -12,8 +12,8 @@ import java.util.Set;
 /**
  * Helpers shared by Xoonglin behaviors.
  */
-public final class BehaviorUtils {
-    private BehaviorUtils() {}
+public final class BehaviorUtil {
+    private BehaviorUtil() {}
 
     /** Whether a Xoonglin fits standing at this position: two free blocks on top of a solid one. */
     public static boolean canStandAt(Level level, BlockPos pos) {

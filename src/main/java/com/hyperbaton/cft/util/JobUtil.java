@@ -7,11 +7,11 @@ import com.hyperbaton.cft.network.InventorySlotData;
 import com.hyperbaton.cft.network.JobInfoData;
 import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
-import com.hyperbaton.cft.entity.ai.ErrandUtils;
+import com.hyperbaton.cft.util.ErrandUtil;
 import com.hyperbaton.cft.entity.ai.behavior.WorkStep;
-import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
+import com.hyperbaton.cft.util.ScheduleUtil;
 import com.hyperbaton.cft.structure.Structure;
-import com.hyperbaton.cft.structure.StructureUtils;
+import com.hyperbaton.cft.util.StructureUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
@@ -58,12 +58,12 @@ public final class JobUtil {
         if (xoonglin.isSleeping()) {
             return new JobInfoData(JobStatus.SLEEPING, info.entries());
         }
-        if (ScheduleUtils.isOffDuty(xoonglin)) {
+        if (ScheduleUtil.isOffDuty(xoonglin)) {
             JobStatus status = xoonglin.getBrain().isActive(Activity.REST) ? JobStatus.AT_HOME : freeTimeStatus(xoonglin);
             return new JobInfoData(status, info.entries());
         }
         // Errands pause the job, so its status would describe work it isn't doing now
-        if (ErrandUtils.hasErrands(xoonglin)) {
+        if (ErrandUtil.hasErrands(xoonglin)) {
             return new JobInfoData(JobStatus.PAUSED.withDetail(errandsText(xoonglin)), info.entries());
         }
         return info;
@@ -72,7 +72,7 @@ public final class JobUtil {
     /** The errands pausing its job, as named by their lang entries {@code errand.<namespace>.<path>}. */
     private static Component errandsText(XoonglinEntity xoonglin) {
         MutableComponent text = Component.empty();
-        for (ResourceLocation errand : ErrandUtils.errands(xoonglin)) {
+        for (ResourceLocation errand : ErrandUtil.errands(xoonglin)) {
             if (!text.getSiblings().isEmpty()) {
                 text.append(", ");
             }
@@ -170,7 +170,7 @@ public final class JobUtil {
         Optional<Structure> structure = consumesStructure(xoonglin, structureTypeId)
                 ? StructuresData.get(level).findByKeyBlock(keyBlockPos)
                         .filter(registered -> registered.getStructureTypeId().equals(structureTypeId))
-                : StructureUtils.recheck(level, keyBlockPos, structureTypeId);
+                : StructureUtil.recheck(level, keyBlockPos, structureTypeId);
         if (structure.isEmpty()) {
             xoonglin.unassignStructure(structureTypeId);
         }

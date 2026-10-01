@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.util.BuildingDetectionUtil;
 import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
@@ -38,7 +39,7 @@ public class MonumentDetector implements StructureDetector<MonumentStructureType
                 if (layerBlocks == null) {
                     break;
                 }
-                if (BuildingDetectionUtils.isValidBlock(level.getBlockState(above), layerBlocks)) {
+                if (BuildingDetectionUtil.isValidBlock(level.getBlockState(above), layerBlocks)) {
                     candidates.add(above);
                 }
             }
@@ -70,7 +71,7 @@ public class MonumentDetector implements StructureDetector<MonumentStructureType
             if (layerBlocks == null) {
                 return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_MONUMENT_LAYER);
             }
-            List<Component> errors = BuildingDetectionUtils.checkValidBlocks(level, layers.get(i), layerBlocks, noSkip);
+            List<Component> errors = BuildingDetectionUtil.checkValidBlocks(level, layers.get(i), layerBlocks, noSkip);
             if (!errors.isEmpty()) {
                 return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_MONUMENT_LAYER, errors);
             }
@@ -94,7 +95,7 @@ public class MonumentDetector implements StructureDetector<MonumentStructureType
             }
         }
 
-        if (structureType.isRequiresContainer() && !BuildingDetectionUtils.hasContainers(level, layers.get(0))) {
+        if (structureType.isRequiresContainer() && !BuildingDetectionUtil.hasContainers(level, layers.get(0))) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
 
@@ -120,7 +121,7 @@ public class MonumentDetector implements StructureDetector<MonumentStructureType
         Deque<BlockPos> queue = new ArrayDeque<>();
         Set<BlockPos> visited = Sets.newHashSet();
 
-        if (!BuildingDetectionUtils.isValidBlock(level.getBlockState(startPos), layerBlocks)) {
+        if (!BuildingDetectionUtil.isValidBlock(level.getBlockState(startPos), layerBlocks)) {
             return layer;
         }
 
@@ -137,7 +138,7 @@ public class MonumentDetector implements StructureDetector<MonumentStructureType
 
             for (BlockPos neighbor : getHorizontalNeighbors(current)) {
                 if (!visited.contains(neighbor)
-                        && BuildingDetectionUtils.isValidBlock(level.getBlockState(neighbor), layerBlocks)) {
+                        && BuildingDetectionUtil.isValidBlock(level.getBlockState(neighbor), layerBlocks)) {
                     visited.add(neighbor);
                     queue.add(neighbor);
                 }
@@ -167,7 +168,7 @@ public class MonumentDetector implements StructureDetector<MonumentStructureType
 
             for (BlockPos neighbor : getHorizontalNeighbors(current)) {
                 if (!visited.contains(neighbor)
-                        && BuildingDetectionUtils.isValidBlock(level.getBlockState(neighbor), layerBlocks)) {
+                        && BuildingDetectionUtil.isValidBlock(level.getBlockState(neighbor), layerBlocks)) {
                     visited.add(neighbor);
                     queue.add(neighbor);
                     layer.add(neighbor);

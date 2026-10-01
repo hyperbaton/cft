@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.util.BuildingDetectionUtil;
 import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
@@ -27,7 +28,7 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         Predicate<BlockState> noSkip = bs -> false;
 
         // Floor detection: start below the key block
-        boolean foundFloor = BuildingDetectionUtils.findFloor(level, keyBlockPos.below(), floorBlockSet,
+        boolean foundFloor = BuildingDetectionUtil.findFloor(level, keyBlockPos.below(), floorBlockSet,
                 floorPerimeterBlocks, structureType.getFloorBlocks(), CftConfig.MAX_FLOOR_SIZE.get());
         if (floorBlockSet.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_FLOOR);
@@ -40,13 +41,13 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         fullFloorBlocks.addAll(floorBlockSet);
         fullFloorBlocks.addAll(floorPerimeterBlocks);
 
-        List<Component> floorErrors = BuildingDetectionUtils.checkValidBlocks(level, fullFloorBlocks,
+        List<Component> floorErrors = BuildingDetectionUtil.checkValidBlocks(level, fullFloorBlocks,
                 structureType.getFloorBlocks(), noSkip);
         if (!floorErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_FLOOR, floorErrors);
         }
 
-        BuildingDetectionUtils.detectInnerCorners(floorBlockSet, floorPerimeterBlocks);
+        BuildingDetectionUtil.detectInnerCorners(floorBlockSet, floorPerimeterBlocks);
         allBlocks.addAll(floorBlockSet);
         allBlocks.addAll(floorPerimeterBlocks);
 
@@ -54,13 +55,13 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         Set<BlockPos> wallBlockSet = Sets.newHashSet();
         Set<BlockPos> roofCandidateBlocks = Sets.newHashSet();
         Predicate<BlockState> noPassthrough = bs -> false;
-        boolean foundWalls = BuildingDetectionUtils.findWalls(level, floorPerimeterBlocks, wallBlockSet,
+        boolean foundWalls = BuildingDetectionUtil.findWalls(level, floorPerimeterBlocks, wallBlockSet,
                 roofCandidateBlocks, structureType.getWallBlocks(), noPassthrough,
                 CftConfig.MAX_HOUSE_HEIGHT.get());
         if (!foundWalls || wallBlockSet.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_WALLS);
         }
-        List<Component> wallErrors = BuildingDetectionUtils.checkValidBlocks(level, wallBlockSet,
+        List<Component> wallErrors = BuildingDetectionUtil.checkValidBlocks(level, wallBlockSet,
                 structureType.getWallBlocks(), noSkip);
         if (!wallErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_WALLS, wallErrors);
@@ -69,13 +70,13 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
 
         // Interior detection — key block and containers must be listed in interiorBlocks
         Set<BlockPos> interiorBlockSet = Sets.newHashSet();
-        boolean foundInterior = BuildingDetectionUtils.findInterior(level, floorBlockSet, interiorBlockSet,
+        boolean foundInterior = BuildingDetectionUtil.findInterior(level, floorBlockSet, interiorBlockSet,
                 roofCandidateBlocks, structureType.getInteriorBlocks(), fullFloorBlocks.size(),
                 CftConfig.MAX_HOUSE_HEIGHT.get());
         if (!foundInterior || interiorBlockSet.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_INTERIOR);
         }
-        List<Component> interiorErrors = BuildingDetectionUtils.checkValidBlocks(level, interiorBlockSet,
+        List<Component> interiorErrors = BuildingDetectionUtil.checkValidBlocks(level, interiorBlockSet,
                 structureType.getInteriorBlocks(), noSkip);
         if (!interiorErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_INTERIOR, interiorErrors);
@@ -83,11 +84,11 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         allBlocks.addAll(interiorBlockSet);
 
         // Roof verification
-        boolean foundRoof = BuildingDetectionUtils.verifyRoof(level, roofCandidateBlocks, structureType.getRoofBlocks());
+        boolean foundRoof = BuildingDetectionUtil.verifyRoof(level, roofCandidateBlocks, structureType.getRoofBlocks());
         if (!foundRoof || roofCandidateBlocks.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_ROOF);
         }
-        List<Component> roofErrors = BuildingDetectionUtils.checkValidBlocks(level, roofCandidateBlocks,
+        List<Component> roofErrors = BuildingDetectionUtil.checkValidBlocks(level, roofCandidateBlocks,
                 structureType.getRoofBlocks(), noSkip);
         if (!roofErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_ROOF, roofErrors);
@@ -96,20 +97,20 @@ public class EnclosedBuildingDetector implements StructureDetector<EnclosedBuild
         allBlocks.addAll(roofBlockSet);
 
         // Closure verification
-        boolean closed = BuildingDetectionUtils.verifyClosure(interiorBlockSet, floorBlockSet, wallBlockSet, roofBlockSet);
+        boolean closed = BuildingDetectionUtil.verifyClosure(interiorBlockSet, floorBlockSet, wallBlockSet, roofBlockSet);
         if (!closed) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CLOSURE);
         }
 
         // Container detection
-        if (structureType.isRequiresContainer() && !BuildingDetectionUtils.hasContainers(level, fullFloorBlocks)) {
+        if (structureType.isRequiresContainer() && !BuildingDetectionUtil.hasContainers(level, fullFloorBlocks)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
 
         // Lighting: enough of the floor must be lit by blocks
         if (structureType.getLighting().isPresent()) {
-            Component lightingError = BuildingDetectionUtils.checkLighting(level,
-                    BuildingDetectionUtils.findStandingSpots(level, floorBlockSet, interiorBlockSet),
+            Component lightingError = BuildingDetectionUtil.checkLighting(level,
+                    BuildingDetectionUtil.findStandingSpots(level, floorBlockSet, interiorBlockSet),
                     structureType.getLighting().get());
             if (lightingError != null) {
                 return StructureDetectionResult.failure(StructureDetectionReasons.TOO_DARK, List.of(lightingError));

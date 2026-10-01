@@ -4,6 +4,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.job.LumberjackJob;
 import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.util.BehaviorUtil;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.util.TreeUtil;
@@ -192,7 +193,7 @@ public class ChopTreesBehavior extends JobBehavior<LumberjackJob> {
         Vec3 base = tree.base().getBottomCenter();
         List<BlockPos> spots = new ArrayList<>();
         for (BlockPos pos : BlockPos.betweenClosed(tree.base().offset(-2, -1, -2), tree.base().offset(2, 1, 2))) {
-            if (pos.getBottomCenter().distanceTo(base) <= TREE_REACH - 0.5 && BehaviorUtils.canStandAt(level, pos)) {
+            if (pos.getBottomCenter().distanceTo(base) <= TREE_REACH - 0.5 && BehaviorUtil.canStandAt(level, pos)) {
                 spots.add(pos.immutable());
             }
         }

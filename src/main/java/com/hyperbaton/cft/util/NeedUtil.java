@@ -1,7 +1,10 @@
-package com.hyperbaton.cft.need;
+package com.hyperbaton.cft.util;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
+import com.hyperbaton.cft.need.HomeNeed;
+import com.hyperbaton.cft.need.Need;
+import com.hyperbaton.cft.need.VisitNeed;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
@@ -21,7 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-public class NeedUtils {
+public class NeedUtil {
     /** Builds the network-facing snapshot of a Xoonglin's non-hidden needs. */
     public static Map<ResourceLocation, NeedSatisfactionData> buildNeedsData(XoonglinEntity xoonglin) {
         Map<ResourceLocation, NeedSatisfactionData> result = new HashMap<>();

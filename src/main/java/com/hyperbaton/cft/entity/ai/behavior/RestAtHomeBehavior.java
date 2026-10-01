@@ -4,6 +4,7 @@ import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.structure.EnclosedBuildingBlockGroup;
 import com.hyperbaton.cft.structure.home.HouseStructure;
+import com.hyperbaton.cft.util.BehaviorUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.Behavior;
@@ -118,7 +119,7 @@ public class RestAtHomeBehavior extends Behavior<XoonglinEntity> {
     /** A random spot inside the home where the Xoonglin can stand, or the entrance if none. */
     private BlockPos findRestSpot(ServerLevel level, XoonglinEntity xoonglin) {
         List<BlockPos> candidates = interior.stream()
-                .filter(pos -> BehaviorUtils.canStandAt(level, pos))
+                .filter(pos -> BehaviorUtil.canStandAt(level, pos))
                 .toList();
         if (candidates.isEmpty()) {
             return xoonglin.getHome().getEntrance();

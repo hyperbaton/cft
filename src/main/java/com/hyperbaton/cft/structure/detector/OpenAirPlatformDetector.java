@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.util.BuildingDetectionUtil;
 import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
@@ -36,7 +37,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
         Predicate<net.minecraft.world.level.block.state.BlockState> noSkip = bs -> false;
 
         Set<BlockPos> borderColumnBlocks = collectBorderColumn(borderBlocks, groundY, structureType.getWallHeight());
-        List<Component> borderErrors = BuildingDetectionUtils.checkValidBlocks(level, borderColumnBlocks,
+        List<Component> borderErrors = BuildingDetectionUtil.checkValidBlocks(level, borderColumnBlocks,
                 structureType.getBorderBlocks(), noSkip);
         if (!borderErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_BORDER, borderErrors);
@@ -46,7 +47,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
         for (BlockPos borderPos : borderBlocks) {
             groundPerimeterBlocks.add(new BlockPos(borderPos.getX(), groundY, borderPos.getZ()));
         }
-        List<Component> groundPerimeterErrors = BuildingDetectionUtils.checkValidBlocks(level, groundPerimeterBlocks,
+        List<Component> groundPerimeterErrors = BuildingDetectionUtil.checkValidBlocks(level, groundPerimeterBlocks,
                 structureType.getGroundPerimeterBlocks(), noSkip);
         if (!groundPerimeterErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_GROUND_PERIMETER, groundPerimeterErrors);
@@ -65,7 +66,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE);
         }
 
-        List<Component> surfaceErrors = BuildingDetectionUtils.checkValidBlocks(level, surfaceBlocks,
+        List<Component> surfaceErrors = BuildingDetectionUtil.checkValidBlocks(level, surfaceBlocks,
                 structureType.getSurfaceBlocks(), noSkip);
         if (!surfaceErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE, surfaceErrors);
@@ -80,7 +81,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
         // The container can sit on the surface or be part of the border ring
         // (e.g. a chest built into a dock's railing)
         if (structureType.isRequiresContainer()
-                && !BuildingDetectionUtils.hasContainers(level, surfaceBlocks)
+                && !BuildingDetectionUtil.hasContainers(level, surfaceBlocks)
                 && !hasContainerIn(level, borderColumnBlocks)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
@@ -221,7 +222,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
     }
 
     private boolean isBorderBlock(ServerLevel level, BlockPos pos, OpenAirPlatformStructureType platformType) {
-        return BuildingDetectionUtils.isValidBlock(level.getBlockState(pos), platformType.getBorderBlocks());
+        return BuildingDetectionUtil.isValidBlock(level.getBlockState(pos), platformType.getBorderBlocks());
     }
 
     private Set<BlockPos> collectBorderColumn(Set<BlockPos> borderBaseBlocks, int groundY, int wallHeight) {
@@ -259,7 +260,7 @@ public class OpenAirPlatformDetector implements StructureDetector<OpenAirPlatfor
             for (BlockPos neighbor : getHorizontalNeighbors(current)) {
                 BlockPos groundNeighbor = new BlockPos(neighbor.getX(), groundY, neighbor.getZ());
                 if (!visited.contains(groundNeighbor) && !borderXZ.contains(groundNeighbor)) {
-                    if (BuildingDetectionUtils.isValidBlock(level.getBlockState(groundNeighbor), platformType.getSurfaceBlocks())) {
+                    if (BuildingDetectionUtil.isValidBlock(level.getBlockState(groundNeighbor), platformType.getSurfaceBlocks())) {
                         visited.add(groundNeighbor);
                         queue.add(groundNeighbor);
                     }

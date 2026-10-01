@@ -6,7 +6,7 @@ import com.hyperbaton.cft.need.HomeNeed;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.structure.Structure;
-import com.hyperbaton.cft.structure.StructureUtils;
+import com.hyperbaton.cft.util.StructureUtil;
 import com.hyperbaton.cft.structure.home.HouseStructure;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
@@ -69,7 +69,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
                         .findFirst()
                         .ifPresent(structure -> {
                             // Only claim it if it's still standing, as with other structures
-                            if (!StructureUtils.recheck(level, structure).success()) {
+                            if (!StructureUtil.recheck(level, structure).success()) {
                                 xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
                                 return;
                             }

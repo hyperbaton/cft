@@ -137,7 +137,7 @@ public class WarmthNeedSatisfier extends NeedSatisfier<WarmthNeed> {
     public void addMemoriesForSatisfaction(XoonglinEntity mob) {
         CampfireUtil.findLitCampfire(mob, getNeed().getSearchRadius()).ifPresent(pos -> {
             mob.getBrain().setMemory(MyAddonMemories.CAMPFIRE.get(), pos);
-            ErrandUtils.start(mob, WARM_UP);
+            ErrandUtil.start(mob, WARM_UP);
         });
     }
 }
@@ -167,7 +167,7 @@ public class WarmUpBehavior extends Behavior<XoonglinEntity> {
     @Override
     protected void stop(ServerLevel level, XoonglinEntity mob, long gameTime) {
         mob.getBrain().eraseMemory(MyAddonMemories.CAMPFIRE.get());
-        ErrandUtils.finish(mob, WarmthNeedSatisfier.WARM_UP);
+        ErrandUtil.finish(mob, WarmthNeedSatisfier.WARM_UP);
     }
 }
 ```
@@ -235,7 +235,7 @@ codec with `propertiesCodec()` and pass the properties to `super`, as needs do. 
   [Keeping structures up to date](datapacks/structures.md#keeping-structures-up-to-date)).
 - `consumesStructure()`: _(optional)_ true if the work takes the structure apart, like the quarry
   miner's, so it stops passing detection. CFT then doesn't detect it again while the Xoonglin
-  works it, and the job retires it itself with `StructureUtils.unregister`.
+  works it, and the job retires it itself with `StructureUtil.unregister`.
 
 **The behavior** extends `JobBehavior<YourJob>`, which does the plumbing every job behavior shares:
 
@@ -331,14 +331,14 @@ against other registered structures, like overlapping, must skip the one at the 
 
 An errand takes a Xoonglin away from its work for something that can't wait, like fetching what a
 need requires. Errands are kept in the `ERRANDS_PAUSING_WORK` memory, as a set of ids, and
-`ErrandUtils` handles them:
+`ErrandUtil` handles them:
 
-- `ErrandUtils.start(xoonglin, id)`: start an errand. While the Xoonglin has any, its job is
+- `ErrandUtil.start(xoonglin, id)`: start an errand. While the Xoonglin has any, its job is
   paused, it goes to the `INVESTIGATE` activity (even in working hours, but not while asleep),
   and the job tab shows "Paused" with the errands' lang entries (`errand.<namespace>.<path>`).
-- `ErrandUtils.finish(xoonglin, id)`: finish it, whether it succeeded or not. Once it has none
+- `ErrandUtil.finish(xoonglin, id)`: finish it, whether it succeeded or not. Once it has none
   left, the job resumes.
-- `ErrandUtils.startUnlessCoolingDown(xoonglin, id, cooldownMemory)`: start it only if the given
+- `ErrandUtil.startUnlessCoolingDown(xoonglin, id, cooldownMemory)`: start it only if the given
   memory isn't set. Set that memory with an expiry when the behavior gives up (e.g. the target
   can't be reached), so the Xoonglin goes back to work for a while before retrying.
 
@@ -350,8 +350,8 @@ starts them again.
 
 ## Extending the Xoonglin brain
 
-`XoonglinBrainEvent` is posted on `NeoForge.EVENT_BUS` while a Xoonglin brain is built, on both
-the server and the client:
+`XoonglinBrainEvent` (in `com.hyperbaton.cft.api.event`, like the [events](#events)) is posted on
+`NeoForge.EVENT_BUS` while a Xoonglin brain is built, on both the server and the client:
 
 - `XoonglinBrainEvent.RegisterMemories`: posted once, the first time a brain is built. Add the
   memories and sensors your behaviors use with `addMemory` and `addSensor`. The brain ignores

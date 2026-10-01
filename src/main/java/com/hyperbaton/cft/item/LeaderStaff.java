@@ -2,7 +2,7 @@ package com.hyperbaton.cft.item;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.util.NeedUtil;
 import com.hyperbaton.cft.network.CheckOnXoonglinPacket;
 import com.hyperbaton.cft.network.NeedSatisfactionData;
 import com.hyperbaton.cft.network.StructureDetectionPacket;
@@ -10,7 +10,7 @@ import com.hyperbaton.cft.structure.StructureDetectionReasons;
 import com.hyperbaton.cft.structure.StructureDetectionResult;
 import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.structure.Structure;
-import com.hyperbaton.cft.structure.StructureUtils;
+import com.hyperbaton.cft.util.StructureUtil;
 import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.util.LangUtil;
 import com.hyperbaton.cft.world.StructuresData;
@@ -45,7 +45,7 @@ public class LeaderStaff extends Item {
             ServerLevel serverLevel = (ServerLevel) pContext.getLevel();
 
             if (clickedOnKeyBlock(pContext)) {
-                BlockPos clickedPos = StructureUtils.keyBlockPos(
+                BlockPos clickedPos = StructureUtil.keyBlockPos(
                         serverLevel.getBlockState(pContext.getClickedPos()), pContext.getClickedPos());
                 StructureDetectionPacket structureMessage = detectStructure(clickedPos, serverLevel, player.getUUID());
                 PacketDistributor.sendToPlayer((ServerPlayer) player, structureMessage);
@@ -77,7 +77,7 @@ public class LeaderStaff extends Item {
     }
 
     private CheckOnXoonglinPacket createXoonglinInfoMessage(XoonglinEntity entity) {
-        Map<ResourceLocation, NeedSatisfactionData> needsData = NeedUtils.buildNeedsData(entity);
+        Map<ResourceLocation, NeedSatisfactionData> needsData = NeedUtil.buildNeedsData(entity);
 
         return new CheckOnXoonglinPacket(
                 entity.getCustomName(),
@@ -123,7 +123,7 @@ public class LeaderStaff extends Item {
         StructureType bestFailureType = null;
 
         for (StructureType structureType : matchingTypes) {
-            StructureDetectionResult result = StructureUtils.detect(level, structureType, clickedPos, leaderId);
+            StructureDetectionResult result = StructureUtil.detect(level, structureType, clickedPos, leaderId);
             if (result.success()) {
                 ResourceLocation structureTypeId = CftRegistry.getStructureTypeId(structureType);
                 if (registered.isPresent() && registered.get().getStructureTypeId().equals(structureTypeId)) {
@@ -133,7 +133,7 @@ public class LeaderStaff extends Item {
                     return new StructureDetectionPacket(true, Optional.of(structureTypeId),
                             StructureDetectionReasons.STRUCTURE_CONFIRMED, Collections.emptyList());
                 }
-                registered.ifPresent(previous -> StructureUtils.unregister(level, previous));
+                registered.ifPresent(previous -> StructureUtil.unregister(level, previous));
                 structuresData.addStructure(result.structure());
 
                 return new StructureDetectionPacket(true, Optional.of(structureTypeId),
@@ -147,7 +147,7 @@ public class LeaderStaff extends Item {
 
         List<Component> details = new ArrayList<>(bestFailure != null ? bestFailure.validationDetails() : List.of());
         if (registered.isPresent()) {
-            StructureUtils.unregister(level, registered.get());
+            StructureUtil.unregister(level, registered.get());
             details.add(Component.translatable("detection.cft.unregistered",
                     LangUtil.structureName(registered.get().getStructureTypeId())));
         }

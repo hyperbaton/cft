@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.commands;
 
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
-import com.hyperbaton.cft.socialclass.SocialStructureHelper;
+import com.hyperbaton.cft.util.SocialStructureUtil;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -39,8 +39,7 @@ public class HappinessLadderCommand {
     }
 
     private Integer getHappinessForPlayer(ServerPlayer player, ServerLevel level) {
-        return SocialStructureHelper.getAllXoonglins(level).stream()
-                .filter(xoonglin -> player.getUUID().equals(xoonglin.getLeaderId()))
+        return SocialStructureUtil.getLeaderXoonglins(level, player.getUUID()).stream()
                 .map(XoonglinEntity::getHappiness)
                 .reduce(0.0, Double::sum).intValue();
 

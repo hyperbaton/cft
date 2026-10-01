@@ -1,7 +1,7 @@
 package com.hyperbaton.cft.event;
 
 import com.hyperbaton.cft.CftMod;
-import com.hyperbaton.cft.structure.StructureUtils;
+import com.hyperbaton.cft.util.StructureUtil;
 import com.hyperbaton.cft.util.LangUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.network.chat.Component;
@@ -22,9 +22,9 @@ public class CftBlockEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
-        StructuresData.get(level).findByKeyBlock(StructureUtils.keyBlockPos(event.getState(), event.getPos()))
+        StructuresData.get(level).findByKeyBlock(StructureUtil.keyBlockPos(event.getState(), event.getPos()))
                 .ifPresent(structure -> {
-                    StructureUtils.unregister(level, structure);
+                    StructureUtil.unregister(level, structure);
                     event.getPlayer().displayClientMessage(Component.translatable("message.cft.structure_unregistered",
                             LangUtil.structureName(structure.getStructureTypeId())), true);
                 });

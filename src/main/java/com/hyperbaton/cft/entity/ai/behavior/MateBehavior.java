@@ -4,7 +4,7 @@ import com.hyperbaton.cft.entity.CftEntities;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.spawner.XoonglinSpawner;
-import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.util.NeedUtil;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.server.level.ServerLevel;
@@ -104,7 +104,7 @@ public class MateBehavior extends Behavior<XoonglinEntity> {
                 .getStructures().stream()
                 .filter(Structure::hasCapacity)
                 .filter(s -> s.getLeaderId().equals(xoonglin.getLeaderId()))
-                .filter(s -> NeedUtils.classMeetsStructureType(xoonglin.getSocialClass(), s.getStructureTypeId()))
+                .filter(s -> NeedUtil.classMeetsStructureType(xoonglin.getSocialClass(), s.getStructureTypeId()))
                 .min(Comparator.comparingDouble(s -> Vec3.atCenterOf(s.getKeyBlockPos()).distanceToSqr(xoonglin.getEyePosition())));
     }
 

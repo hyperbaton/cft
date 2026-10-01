@@ -7,19 +7,19 @@ import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.JobState;
 import com.hyperbaton.cft.api.event.JobChangeEvent;
 import com.hyperbaton.cft.api.event.SocialClassChangeEvent;
-import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
+import com.hyperbaton.cft.util.ScheduleUtil;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfierMapper;
-import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.util.NeedUtil;
 import com.hyperbaton.cft.entity.CftEntities;
-import com.hyperbaton.cft.entity.ai.ErrandUtils;
+import com.hyperbaton.cft.util.ErrandUtil;
 import com.hyperbaton.cft.entity.ai.XoonglinAi;
 import com.hyperbaton.cft.entity.ai.activity.CftActivities;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
-import com.hyperbaton.cft.socialclass.SocialStructureHelper;
+import com.hyperbaton.cft.util.SocialStructureUtil;
 import com.hyperbaton.cft.sound.CftSounds;
 import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.structure.home.HouseStructure;
@@ -211,16 +211,16 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         // Attending a ritual preempts the day job
         return getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())
                 // Outside the working hours of its schedule
-                || ScheduleUtils.isOffDuty(this)
+                || ScheduleUtil.isOffDuty(this)
                 // Errands like fetching supplies come first: the job resumes once they're done
-                || ErrandUtils.hasErrands(this);
+                || ErrandUtil.hasErrands(this);
     }
 
     @Override
     protected void customServerAiStep() {
         Brain<XoonglinEntity> brain = this.getBrain();
 
-        ScheduleUtils.updateBrainSchedule(this);
+        ScheduleUtil.updateBrainSchedule(this);
         brain.tick((ServerLevel) level(), this);
         updateActivity();
     }
@@ -228,7 +228,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private void updateActivity() {
         if (this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_ATTEND_RITUAL.get())) {
             setActivity(Activity.INVESTIGATE);
-        } else if (ErrandUtils.hasErrands(this) && !this.isSleeping()) {
+        } else if (ErrandUtil.hasErrands(this) && !this.isSleeping()) {
             setActivity(Activity.INVESTIGATE);
         } else if (isWorkingAtJob()) {
             setActivity(Activity.WORK);
@@ -273,11 +273,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     /** At home during the rest time of its schedule, or whenever it's time to go to bed. */
     private boolean shouldRest() {
-        return this.home != null && (ScheduleUtils.is(this, Activity.REST) || shouldSleep());
+        return this.home != null && (ScheduleUtil.is(this, Activity.REST) || shouldSleep());
     }
 
     private boolean shouldSleep() {
-        return ScheduleUtils.isSleepTime(this)
+        return ScheduleUtil.isSleepTime(this)
                 && (this.getBrain().hasMemoryValue(CftMemoryModuleType.MUST_SLEEP.get()) || this.isSleeping());
     }
 
@@ -491,7 +491,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private boolean checkSocialStructureForUpgrade(Map<SocialClass, Integer> socialStructure, SocialClassUpdate socialClassUpdate) {
         if (socialClassUpdate.getSocialStructureRequirements() != null) {
             return socialClassUpdate.getSocialStructureRequirements().stream().allMatch(socialStructureRequirement ->
-                    SocialStructureHelper.computeScopedPercentage(socialStructure, socialStructureRequirement.getSocialClass(),
+                    SocialStructureUtil.computeScopedPercentage(socialStructure, socialStructureRequirement.getSocialClass(),
                             socialStructureRequirement.getScope()) > socialStructureRequirement.getPercentage());
         } else {
             return true;
@@ -518,7 +518,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     private boolean checkSocialStructureForDowngrade(Map<SocialClass, Integer> socialStructure, SocialClassUpdate socialClassUpdate) {
         if (socialClassUpdate.getSocialStructureRequirements() != null) {
             return socialClassUpdate.getSocialStructureRequirements().stream().anyMatch(socialStructureRequirement ->
-                    SocialStructureHelper.computeScopedPercentage(socialStructure, socialStructureRequirement.getSocialClass(),
+                    SocialStructureUtil.computeScopedPercentage(socialStructure, socialStructureRequirement.getSocialClass(),
                             socialStructureRequirement.getScope()) < socialStructureRequirement.getPercentage());
         } else {
             return false;
@@ -526,11 +526,11 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     }
 
     private Map<SocialClass, Integer> getSocialStructure() {
-        return SocialStructureHelper.computeSocialStructureForPlayer((ServerLevel) this.level(), (ServerPlayer) this.level().getPlayerByUUID(this.leaderId));
+        return SocialStructureUtil.computeSocialStructureForPlayer((ServerLevel) this.level(), (ServerPlayer) this.level().getPlayerByUUID(this.leaderId));
     }
 
     private Map<SocialClass, Integer> getSocialStructureWithUpgrade(ResourceLocation fromClass, ResourceLocation toClass) {
-        return SocialStructureHelper.computeSocialStructureForPlayerWithUpgrade((ServerLevel) this.level(),
+        return SocialStructureUtil.computeSocialStructureForPlayerWithUpgrade((ServerLevel) this.level(),
                 (ServerPlayer) this.level().getPlayerByUUID(this.leaderId),
                 fromClass,
                 toClass);
@@ -548,7 +548,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             return;
         }
         this.socialClass = newClass;
-        this.needs = NeedUtils.getNeedsForClass(newClass);
+        this.needs = NeedUtil.getNeedsForClass(newClass);
         this.entityData.set(SOCIAL_CLASS_NAME, newClassId.toString());
         assignEligibleJobIfNeeded();
         resetMatingDelay();
@@ -565,7 +565,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public void loseHome() {
         this.home = null;
         this.getBrain().eraseMemory(CftMemoryModuleType.HOME_CONTAINER.get());
-        ErrandUtils.finish(this, ErrandUtils.SUPPLIES);
+        ErrandUtil.finish(this, ErrandUtil.SUPPLIES);
         this.getBrain().setMemory(CftMemoryModuleType.HOME_NEEDED.get(), true);
     }
 

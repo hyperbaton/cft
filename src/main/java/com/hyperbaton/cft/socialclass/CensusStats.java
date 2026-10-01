@@ -3,6 +3,7 @@ package com.hyperbaton.cft.socialclass;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
+import com.hyperbaton.cft.util.SocialStructureUtil;
 import com.hyperbaton.cft.world.PopulationHistoryData;
 import com.hyperbaton.cft.world.PopulationSnapshot;
 import io.netty.buffer.ByteBuf;
@@ -59,7 +60,7 @@ public record CensusStats(
     }
 
     public static CensusStats build(ServerLevel level, UUID leaderId) {
-        List<XoonglinEntity> xoonglins = getLeaderXoonglins(level, leaderId);
+        List<XoonglinEntity> xoonglins = SocialStructureUtil.getLeaderXoonglins(level, leaderId);
 
         Map<ResourceLocation, Integer> population = new HashMap<>();
         Map<ResourceLocation, Double> happinessSums = new HashMap<>();
@@ -107,7 +108,7 @@ public record CensusStats(
         if (historyData.getLastRecordedDay() == day) return;
 
         Map<UUID, List<XoonglinEntity>> xoonglinsByLeader = new HashMap<>();
-        for (XoonglinEntity xoonglin : SocialStructureHelper.getAllXoonglins(level)) {
+        for (XoonglinEntity xoonglin : SocialStructureUtil.getAllXoonglins(level)) {
             if (xoonglin.getLeaderId() != null && xoonglin.getSocialClass() != null) {
                 xoonglinsByLeader.computeIfAbsent(xoonglin.getLeaderId(), id -> new ArrayList<>()).add(xoonglin);
             }
@@ -124,12 +125,6 @@ public record CensusStats(
             happinessSum += xoonglin.getHappiness();
         }
         return new PopulationSnapshot(day, counts, xoonglins.isEmpty() ? 0 : happinessSum / xoonglins.size());
-    }
-
-    private static List<XoonglinEntity> getLeaderXoonglins(ServerLevel level, UUID leaderId) {
-        return SocialStructureHelper.getAllXoonglins(level).stream()
-                .filter(xoonglin -> leaderId.equals(xoonglin.getLeaderId()) && xoonglin.getSocialClass() != null)
-                .toList();
     }
 
     private static PopulationHistoryData getHistoryData(ServerLevel level) {

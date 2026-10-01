@@ -1,7 +1,11 @@
-package com.hyperbaton.cft.structure;
+package com.hyperbaton.cft.util;
 
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.api.event.StructureDetectedEvent;
+import com.hyperbaton.cft.structure.Structure;
+import com.hyperbaton.cft.structure.StructureDetectionReasons;
+import com.hyperbaton.cft.structure.StructureDetectionResult;
+import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -22,10 +26,10 @@ import java.util.UUID;
  * leader clicks it with the staff; one that no longer passes is unregistered, and the Xoonglins
  * using it give it up the next time they're about to use it.
  */
-public final class StructureUtils {
+public final class StructureUtil {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private StructureUtils() {
+    private StructureUtil() {
     }
 
     /**

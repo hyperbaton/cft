@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.structure.Structure;
-import com.hyperbaton.cft.structure.StructureUtils;
+import com.hyperbaton.cft.util.StructureUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -72,7 +72,7 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
                             .ifPresent(structure -> {
                                 // Only claim if it is still standing; a broken structure is
                                 // unregistered so nobody claims it, and the search restarts
-                                if (!StructureUtils.recheck(level, structure).success()) {
+                                if (!StructureUtil.recheck(level, structure).success()) {
                                     xoonglin.getBrain().eraseMemory(CftMemoryModuleType.STRUCTURE_CANDIDATE_POSITION.get());
                                     return;
                                 }

@@ -1,5 +1,7 @@
-package com.hyperbaton.cft.structure;
+package com.hyperbaton.cft.util;
 
+import com.hyperbaton.cft.structure.LightingRequirement;
+import com.hyperbaton.cft.structure.ValidBlock;
 import net.minecraft.network.chat.MutableComponent;
 import com.google.common.collect.Sets;
 import com.hyperbaton.cft.CftConfig;
@@ -21,7 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class BuildingDetectionUtils {
+public class BuildingDetectionUtil {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static boolean findFloor(Level level, BlockPos testPos, Set<BlockPos> floorBlocks,

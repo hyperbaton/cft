@@ -1,5 +1,6 @@
 package com.hyperbaton.cft.structure.detector;
 
+import com.hyperbaton.cft.util.BuildingDetectionUtil;
 import net.minecraft.network.chat.Component;
 import com.hyperbaton.cft.CftRegistry;
 import com.google.common.collect.Sets;
@@ -37,7 +38,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
         BlockPos surfaceStart = null;
         BlockPos probe = keyBlockPos.below();
         for (int i = 0; i < MAX_KEY_BLOCK_PILLAR_HEIGHT; i++) {
-            if (BuildingDetectionUtils.isValidBlock(level.getBlockState(probe), structureType.getSurfaceBlocks())) {
+            if (BuildingDetectionUtil.isValidBlock(level.getBlockState(probe), structureType.getSurfaceBlocks())) {
                 surfaceStart = probe;
                 break;
             }
@@ -77,7 +78,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
         }
 
         Predicate<BlockState> noSkip = bs -> false;
-        List<Component> surfaceErrors = BuildingDetectionUtils.checkValidBlocks(level, surfaceBlocks,
+        List<Component> surfaceErrors = BuildingDetectionUtil.checkValidBlocks(level, surfaceBlocks,
                 structureType.getSurfaceBlocks(), noSkip);
         if (!surfaceErrors.isEmpty()) {
             return StructureDetectionResult.failure(StructureDetectionReasons.INVALID_SURFACE, surfaceErrors);
@@ -117,7 +118,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
                     StructureDetectionReasons.MISSING_REQUIRED_STRUCTURES, structureErrors);
         }
 
-        if (structureType.isRequiresContainer() && !BuildingDetectionUtils.hasContainers(level, surfaceBlocks)) {
+        if (structureType.isRequiresContainer() && !BuildingDetectionUtil.hasContainers(level, surfaceBlocks)) {
             return StructureDetectionResult.failure(StructureDetectionReasons.NO_CONTAINER);
         }
 
@@ -137,7 +138,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
 
     private boolean floodFillSurface(ServerLevel level, BlockPos startPos, Set<BlockPos> surfaceBlocks,
                                      CompoundStructureType compoundType) {
-        if (!BuildingDetectionUtils.isValidBlock(level.getBlockState(startPos), compoundType.getSurfaceBlocks())) {
+        if (!BuildingDetectionUtil.isValidBlock(level.getBlockState(startPos), compoundType.getSurfaceBlocks())) {
             return true;
         }
 
@@ -156,7 +157,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
 
             for (BlockPos neighbor : List.of(current.north(), current.south(), current.east(), current.west())) {
                 if (!visited.contains(neighbor)
-                        && BuildingDetectionUtils.isValidBlock(level.getBlockState(neighbor),
+                        && BuildingDetectionUtil.isValidBlock(level.getBlockState(neighbor),
                         compoundType.getSurfaceBlocks())) {
                     visited.add(neighbor);
                     queue.add(neighbor);

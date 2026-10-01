@@ -1,11 +1,11 @@
 package com.hyperbaton.cft.need.satisfaction;
 
 import com.hyperbaton.cft.CftConfig;
-import com.hyperbaton.cft.entity.ai.ErrandUtils;
+import com.hyperbaton.cft.util.ErrandUtil;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.FluidNeed;
-import com.hyperbaton.cft.need.NeedUtils;
+import com.hyperbaton.cft.util.NeedUtil;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -50,23 +50,23 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
                     if (FluidStack.isSameFluidSameComponents(drainSimulated, requiredFluid) && drainSimulated.getAmount() >= requiredFluid.getAmount()) {
                         LOGGER.trace("Sufficient fluid available, executing drain.");
                         mob.getBrain().eraseMemory(fluidContainerMemoryType());
-                        ErrandUtils.finish(mob, ErrandUtils.FLUID);
+                        ErrandUtil.finish(mob, ErrandUtil.FLUID);
                         return tryDrainFluid(mob, handler, requiredFluid);
                     } else {
                         LOGGER.trace("Not enough fluid available. Removing memory of container.");
                         mob.getBrain().eraseMemory(fluidContainerMemoryType());
-                        ErrandUtils.finish(mob, ErrandUtils.FLUID);
+                        ErrandUtil.finish(mob, ErrandUtil.FLUID);
                         mob.getBrain().setMemoryWithExpiry(CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get(), true, CftConfig.SUPPLY_COOLDOWN.get());
                         return fail(mob);
                     }
                 } else {
                     LOGGER.trace("No valid fluid handler found at remembered container position. Xoonglin {} will forget it.", mob.getCustomName().getString());
                     mob.getBrain().eraseMemory(fluidContainerMemoryType());
-                    ErrandUtils.finish(mob, ErrandUtils.FLUID);
+                    ErrandUtil.finish(mob, ErrandUtil.FLUID);
                 }
             } else {
                 LOGGER.trace("Xoonglin {} is too far from the remembered container. Cannot retrieve fluid.", mob.getCustomName().getString());
-                ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.FLUID, CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get());
+                ErrandUtil.startUnlessCoolingDown(mob, ErrandUtil.FLUID, CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get());
                 return fail(mob);
             }
         } else {
@@ -76,11 +76,11 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
             if (validFluidContainer.isPresent()) {
                 LOGGER.trace("Found a new fluid container for Xoonglin {} at {}", mob.getCustomName().getString(), validFluidContainer.get());
                 mob.getBrain().setMemory(fluidContainerMemoryType(), validFluidContainer.get());
-                ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.FLUID, CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get());
+                ErrandUtil.startUnlessCoolingDown(mob, ErrandUtil.FLUID, CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get());
             } else {
                 LOGGER.trace("No fluid container found for Xoonglin {}. Need cannot be satisfied.", mob.getCustomName().getString());
                 mob.getBrain().eraseMemory(fluidContainerMemoryType());
-                ErrandUtils.finish(mob, ErrandUtils.FLUID);
+                ErrandUtil.finish(mob, ErrandUtil.FLUID);
             }
         }
 
@@ -92,12 +92,12 @@ public class FluidNeedSatisfier extends NeedSatisfier<FluidNeed> {
     public void addMemoriesForSatisfaction(XoonglinEntity mob) {
         findFluidContainer(mob, this.need.getFluidStack()).ifPresent(pos -> {
             mob.getBrain().setMemory(fluidContainerMemoryType(), pos);
-            ErrandUtils.startUnlessCoolingDown(mob, ErrandUtils.FLUID, CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get());
+            ErrandUtil.startUnlessCoolingDown(mob, ErrandUtil.FLUID, CftMemoryModuleType.FLUID_SUPPLY_COOLDOWN.get());
         });
     }
 
     private Optional<BlockPos> findFluidContainer(XoonglinEntity mob, FluidStack requiredFluid) {
-        return NeedUtils.supplySourcePositions(mob).stream()
+        return NeedUtil.supplySourcePositions(mob).stream()
                 .filter(pos -> {
                     IFluidHandler handler = getFluidHandlerAt((ServerLevel) mob.level(), pos);
                     return handler != null && FluidStack.isSameFluidSameComponents(
