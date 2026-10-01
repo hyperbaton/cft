@@ -15,6 +15,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -27,6 +28,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.Optional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +51,7 @@ public class LeaderStaff extends Item {
                 PacketDistributor.sendToPlayer((ServerPlayer) player, structureMessage);
             } else {
                 StructureDetectionPacket message = new StructureDetectionPacket(
-                        false, "", StructureDetectionReasons.NOT_A_KEY_BLOCK, Collections.emptyList());
+                        false, Optional.empty(), StructureDetectionReasons.NOT_A_KEY_BLOCK, Collections.emptyList());
                 PacketDistributor.sendToPlayer((ServerPlayer) player, message);
             }
         }
@@ -75,7 +77,7 @@ public class LeaderStaff extends Item {
     }
 
     private CheckOnXoonglinPacket createXoonglinInfoMessage(XoonglinEntity entity) {
-        Map<String, NeedSatisfactionData> needsData = NeedUtils.buildNeedsData(entity);
+        Map<ResourceLocation, NeedSatisfactionData> needsData = NeedUtils.buildNeedsData(entity);
 
         return new CheckOnXoonglinPacket(
                 entity.getCustomName(),
@@ -108,7 +110,7 @@ public class LeaderStaff extends Item {
 
         Optional<Structure> registered = structuresData.findByKeyBlock(clickedPos);
         if (registered.isPresent() && !registered.get().getLeaderId().equals(leaderId)) {
-            return new StructureDetectionPacket(false, "", StructureDetectionReasons.ALREADY_REGISTERED, Collections.emptyList());
+            return new StructureDetectionPacket(false, Optional.empty(), StructureDetectionReasons.ALREADY_REGISTERED, Collections.emptyList());
         }
 
         BlockState clickedState = level.getBlockState(clickedPos);
@@ -123,18 +125,18 @@ public class LeaderStaff extends Item {
         for (StructureType structureType : matchingTypes) {
             StructureDetectionResult result = structureType.detect(clickedPos, level, leaderId);
             if (result.success()) {
-                String structureTypeId = CftRegistry.getStructureTypeId(structureType);
+                ResourceLocation structureTypeId = CftRegistry.getStructureTypeId(structureType);
                 if (registered.isPresent() && registered.get().getStructureTypeId().equals(structureTypeId)) {
                     // Still the same structure: it keeps its users, and takes any changes to its blocks
                     registered.get().update(result.structure());
                     structuresData.setDirty();
-                    return new StructureDetectionPacket(true, structureTypeId,
+                    return new StructureDetectionPacket(true, Optional.of(structureTypeId),
                             StructureDetectionReasons.STRUCTURE_CONFIRMED, Collections.emptyList());
                 }
                 registered.ifPresent(previous -> StructureUtils.unregister(level, previous));
                 structuresData.addStructure(result.structure());
 
-                return new StructureDetectionPacket(true, structureTypeId,
+                return new StructureDetectionPacket(true, Optional.of(structureTypeId),
                         StructureDetectionReasons.STRUCTURE_DETECTED, Collections.emptyList());
             }
             if (bestFailure == null || result.reason().ordinal() > bestFailure.reason().ordinal()) {
@@ -147,17 +149,17 @@ public class LeaderStaff extends Item {
         if (registered.isPresent()) {
             StructureUtils.unregister(level, registered.get());
             details.add(Component.translatable("detection.cft.unregistered",
-                    Component.translatable(registered.get().getStructureTypeId())));
+                    Component.translatable(registered.get().getStructureTypeId().toString())));
         }
 
         if (bestFailure != null) {
             // Several structure types can share a key block; sending the type id lets
             // the client label the failure with the (translated) type that came closest
-            return new StructureDetectionPacket(false, CftRegistry.getStructureTypeId(bestFailureType),
+            return new StructureDetectionPacket(false, Optional.of(CftRegistry.getStructureTypeId(bestFailureType)),
                     bestFailure.reason(), details);
         }
 
-        return new StructureDetectionPacket(false, "", StructureDetectionReasons.NOT_A_KEY_BLOCK, details);
+        return new StructureDetectionPacket(false, Optional.empty(), StructureDetectionReasons.NOT_A_KEY_BLOCK, details);
     }
 
 }

@@ -163,7 +163,7 @@ public final class JobUtil {
      * it's used. If it's gone (torn down or unregistered), the Xoonglin gives it up, so its job or need
      * looks for another one. A structure its job takes apart, like a quarry, isn't detected again.
      */
-    public static Optional<Structure> checkAssignedStructure(XoonglinEntity xoonglin, String structureTypeId) {
+    public static Optional<Structure> checkAssignedStructure(XoonglinEntity xoonglin, ResourceLocation structureTypeId) {
         BlockPos keyBlockPos = xoonglin.getAssignedStructurePos(structureTypeId);
         if (keyBlockPos == null) return Optional.empty();
         ServerLevel level = (ServerLevel) xoonglin.level();
@@ -183,7 +183,7 @@ public final class JobUtil {
      * tick of work; if it's gone, the Xoonglin gives it up and the job looks for another one.
      */
     public static boolean checkWorkplace(XoonglinEntity xoonglin, Job job) {
-        String structureTypeId = job.getRequiredStructureType();
+        ResourceLocation structureTypeId = job.getRequiredStructureType();
         if (structureTypeId == null || xoonglin.getAssignedStructurePos(structureTypeId) == null
                 || xoonglin.getBrain().hasMemoryValue(job.getWorkMemory())) {
             return true;
@@ -192,14 +192,14 @@ public final class JobUtil {
     }
 
     /** Whether the structure type is its job's workplace and the job takes it apart, like a quarry. */
-    private static boolean consumesStructure(XoonglinEntity xoonglin, String structureTypeId) {
+    private static boolean consumesStructure(XoonglinEntity xoonglin, ResourceLocation structureTypeId) {
         Job job = xoonglin.getJob() != null ? CftRegistry.JOBS.get(xoonglin.getJob()) : null;
         return job != null && job.consumesStructure() && structureTypeId.equals(job.getRequiredStructureType());
     }
 
     private static boolean isWorkingFor(XoonglinEntity worker, Structure structure) {
         Job job = worker.getJob() != null ? CftRegistry.JOBS.get(worker.getJob()) : null;
-        String structureType = structure.getStructureTypeId();
+        ResourceLocation structureType = structure.getStructureTypeId();
         return job != null && structureType.equals(job.getRequiredStructureType())
                 && structure.getKeyBlockPos().equals(worker.getAssignedStructurePos(structureType))
                 && worker.isWorkingAtJob();

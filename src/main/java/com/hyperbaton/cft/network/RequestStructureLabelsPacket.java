@@ -62,7 +62,7 @@ public record RequestStructureLabelsPacket() implements CustomPacketPayload {
     }
 
     private static String buildLabel(Structure structure, ServerLevel level) {
-        String translatedName = Component.translatable(structure.getStructureTypeId()).getString();
+        String translatedName = Component.translatable(structure.getStructureTypeId().toString()).getString();
 
         if (isOccupiedSingleUserHouse(structure)) {
             UUID userId = structure.getUserIds().get(0);

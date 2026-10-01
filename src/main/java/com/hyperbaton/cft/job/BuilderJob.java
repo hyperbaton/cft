@@ -9,6 +9,7 @@ import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.SimpleContainer;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,38 +25,38 @@ public class BuilderJob extends Job {
 
     public static final Codec<BuilderJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
-            Codec.STRING.optionalFieldOf("required_structure", "").forGetter(j -> j.requiredStructure),
-            Codec.STRING.fieldOf("storage_structure").forGetter(j -> j.storageStructure),
+            ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
+            ResourceLocation.CODEC.fieldOf("storage_structure").forGetter(j -> j.storageStructure),
             Codec.INT.optionalFieldOf("build_radius", 64).forGetter(j -> j.buildRadius),
             Codec.INT.optionalFieldOf("build_speed", 20).forGetter(j -> j.buildSpeed),
-            Codec.STRING.listOf().fieldOf("buildable_structures").forGetter(j -> j.buildableStructures),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().fieldOf("buildable_structures").forGetter(j -> j.buildableStructures),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, BuilderJob::new));
 
     private final double hoursPerDay;
-    private final String requiredStructure;
-    private final String storageStructure;
+    private final ResourceLocation requiredStructure;
+    private final ResourceLocation storageStructure;
     private final int buildRadius;
     private final int buildSpeed;
-    private final List<String> buildableStructures;
+    private final List<ResourceLocation> buildableStructures;
 
-    public BuilderJob(double hoursPerDay, String requiredStructure, String storageStructure,
-                      int buildRadius, int buildSpeed, List<String> buildableStructures,
-                      List<String> requiredNeeds, double minHappiness,
+    public BuilderJob(double hoursPerDay, Optional<ResourceLocation> requiredStructure, ResourceLocation storageStructure,
+                      int buildRadius, int buildSpeed, List<ResourceLocation> buildableStructures,
+                      List<ResourceLocation> requiredNeeds, double minHappiness,
                       boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
-        this.requiredStructure = requiredStructure;
+        this.requiredStructure = requiredStructure.orElse(null);
         this.storageStructure = storageStructure;
         this.buildRadius = buildRadius;
         this.buildSpeed = buildSpeed;
         this.buildableStructures = List.copyOf(buildableStructures);
     }
 
-    public String getStorageStructure() {
+    public ResourceLocation getStorageStructure() {
         return storageStructure;
     }
 
@@ -66,13 +68,13 @@ public class BuilderJob extends Job {
         return buildSpeed;
     }
 
-    public List<String> getBuildableStructures() {
+    public List<ResourceLocation> getBuildableStructures() {
         return buildableStructures;
     }
 
     @Override
-    public String getRequiredStructureType() {
-        return requiredStructure.isEmpty() ? null : requiredStructure;
+    public ResourceLocation getRequiredStructureType() {
+        return requiredStructure;
     }
 
     @Override
@@ -98,7 +100,7 @@ public class BuilderJob extends Job {
 
         Brain<XoonglinEntity> brain = xoonglin.getBrain();
 
-        boolean needsStructure = !requiredStructure.isEmpty()
+        boolean needsStructure = requiredStructure != null
                 && xoonglin.getAssignedStructurePos(requiredStructure) == null;
 
         if (needsStructure) {
@@ -132,7 +134,7 @@ public class BuilderJob extends Job {
         boolean canDoWork = canWork(xoonglin);
         boolean doneForDay = state.workedTicksToday >= neededTicks;
 
-        boolean needsStructure = !requiredStructure.isEmpty()
+        boolean needsStructure = requiredStructure != null
                 && xoonglin.getAssignedStructurePos(requiredStructure) == null;
 
         JobStatus status;

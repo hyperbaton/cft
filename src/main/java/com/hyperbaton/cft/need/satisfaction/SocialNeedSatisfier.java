@@ -3,6 +3,7 @@ package com.hyperbaton.cft.need.satisfaction;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.SocialNeed;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 
@@ -27,7 +28,7 @@ public class SocialNeedSatisfier extends NeedSatisfier<SocialNeed> {
             max = min; // keep sane bounds
         }
 
-        List<String> acceptable = need.getAcceptedSocialClassIds();
+        List<ResourceLocation> acceptable = need.getAcceptedSocialClassIds();
 
 
         // Look for nearby Xoonglins within the radius, using a box centered on the mob.
@@ -44,7 +45,7 @@ public class SocialNeedSatisfier extends NeedSatisfier<SocialNeed> {
                         && mob.getLeaderId().equals(nearbyXoonglin.getLeaderId()))
                 .filter(e -> {
                     if (acceptable == null || acceptable.isEmpty()) return true;
-                    String classId = e.getSocialClassId();
+                    ResourceLocation classId = e.getSocialClassId();
                     return classId != null && acceptable.contains(classId);
                 }).count();
 

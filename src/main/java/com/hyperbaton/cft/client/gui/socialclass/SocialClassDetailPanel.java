@@ -41,13 +41,13 @@ public class SocialClassDetailPanel {
     private final Font font;
     private final Registry<Need> needRegistry;
 
-    private String selectedClassId;
+    private ResourceLocation selectedClassId;
     private SocialClass selectedClass;
     private List<DetailLine> cachedLines = new ArrayList<>();
     private double scrollOffset = 0;
     private int totalContentHeight = 0;
     private int tickCounter = 0;
-    private String hoveredNeedId;
+    private ResourceLocation hoveredNeedId;
 
     public SocialClassDetailPanel(int x, int y, int width, int height, Font font, Registry<Need> needRegistry) {
         this.x = x;
@@ -58,7 +58,7 @@ public class SocialClassDetailPanel {
         this.needRegistry = needRegistry;
     }
 
-    public void setSelectedClass(String socialClassId, SocialClass socialClass) {
+    public void setSelectedClass(ResourceLocation socialClassId, SocialClass socialClass) {
         this.selectedClassId = socialClassId;
         this.selectedClass = socialClass;
         this.scrollOffset = 0;
@@ -122,7 +122,7 @@ public class SocialClassDetailPanel {
         cachedLines.clear();
         if (selectedClass == null) return;
 
-        String className = Component.translatable(selectedClassId).getString();
+        String className = Component.translatable(selectedClassId.toString()).getString();
         cachedLines.add(new StaticLine(className, HEADER_COLOR, 0, LINE_HEIGHT + 4, true));
 
         if (!selectedClass.getJobs().isEmpty()) {
@@ -141,8 +141,8 @@ public class SocialClassDetailPanel {
                 Component.translatable("gui.cft.needs").getString(), SECTION_HEADER_COLOR, 0, LINE_HEIGHT + 2, true
         ));
 
-        for (String needId : selectedClass.getNeeds()) {
-            Need need = needRegistry.get(ResourceLocation.tryParse(needId));
+        for (ResourceLocation needId : selectedClass.getNeeds()) {
+            Need need = needRegistry.get(needId);
             if (need != null && !need.isHidden()) {
                 renderNeedInfo(needId, need);
             }
@@ -176,8 +176,8 @@ public class SocialClassDetailPanel {
         cachedLines.add(new StaticLine(label, LABEL_COLOR, 4, LINE_HEIGHT, false));
     }
 
-    private void renderNeedInfo(String needId, Need need) {
-        String needName = Component.translatable(needId).getString();
+    private void renderNeedInfo(ResourceLocation needId, Need need) {
+        String needName = Component.translatable(needId.toString()).getString();
         String typeName = getNeedTypeName(need);
         String line = needName + " (" + typeName + ")";
         List<ResourceLocation> icons = need.getIcons();
@@ -205,23 +205,23 @@ public class SocialClassDetailPanel {
     }
 
     private void renderTransition(SocialClassUpdate update, boolean isUpgrade) {
-        String targetName = Component.translatable(update.getNextClass()).getString();
+        String targetName = Component.translatable(update.getNextClass().toString()).getString();
         int color = isUpgrade ? UPGRADE_COLOR : DOWNGRADE_COLOR;
         cachedLines.add(new StaticLine("→ " + targetName, color, 4, LINE_HEIGHT, false));
 
         for (NeedSatisfaction ns : update.getRequiredNeeds()) {
-            String needName = Component.translatable(ns.getNeed()).getString();
+            String needName = Component.translatable(ns.getNeed().toString()).getString();
             String statusKey = isUpgrade ? "gui.cft.need_satisfied" : "gui.cft.need_dissatisfied";
             String status = Component.translatable(statusKey, needName).getString();
             cachedLines.add(new StaticLine("  " + status, LABEL_COLOR, 8, LINE_HEIGHT, false));
         }
 
         for (SocialStructureRequirement req : update.getSocialStructureRequirements()) {
-            String className = Component.translatable(req.getSocialClass()).getString();
+            String className = Component.translatable(req.getSocialClass().toString()).getString();
             String scopeLabel = req.getScope() == null || req.getScope().isEmpty()
                     ? Component.translatable("gui.cft.of_population").getString()
                     : Component.translatable("gui.cft.of_scope",
-                            String.join(", ", req.getScope().stream().map(id -> Component.translatable(id).getString()).toList()))
+                            String.join(", ", req.getScope().stream().map(id -> Component.translatable(id.toString()).getString()).toList()))
                             .getString();
             cachedLines.add(new StaticLine(
                     "  " + className + " ≥ " + String.format("%.0f%%", req.getPercentage() * 100)
@@ -271,7 +271,7 @@ public class SocialClassDetailPanel {
         }
     }
 
-    private record IconNeedLine(String needId, String text, int color, int indent, List<ResourceLocation> icons) implements DetailLine {
+    private record IconNeedLine(ResourceLocation needId, String text, int color, int indent, List<ResourceLocation> icons) implements DetailLine {
         private static final int ICON_SIZE = 16;
 
         @Override

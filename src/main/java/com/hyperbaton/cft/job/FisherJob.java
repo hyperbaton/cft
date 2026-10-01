@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,13 +48,13 @@ public class FisherJob extends Job {
     public static final Codec<FisherJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("radius", 32).forGetter(FisherJob::getRadius),
-            Codec.STRING.optionalFieldOf("required_structure", "").forGetter(j -> j.requiredStructure),
+            ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
             RegistryEntries.codec(Registries.BLOCK).optionalFieldOf("body_blocks", WATER)
                     .forGetter(FisherJob::getBodyBlocks),
             Codec.INT.optionalFieldOf("min_body_size", 20).forGetter(FisherJob::getMinBodySize),
             Codec.INT.optionalFieldOf("catch_interval", 300).forGetter(FisherJob::getCatchInterval),
             Catch.CODEC.listOf().fieldOf("catches").forGetter(FisherJob::getCatches),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
@@ -72,19 +73,19 @@ public class FisherJob extends Job {
 
     private final double hoursPerDay;
     private final int radius;
-    private final String requiredStructure;
+    private final ResourceLocation requiredStructure;
     private final RegistryEntries<Block> bodyBlocks;
     private final int minBodySize;
     private final int catchInterval;
     private final List<Catch> catches;
 
-    public FisherJob(double hoursPerDay, int radius, String requiredStructure, RegistryEntries<Block> bodyBlocks,
-                     int minBodySize, int catchInterval, List<Catch> catches, List<String> requiredNeeds,
+    public FisherJob(double hoursPerDay, int radius, Optional<ResourceLocation> requiredStructure, RegistryEntries<Block> bodyBlocks,
+                     int minBodySize, int catchInterval, List<Catch> catches, List<ResourceLocation> requiredNeeds,
                      double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
-        this.requiredStructure = requiredStructure;
+        this.requiredStructure = requiredStructure.orElse(null);
         this.bodyBlocks = bodyBlocks;
         this.minBodySize = minBodySize;
         this.catchInterval = catchInterval;
@@ -122,8 +123,8 @@ public class FisherJob extends Job {
     }
 
     @Override
-    public String getRequiredStructureType() {
-        return requiredStructure.isEmpty() ? null : requiredStructure;
+    public ResourceLocation getRequiredStructureType() {
+        return requiredStructure;
     }
 
     public boolean isBodyBlock(BlockState state) {
@@ -196,7 +197,7 @@ public class FisherJob extends Job {
 
         Brain<XoonglinEntity> brain = xoonglin.getBrain();
 
-        boolean needsStructure = !requiredStructure.isEmpty()
+        boolean needsStructure = requiredStructure != null
                 && xoonglin.getAssignedStructurePos(requiredStructure) == null;
 
         if (needsStructure) {
@@ -233,7 +234,7 @@ public class FisherJob extends Job {
         int neededTicks = getNeededTicks();
         boolean canDoWork = canWork(xoonglin);
         boolean doneForDay = state.workedTicksToday >= neededTicks;
-        boolean needsStructure = !requiredStructure.isEmpty()
+        boolean needsStructure = requiredStructure != null
                 && xoonglin.getAssignedStructurePos(requiredStructure) == null;
 
         JobStatus status;

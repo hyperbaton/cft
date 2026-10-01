@@ -13,6 +13,7 @@ import com.hyperbaton.cft.job.data.AttendanceRule;
 import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.Brain;
@@ -34,7 +35,7 @@ public class OfficiantJob extends Job {
 
     public static final Codec<OfficiantJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.STRING.fieldOf("ritual_id").forGetter(OfficiantJob::getRitualId),
-            Codec.STRING.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
+            ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             Codec.DOUBLE.fieldOf("frequency").forGetter(OfficiantJob::getFrequency),
             Codec.INT.fieldOf("duration").forGetter(OfficiantJob::getDuration),
             ItemQuantity.CODEC.listOf().optionalFieldOf("ingredients", List.of()).forGetter(OfficiantJob::getIngredients),
@@ -44,14 +45,14 @@ public class OfficiantJob extends Job {
             Codec.INT.optionalFieldOf("max_attendees", Integer.MAX_VALUE).forGetter(OfficiantJob::getMaxAttendees),
             Codec.INT.optionalFieldOf("gathering_timeout", 1200).forGetter(OfficiantJob::getGatheringTimeout),
             Codec.INT.optionalFieldOf("grace_period", 200).forGetter(OfficiantJob::getGracePeriod),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, OfficiantJob::new));
 
     private final String ritualId;
-    private final String requiredStructure;
+    private final ResourceLocation requiredStructure;
     private final double frequency;
     private final int duration;
     private final List<ItemQuantity> ingredients;
@@ -62,10 +63,10 @@ public class OfficiantJob extends Job {
     private final int gatheringTimeout;
     private final int gracePeriod;
 
-    public OfficiantJob(String ritualId, String requiredStructure, double frequency, int duration,
+    public OfficiantJob(String ritualId, ResourceLocation requiredStructure, double frequency, int duration,
                         List<ItemQuantity> ingredients, int summonRadius, int ritualRadius,
                         List<AttendanceRule> attendanceRules, int maxAttendees,
-                        int gatheringTimeout, int gracePeriod, List<String> requiredNeeds,
+                        int gatheringTimeout, int gracePeriod, List<ResourceLocation> requiredNeeds,
                         double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.ritualId = ritualId;
@@ -122,7 +123,7 @@ public class OfficiantJob extends Job {
     }
 
     @Override
-    public String getRequiredStructureType() {
+    public ResourceLocation getRequiredStructureType() {
         return requiredStructure;
     }
 

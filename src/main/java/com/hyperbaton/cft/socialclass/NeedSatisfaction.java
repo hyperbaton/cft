@@ -2,16 +2,16 @@ package com.hyperbaton.cft.socialclass;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 
 public class NeedSatisfaction {
 
 public static final Codec<NeedSatisfaction> NEED_SATISFACTION_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("need").forGetter(NeedSatisfaction::getNeed),
+            ResourceLocation.CODEC.fieldOf("need").forGetter(NeedSatisfaction::getNeed),
             Codec.DOUBLE.fieldOf("satisfactionThreshold").forGetter(NeedSatisfaction::getSatisfactionThreshold)
     ).apply(instance, NeedSatisfaction::new));
 
-    // TODO: Make this a dynamic reference to a Need object
-    private String need;
+    private ResourceLocation need;
     /**
         A threshold for the satisfaction of the need. It may be an upper or lower threshold, referring to an upgrade or
      downgrade of the social class.
@@ -19,16 +19,16 @@ public static final Codec<NeedSatisfaction> NEED_SATISFACTION_CODEC = RecordCode
      **/
     private double satisfactionThreshold;
 
-    public NeedSatisfaction(String need, double satisfactionThreshold) {
+    public NeedSatisfaction(ResourceLocation need, double satisfactionThreshold) {
         this.need = need;
         this.satisfactionThreshold = satisfactionThreshold;
     }
 
-    public String getNeed() {
+    public ResourceLocation getNeed() {
         return need;
     }
 
-    public void setNeed(String need) {
+    public void setNeed(ResourceLocation need) {
         this.need = need;
     }
 

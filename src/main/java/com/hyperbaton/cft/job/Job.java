@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 
 import java.util.List;
@@ -34,22 +35,22 @@ public abstract class Job {
                 }, job -> Pair.of(job, job.getSchedule()));
     }
 
-    private final List<String> requiredNeeds;
+    private final List<ResourceLocation> requiredNeeds;
     /** Replaces the social class schedule for Xoonglins with this job; null to use the class one. */
     private ScheduleDefinition schedule;
     private final double minHappiness;
     private final boolean availableToBabies;
     private final boolean availableToAdults;
 
-    protected Job(List<String> requiredNeeds) {
+    protected Job(List<ResourceLocation> requiredNeeds) {
         this(requiredNeeds, 0.0);
     }
 
-    protected Job(List<String> requiredNeeds, double minHappiness) {
+    protected Job(List<ResourceLocation> requiredNeeds, double minHappiness) {
         this(requiredNeeds, minHappiness, false, true);
     }
 
-    protected Job(List<String> requiredNeeds, double minHappiness, boolean availableToBabies, boolean availableToAdults) {
+    protected Job(List<ResourceLocation> requiredNeeds, double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         this.requiredNeeds = requiredNeeds != null ? List.copyOf(requiredNeeds) : List.of();
         this.minHappiness = minHappiness;
         this.availableToBabies = availableToBabies;
@@ -75,7 +76,7 @@ public abstract class Job {
 
     public abstract Codec<? extends Job> jobType();
 
-    public List<String> getRequiredNeeds() {
+    public List<ResourceLocation> getRequiredNeeds() {
         return requiredNeeds;
     }
 
@@ -103,7 +104,7 @@ public abstract class Job {
     public Optional<Component> cantWorkReason(XoonglinEntity xoonglin) {
         if (xoonglin.getNeeds() == null) return Optional.of(Component.empty());
 
-        Optional<String> damagingNeed = xoonglin.getNeeds().stream()
+        Optional<ResourceLocation> damagingNeed = xoonglin.getNeeds().stream()
                 .filter(ns -> ns.getNeed().getDamage() > 0.0 && !ns.isSatisfied())
                 .map(NeedSatisfier::getNeedId)
                 .findFirst();
@@ -116,7 +117,7 @@ public abstract class Job {
                     String.format("%.2f", minHappiness)));
         }
 
-        for (String needId : requiredNeeds) {
+        for (ResourceLocation needId : requiredNeeds) {
             boolean satisfied = xoonglin.getNeeds().stream()
                     .filter(ns -> needId.equals(ns.getNeedId()))
                     .anyMatch(NeedSatisfier::isSatisfied);
@@ -126,8 +127,8 @@ public abstract class Job {
         return Optional.empty();
     }
 
-    private static Component unsatisfiedNeedReason(String needId) {
-        return Component.translatable("gui.cft.job_detail.unsatisfied_need", Component.translatable(needId));
+    private static Component unsatisfiedNeedReason(ResourceLocation needId) {
+        return Component.translatable("gui.cft.job_detail.unsatisfied_need", Component.translatable(needId.toString()));
     }
 
     /** {@link JobStatus#CANT_WORK}, saying why. */
@@ -137,17 +138,17 @@ public abstract class Job {
 
     /** {@link JobStatus#NO_STRUCTURE}, naming the structure it needs. */
     protected JobStatus noStructureStatus() {
-        String structureType = getRequiredStructureType();
+        ResourceLocation structureType = getRequiredStructureType();
         return structureType == null ? JobStatus.NO_STRUCTURE
                 : JobStatus.NO_STRUCTURE.withDetail(Component.translatable("gui.cft.job_detail.needs_structure",
-                        Component.translatable(structureType)));
+                        Component.translatable(structureType.toString())));
     }
 
     public Optional<ScheduleDefinition> getSchedule() {
         return Optional.ofNullable(schedule);
     }
 
-    public String getRequiredStructureType() {
+    public ResourceLocation getRequiredStructureType() {
         return null;
     }
 

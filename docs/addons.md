@@ -69,7 +69,8 @@ A need type is two classes:
     - `addMemoriesForSatisfaction(mob)`: set the memories that send the Xoonglin to meet the need.
 
   Use `getNeed()` to reach your need's configuration from the satisfier, and `getNeedId()` for its
-  id.
+  id. Like every need, social class and structure type id in CFT, it's a `ResourceLocation`; read
+  ids in your codecs with `ResourceLocation.CODEC`.
 
 Needs that are met instantly (e.g. by being near something) only need those two classes. When the
 Xoonglin has to go somewhere, the need also needs a memory and a behavior, and it chooses when that
@@ -233,7 +234,7 @@ The `schedule` field is added to every job's codec by CFT. Implement:
   has [errands](#errands). The job's behavior stops then.
 - `getDisplayInfo(xoonglin, state)`: the job tab: a status and a list of entries (see below).
 - `jobType()`: your registered codec.
-- `getRequiredStructureType()`: _(optional)_ the structure type the job works at. While the
+- `getRequiredStructureType()`: _(optional)_ the id of the structure type the job works at. While the
   Xoonglin has none, set the `CftMemoryModuleType.STRUCTURE_NEEDED` memory to the type's id: CFT
   finds one with room and claims it in the Xoonglin's free time. Then
   `xoonglin.getAssignedStructurePos(type)` gives its key block. Before setting the work memory,

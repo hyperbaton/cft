@@ -18,7 +18,7 @@ public class SocialClass {
             Codec.DOUBLE.fieldOf("maxHappiness").forGetter(SocialClass::getMaxHappiness),
             Codec.DOUBLE.fieldOf("matingHappinessThreshold").forGetter(SocialClass::getMatingHappinessThreshold),
             Codec.INT.fieldOf("spontaneouslySpawnPopulation").forGetter(SocialClass::getSpontaneouslySpawnPopulation),
-            Codec.STRING.listOf().fieldOf("needs").forGetter(SocialClass::getNeeds),
+            ResourceLocation.CODEC.listOf().fieldOf("needs").forGetter(SocialClass::getNeeds),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("upgrades").forGetter(SocialClass::getUpgrades),
             SocialClassUpdate.SOCIAL_CLASS_UPDATE_CODEC.listOf().fieldOf("downgrades").forGetter(SocialClass::getDowngrades),
             ResourceLocation.CODEC.listOf().optionalFieldOf("jobs", List.of()).forGetter(SocialClass::getJobs),
@@ -33,7 +33,7 @@ public class SocialClass {
     private double maxHappiness;
     private double matingHappinessThreshold;
     private int spontaneouslySpawnPopulation;
-    private List<String> needs;
+    private List<ResourceLocation> needs;
     private final List<ResourceLocation> jobs;
     private List<SocialClassUpdate> upgrades;
     private List<SocialClassUpdate> downgrades;
@@ -49,7 +49,7 @@ public class SocialClass {
     private final ScheduleDefinition schedule;
 
     public SocialClass(double maxHappiness, double matingHappinessThreshold, int spontaneouslySpawnPopulation,
-                       List<String> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades,
+                       List<ResourceLocation> needs, List<SocialClassUpdate> upgrades, List<SocialClassUpdate> downgrades,
                        List<ResourceLocation> jobs, boolean canUpgradeAsBaby, boolean canDowngradeAsBaby,
                        int matingDelay, double maxHealth, List<String> nameSamples,
                        Optional<ScheduleDefinition> schedule) {
@@ -92,11 +92,11 @@ public class SocialClass {
         this.spontaneouslySpawnPopulation = spontaneouslySpawnPopulation;
     }
 
-    public List<String> getNeeds() {
+    public List<ResourceLocation> getNeeds() {
         return needs;
     }
 
-    public void setNeeds(List<String> needs) {
+    public void setNeeds(List<ResourceLocation> needs) {
         this.needs = needs;
     }
 

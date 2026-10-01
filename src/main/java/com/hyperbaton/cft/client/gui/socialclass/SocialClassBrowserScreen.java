@@ -12,6 +12,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class SocialClassBrowserScreen extends Screen {
     private int graphContentHeight;
     private int graphContentWidth;
 
-    private Map<String, Integer> populationData = new HashMap<>();
+    private Map<ResourceLocation, Integer> populationData = new HashMap<>();
     private CensusStats censusStats;
 
     private boolean dragging = false;
@@ -76,8 +77,8 @@ public class SocialClassBrowserScreen extends Screen {
         detailPanelX = graphPanelWidth;
         detailPanelWidth = this.width - graphPanelWidth;
 
-        Map<String, SocialClass> allClasses = new LinkedHashMap<>();
-        socialClassRegistry.entrySet().forEach(entry -> allClasses.put(entry.getKey().location().toString(), entry.getValue()));
+        Map<ResourceLocation, SocialClass> allClasses = new LinkedHashMap<>();
+        socialClassRegistry.entrySet().forEach(entry -> allClasses.put(entry.getKey().location(), entry.getValue()));
         GraphLayoutEngine.LayoutResult layout = GraphLayoutEngine.computeLayout(
                 allClasses, this.font, graphPanelWidth, this.height
         );

@@ -95,7 +95,7 @@ public class XoonglinCommand {
                 MobSpawnType.COMMAND, null);
         if (!level.tryAddFreshEntityWithPassengers(xoonglin)) throw FAILED.create();
 
-        Component className = Component.translatable(CftRegistry.getSocialClassId(socialClass));
+        Component className = Component.translatable(CftRegistry.getSocialClassId(socialClass).toString());
         source.sendSuccess(() -> Component.translatable("commands.cft.xoonglin.summon.success",
                 xoonglin.getDisplayName(), className, leaderPlayer.getDisplayName()), true);
         return 1;

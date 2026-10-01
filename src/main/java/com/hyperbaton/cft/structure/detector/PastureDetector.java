@@ -11,6 +11,7 @@ import com.hyperbaton.cft.structure.StructureDetectionResult;
 import com.hyperbaton.cft.structure.type.PastureStructureType;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -59,7 +60,7 @@ public class PastureDetector implements StructureDetector<PastureStructureType> 
         return shapeResult;
     }
 
-    private boolean overlapsAnotherPasture(ServerLevel level, BlockPos keyBlockPos, Structure detected, String structureTypeId) {
+    private boolean overlapsAnotherPasture(ServerLevel level, BlockPos keyBlockPos, Structure detected, ResourceLocation structureTypeId) {
         StructuresData structuresData = level.getDataStorage()
                 .computeIfAbsent(StructuresData.factory(), "structuresData");
         Set<BlockPos> occupiedBlocks = Sets.newHashSet();

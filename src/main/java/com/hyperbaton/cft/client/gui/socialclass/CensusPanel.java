@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Optional;
 import java.util.*;
 
 /**
@@ -56,7 +57,7 @@ public class CensusPanel {
     private double scrollOffset = 0;
     private int contentHeight = 0;
     private int tickCounter = 0;
-    private String hoveredNeedId;
+    private ResourceLocation hoveredNeedId;
 
     public CensusPanel(int x, int y, int width, int height, Font font,
                                 Registry<SocialClass> socialClassRegistry, Registry<Need> needRegistry) {
@@ -177,18 +178,18 @@ public class CensusPanel {
     }
 
     private int renderClassTable(GuiGraphics graphics, int tableX, int drawY, int tableWidth, PopulationSnapshot latest) {
-        Set<String> classIds = new HashSet<>(stats.population().keySet());
+        Set<ResourceLocation> classIds = new HashSet<>(stats.population().keySet());
         if (latest != null) classIds.addAll(latest.classCounts().keySet());
-        List<String> sorted = new ArrayList<>(classIds);
-        sorted.sort(Comparator.comparingInt((String id) -> stats.population().getOrDefault(id, 0)).reversed()
-                .thenComparing(id -> Component.translatable(id).getString()));
+        List<ResourceLocation> sorted = new ArrayList<>(classIds);
+        sorted.sort(Comparator.comparingInt((ResourceLocation id) -> stats.population().getOrDefault(id, 0)).reversed()
+                .thenComparing(id -> Component.translatable(id.toString()).getString()));
 
         int barX = tableX + tableWidth - HAPPINESS_BAR_WIDTH;
         int countRightX = barX - 38;
         int deltaX = barX - 32;
-        for (String classId : sorted) {
+        for (ResourceLocation classId : sorted) {
             int count = stats.population().getOrDefault(classId, 0);
-            String name = font.plainSubstrByWidth(Component.translatable(classId).getString(), countRightX - tableX - 18);
+            String name = font.plainSubstrByWidth(Component.translatable(classId.toString()).getString(), countRightX - tableX - 18);
             graphics.drawString(font, name, tableX, drawY, count > 0 ? VALUE_COLOR : MUTED_COLOR, false);
 
             String countText = String.valueOf(count);
@@ -260,7 +261,7 @@ public class CensusPanel {
         int criticalX = rightX - font.width(critical);
         int unsatisfiedX = criticalX - (critical.isEmpty() ? 0 : 6) - font.width(unsatisfied);
 
-        String name = font.plainSubstrByWidth(Component.translatable(issue.needId()).getString(), unsatisfiedX - textX - 4);
+        String name = font.plainSubstrByWidth(Component.translatable(issue.needId().toString()).getString(), unsatisfiedX - textX - 4);
         graphics.drawString(font, name, textX, drawY + 4, VALUE_COLOR, false);
         graphics.drawString(font, unsatisfied, unsatisfiedX, drawY + 4, WARNING_COLOR, false);
         if (!critical.isEmpty()) {
@@ -316,19 +317,19 @@ public class CensusPanel {
     private double overallAverageHappiness() {
         double sum = 0;
         int total = 0;
-        for (Map.Entry<String, Integer> entry : stats.population().entrySet()) {
+        for (Map.Entry<ResourceLocation, Integer> entry : stats.population().entrySet()) {
             sum += stats.averageHappiness().getOrDefault(entry.getKey(), 0.0) * entry.getValue();
             total += entry.getValue();
         }
         return total == 0 ? 0 : sum / total;
     }
 
-    private Optional<SocialClass> findClass(String classId) {
-        return Optional.ofNullable(socialClassRegistry.get(ResourceLocation.tryParse(classId)));
+    private Optional<SocialClass> findClass(ResourceLocation classId) {
+        return Optional.ofNullable(socialClassRegistry.get(classId));
     }
 
-    private Need findNeed(String needId) {
-        return needRegistry.get(ResourceLocation.tryParse(needId));
+    private Need findNeed(ResourceLocation needId) {
+        return needRegistry.get(needId);
     }
 
     private static String jobTranslationKey(String jobId) {

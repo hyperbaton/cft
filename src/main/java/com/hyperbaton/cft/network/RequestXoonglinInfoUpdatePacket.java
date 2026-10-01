@@ -43,7 +43,7 @@ public record RequestXoonglinInfoUpdatePacket(UUID xoonglinId) implements Custom
                     if (xoonglin.getLeaderId() != null &&
                             xoonglin.getLeaderId().equals(player.getUUID())) {
 
-                        Map<String, NeedSatisfactionData> needsData = NeedUtils.buildNeedsData(xoonglin);
+                        Map<ResourceLocation, NeedSatisfactionData> needsData = NeedUtils.buildNeedsData(xoonglin);
 
                         XoonglinInfoUpdatePacket updatePacket = new XoonglinInfoUpdatePacket(
                                 xoonglin.getCustomName(),

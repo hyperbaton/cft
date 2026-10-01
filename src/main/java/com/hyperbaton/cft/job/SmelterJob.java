@@ -10,6 +10,7 @@ import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,19 +34,19 @@ public class SmelterJob extends Job {
 
     public static final Codec<SmelterJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
-            Codec.STRING.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
+            ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             INGREDIENT_CODEC.listOf().optionalFieldOf("inputs", List.of()).forGetter(SmelterJob::getInputs),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, SmelterJob::new));
 
     private final double hoursPerDay;
-    private final String requiredStructure;
+    private final ResourceLocation requiredStructure;
     private final List<Ingredient> inputs;
 
-    public SmelterJob(double hoursPerDay, String requiredStructure, List<Ingredient> inputs, List<String> requiredNeeds,
+    public SmelterJob(double hoursPerDay, ResourceLocation requiredStructure, List<Ingredient> inputs, List<ResourceLocation> requiredNeeds,
                       double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
@@ -63,7 +64,7 @@ public class SmelterJob extends Job {
     }
 
     @Override
-    public String getRequiredStructureType() {
+    public ResourceLocation getRequiredStructureType() {
         return requiredStructure;
     }
 

@@ -27,19 +27,19 @@ public class SocializeNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(SocializeNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(SocializeNeed::isHidden),
             Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(SocializeNeed::isBonus),
-            Codec.STRING.listOf().optionalFieldOf("classes", List.of()).forGetter(SocializeNeed::getAcceptedSocialClassIds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("classes", List.of()).forGetter(SocializeNeed::getAcceptedSocialClassIds),
             Codec.INT.optionalFieldOf("radius", 24).forGetter(SocializeNeed::getRadius),
             Codec.INT.optionalFieldOf("duration", 160).forGetter(SocializeNeed::getDuration),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(SocializeNeed::getIcon)
     ).apply(instance, SocializeNeed::new));
 
-    private final List<String> acceptedSocialClassIds;
+    private final List<ResourceLocation> acceptedSocialClassIds;
     private final int radius;
     private final int duration;
 
     public SocializeNeed(double damage, double damageThreshold, double providedHappiness,
                             double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                            List<String> acceptedSocialClassIds, int radius, int duration,
+                            List<ResourceLocation> acceptedSocialClassIds, int radius, int duration,
                             Optional<ResourceLocation> icon) {
         super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.acceptedSocialClassIds = List.copyOf(acceptedSocialClassIds);
@@ -68,11 +68,11 @@ public class SocializeNeed extends Need {
     }
 
     /** Social classes the Xoonglin is willing to talk to; empty means anyone. */
-    public List<String> getAcceptedSocialClassIds() {
+    public List<ResourceLocation> getAcceptedSocialClassIds() {
         return acceptedSocialClassIds;
     }
 
-    public boolean acceptsClass(String socialClassId) {
+    public boolean acceptsClass(ResourceLocation socialClassId) {
         return acceptedSocialClassIds.isEmpty() || acceptedSocialClassIds.contains(socialClassId);
     }
 

@@ -9,6 +9,7 @@ import com.hyperbaton.cft.structure.Structure;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -272,7 +273,7 @@ public class HaulBehavior extends JobBehavior<HaulerJob> {
         destinationContainerPos = null;
     }
 
-    private Structure findRandomStructure(StructuresData data, XoonglinEntity entity, String structureTypeId, int radius) {
+    private Structure findRandomStructure(StructuresData data, XoonglinEntity entity, ResourceLocation structureTypeId, int radius) {
         BlockPos entityPos = entity.blockPosition();
         List<Structure> candidates = data.getStructures().stream()
                 .filter(s -> s.getStructureTypeId().equals(structureTypeId))

@@ -34,10 +34,10 @@ public class SocialStructureHelper {
      * fromClass to toClass. Used to preview an upgrade/downgrade before it happens.
      */
     public static Map<SocialClass, Integer> computeSocialStructureForPlayerWithUpgrade(
-            ServerLevel level, ServerPlayer player, String fromClass, String toClass) {
+            ServerLevel level, ServerPlayer player, ResourceLocation fromClass, ResourceLocation toClass) {
         Map<SocialClass, Integer> socialStructure = computeSocialStructureForPlayer(level, player);
-        SocialClass formerSocialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(fromClass));
-        SocialClass nextSocialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(toClass));
+        SocialClass formerSocialClass = CftRegistry.SOCIAL_CLASSES.get(fromClass);
+        SocialClass nextSocialClass = CftRegistry.SOCIAL_CLASSES.get(toClass);
         // Reduce the population of previous class by 1, to account for the change
         socialStructure.replace(formerSocialClass, socialStructure.get(formerSocialClass) - 1);
         // Increase the population of next class by 1, to account for the change
@@ -50,7 +50,7 @@ public class SocialStructureHelper {
      * class IDs). If scope is null or empty, the share is computed against the whole
      * population instead of a restricted set of classes.
      */
-    public static double computeScopedPercentage(Map<SocialClass, Integer> counts, String target, List<String> scope) {
+    public static double computeScopedPercentage(Map<SocialClass, Integer> counts, ResourceLocation target, List<ResourceLocation> scope) {
         int numerator = counts.entrySet().stream()
                 .filter(entry -> CftRegistry.getSocialClassId(entry.getKey()).equals(target))
                 .mapToInt(Map.Entry::getValue)

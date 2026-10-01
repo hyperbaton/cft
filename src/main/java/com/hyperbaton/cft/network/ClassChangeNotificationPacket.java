@@ -14,8 +14,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  */
 public record ClassChangeNotificationPacket(
         String xoonglinName,
-        String fromClass,
-        String toClass,
+        ResourceLocation fromClass,
+        ResourceLocation toClass,
         boolean upgrade
 ) implements CustomPacketPayload {
 
@@ -24,8 +24,8 @@ public record ClassChangeNotificationPacket(
 
     public static final StreamCodec<ByteBuf, ClassChangeNotificationPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, ClassChangeNotificationPacket::xoonglinName,
-            ByteBufCodecs.STRING_UTF8, ClassChangeNotificationPacket::fromClass,
-            ByteBufCodecs.STRING_UTF8, ClassChangeNotificationPacket::toClass,
+            ResourceLocation.STREAM_CODEC, ClassChangeNotificationPacket::fromClass,
+            ResourceLocation.STREAM_CODEC, ClassChangeNotificationPacket::toClass,
             ByteBufCodecs.BOOL, ClassChangeNotificationPacket::upgrade,
             ClassChangeNotificationPacket::new
     );

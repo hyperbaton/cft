@@ -10,6 +10,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.job.data.ItemQuantity;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.SimpleContainer;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import java.util.Optional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,13 +33,13 @@ public class HealerJob extends Job {
     public static final Codec<HealerJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("radius", 24).forGetter(HealerJob::getRadius),
-            Codec.STRING.optionalFieldOf("required_structure", "").forGetter(j -> j.requiredStructure),
+            ResourceLocation.CODEC.optionalFieldOf("required_structure").forGetter(j -> Optional.ofNullable(j.requiredStructure)),
             ItemQuantity.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(HealerJob::getItems),
             Codec.DOUBLE.fieldOf("heal_amount").forGetter(HealerJob::getHealAmount),
             Codec.INT.optionalFieldOf("cooldown", 100).forGetter(HealerJob::getCooldown),
             Codec.INT.optionalFieldOf("doses_per_fetch", 16).forGetter(HealerJob::getDosesPerFetch),
             Codec.BOOL.optionalFieldOf("heal_player", false).forGetter(HealerJob::isHealPlayer),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
@@ -45,21 +47,21 @@ public class HealerJob extends Job {
 
     private final double hoursPerDay;
     private final int radius;
-    private final String requiredStructure;
+    private final ResourceLocation requiredStructure;
     private final List<ItemQuantity> items;
     private final double healAmount;
     private final int cooldown;
     private final int dosesPerFetch;
     private final boolean healPlayer;
 
-    public HealerJob(double hoursPerDay, int radius, String requiredStructure, List<ItemQuantity> items,
+    public HealerJob(double hoursPerDay, int radius, Optional<ResourceLocation> requiredStructure, List<ItemQuantity> items,
                      double healAmount, int cooldown, int dosesPerFetch, boolean healPlayer,
-                     List<String> requiredNeeds, double minHappiness,
+                     List<ResourceLocation> requiredNeeds, double minHappiness,
                      boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
         this.radius = radius;
-        this.requiredStructure = requiredStructure;
+        this.requiredStructure = requiredStructure.orElse(null);
         this.items = List.copyOf(items);
         this.healAmount = healAmount;
         this.cooldown = cooldown;
@@ -92,8 +94,8 @@ public class HealerJob extends Job {
     }
 
     @Override
-    public String getRequiredStructureType() {
-        return requiredStructure.isEmpty() ? null : requiredStructure;
+    public ResourceLocation getRequiredStructureType() {
+        return requiredStructure;
     }
 
     /** True if the inventory holds enough items for one heal (always true when free). */
@@ -158,9 +160,9 @@ public class HealerJob extends Job {
 
         Brain<XoonglinEntity> brain = xoonglin.getBrain();
 
-        boolean needsStructure = !requiredStructure.isEmpty()
+        boolean needsStructure = requiredStructure != null
                 && xoonglin.getAssignedStructurePos(requiredStructure) == null;
-        boolean hasBase = !requiredStructure.isEmpty()
+        boolean hasBase = requiredStructure != null
                 ? xoonglin.getAssignedStructurePos(requiredStructure) != null
                 : (xoonglin.getHome() != null && xoonglin.getHome().getEntrance() != null);
 
@@ -194,7 +196,7 @@ public class HealerJob extends Job {
         int neededTicks = (int) Math.round(hoursPerDay * JobUtil.TICKS_PER_MC_HOUR);
         boolean canDoWork = canWork(xoonglin);
         boolean doneForDay = state.workedTicksToday >= neededTicks;
-        boolean needsStructure = !requiredStructure.isEmpty()
+        boolean needsStructure = requiredStructure != null
                 && xoonglin.getAssignedStructurePos(requiredStructure) == null;
 
         JobStatus status;

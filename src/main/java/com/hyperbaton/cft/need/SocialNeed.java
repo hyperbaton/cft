@@ -20,14 +20,14 @@ public class SocialNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(SocialNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(SocialNeed::isHidden),
             Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(SocialNeed::isBonus),
-            Codec.STRING.listOf().fieldOf("classes").forGetter(SocialNeed::getAcceptedSocialClassIds),
+            ResourceLocation.CODEC.listOf().fieldOf("classes").forGetter(SocialNeed::getAcceptedSocialClassIds),
             Codec.INT.fieldOf("min_count").forGetter(SocialNeed::getMinCount),
             Codec.INT.fieldOf("max_count").forGetter(SocialNeed::getMaxCount),
             Codec.INT.fieldOf("radius").forGetter(SocialNeed::getRadius),
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(SocialNeed::getIcon)
     ).apply(instance, SocialNeed::new));
 
-    private final List<String> acceptedSocialClassIds;
+    private final List<ResourceLocation> acceptedSocialClassIds;
     private final int minCount;
     private final int maxCount;
     private final int radius;
@@ -39,7 +39,7 @@ public class SocialNeed extends Need {
             double satisfactionThreshold,
             double frequency,
             boolean hidden, boolean bonus,
-            List<String> acceptedSocialClassIds,
+            List<ResourceLocation> acceptedSocialClassIds,
             int minCount, int maxCount,
             int radius,
             Optional<ResourceLocation> icon
@@ -51,7 +51,7 @@ public class SocialNeed extends Need {
         this.radius = radius;
     }
 
-    public List<String> getAcceptedSocialClassIds() {
+    public List<ResourceLocation> getAcceptedSocialClassIds() {
         return acceptedSocialClassIds;
     }
 

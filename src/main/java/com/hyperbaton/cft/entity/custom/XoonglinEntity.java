@@ -64,6 +64,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.Optional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -123,7 +124,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private ResourceLocation jobId;
     private final JobState jobState = new JobState();
-    private final Map<String, BlockPos> assignedStructurePositions = new HashMap<>();
+    private final Map<ResourceLocation, BlockPos> assignedStructurePositions = new HashMap<>();
 
     private int satisfyNeedsDelay = DELAY_BETWEEN_NEEDS_CHECKS;
     private int matingDelay = CftConfig.XOONGLIN_MATING_COOLDOWN.get();
@@ -527,19 +528,19 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         return SocialStructureHelper.computeSocialStructureForPlayer((ServerLevel) this.level(), (ServerPlayer) this.level().getPlayerByUUID(this.leaderId));
     }
 
-    private Map<SocialClass, Integer> getSocialStructureWithUpgrade(String fromClass, String toClass) {
+    private Map<SocialClass, Integer> getSocialStructureWithUpgrade(ResourceLocation fromClass, ResourceLocation toClass) {
         return SocialStructureHelper.computeSocialStructureForPlayerWithUpgrade((ServerLevel) this.level(),
                 (ServerPlayer) this.level().getPlayerByUUID(this.leaderId),
                 fromClass,
                 toClass);
     }
 
-    private void changeSocialClass(String nextClass, boolean upgrade) {
-        String previousClass = getSocialClassId();
-        this.socialClass = CftRegistry.SOCIAL_CLASSES.get(ResourceLocation.parse(nextClass));
+    private void changeSocialClass(ResourceLocation nextClass, boolean upgrade) {
+        ResourceLocation previousClass = getSocialClassId();
+        this.socialClass = CftRegistry.SOCIAL_CLASSES.get(nextClass);
         if (this.socialClass != null) {
             this.needs = NeedUtils.getNeedsForClass(this.socialClass);
-            this.entityData.set(SOCIAL_CLASS_NAME, nextClass);
+            this.entityData.set(SOCIAL_CLASS_NAME, nextClass.toString());
             assignEligibleJobIfNeeded();
             resetMatingDelay();
             applyClassMaxHealth();
@@ -564,10 +565,10 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
     }
 
-    private void notifyLeaderOfClassChange(String previousClass, boolean upgrade) {
-        if (leaderId != null && level().getPlayerByUUID(leaderId) instanceof ServerPlayer leader) {
+    private void notifyLeaderOfClassChange(ResourceLocation previousClass, boolean upgrade) {
+        if (previousClass != null && leaderId != null && level().getPlayerByUUID(leaderId) instanceof ServerPlayer leader) {
             PacketDistributor.sendToPlayer(leader, new ClassChangeNotificationPacket(
-                    getName().getString(), previousClass != null ? previousClass : "", getSocialClassId(), upgrade));
+                    getName().getString(), previousClass, getSocialClassId(), upgrade));
         }
     }
 
@@ -639,7 +640,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         if (this.jobId == null) return;
         Job job = CftRegistry.JOBS.get(this.jobId);
         if (job == null) return;
-        String structureType = job.getRequiredStructureType();
+        ResourceLocation structureType = job.getRequiredStructureType();
         if (structureType == null) return;
         BlockPos pos = assignedStructurePositions.remove(structureType);
         if (pos == null) return;
@@ -654,19 +655,19 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         structuresData.setDirty();
     }
 
-    public Map<String, BlockPos> getAssignedStructurePositions() {
+    public Map<ResourceLocation, BlockPos> getAssignedStructurePositions() {
         return assignedStructurePositions;
     }
 
-    public void assignStructure(String structureTypeId, BlockPos keyBlockPos) {
+    public void assignStructure(ResourceLocation structureTypeId, BlockPos keyBlockPos) {
         assignedStructurePositions.put(structureTypeId, keyBlockPos);
     }
 
-    public void unassignStructure(String structureTypeId) {
+    public void unassignStructure(ResourceLocation structureTypeId) {
         assignedStructurePositions.remove(structureTypeId);
     }
 
-    public BlockPos getAssignedStructurePos(String structureTypeId) {
+    public BlockPos getAssignedStructurePos(ResourceLocation structureTypeId) {
         return assignedStructurePositions.get(structureTypeId);
     }
 
@@ -773,7 +774,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.socialClass = socialClass;
     }
 
-    public String getSocialClassId() {
+    public ResourceLocation getSocialClassId() {
         return socialClass != null ? CftRegistry.getSocialClassId(socialClass) : null;
     }
 
@@ -850,7 +851,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
     public void addAdditionalSaveData(final @NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         if (socialClass != null) {
-            tag.putString(KEY_SOCIAL_CLASS, getSocialClassId());
+            tag.putString(KEY_SOCIAL_CLASS, getSocialClassId().toString());
         }
         if (leaderId != null) {
             tag.putUUID(KEY_LEADER_ID, leaderId);
@@ -869,8 +870,8 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         }
         if (!assignedStructurePositions.isEmpty()) {
             CompoundTag structuresTag = new CompoundTag();
-            for (Map.Entry<String, BlockPos> entry : assignedStructurePositions.entrySet()) {
-                structuresTag.put(entry.getKey(), NbtUtils.writeBlockPos(entry.getValue()));
+            for (Map.Entry<ResourceLocation, BlockPos> entry : assignedStructurePositions.entrySet()) {
+                structuresTag.put(entry.getKey().toString(), NbtUtils.writeBlockPos(entry.getValue()));
             }
             tag.put(KEY_ASSIGNED_STRUCTURES, structuresTag);
         }
@@ -926,7 +927,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
             assignedStructurePositions.clear();
             CompoundTag structuresTag = tag.getCompound(KEY_ASSIGNED_STRUCTURES);
             for (String key : structuresTag.getAllKeys()) {
-                NbtUtils.readBlockPos(structuresTag, key).ifPresent(pos -> assignedStructurePositions.put(key, pos));
+                NbtUtils.readBlockPos(structuresTag, key).ifPresent(pos -> assignedStructurePositions.put(ResourceLocation.parse(key), pos));
             }
         }
         if (tag.contains(KEY_TRADE_OFFERS)) {

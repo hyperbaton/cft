@@ -184,16 +184,15 @@ public class CftRegistry {
         return registryAccess.registryOrThrow(CftDatapackRegistryEvents.STRUCTURE_TYPE_KEY);
     }
 
-    public static String getSocialClassId(SocialClass socialClass) {
-        return SOCIAL_CLASSES.getKey(socialClass).toString();
+    public static ResourceLocation getSocialClassId(SocialClass socialClass) {
+        return SOCIAL_CLASSES.getKey(socialClass);
     }
 
-    public static String getStructureTypeId(StructureType structureType) {
-        return STRUCTURES.getKey(structureType).toString();
+    public static ResourceLocation getStructureTypeId(StructureType structureType) {
+        return STRUCTURES.getKey(structureType);
     }
 
-    public static StructureType getStructureType(String structureTypeId) {
-        ResourceLocation id = ResourceLocation.tryParse(structureTypeId);
-        return STRUCTURES != null && id != null ? STRUCTURES.get(id) : null;
+    public static StructureType getStructureType(ResourceLocation structureTypeId) {
+        return STRUCTURES != null ? STRUCTURES.get(structureTypeId) : null;
     }
 }

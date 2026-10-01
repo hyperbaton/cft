@@ -26,7 +26,7 @@ public class VisitNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(VisitNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(VisitNeed::isHidden),
             Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(VisitNeed::isBonus),
-            Codec.STRING.fieldOf("required_structure").forGetter(VisitNeed::getRequiredStructure),
+            ResourceLocation.CODEC.fieldOf("required_structure").forGetter(VisitNeed::getRequiredStructure),
             Codec.INT.optionalFieldOf("search_radius", 64).forGetter(VisitNeed::getSearchRadius),
             Codec.INT.optionalFieldOf("stay_duration", 1200).forGetter(VisitNeed::getStayDuration),
             ItemQuantity.CODEC.listOf().optionalFieldOf("consumes", List.of()).forGetter(VisitNeed::getConsumes),
@@ -36,7 +36,7 @@ public class VisitNeed extends Need {
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(VisitNeed::getIcon)
     ).apply(instance, VisitNeed::new));
 
-    private final String requiredStructure;
+    private final ResourceLocation requiredStructure;
     private final int searchRadius;
     private final int stayDuration;
     private final List<ItemQuantity> consumes;
@@ -46,7 +46,7 @@ public class VisitNeed extends Need {
 
     public VisitNeed(double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                     String requiredStructure, int searchRadius, int stayDuration, List<ItemQuantity> consumes,
+                     ResourceLocation requiredStructure, int searchRadius, int stayDuration, List<ItemQuantity> consumes,
                      boolean useSupplies, boolean requiresRunning, List<String> runningWorkSteps,
                      Optional<ResourceLocation> icon) {
         super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
@@ -80,7 +80,7 @@ public class VisitNeed extends Need {
     }
 
     /** Structure type to visit. */
-    public String getRequiredStructure() {
+    public ResourceLocation getRequiredStructure() {
         return requiredStructure;
     }
 

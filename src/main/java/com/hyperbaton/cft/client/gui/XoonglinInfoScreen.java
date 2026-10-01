@@ -360,7 +360,7 @@ public class XoonglinInfoScreen extends Screen {
     }
 
     private void renderSocialClassAndJob(GuiGraphics graphics, int x, int y) {
-        String socialClass = Component.translatable(packet.getSocialClass()).getString();
+        String socialClass = Component.translatable(packet.getSocialClass().toString()).getString();
         graphics.drawString(this.font, socialClass, x + MARGIN_PIXELS, y, 0x404040, false);
 
         if (packet.getJobId() != null) {
@@ -378,7 +378,7 @@ public class XoonglinInfoScreen extends Screen {
         int barHeight = 8;
 
         List<FormattedCharSequence> tooltip = null;
-        for (Map.Entry<String, NeedSatisfactionData> need : packet.getNeedsData().entrySet()) {
+        for (Map.Entry<ResourceLocation, NeedSatisfactionData> need : packet.getNeedsData().entrySet()) {
             NeedSatisfactionData data = need.getValue();
             int rowX = x + MARGIN_PIXELS;
             int textX = rowX;
@@ -389,7 +389,7 @@ public class XoonglinInfoScreen extends Screen {
                 textX += ICON_SIZE + 2;
             }
 
-            String needLabel = Component.translatable(need.getKey()).getString();
+            String needLabel = Component.translatable(need.getKey().toString()).getString();
             graphics.drawString(this.font, needLabel, textX, barY, 0x404040, false);
 
             int barX = x + imageWidth - MARGIN_PIXELS - barWidth;

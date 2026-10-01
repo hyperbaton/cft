@@ -10,6 +10,7 @@ import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.level.Level;
@@ -26,7 +27,7 @@ public class GuardJob extends Job {
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.fieldOf("patrol_radius").forGetter(j -> j.patrolRadius),
             Codec.INT.optionalFieldOf("detection_radius", 16).forGetter(j -> j.detectionRadius),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
@@ -38,7 +39,7 @@ public class GuardJob extends Job {
 
 
 
-    public GuardJob(double hoursPerDay, int patrolRadius, int detectionRadius, List<String> requiredNeeds,
+    public GuardJob(double hoursPerDay, int patrolRadius, int detectionRadius, List<ResourceLocation> requiredNeeds,
                     double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;

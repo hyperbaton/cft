@@ -10,6 +10,7 @@ import com.hyperbaton.cft.util.JobUtil;
 import com.hyperbaton.cft.job.data.HaulerErrand;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.SimpleContainer;
@@ -27,7 +28,7 @@ public class HaulerJob extends Job {
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.optionalFieldOf("radius", 64).forGetter(j -> j.radius),
             HaulerErrand.CODEC.listOf().fieldOf("errands").forGetter(j -> j.errands),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
@@ -37,7 +38,7 @@ public class HaulerJob extends Job {
     private final int radius;
     private final List<HaulerErrand> errands;
 
-    public HaulerJob(double hoursPerDay, int radius, List<HaulerErrand> errands, List<String> requiredNeeds,
+    public HaulerJob(double hoursPerDay, int radius, List<HaulerErrand> errands, List<ResourceLocation> requiredNeeds,
                      double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;

@@ -22,10 +22,10 @@ import java.util.UUID;
 
 public record XoonglinInfoUpdatePacket(
         Component name,
-        String socialClass,
+        ResourceLocation socialClass,
         ResourceLocation jobId,
         double happiness,
-        Map<String, NeedSatisfactionData> needsData,
+        Map<ResourceLocation, NeedSatisfactionData> needsData,
         UUID xoonglinId,
         JobInfoData jobInfo,
         List<InventorySlotData> inventoryData,
@@ -41,15 +41,15 @@ public record XoonglinInfoUpdatePacket(
         public XoonglinInfoUpdatePacket decode(ByteBuf buf) {
             var friendly = (net.minecraft.network.RegistryFriendlyByteBuf) buf;
             Component name = ComponentSerialization.STREAM_CODEC.decode(friendly);
-            String socialClass = ByteBufCodecs.STRING_UTF8.decode(buf);
+            ResourceLocation socialClass = ResourceLocation.STREAM_CODEC.decode(buf);
             boolean hasJob = ByteBufCodecs.BOOL.decode(buf);
             ResourceLocation jobId = hasJob ? ResourceLocation.STREAM_CODEC.decode(buf) : null;
             double happiness = buf.readDouble();
             UUID xoonglinId = UUIDUtil.STREAM_CODEC.decode(buf);
             int size = ByteBufCodecs.VAR_INT.decode(buf);
-            Map<String, NeedSatisfactionData> needsData = new HashMap<>();
+            Map<ResourceLocation, NeedSatisfactionData> needsData = new HashMap<>();
             for (int i = 0; i < size; i++) {
-                String needName = ByteBufCodecs.STRING_UTF8.decode(buf);
+                ResourceLocation needName = ResourceLocation.STREAM_CODEC.decode(buf);
                 double satisfaction = buf.readDouble();
                 double damageThreshold = buf.readDouble();
                 double satisfactionThreshold = buf.readDouble();
@@ -84,7 +84,7 @@ public record XoonglinInfoUpdatePacket(
         public void encode(ByteBuf buf, XoonglinInfoUpdatePacket packet) {
             var friendly = (net.minecraft.network.RegistryFriendlyByteBuf) buf;
             ComponentSerialization.STREAM_CODEC.encode(friendly, packet.name);
-            ByteBufCodecs.STRING_UTF8.encode(buf, packet.socialClass);
+            ResourceLocation.STREAM_CODEC.encode(buf, packet.socialClass);
             ByteBufCodecs.BOOL.encode(buf, packet.jobId != null);
             if (packet.jobId != null) {
                 ResourceLocation.STREAM_CODEC.encode(buf, packet.jobId);
@@ -92,8 +92,8 @@ public record XoonglinInfoUpdatePacket(
             buf.writeDouble(packet.happiness);
             UUIDUtil.STREAM_CODEC.encode(buf, packet.xoonglinId);
             ByteBufCodecs.VAR_INT.encode(buf, packet.needsData.size());
-            for (Map.Entry<String, NeedSatisfactionData> entry : packet.needsData.entrySet()) {
-                ByteBufCodecs.STRING_UTF8.encode(buf, entry.getKey());
+            for (Map.Entry<ResourceLocation, NeedSatisfactionData> entry : packet.needsData.entrySet()) {
+                ResourceLocation.STREAM_CODEC.encode(buf, entry.getKey());
                 buf.writeDouble(entry.getValue().satisfaction);
                 buf.writeDouble(entry.getValue().damageThreshold);
                 buf.writeDouble(entry.getValue().satisfactionThreshold);
@@ -137,10 +137,10 @@ public record XoonglinInfoUpdatePacket(
     }
 
     public Component getName() { return name; }
-    public String getSocialClass() { return socialClass; }
+    public ResourceLocation getSocialClass() { return socialClass; }
     public ResourceLocation getJobId() { return jobId; }
     public double getHappiness() { return happiness; }
-    public Map<String, NeedSatisfactionData> getNeedsData() { return needsData; }
+    public Map<ResourceLocation, NeedSatisfactionData> getNeedsData() { return needsData; }
     public UUID getXoonglinId() { return xoonglinId; }
     public JobInfoData getJobInfo() { return jobInfo; }
     public List<InventorySlotData> getInventoryData() { return inventoryData; }

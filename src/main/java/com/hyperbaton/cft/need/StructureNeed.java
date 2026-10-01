@@ -21,7 +21,7 @@ public class StructureNeed extends Need {
             Codec.DOUBLE.fieldOf("frequency").forGetter(StructureNeed::getFrequency),
             Codec.BOOL.optionalFieldOf("hidden", DEFAULT_HIDDEN).forGetter(StructureNeed::isHidden),
             Codec.BOOL.optionalFieldOf("bonus", DEFAULT_BONUS).forGetter(StructureNeed::isBonus),
-            Codec.STRING.fieldOf("required_structure").forGetter(StructureNeed::getRequiredStructure),
+            ResourceLocation.CODEC.fieldOf("required_structure").forGetter(StructureNeed::getRequiredStructure),
             Codec.BOOL.optionalFieldOf("requires_usage", false).forGetter(StructureNeed::isRequiresUsage),
             Codec.INT.optionalFieldOf("search_radius", 64).forGetter(StructureNeed::getSearchRadius),
             Codec.BOOL.optionalFieldOf("requires_running", false).forGetter(StructureNeed::isRequiresRunning),
@@ -29,7 +29,7 @@ public class StructureNeed extends Need {
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(StructureNeed::getIcon)
     ).apply(instance, StructureNeed::new));
 
-    private final String requiredStructure;
+    private final ResourceLocation requiredStructure;
     private final boolean requiresUsage;
     private final int searchRadius;
     private final boolean requiresRunning;
@@ -37,7 +37,7 @@ public class StructureNeed extends Need {
 
     public StructureNeed(double damage, double damageThreshold, double providedHappiness,
                          double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
-                         String requiredStructure, boolean requiresUsage, int searchRadius,
+                         ResourceLocation requiredStructure, boolean requiresUsage, int searchRadius,
                          boolean requiresRunning, List<String> runningWorkSteps, Optional<ResourceLocation> icon) {
         super(damage, damageThreshold, providedHappiness, satisfactionThreshold, frequency, hidden, bonus, icon);
         this.requiredStructure = requiredStructure;
@@ -57,7 +57,7 @@ public class StructureNeed extends Need {
         return runningWorkSteps;
     }
 
-    public String getRequiredStructure() {
+    public ResourceLocation getRequiredStructure() {
         return requiredStructure;
     }
 

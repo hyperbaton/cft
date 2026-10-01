@@ -3,9 +3,10 @@ package com.hyperbaton.cft.need.satisfaction;
 import com.hyperbaton.cft.need.Need;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.ResourceLocation;
 
 public class NeedSatisfierMapper {
-    public static NeedSatisfier<? extends Need> createNeedSatisfier(String needId, Need need) {
+    public static NeedSatisfier<? extends Need> createNeedSatisfier(ResourceLocation needId, Need need) {
         NeedSatisfier<? extends Need> satisfier = need.createSatisfier();
         satisfier.setNeedId(needId);
         return satisfier;
@@ -16,7 +17,7 @@ public class NeedSatisfierMapper {
         Need need = Need.NEED_CODEC.parse(NbtOps.INSTANCE, needTag).getOrThrow();
         NeedSatisfier<? extends Need> satisfier = need.createSatisfier(needSatisfactionTag.getDouble(NeedSatisfier.TAG_SATISFACTION),
                 needSatisfactionTag.getBoolean(NeedSatisfier.TAG_IS_SATISFIED));
-        satisfier.setNeedId(needSatisfactionTag.getString(NeedSatisfier.TAG_NEED_ID));
+        satisfier.setNeedId(ResourceLocation.parse(needSatisfactionTag.getString(NeedSatisfier.TAG_NEED_ID)));
         return satisfier;
     }
 }

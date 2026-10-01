@@ -12,11 +12,12 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import java.util.Optional;
 import java.util.List;
 
 public record StructureDetectionPacket(
         boolean structureDetected,
-        String structureTypeId,
+        Optional<ResourceLocation> structureTypeId,
         StructureDetectionReasons detectionReason,
         List<Component> validationDetails
 ) implements CustomPacketPayload {
@@ -26,7 +27,7 @@ public record StructureDetectionPacket(
 
     public static final StreamCodec<RegistryFriendlyByteBuf, StructureDetectionPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, StructureDetectionPacket::structureDetected,
-            ByteBufCodecs.STRING_UTF8, StructureDetectionPacket::structureTypeId,
+            ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), StructureDetectionPacket::structureTypeId,
             ByteBufCodecs.STRING_UTF8.map(StructureDetectionReasons::valueOf, StructureDetectionReasons::name),
             StructureDetectionPacket::detectionReason,
             ComponentSerialization.STREAM_CODEC.apply(ByteBufCodecs.list()), StructureDetectionPacket::validationDetails,

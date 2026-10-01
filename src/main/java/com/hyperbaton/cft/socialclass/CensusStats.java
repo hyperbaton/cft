@@ -8,6 +8,7 @@ import com.hyperbaton.cft.world.PopulationSnapshot;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 
 import java.util.*;
@@ -22,8 +23,8 @@ import java.util.*;
  * @param history          daily snapshots, oldest first
  */
 public record CensusStats(
-        Map<String, Integer> population,
-        Map<String, Double> averageHappiness,
+        Map<ResourceLocation, Integer> population,
+        Map<ResourceLocation, Double> averageHappiness,
         List<NeedIssue> needIssues,
         Map<String, Integer> jobs,
         List<PopulationSnapshot> history
@@ -32,8 +33,8 @@ public record CensusStats(
     private static final int SNAPSHOT_STARTUP_GRACE_TICKS = 1200;
 
     public static final StreamCodec<ByteBuf, CensusStats> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.VAR_INT), CensusStats::population,
-            ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.DOUBLE), CensusStats::averageHappiness,
+            ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, ByteBufCodecs.VAR_INT), CensusStats::population,
+            ByteBufCodecs.map(HashMap::new, ResourceLocation.STREAM_CODEC, ByteBufCodecs.DOUBLE), CensusStats::averageHappiness,
             NeedIssue.STREAM_CODEC.apply(ByteBufCodecs.list()), CensusStats::needIssues,
             ByteBufCodecs.map(HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.VAR_INT), CensusStats::jobs,
             PopulationSnapshot.STREAM_CODEC.apply(ByteBufCodecs.list()), CensusStats::history,
@@ -44,9 +45,9 @@ public record CensusStats(
      * @param unsatisfied Xoonglins with this need below its satisfaction threshold
      * @param critical    of those, the ones below the damage threshold of a harmful need
      */
-    public record NeedIssue(String needId, int unsatisfied, int critical) {
+    public record NeedIssue(ResourceLocation needId, int unsatisfied, int critical) {
         public static final StreamCodec<ByteBuf, NeedIssue> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.STRING_UTF8, NeedIssue::needId,
+                ResourceLocation.STREAM_CODEC, NeedIssue::needId,
                 ByteBufCodecs.VAR_INT, NeedIssue::unsatisfied,
                 ByteBufCodecs.VAR_INT, NeedIssue::critical,
                 NeedIssue::new
@@ -60,13 +61,13 @@ public record CensusStats(
     public static CensusStats build(ServerLevel level, UUID leaderId) {
         List<XoonglinEntity> xoonglins = getLeaderXoonglins(level, leaderId);
 
-        Map<String, Integer> population = new HashMap<>();
-        Map<String, Double> happinessSums = new HashMap<>();
-        Map<String, int[]> issueCounts = new HashMap<>();
+        Map<ResourceLocation, Integer> population = new HashMap<>();
+        Map<ResourceLocation, Double> happinessSums = new HashMap<>();
+        Map<ResourceLocation, int[]> issueCounts = new HashMap<>();
         Map<String, Integer> jobs = new HashMap<>();
 
         for (XoonglinEntity xoonglin : xoonglins) {
-            String classId = xoonglin.getSocialClassId();
+            ResourceLocation classId = xoonglin.getSocialClassId();
             population.merge(classId, 1, Integer::sum);
             happinessSums.merge(classId, xoonglin.getHappiness(), Double::sum);
             jobs.merge(xoonglin.getJob() != null ? xoonglin.getJob().toString() : NO_JOB, 1, Integer::sum);
@@ -80,7 +81,7 @@ public record CensusStats(
             }
         }
 
-        Map<String, Double> averageHappiness = new HashMap<>();
+        Map<ResourceLocation, Double> averageHappiness = new HashMap<>();
         happinessSums.forEach((classId, sum) -> averageHappiness.put(classId, sum / population.get(classId)));
 
         List<NeedIssue> needIssues = new ArrayList<>();
@@ -116,7 +117,7 @@ public record CensusStats(
     }
 
     private static PopulationSnapshot snapshotOf(long day, List<XoonglinEntity> xoonglins) {
-        Map<String, Integer> counts = new HashMap<>();
+        Map<ResourceLocation, Integer> counts = new HashMap<>();
         double happinessSum = 0;
         for (XoonglinEntity xoonglin : xoonglins) {
             counts.merge(xoonglin.getSocialClassId(), 1, Integer::sum);

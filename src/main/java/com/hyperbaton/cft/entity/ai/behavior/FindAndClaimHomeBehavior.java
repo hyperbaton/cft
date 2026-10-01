@@ -40,7 +40,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
     protected void start(ServerLevel level, XoonglinEntity xoonglin, long gameTime) {
         StructuresData data = level.getDataStorage().computeIfAbsent(StructuresData.factory(), "structuresData");
 
-        String targetStructureTypeId = getTargetStructureTypeId(xoonglin);
+        ResourceLocation targetStructureTypeId = getTargetStructureTypeId(xoonglin);
         Optional<Structure> nearest = findNearestAvailableHouse(xoonglin.blockPosition(), xoonglin.getLeaderId(), data, targetStructureTypeId);
 
         nearest.ifPresent(structure -> {
@@ -93,7 +93,7 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
         xoonglin.getBrain().eraseMemory(CftMemoryModuleType.HOME_CANDIDATE_POSITION.get());
     }
 
-    private Optional<Structure> findNearestAvailableHouse(BlockPos blockPos, UUID leaderId, StructuresData data, String targetStructureTypeId) {
+    private Optional<Structure> findNearestAvailableHouse(BlockPos blockPos, UUID leaderId, StructuresData data, ResourceLocation targetStructureTypeId) {
         return data.getStructures().stream()
                 .filter(Structure::hasCapacity)
                 .filter(s -> s.getLeaderId().equals(leaderId))
@@ -101,9 +101,9 @@ public class FindAndClaimHomeBehavior extends Behavior<XoonglinEntity> {
                 .min(Comparator.comparingInt(s -> s.getKeyBlockPos().distManhattan(blockPos)));
     }
 
-    private String getTargetStructureTypeId(XoonglinEntity xoonglin) {
+    private ResourceLocation getTargetStructureTypeId(XoonglinEntity xoonglin) {
         HomeNeed homeNeed = (HomeNeed) xoonglin.getSocialClass().getNeeds().stream()
-                .map(need -> CftRegistry.NEEDS.get(ResourceLocation.parse(need)))
+                .map(CftRegistry.NEEDS::get)
                 .filter(need -> need instanceof HomeNeed)
                 .findFirst().orElseThrow();
         return homeNeed.getRequiredStructure();

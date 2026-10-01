@@ -11,6 +11,7 @@ import com.hyperbaton.cft.network.JobStatus;
 import com.hyperbaton.cft.util.JobUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.ai.Brain;
@@ -27,7 +28,7 @@ public class GathererJob extends Job {
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
             Codec.INT.fieldOf("gather_radius").forGetter(j -> j.gatherRadius),
             RegistryEntries.codec(Registries.BLOCK).fieldOf("block").forGetter(j -> j.block),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
@@ -40,7 +41,7 @@ public class GathererJob extends Job {
 
 
     public GathererJob(double hoursPerDay, int gatherRadius, RegistryEntries<Block> block,
-                       List<String> requiredNeeds, double minHappiness,
+                       List<ResourceLocation> requiredNeeds, double minHappiness,
                        boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;

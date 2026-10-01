@@ -8,6 +8,7 @@ import com.hyperbaton.cft.structure.*;
 import com.hyperbaton.cft.structure.type.CompoundStructureType;
 import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -104,10 +105,10 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
                     .count();
             if (count < requirement.min()) {
                 structureErrors.add(Component.translatable("detection.cft.detail.too_few_structures",
-                        count, Component.translatable(requirement.structureType()), requirement.maxDistance(), requirement.min()));
+                        count, Component.translatable(requirement.structureType().toString()), requirement.maxDistance(), requirement.min()));
             } else if (count > requirement.max()) {
                 structureErrors.add(Component.translatable("detection.cft.detail.too_many_structures",
-                        count, Component.translatable(requirement.structureType()), requirement.maxDistance(), requirement.max()));
+                        count, Component.translatable(requirement.structureType().toString()), requirement.maxDistance(), requirement.max()));
             }
         }
         if (!structureErrors.isEmpty()) {
@@ -164,7 +165,7 @@ public class CompoundDetector implements StructureDetector<CompoundStructureType
         return true;
     }
 
-    private boolean isCompoundType(String structureTypeId) {
+    private boolean isCompoundType(ResourceLocation structureTypeId) {
         return CftRegistry.getStructureType(structureTypeId) instanceof CompoundStructureType;
     }
 

@@ -4,6 +4,7 @@ import com.hyperbaton.cft.socialclass.SocialClass;
 import com.hyperbaton.cft.socialclass.SocialClassUpdate;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 
@@ -26,25 +27,25 @@ public class GraphLayoutEngine {
     /**
      * @param classById the social classes by their id, in the order they should be laid out
      */
-    public static LayoutResult computeLayout(Map<String, SocialClass> classById, Font font, int panelWidth, int panelHeight) {
+    public static LayoutResult computeLayout(Map<ResourceLocation, SocialClass> classById, Font font, int panelWidth, int panelHeight) {
         if (classById.isEmpty()) {
             return new LayoutResult(List.of(), List.of(), 0, 0);
         }
 
         // Build adjacency from upgrade edges
-        Map<String, Set<String>> upgradeTargets = new HashMap<>();
-        Map<String, Set<String>> upgradeSourcesOf = new HashMap<>();
+        Map<ResourceLocation, Set<ResourceLocation>> upgradeTargets = new HashMap<>();
+        Map<ResourceLocation, Set<ResourceLocation>> upgradeSourcesOf = new HashMap<>();
         // Undirected adjacency for component detection (includes both upgrades and downgrades)
-        Map<String, Set<String>> undirectedAdj = new HashMap<>();
-        for (String id : classById.keySet()) {
+        Map<ResourceLocation, Set<ResourceLocation>> undirectedAdj = new HashMap<>();
+        for (ResourceLocation id : classById.keySet()) {
             upgradeTargets.put(id, new HashSet<>());
             upgradeSourcesOf.put(id, new HashSet<>());
             undirectedAdj.put(id, new HashSet<>());
         }
-        for (Map.Entry<String, SocialClass> entry : classById.entrySet()) {
-            String id = entry.getKey();
+        for (Map.Entry<ResourceLocation, SocialClass> entry : classById.entrySet()) {
+            ResourceLocation id = entry.getKey();
             for (SocialClassUpdate upgrade : entry.getValue().getUpgrades()) {
-                String targetId = upgrade.getNextClass();
+                ResourceLocation targetId = upgrade.getNextClass();
                 if (classById.containsKey(targetId)) {
                     upgradeTargets.get(id).add(targetId);
                     upgradeSourcesOf.get(targetId).add(id);
@@ -53,7 +54,7 @@ public class GraphLayoutEngine {
                 }
             }
             for (SocialClassUpdate downgrade : entry.getValue().getDowngrades()) {
-                String targetId = downgrade.getNextClass();
+                ResourceLocation targetId = downgrade.getNextClass();
                 if (classById.containsKey(targetId)) {
                     undirectedAdj.get(id).add(targetId);
                     undirectedAdj.get(targetId).add(id);
@@ -62,13 +63,13 @@ public class GraphLayoutEngine {
         }
 
         // Find connected components
-        List<List<String>> components = findConnectedComponents(classById.keySet(), undirectedAdj);
+        List<List<ResourceLocation>> components = findConnectedComponents(classById.keySet(), undirectedAdj);
 
         // Compute display names and node widths
-        Map<String, String> displayNames = new HashMap<>();
-        Map<String, Integer> nodeWidths = new HashMap<>();
-        for (String id : classById.keySet()) {
-            String name = Component.translatable(id).getString();
+        Map<ResourceLocation, String> displayNames = new HashMap<>();
+        Map<ResourceLocation, Integer> nodeWidths = new HashMap<>();
+        for (ResourceLocation id : classById.keySet()) {
+            String name = Component.translatable(id.toString()).getString();
             displayNames.put(id, name);
             nodeWidths.put(id, font.width(name) + NODE_PADDING_X * 2);
         }
@@ -77,17 +78,17 @@ public class GraphLayoutEngine {
         int globalMaxLayer = 0;
         List<ComponentLayout> componentLayouts = new ArrayList<>();
 
-        for (List<String> component : components) {
-            Map<String, Integer> layerAssignment = assignLayers(component, upgradeTargets, upgradeSourcesOf);
+        for (List<ResourceLocation> component : components) {
+            Map<ResourceLocation, Integer> layerAssignment = assignLayers(component, upgradeTargets, upgradeSourcesOf);
 
             int maxLayer = layerAssignment.values().stream().mapToInt(Integer::intValue).max().orElse(0);
             globalMaxLayer = Math.max(globalMaxLayer, maxLayer);
 
-            List<List<String>> layers = new ArrayList<>();
+            List<List<ResourceLocation>> layers = new ArrayList<>();
             for (int i = 0; i <= maxLayer; i++) {
                 layers.add(new ArrayList<>());
             }
-            for (Map.Entry<String, Integer> entry : layerAssignment.entrySet()) {
+            for (Map.Entry<ResourceLocation, Integer> entry : layerAssignment.entrySet()) {
                 layers.get(entry.getValue()).add(entry.getKey());
             }
 
@@ -95,9 +96,9 @@ public class GraphLayoutEngine {
 
             // Compute width of this component
             int compWidth = 0;
-            for (List<String> layer : layers) {
+            for (List<ResourceLocation> layer : layers) {
                 int layerWidth = 0;
-                for (String id : layer) {
+                for (ResourceLocation id : layer) {
                     layerWidth += nodeWidths.get(id);
                 }
                 layerWidth += Math.max(0, layer.size() - 1) * NODE_SPACING;
@@ -117,7 +118,7 @@ public class GraphLayoutEngine {
         int totalLayerHeight = (globalMaxLayer + 1) * (NODE_HEIGHT + LAYER_SPACING) - LAYER_SPACING + MARGIN * 2;
         int contentHeight = Math.max(totalLayerHeight, panelHeight);
 
-        Map<String, SocialClassNode> nodeMap = new HashMap<>();
+        Map<ResourceLocation, SocialClassNode> nodeMap = new HashMap<>();
         int contentWidth = 0;
         int componentStartX = Math.max(MARGIN, (panelWidth - totalComponentsWidth) / 2);
 
@@ -128,11 +129,11 @@ public class GraphLayoutEngine {
             }
 
             for (int layerIdx = 0; layerIdx <= globalMaxLayer; layerIdx++) {
-                List<String> layer = cl.layers.get(layerIdx);
+                List<ResourceLocation> layer = cl.layers.get(layerIdx);
                 if (layer.isEmpty()) continue;
 
                 int layerWidth = 0;
-                for (String id : layer) {
+                for (ResourceLocation id : layer) {
                     layerWidth += nodeWidths.get(id);
                 }
                 layerWidth += (layer.size() - 1) * NODE_SPACING;
@@ -142,7 +143,7 @@ public class GraphLayoutEngine {
                 int y = contentHeight - MARGIN - NODE_HEIGHT - layerIdx * (NODE_HEIGHT + LAYER_SPACING);
 
                 int x = layerStartX;
-                for (String id : layer) {
+                for (ResourceLocation id : layer) {
                     int w = nodeWidths.get(id);
                     SocialClassNode node = new SocialClassNode(
                             id, classById.get(id), x, y, w, NODE_HEIGHT, displayNames.get(id)
@@ -158,7 +159,7 @@ public class GraphLayoutEngine {
 
         // Build edge list
         List<GraphEdge> edgeList = new ArrayList<>();
-        for (Map.Entry<String, SocialClass> entry : classById.entrySet()) {
+        for (Map.Entry<ResourceLocation, SocialClass> entry : classById.entrySet()) {
             SocialClassNode fromNode = nodeMap.get(entry.getKey());
             if (fromNode == null) continue;
 
@@ -180,25 +181,25 @@ public class GraphLayoutEngine {
         return new LayoutResult(nodeList, edgeList, contentWidth, contentHeight);
     }
 
-    private static List<List<String>> findConnectedComponents(
-            Collection<String> classIds,
-            Map<String, Set<String>> undirectedAdj
+    private static List<List<ResourceLocation>> findConnectedComponents(
+            Collection<ResourceLocation> classIds,
+            Map<ResourceLocation, Set<ResourceLocation>> undirectedAdj
     ) {
-        Set<String> visited = new HashSet<>();
-        List<List<String>> components = new ArrayList<>();
+        Set<ResourceLocation> visited = new HashSet<>();
+        List<List<ResourceLocation>> components = new ArrayList<>();
 
-        for (String id : classIds) {
+        for (ResourceLocation id : classIds) {
             if (visited.contains(id)) continue;
 
-            List<String> component = new ArrayList<>();
-            Queue<String> queue = new LinkedList<>();
+            List<ResourceLocation> component = new ArrayList<>();
+            Queue<ResourceLocation> queue = new LinkedList<>();
             queue.add(id);
             visited.add(id);
 
             while (!queue.isEmpty()) {
-                String current = queue.poll();
+                ResourceLocation current = queue.poll();
                 component.add(current);
-                for (String neighbor : undirectedAdj.get(current)) {
+                for (ResourceLocation neighbor : undirectedAdj.get(current)) {
                     if (!visited.contains(neighbor)) {
                         visited.add(neighbor);
                         queue.add(neighbor);
@@ -214,24 +215,24 @@ public class GraphLayoutEngine {
         return components;
     }
 
-    private static Map<String, Integer> assignLayers(
-            List<String> classIds,
-            Map<String, Set<String>> upgradeTargets,
-            Map<String, Set<String>> upgradeSourcesOf
+    private static Map<ResourceLocation, Integer> assignLayers(
+            List<ResourceLocation> classIds,
+            Map<ResourceLocation, Set<ResourceLocation>> upgradeTargets,
+            Map<ResourceLocation, Set<ResourceLocation>> upgradeSourcesOf
     ) {
-        Map<String, Integer> layers = new HashMap<>();
+        Map<ResourceLocation, Integer> layers = new HashMap<>();
 
-        Set<String> roots = new HashSet<>();
-        for (String id : classIds) {
+        Set<ResourceLocation> roots = new HashSet<>();
+        for (ResourceLocation id : classIds) {
             if (upgradeSourcesOf.get(id).isEmpty()) {
                 roots.add(id);
             }
         }
 
         if (roots.isEmpty()) {
-            String minIncoming = classIds.get(0);
+            ResourceLocation minIncoming = classIds.get(0);
             int minCount = Integer.MAX_VALUE;
-            for (String id : classIds) {
+            for (ResourceLocation id : classIds) {
                 int count = upgradeSourcesOf.get(id).size();
                 if (count < minCount) {
                     minCount = count;
@@ -241,20 +242,20 @@ public class GraphLayoutEngine {
             roots.add(minIncoming);
         }
 
-        for (String id : classIds) {
+        for (ResourceLocation id : classIds) {
             layers.put(id, -1);
         }
 
-        Queue<String> queue = new LinkedList<>(roots);
-        for (String root : roots) {
+        Queue<ResourceLocation> queue = new LinkedList<>(roots);
+        for (ResourceLocation root : roots) {
             layers.put(root, 0);
         }
 
         while (!queue.isEmpty()) {
-            String current = queue.poll();
+            ResourceLocation current = queue.poll();
             int currentLayer = layers.get(current);
 
-            for (String target : upgradeTargets.get(current)) {
+            for (ResourceLocation target : upgradeTargets.get(current)) {
                 if (layers.containsKey(target) && layers.get(target) < currentLayer + 1) {
                     layers.put(target, currentLayer + 1);
                     queue.add(target);
@@ -262,7 +263,7 @@ public class GraphLayoutEngine {
             }
         }
 
-        for (Map.Entry<String, Integer> entry : layers.entrySet()) {
+        for (Map.Entry<ResourceLocation, Integer> entry : layers.entrySet()) {
             if (entry.getValue() < 0) {
                 entry.setValue(0);
             }
@@ -272,12 +273,12 @@ public class GraphLayoutEngine {
     }
 
     private static void orderWithinLayers(
-            List<List<String>> layers,
-            Map<String, Set<String>> upgradeTargets,
-            Map<String, Set<String>> upgradeSourcesOf
+            List<List<ResourceLocation>> layers,
+            Map<ResourceLocation, Set<ResourceLocation>> upgradeTargets,
+            Map<ResourceLocation, Set<ResourceLocation>> upgradeSourcesOf
     ) {
-        Map<String, Integer> positionInLayer = new HashMap<>();
-        for (List<String> layer : layers) {
+        Map<ResourceLocation, Integer> positionInLayer = new HashMap<>();
+        for (List<ResourceLocation> layer : layers) {
             for (int i = 0; i < layer.size(); i++) {
                 positionInLayer.put(layer.get(i), i);
             }
@@ -297,17 +298,17 @@ public class GraphLayoutEngine {
     }
 
     private static void sortLayerByBarycenter(
-            List<String> layer,
-            Map<String, Set<String>> adjacency,
-            Map<String, Integer> positionInLayer
+            List<ResourceLocation> layer,
+            Map<ResourceLocation, Set<ResourceLocation>> adjacency,
+            Map<ResourceLocation, Integer> positionInLayer
     ) {
-        Map<String, Double> barycenters = new HashMap<>();
-        for (String nodeId : layer) {
-            Set<String> neighbors = adjacency.get(nodeId);
+        Map<ResourceLocation, Double> barycenters = new HashMap<>();
+        for (ResourceLocation nodeId : layer) {
+            Set<ResourceLocation> neighbors = adjacency.get(nodeId);
             if (neighbors != null && !neighbors.isEmpty()) {
                 double sum = 0;
                 int count = 0;
-                for (String neighbor : neighbors) {
+                for (ResourceLocation neighbor : neighbors) {
                     Integer pos = positionInLayer.get(neighbor);
                     if (pos != null) {
                         sum += pos;
@@ -322,18 +323,18 @@ public class GraphLayoutEngine {
         layer.sort(Comparator.comparingDouble(id -> barycenters.getOrDefault(id, 0.0)));
     }
 
-    private static void updatePositions(List<String> layer, Map<String, Integer> positionInLayer) {
+    private static void updatePositions(List<ResourceLocation> layer, Map<ResourceLocation, Integer> positionInLayer) {
         for (int i = 0; i < layer.size(); i++) {
             positionInLayer.put(layer.get(i), i);
         }
     }
 
     private static class ComponentLayout {
-        final List<List<String>> layers;
+        final List<List<ResourceLocation>> layers;
         final int maxLayer;
         final int width;
 
-        ComponentLayout(List<List<String>> layers, int maxLayer, int width) {
+        ComponentLayout(List<List<ResourceLocation>> layers, int maxLayer, int width) {
             this.layers = layers;
             this.maxLayer = maxLayer;
             this.width = width;

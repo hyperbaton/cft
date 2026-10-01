@@ -2,35 +2,36 @@ package com.hyperbaton.cft.socialclass;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public class SocialClassUpdate {
 
     public static final Codec<SocialClassUpdate> SOCIAL_CLASS_UPDATE_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("nextClass").forGetter(SocialClassUpdate::getNextClass),
+            ResourceLocation.CODEC.fieldOf("nextClass").forGetter(SocialClassUpdate::getNextClass),
             Codec.DOUBLE.fieldOf("requiredHappiness").forGetter(SocialClassUpdate::getRequiredHappiness),
             NeedSatisfaction.NEED_SATISFACTION_CODEC.listOf().fieldOf("requiredNeeds").forGetter(SocialClassUpdate::getRequiredNeeds),
             SocialStructureRequirement.SOCIAL_STRUCTURE_REQUIREMENT_CODEC.listOf().fieldOf("socialStructureRequirements").forGetter(SocialClassUpdate::getSocialStructureRequirements)
     ).apply(instance, SocialClassUpdate::new));
-    private String nextClass;
+    private ResourceLocation nextClass;
     private double requiredHappiness;
     List<NeedSatisfaction> requiredNeeds;
 
     List<SocialStructureRequirement> socialStructureRequirements;
 
-    public SocialClassUpdate(String nextClass, double requiredHappiness, List<NeedSatisfaction> requiredNeeds, List<SocialStructureRequirement> socialStructureRequirements) {
+    public SocialClassUpdate(ResourceLocation nextClass, double requiredHappiness, List<NeedSatisfaction> requiredNeeds, List<SocialStructureRequirement> socialStructureRequirements) {
         this.nextClass = nextClass;
         this.requiredHappiness = requiredHappiness;
         this.requiredNeeds = requiredNeeds;
         this.socialStructureRequirements = socialStructureRequirements;
     }
 
-    public String getNextClass() {
+    public ResourceLocation getNextClass() {
         return nextClass;
     }
 
-    public void setNextClass(String nextClass) {
+    public void setNextClass(ResourceLocation nextClass) {
         this.nextClass = nextClass;
     }
 

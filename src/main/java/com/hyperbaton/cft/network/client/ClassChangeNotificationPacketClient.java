@@ -22,8 +22,8 @@ public class ClassChangeNotificationPacketClient {
             String key = packet.upgrade() ? "chat.cft.class_upgrade" : "chat.cft.class_downgrade";
             minecraft.player.displayClientMessage(
                     Component.translatable(key, packet.xoonglinName(),
-                                    Component.translatable(packet.fromClass()),
-                                    Component.translatable(packet.toClass()))
+                                    Component.translatable(packet.fromClass().toString()),
+                                    Component.translatable(packet.toClass().toString()))
                             .withStyle(packet.upgrade() ? ChatFormatting.GREEN : ChatFormatting.RED),
                     false);
         }

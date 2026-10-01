@@ -8,6 +8,7 @@ import com.hyperbaton.cft.structure.StructureUtils;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -101,7 +102,7 @@ public class FindAndClaimStructureBehavior extends Behavior<XoonglinEntity> {
         }
     }
 
-    private Optional<Structure> findNearestClaimableStructure(XoonglinEntity xoonglin, StructuresData data, String targetTypeId) {
+    private Optional<Structure> findNearestClaimableStructure(XoonglinEntity xoonglin, StructuresData data, ResourceLocation targetTypeId) {
         BlockPos xoonglinPos = xoonglin.blockPosition();
         return data.getStructures().stream()
                 .filter(s -> s.getStructureTypeId().equals(targetTypeId))

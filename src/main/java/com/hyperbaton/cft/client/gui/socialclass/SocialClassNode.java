@@ -4,9 +4,10 @@ import com.hyperbaton.cft.socialclass.SocialClass;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public record SocialClassNode(
-        String id,
+        ResourceLocation id,
         SocialClass socialClass,
         int x,
         int y,

@@ -23,8 +23,8 @@ import java.util.Optional;
 
 public class NeedUtils {
     /** Builds the network-facing snapshot of a Xoonglin's non-hidden needs. */
-    public static Map<String, NeedSatisfactionData> buildNeedsData(XoonglinEntity xoonglin) {
-        Map<String, NeedSatisfactionData> result = new HashMap<>();
+    public static Map<ResourceLocation, NeedSatisfactionData> buildNeedsData(XoonglinEntity xoonglin) {
+        Map<ResourceLocation, NeedSatisfactionData> result = new HashMap<>();
         for (NeedSatisfier<? extends Need> satisfier : xoonglin.getNeeds()) {
             if (satisfier.getNeed().isHidden()) continue;
 
@@ -74,8 +74,8 @@ public class NeedUtils {
 
     public static List<NeedSatisfier<? extends Need>> getNeedsForClass(SocialClass socialClass) {
         List<NeedSatisfier<? extends Need>> satisfiers = new ArrayList<>();
-        for (String needId : socialClass.getNeeds()) {
-            Need need = CftRegistry.NEEDS.get(ResourceLocation.parse(needId));
+        for (ResourceLocation needId : socialClass.getNeeds()) {
+            Need need = CftRegistry.NEEDS.get(needId);
             if (need != null) {
                 satisfiers.add(NeedSatisfierMapper.createNeedSatisfier(needId, need));
             }
@@ -83,10 +83,10 @@ public class NeedUtils {
         return satisfiers;
     }
 
-    public static boolean classMeetsStructureType(SocialClass socialClass, String structureTypeId) {
+    public static boolean classMeetsStructureType(SocialClass socialClass, ResourceLocation structureTypeId) {
         if (CftRegistry.NEEDS == null) return false;
         return socialClass.getNeeds().stream()
-                .map(needId -> CftRegistry.NEEDS.get(ResourceLocation.parse(needId)))
+                .map(CftRegistry.NEEDS::get)
                 .filter(Objects::nonNull)
                 .filter(need -> need instanceof HomeNeed)
                 .map(need -> (HomeNeed) need)

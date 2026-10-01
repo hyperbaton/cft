@@ -4,6 +4,7 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -46,7 +47,7 @@ public final class StructureUtils {
      * The structure of a type registered at a key block, detected again first: empty if there's
      * none, or if it no longer passes (then it's unregistered).
      */
-    public static Optional<Structure> recheck(ServerLevel level, BlockPos keyBlockPos, String structureTypeId) {
+    public static Optional<Structure> recheck(ServerLevel level, BlockPos keyBlockPos, ResourceLocation structureTypeId) {
         return StructuresData.get(level).findByKeyBlock(keyBlockPos)
                 .filter(structure -> structure.getStructureTypeId().equals(structureTypeId))
                 .filter(structure -> recheck(level, structure).success());

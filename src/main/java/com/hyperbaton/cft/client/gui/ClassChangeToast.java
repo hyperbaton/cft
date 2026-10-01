@@ -32,7 +32,7 @@ public class ClassChangeToast implements Toast {
         this.names.add(firstName);
     }
 
-    public static void addOrUpdate(ToastComponent toasts, String xoonglinName, String toClass, boolean upgrade) {
+    public static void addOrUpdate(ToastComponent toasts, String xoonglinName, ResourceLocation toClass, boolean upgrade) {
         Token token = new Token(toClass, upgrade);
         ClassChangeToast existing = toasts.getToast(ClassChangeToast.class, token);
         if (existing == null) {
@@ -63,7 +63,7 @@ public class ClassChangeToast implements Toast {
         Component title = Component.translatable(token.upgrade() ? "toast.cft.class_upgrade" : "toast.cft.class_downgrade");
         graphics.drawString(font, title, TEXT_X, 7, color, false);
 
-        Component className = Component.translatable(token.toClass());
+        Component className = Component.translatable(token.toClass().toString());
         Component description = names.size() == 1
                 ? Component.translatable("toast.cft.class_change.single", names.get(0), className)
                 : Component.translatable("toast.cft.class_change.multiple", names.size(), className);
@@ -80,6 +80,6 @@ public class ClassChangeToast implements Toast {
         return token;
     }
 
-    private record Token(String toClass, boolean upgrade) {
+    private record Token(ResourceLocation toClass, boolean upgrade) {
     }
 }

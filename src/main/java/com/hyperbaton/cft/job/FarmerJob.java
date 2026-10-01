@@ -32,26 +32,26 @@ public class FarmerJob extends Job {
 
     public static final Codec<FarmerJob> CODEC = RecordCodecBuilder.create(inst -> inst.group(
             Codec.DOUBLE.fieldOf("hours_per_day").forGetter(j -> j.hoursPerDay),
-            Codec.STRING.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
+            ResourceLocation.CODEC.fieldOf("required_structure").forGetter(j -> j.requiredStructure),
             INGREDIENT_CODEC.fieldOf("seed").forGetter(j -> j.seed),
             INGREDIENT_CODEC.fieldOf("product").forGetter(j -> j.product),
             BuiltInRegistries.BLOCK.byNameCodec().fieldOf("crop_block").forGetter(j -> j.cropBlock),
             Codec.unboundedMap(Codec.STRING, Codec.STRING).fieldOf("ripe_state").forGetter(j -> j.ripeState),
-            Codec.STRING.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
+            ResourceLocation.CODEC.listOf().optionalFieldOf("required_needs", List.of()).forGetter(Job::getRequiredNeeds),
             Codec.DOUBLE.optionalFieldOf("min_happiness", 0.0).forGetter(Job::getMinHappiness),
             Codec.BOOL.optionalFieldOf("available_to_babies", false).forGetter(Job::isAvailableToBabies),
             Codec.BOOL.optionalFieldOf("available_to_adults", true).forGetter(Job::isAvailableToAdults)
     ).apply(inst, FarmerJob::new));
 
     private final double hoursPerDay;
-    private final String requiredStructure;
+    private final ResourceLocation requiredStructure;
     private final Ingredient seed;
     private final Ingredient product;
     private final Block cropBlock;
     private final Map<String, String> ripeState;
 
-    public FarmerJob(double hoursPerDay, String requiredStructure, Ingredient seed, Ingredient product,
-                     Block cropBlock, Map<String, String> ripeState, List<String> requiredNeeds,
+    public FarmerJob(double hoursPerDay, ResourceLocation requiredStructure, Ingredient seed, Ingredient product,
+                     Block cropBlock, Map<String, String> ripeState, List<ResourceLocation> requiredNeeds,
                      double minHappiness, boolean availableToBabies, boolean availableToAdults) {
         super(requiredNeeds, minHappiness, availableToBabies, availableToAdults);
         this.hoursPerDay = hoursPerDay;
@@ -63,7 +63,7 @@ public class FarmerJob extends Job {
     }
 
     @Override
-    public String getRequiredStructureType() {
+    public ResourceLocation getRequiredStructureType() {
         return requiredStructure;
     }
 

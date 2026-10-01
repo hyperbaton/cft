@@ -22,12 +22,12 @@ import java.util.List;
 public class NeedTooltips {
     private static final int MAX_WIDTH = 200;
 
-    public static List<FormattedCharSequence> build(Font font, String needId, @Nullable String extraTooltip) {
+    public static List<FormattedCharSequence> build(Font font, ResourceLocation needId, @Nullable String extraTooltip) {
         List<FormattedCharSequence> lines = new ArrayList<>();
-        lines.add(Component.translatable(needId).withStyle(ChatFormatting.YELLOW).getVisualOrderText());
+        lines.add(Component.translatable(needId.toString()).withStyle(ChatFormatting.YELLOW).getVisualOrderText());
 
         String descriptionKey = descriptionKey(needId);
-        if (descriptionKey != null && I18n.exists(descriptionKey)) {
+        if (I18n.exists(descriptionKey)) {
             lines.addAll(font.split(Component.translatable(descriptionKey).withStyle(ChatFormatting.GRAY), MAX_WIDTH));
         }
 
@@ -50,18 +50,16 @@ public class NeedTooltips {
         return lines;
     }
 
-    @Nullable
-    private static String descriptionKey(String needId) {
-        ResourceLocation id = ResourceLocation.tryParse(needId);
-        return id == null ? null : "need." + id.getNamespace() + "." + id.getPath() + ".tooltip";
+    private static String descriptionKey(ResourceLocation needId) {
+        return "need." + needId.getNamespace() + "." + needId.getPath() + ".tooltip";
     }
 
     @Nullable
-    private static Need findNeed(String needId) {
+    private static Need findNeed(ResourceLocation needId) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return null;
         return minecraft.level.registryAccess().registry(CftDatapackRegistryEvents.NEED_KEY)
-                .map(registry -> registry.get(ResourceLocation.tryParse(needId)))
+                .map(registry -> registry.get(needId))
                 .orElse(null);
     }
 

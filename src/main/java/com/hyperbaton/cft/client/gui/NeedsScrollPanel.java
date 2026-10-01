@@ -21,7 +21,7 @@ class NeedsScrollPanel extends ScrollPanel {
     private static final int ICON_SIZE = 16;
     private static final int ICON_ROTATE_TICKS = 40;
 
-    private Map<String, NeedSatisfactionData> needsData;
+    private Map<ResourceLocation, NeedSatisfactionData> needsData;
     private final int elementHeight = 18;
     private final Font font;
     private List<FormattedCharSequence> currentTooltip = null;
@@ -29,7 +29,7 @@ class NeedsScrollPanel extends ScrollPanel {
     private int tickCounter = 0;
 
     public NeedsScrollPanel(Minecraft minecraft, Font font, int width, int height, int top, int left,
-                           Map<String, NeedSatisfactionData> needsData) {
+                           Map<ResourceLocation, NeedSatisfactionData> needsData) {
         super(minecraft, width, height, top, left);
         this.needsData = needsData;
         this.font = font;
@@ -49,7 +49,7 @@ class NeedsScrollPanel extends ScrollPanel {
         int barHeight = 8;
         currentTooltip = null;
 
-        for (Map.Entry<String, NeedSatisfactionData> need : needsData.entrySet()) {
+        for (Map.Entry<ResourceLocation, NeedSatisfactionData> need : needsData.entrySet()) {
             if (currentY + elementHeight >= scrollDistance && currentY <= scrollDistance + height) {
                 int adjustedY = top + currentY - (int) scrollDistance + SIDE_MARGIN;
                 NeedSatisfactionData data = need.getValue();
@@ -62,7 +62,7 @@ class NeedsScrollPanel extends ScrollPanel {
                     textX += ICON_SIZE + 2;
                 }
 
-                String needLabel = Component.translatable(need.getKey()).getString();
+                String needLabel = Component.translatable(need.getKey().toString()).getString();
                 graphics.drawString(this.font, needLabel, textX, adjustedY, 0x404040, false);
 
                 int barX = left + width - barWidth - 2 * SIDE_MARGIN;
@@ -108,7 +108,7 @@ class NeedsScrollPanel extends ScrollPanel {
         return tooltipY;
     }
 
-    public void updateData(Map<String, NeedSatisfactionData> newNeedsData) {
+    public void updateData(Map<ResourceLocation, NeedSatisfactionData> newNeedsData) {
         this.needsData = newNeedsData;
     }
 

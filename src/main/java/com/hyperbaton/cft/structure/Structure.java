@@ -6,8 +6,10 @@ import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
+import java.util.Optional;
 import java.util.*;
 
 public class Structure {
@@ -23,14 +25,14 @@ public class Structure {
     private final BlockPos keyBlockPos;
     private int size;
     private UUID leaderId;
-    private final String structureTypeId;
+    private final ResourceLocation structureTypeId;
     private final int maxUsers;
     private final List<UUID> userIds;
     private Map<String, List<BlockPos>> blockPositions;
     private Optional<BoundingBox> bounds;
 
     public Structure(BlockPos keyBlockPos, int size, UUID leaderId,
-                     String structureTypeId, int maxUsers,
+                     ResourceLocation structureTypeId, int maxUsers,
                      Map<String, List<BlockPos>> blockPositions) {
         this.keyBlockPos = keyBlockPos;
         this.size = size;
@@ -42,7 +44,7 @@ public class Structure {
     }
 
     protected Structure(BlockPos keyBlockPos, int size, UUID leaderId,
-                        String structureTypeId, int maxUsers, List<UUID> userIds,
+                        ResourceLocation structureTypeId, int maxUsers, List<UUID> userIds,
                         Map<String, List<BlockPos>> blockPositions) {
         this.keyBlockPos = keyBlockPos;
         this.size = size;
@@ -86,7 +88,7 @@ public class Structure {
         tag.put(TAG_KEY_BLOCK_POS, NbtUtils.writeBlockPos(keyBlockPos));
         tag.putInt(TAG_SIZE, size);
         tag.putUUID(TAG_LEADER_ID, leaderId);
-        tag.putString(TAG_STRUCTURE_TYPE_ID, structureTypeId);
+        tag.putString(TAG_STRUCTURE_TYPE_ID, structureTypeId.toString());
         tag.putInt(TAG_MAX_USERS, maxUsers);
 
         ListTag userIdTags = new ListTag();
@@ -110,7 +112,7 @@ public class Structure {
         BlockPos keyBlockPos = NbtUtils.readBlockPos(tag, TAG_KEY_BLOCK_POS).orElse(BlockPos.ZERO);
         int size = tag.getInt(TAG_SIZE);
         UUID leaderId = tag.getUUID(TAG_LEADER_ID);
-        String structureTypeId = tag.getString(TAG_STRUCTURE_TYPE_ID);
+        ResourceLocation structureTypeId = ResourceLocation.parse(tag.getString(TAG_STRUCTURE_TYPE_ID));
         int maxUsers = tag.getInt(TAG_MAX_USERS);
 
         List<UUID> userIds = new ArrayList<>();
@@ -162,7 +164,7 @@ public class Structure {
         return leaderId;
     }
 
-    public String getStructureTypeId() {
+    public ResourceLocation getStructureTypeId() {
         return structureTypeId;
     }
 

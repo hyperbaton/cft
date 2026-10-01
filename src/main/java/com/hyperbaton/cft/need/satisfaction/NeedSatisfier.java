@@ -4,6 +4,7 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.Need;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.ResourceLocation;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -26,7 +27,7 @@ public abstract class NeedSatisfier<T extends Need> {
      * The id of the need, which is the name of its file. Kept here because the Xoonglin keeps its
      * own copy of the need, which isn't in the registry
      */
-    String needId;
+    ResourceLocation needId;
 
     public static final String TAG_SATISFACTION = "satisfaction";
     public static final String TAG_IS_SATISFIED = "isSatisfied";
@@ -99,11 +100,11 @@ public abstract class NeedSatisfier<T extends Need> {
         return need;
     }
 
-    public String getNeedId() {
+    public ResourceLocation getNeedId() {
         return needId;
     }
 
-    public void setNeedId(String needId) {
+    public void setNeedId(ResourceLocation needId) {
         this.needId = needId;
     }
 
@@ -111,7 +112,7 @@ public abstract class NeedSatisfier<T extends Need> {
         CompoundTag tag = new CompoundTag();
         tag.putDouble(TAG_SATISFACTION, satisfaction);
         tag.putBoolean(TAG_IS_SATISFIED, isSatisfied);
-        tag.putString(TAG_NEED_ID, needId);
+        tag.putString(TAG_NEED_ID, needId.toString());
         tag.put(TAG_NEED, Need.NEED_CODEC.encodeStart(NbtOps.INSTANCE, need).result().get());
         return tag;
     }

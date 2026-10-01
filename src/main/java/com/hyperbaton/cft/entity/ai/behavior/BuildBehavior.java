@@ -10,6 +10,7 @@ import com.hyperbaton.cft.structure.StructureType;
 import com.hyperbaton.cft.util.ContainerUtil;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class BuildBehavior extends JobBehavior<BuilderJob> {
 
     private State state;
     private BlockPos buildSiteKeyBlock;
-    private String buildStructureTypeId;
+    private ResourceLocation buildStructureTypeId;
     private List<BuildPlacement> buildPlan;
     private int buildPlanIndex;
     private BlockPos storageContainerPos;
@@ -135,7 +136,7 @@ public class BuildBehavior extends JobBehavior<BuilderJob> {
         BlockPos entityPos = entity.blockPosition();
         int radius = job.getBuildRadius();
         BlockPos bestPos = null;
-        String bestTypeId = null;
+        ResourceLocation bestTypeId = null;
         int bestDist = Integer.MAX_VALUE;
 
         int minY = entityPos.getY() - 10;
@@ -159,7 +160,7 @@ public class BuildBehavior extends JobBehavior<BuilderJob> {
                     if (!normalizedPos.equals(pos) && existingBlocks.contains(pos)) continue;
                     if (abandonedSites.contains(normalizedPos)) continue;
 
-                    for (String typeId : job.getBuildableStructures()) {
+                    for (ResourceLocation typeId : job.getBuildableStructures()) {
                         StructureType structureType = CftRegistry.getStructureType(typeId);
                         if (structureType == null) continue;
                         if (!structureType.matchesKeyBlock(blockState)) continue;
@@ -442,7 +443,7 @@ public class BuildBehavior extends JobBehavior<BuilderJob> {
         storageStructureKeyPos = null;
     }
 
-    private Structure findClosestTemplate(StructuresData data, XoonglinEntity entity, String structureTypeId) {
+    private Structure findClosestTemplate(StructuresData data, XoonglinEntity entity, ResourceLocation structureTypeId) {
         BlockPos entityPos = entity.blockPosition();
         return data.getStructures().stream()
                 .filter(s -> s.getStructureTypeId().equals(structureTypeId))
@@ -502,7 +503,7 @@ public class BuildBehavior extends JobBehavior<BuilderJob> {
 
     private BlockPos findStorageContainer(ServerLevel level, StructuresData data,
                                           XoonglinEntity entity, BuilderJob job) {
-        String storageTypeId = job.getStorageStructure();
+        ResourceLocation storageTypeId = job.getStorageStructure();
         boolean useAssigned = storageTypeId.equals(
                 job.getRequiredStructureType() != null ? job.getRequiredStructureType() : "");
 

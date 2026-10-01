@@ -39,7 +39,7 @@ public class SocialStructureCommand {
                 .append(Component.translatable("cft.socialstructure.population").withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal(String.valueOf(population)).withStyle(ChatFormatting.DARK_AQUA))
                 .append(Component.literal("\n"));
-        socialStructure.forEach((key, value) -> formattedSocialStructure.append(Component.translatable(CftRegistry.getSocialClassId(key))
+        socialStructure.forEach((key, value) -> formattedSocialStructure.append(Component.translatable(CftRegistry.getSocialClassId(key).toString())
                         .withStyle(ChatFormatting.YELLOW))
                 .append(Component.literal("    "))
                 .append(Component.literal(value.toString()).withStyle(ChatFormatting.DARK_AQUA))

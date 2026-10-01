@@ -25,7 +25,7 @@ public class CftBlockEvents {
                 .ifPresent(structure -> {
                     StructureUtils.unregister(level, structure);
                     event.getPlayer().displayClientMessage(Component.translatable("message.cft.structure_unregistered",
-                            Component.translatable(structure.getStructureTypeId())), true);
+                            Component.translatable(structure.getStructureTypeId().toString())), true);
                 });
     }
 }

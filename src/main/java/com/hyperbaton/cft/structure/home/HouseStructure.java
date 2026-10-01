@@ -4,13 +4,14 @@ import com.hyperbaton.cft.structure.EnclosedBuildingBlockGroup;
 import com.hyperbaton.cft.structure.Structure;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 
 public class HouseStructure extends Structure {
 
     private HouseStructure(BlockPos keyBlockPos, int size, UUID leaderId,
-                           String structureTypeId, int maxUsers, List<UUID> userIds,
+                           ResourceLocation structureTypeId, int maxUsers, List<UUID> userIds,
                            Map<String, List<BlockPos>> blockPositions) {
         super(keyBlockPos, size, leaderId, structureTypeId, maxUsers, userIds, blockPositions);
     }
