@@ -1,64 +1,72 @@
 package com.hyperbaton.cft.structure;
 
-import net.minecraft.network.chat.Component;
-
-import java.util.Locale;
+import com.hyperbaton.cft.CftMod;
+import net.minecraft.resources.ResourceLocation;
 
 /**
- * Reasons a structure detection attempt can fail (or succeed).
+ * CFT's reasons a structure detection can fail (or succeed).
  *
- * The ORDER of the entries matters: when several structure types share the same key
- * block and all of them fail, the player is shown only the failure of the type that
- * got "closest" to being detected — and closeness is measured by the ordinal of its
- * reason in this enum. Reasons appearing later are considered further along the
- * detection process (i.e. closer to success) than earlier ones.
- *
- * When adding a new reason, insert it at a position that reflects how deep into the
- * detection process the failure happens, rather than just appending it at the end.
+ * The progress of a reason measures how far detection got: when several structure types share
+ * the same key block and all of them fail, the player is shown only the failure of the type that
+ * got closest to being detected, the one with the highest progress. Each stage of detection has
+ * its band, and reasons within a stage are 10 apart, so addon reasons can be placed between them:
+ * <ul>
+ *     <li>0: preconditions, detection could not even start;</li>
+ *     <li>100: base shape, the floor, border or first layer;</li>
+ *     <li>200: body, the walls, interior, roof and enclosure;</li>
+ *     <li>300: proportions, the body exists but has the wrong ones;</li>
+ *     <li>400: final checks, the structure is essentially complete;</li>
+ *     <li>1000: success.</li>
+ * </ul>
  */
-public enum StructureDetectionReasons {
+public final class StructureDetectionReasons {
+
     // --- Preconditions: detection could not even start ---
-    NOT_A_KEY_BLOCK,
-    ALREADY_REGISTERED,
-    OVERLAPPING_STRUCTURE,
+    public static final StructureDetectionReason NOT_A_KEY_BLOCK = reason("not_a_key_block", 0);
+    public static final StructureDetectionReason ALREADY_REGISTERED = reason("already_registered", 10);
+    public static final StructureDetectionReason OVERLAPPING_STRUCTURE = reason("overlapping_structure", 20);
 
     // --- Base shape: floor, border or first layer not found or invalid ---
-    NO_FLOOR,
-    FLOOR_TOO_BIG,
-    INVALID_BORDER,
-    BORDER_NOT_CLOSED,
-    INVALID_MONUMENT_LAYER,
-    INVALID_FLOOR,
-    INVALID_GROUND_PERIMETER,
-    SURFACE_TOO_BIG,
-    INVALID_SURFACE,
+    public static final StructureDetectionReason NO_FLOOR = reason("no_floor", 100);
+    public static final StructureDetectionReason FLOOR_TOO_BIG = reason("floor_too_big", 110);
+    public static final StructureDetectionReason INVALID_BORDER = reason("invalid_border", 120);
+    public static final StructureDetectionReason BORDER_NOT_CLOSED = reason("border_not_closed", 130);
+    public static final StructureDetectionReason INVALID_MONUMENT_LAYER = reason("invalid_monument_layer", 140);
+    public static final StructureDetectionReason INVALID_FLOOR = reason("invalid_floor", 150);
+    public static final StructureDetectionReason INVALID_GROUND_PERIMETER = reason("invalid_ground_perimeter", 160);
+    public static final StructureDetectionReason SURFACE_TOO_BIG = reason("surface_too_big", 170);
+    public static final StructureDetectionReason INVALID_SURFACE = reason("invalid_surface", 180);
 
     // --- Body: walls, interior, roof and enclosure ---
-    INVALID_WALLS,
-    INVALID_INTERIOR,
-    INVALID_ROOF,
-    CEILING_NOT_FLAT,
-    NO_CLOSURE,
-    NO_SKY_ACCESS,
+    public static final StructureDetectionReason INVALID_WALLS = reason("invalid_walls", 200);
+    public static final StructureDetectionReason INVALID_INTERIOR = reason("invalid_interior", 210);
+    public static final StructureDetectionReason INVALID_ROOF = reason("invalid_roof", 220);
+    public static final StructureDetectionReason CEILING_NOT_FLAT = reason("ceiling_not_flat", 230);
+    public static final StructureDetectionReason NO_CLOSURE = reason("no_closure", 240);
+    public static final StructureDetectionReason NO_SKY_ACCESS = reason("no_sky_access", 250);
 
-    // --- Aggregate checks: the body exists but has wrong proportions ---
-    MONUMENT_TOO_SHORT,
-    MONUMENT_TOO_TALL,
-    NOT_ENOUGH_STOREYS,
-    LAYERS_NOT_IDENTICAL,
+    // --- Proportions: the body exists but has the wrong ones ---
+    public static final StructureDetectionReason MONUMENT_TOO_SHORT = reason("monument_too_short", 300);
+    public static final StructureDetectionReason MONUMENT_TOO_TALL = reason("monument_too_tall", 310);
+    public static final StructureDetectionReason NOT_ENOUGH_STOREYS = reason("not_enough_storeys", 320);
+    public static final StructureDetectionReason LAYERS_NOT_IDENTICAL = reason("layers_not_identical", 330);
 
     // --- Final checks: the structure is essentially complete ---
-    MISSING_REQUIRED_STRUCTURES,
-    NO_CONTAINER,
-    TOO_DARK,
-    NOT_ENOUGH_ANIMALS,
-    STRUCTURE_TOO_LARGE,
+    public static final StructureDetectionReason MISSING_REQUIRED_STRUCTURES = reason("missing_required_structures", 400);
+    public static final StructureDetectionReason NO_CONTAINER = reason("no_container", 410);
+    public static final StructureDetectionReason TOO_DARK = reason("too_dark", 420);
+    public static final StructureDetectionReason NOT_ENOUGH_ANIMALS = reason("not_enough_animals", 430);
+    public static final StructureDetectionReason STRUCTURE_TOO_LARGE = reason("structure_too_large", 440);
 
-    STRUCTURE_DETECTED,
-    STRUCTURE_CONFIRMED;
+    // --- Success ---
+    public static final StructureDetectionReason STRUCTURE_DETECTED = reason("structure_detected", 1000);
+    /** A registered structure, checked again with the staff, still passes. */
+    public static final StructureDetectionReason STRUCTURE_CONFIRMED = reason("structure_confirmed", 1010);
 
-    /** The reason, for the player: each one has a lang entry {@code detection.cft.reason.<name>}. */
-    public Component getMessage() {
-        return Component.translatable("detection.cft.reason." + name().toLowerCase(Locale.ROOT));
+    private StructureDetectionReasons() {
+    }
+
+    private static StructureDetectionReason reason(String name, int progress) {
+        return new StructureDetectionReason(ResourceLocation.fromNamespaceAndPath(CftMod.MOD_ID, name), progress);
     }
 }

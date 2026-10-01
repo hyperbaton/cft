@@ -31,7 +31,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Optional;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class LeaderStaff extends Item {
 
@@ -140,7 +139,7 @@ public class LeaderStaff extends Item {
                 return new StructureDetectionPacket(true, Optional.of(structureTypeId),
                         StructureDetectionReasons.STRUCTURE_DETECTED, Collections.emptyList());
             }
-            if (bestFailure == null || result.reason().ordinal() > bestFailure.reason().ordinal()) {
+            if (bestFailure == null || result.reason().isFurtherThan(bestFailure.reason())) {
                 bestFailure = result;
                 bestFailureType = structureType;
             }

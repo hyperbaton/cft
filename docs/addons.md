@@ -310,6 +310,19 @@ implements `detect(keyBlockPos, level, leaderId)`, returning a `StructureDetecti
 reason it failed. Register its codec on `STRUCTURE_TYPE_CODEC_KEY`. The built-in types in
 `com.hyperbaton.cft.structure.type` show how detection is done.
 
+A failure gives a `StructureDetectionReason`. Use CFT's own from `StructureDetectionReasons`, or
+create yours: `new StructureDetectionReason(id, progress)`. The player reads its lang entry,
+`detection.<namespace>.reason.<path>`. The progress says how far detection got: when several
+types share a key block and all fail, the player sees the failure with the highest progress. CFT's
+stages are 100 apart (base shape 100, body 200, proportions 300, final checks 400, success 1000)
+and its reasons 10 apart, so yours can go between them:
+
+```java
+// Fails after the walls and roof are found, before the final checks
+public static final StructureDetectionReason NO_HIVES = new StructureDetectionReason(
+        ResourceLocation.fromNamespaceAndPath("myaddon", "no_hives"), 350);
+```
+
 `detect` also runs on registered structures, to check they're still there (see
 [Keeping structures up to date](datapacks/structures.md#keeping-structures-up-to-date)). A check
 against other registered structures, like overlapping, must skip the one at the same key block.
@@ -366,6 +379,7 @@ the same time, avoid two of them steering the Xoonglin's navigation at once.
 
 To show one of these names, use `LangUtil` (`needName`, `socialClassName`, `jobName`,
 `structureName`) rather than building the key yourself.
+| A structure detection reason | `detection.<namespace>.reason.<path>` of its id |
 | A work step | the key of its `WorkStep` (`gui.cft.work_step.<name>` with `WorkStep.of(name)`) |
 | An errand | `errand.<namespace>.<path>` of its id |
 | A job status | the key of its `JobStatus` |

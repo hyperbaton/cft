@@ -5,7 +5,7 @@ import java.util.List;
 
 public record StructureDetectionResult(
         boolean success,
-        StructureDetectionReasons reason,
+        StructureDetectionReason reason,
         List<Component> validationDetails,
         Structure structure
 ) {
@@ -13,11 +13,11 @@ public record StructureDetectionResult(
         return new StructureDetectionResult(true, StructureDetectionReasons.STRUCTURE_DETECTED, List.of(), structure);
     }
 
-    public static StructureDetectionResult failure(StructureDetectionReasons reason, List<Component> details) {
+    public static StructureDetectionResult failure(StructureDetectionReason reason, List<Component> details) {
         return new StructureDetectionResult(false, reason, details, null);
     }
 
-    public static StructureDetectionResult failure(StructureDetectionReasons reason) {
+    public static StructureDetectionResult failure(StructureDetectionReason reason) {
         return failure(reason, List.of());
     }
 }

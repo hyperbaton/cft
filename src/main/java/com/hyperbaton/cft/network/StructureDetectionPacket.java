@@ -2,7 +2,7 @@ package com.hyperbaton.cft.network;
 
 import com.hyperbaton.cft.CftMod;
 import com.hyperbaton.cft.network.client.StructureDetectionPacketClient;
-import com.hyperbaton.cft.structure.StructureDetectionReasons;
+import com.hyperbaton.cft.structure.StructureDetectionReason;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -18,7 +18,7 @@ import java.util.List;
 public record StructureDetectionPacket(
         boolean structureDetected,
         Optional<ResourceLocation> structureTypeId,
-        StructureDetectionReasons detectionReason,
+        StructureDetectionReason detectionReason,
         List<Component> validationDetails
 ) implements CustomPacketPayload {
 
@@ -28,7 +28,7 @@ public record StructureDetectionPacket(
     public static final StreamCodec<RegistryFriendlyByteBuf, StructureDetectionPacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, StructureDetectionPacket::structureDetected,
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), StructureDetectionPacket::structureTypeId,
-            ByteBufCodecs.STRING_UTF8.map(StructureDetectionReasons::valueOf, StructureDetectionReasons::name),
+            StructureDetectionReason.STREAM_CODEC,
             StructureDetectionPacket::detectionReason,
             ComponentSerialization.STREAM_CODEC.apply(ByteBufCodecs.list()), StructureDetectionPacket::validationDetails,
             StructureDetectionPacket::new);

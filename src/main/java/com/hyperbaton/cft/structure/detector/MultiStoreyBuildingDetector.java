@@ -35,9 +35,9 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
 
     /** Result of detecting the phases of one storey above an already-known floor. */
     private record StoreyParts(Set<BlockPos> wallBlocks, Set<BlockPos> interiorBlocks,
-                               Set<BlockPos> roofBlocks, StructureDetectionReasons failure,
+                               Set<BlockPos> roofBlocks, StructureDetectionReason failure,
                                List<Component> failureDetails) {
-        static StoreyParts failure(StructureDetectionReasons reason, List<Component> details) {
+        static StoreyParts failure(StructureDetectionReason reason, List<Component> details) {
             return new StoreyParts(null, null, null, reason, details);
         }
 
@@ -94,7 +94,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
         addStoreyBlocks(allBlocks, parts);
 
         Set<BlockPos> previousCeiling = parts.roofBlocks();
-        StructureDetectionReasons lastFailure = null;
+        StructureDetectionReason lastFailure = null;
         List<Component> lastFailureDetails = List.of();
 
         // ---- Upper storeys: floors derived from the ceiling below, no flood fill ----
@@ -250,7 +250,7 @@ public class MultiStoreyBuildingDetector implements StructureDetector<MultiStore
      * Prefixes failure details with the storey they belong to, so the player knows
      * which floor of the building failed validation.
      */
-    private static List<Component> storeyDetails(int storey, StructureDetectionReasons reason, List<Component> details) {
+    private static List<Component> storeyDetails(int storey, StructureDetectionReason reason, List<Component> details) {
         if (details.isEmpty()) {
             return List.of(Component.translatable("detection.cft.detail.storey", storey, reason.getMessage()));
         }
