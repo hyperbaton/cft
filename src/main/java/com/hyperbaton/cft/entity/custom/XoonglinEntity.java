@@ -5,7 +5,8 @@ import com.hyperbaton.cft.CftConfig;
 import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.job.Job;
 import com.hyperbaton.cft.job.JobState;
-import com.hyperbaton.cft.network.ClassChangeNotificationPacket;
+import com.hyperbaton.cft.api.event.JobChangeEvent;
+import com.hyperbaton.cft.api.event.SocialClassChangeEvent;
 import com.hyperbaton.cft.entity.ai.schedule.ScheduleUtils;
 import com.hyperbaton.cft.need.Need;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
@@ -59,7 +60,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -157,7 +158,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                     currentNeed.unsatisfy(need.getFrequency(), this);
                     increaseHappiness(need.getProvidedHappiness(), need.getFrequency());
                 }
-                currentNeed.setSatisfied(!(currentNeed.getSatisfaction() < need.getSatisfactionThreshold()));
+                currentNeed.updateSatisfied(this);
             }
             if (allDamagingNeedsSatisfied()) {
                 float healAmount = getMaxHealth() * DELAY_BETWEEN_NEEDS_CHECKS / (float) FULL_HEAL_TICKS;
@@ -537,16 +538,27 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
 
     private void changeSocialClass(ResourceLocation nextClass, boolean upgrade) {
         ResourceLocation previousClass = getSocialClassId();
-        this.socialClass = CftRegistry.SOCIAL_CLASSES.get(nextClass);
-        if (this.socialClass != null) {
-            this.needs = NeedUtils.getNeedsForClass(this.socialClass);
-            this.entityData.set(SOCIAL_CLASS_NAME, nextClass.toString());
-            assignEligibleJobIfNeeded();
-            resetMatingDelay();
-            applyClassMaxHealth();
-            notifyLeaderOfClassChange(previousClass, upgrade);
+        SocialClassChangeEvent.Pre pre = NeoForge.EVENT_BUS.post(
+                new SocialClassChangeEvent.Pre(this, previousClass, nextClass, upgrade));
+        if (pre.isCanceled()) return;
+        ResourceLocation newClassId = pre.getNextClass();
+        SocialClass newClass = CftRegistry.SOCIAL_CLASSES.get(newClassId);
+        if (newClass == null) {
+            LOGGER.warn("Xoonglin {} can't change to unknown social class {}", getName().getString(), newClassId);
+            return;
+        }
+        this.socialClass = newClass;
+        this.needs = NeedUtils.getNeedsForClass(newClass);
+        this.entityData.set(SOCIAL_CLASS_NAME, newClassId.toString());
+        assignEligibleJobIfNeeded();
+        resetMatingDelay();
+        applyClassMaxHealth();
+        // The new class may need another kind of home
+        if (this.home != null) {
+            loseHome();
         }
         removeFromAllStructures();
+        NeoForge.EVENT_BUS.post(new SocialClassChangeEvent.Post(this, previousClass, newClassId, upgrade));
     }
 
     /** Leaves its home (it's gone, or no longer fits its class) and goes looking for another one. */
@@ -562,13 +574,6 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.socialClass.getMaxHealth());
         if (this.getHealth() > this.getMaxHealth()) {
             this.setHealth(this.getMaxHealth());
-        }
-    }
-
-    private void notifyLeaderOfClassChange(ResourceLocation previousClass, boolean upgrade) {
-        if (previousClass != null && leaderId != null && level().getPlayerByUUID(leaderId) instanceof ServerPlayer leader) {
-            PacketDistributor.sendToPlayer(leader, new ClassChangeNotificationPacket(
-                    getName().getString(), previousClass, getSocialClassId(), upgrade));
         }
     }
 
@@ -794,9 +799,29 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
         this.happiness = happiness;
     }
 
+    /** Sets the first job of a new Xoonglin. To change the job of one already in the world, use {@link #changeJob}. */
     public void setJob(ResourceLocation jobId) { this.jobId = jobId; }
 
     public ResourceLocation getJob() { return jobId; }
+
+    /**
+     * Gives the Xoonglin another job, or none, unless a listener of {@link JobChangeEvent.Pre}
+     * cancels it. It leaves the structures of its old job and starts the new one afresh.
+     *
+     * @return whether the job changed
+     */
+    public boolean changeJob(@Nullable ResourceLocation newJobId, JobChangeEvent.Cause cause) {
+        if (Objects.equals(jobId, newJobId)) return false;
+        ResourceLocation previousJobId = jobId;
+        if (NeoForge.EVENT_BUS.post(new JobChangeEvent.Pre(this, previousJobId, newJobId, cause)).isCanceled()) {
+            return false;
+        }
+        removeFromJobStructures();
+        this.jobId = newJobId;
+        jobState.resetJobSpecific();
+        NeoForge.EVENT_BUS.post(new JobChangeEvent.Post(this, previousJobId, newJobId, cause));
+        return true;
+    }
 
     public void assignEligibleJobIfNeeded() {
         if (socialClass == null) return;
@@ -807,11 +832,7 @@ public class XoonglinEntity extends AgeableMob implements InventoryCarrier {
                 && (isBaby() ? currentJob.isAvailableToBabies() : currentJob.isAvailableToAdults());
         if (currentJobValid) return;
 
-        ResourceLocation newJobId = socialClass.getRandomJob(getRandom(), isBaby());
-        if (!Objects.equals(jobId, newJobId)) {
-            setJob(newJobId);
-            jobState.resetJobSpecific();
-        }
+        changeJob(socialClass.getRandomJob(getRandom(), isBaby()), JobChangeEvent.Cause.AUTOMATIC);
     }
 
     public JobState getJobState() { return jobState; }

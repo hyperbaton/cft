@@ -57,6 +57,6 @@ public class RitualNeedSatisfier extends NeedSatisfier<RitualNeed> {
      */
     public void onRitualCompleted(XoonglinEntity mob) {
         super.satisfy(mob);
-        setSatisfied(true);
+        updateSatisfied(mob);
     }
 }

@@ -38,7 +38,7 @@ public class SocializeNeedSatisfier extends NeedSatisfier<SocializeNeed> {
      */
     public void onSocialized(XoonglinEntity mob) {
         super.satisfy(mob);
-        setSatisfied(true);
+        updateSatisfied(mob);
         mob.getBrain().eraseMemory(CftMemoryModuleType.MUST_SOCIALIZE.get());
     }
 }

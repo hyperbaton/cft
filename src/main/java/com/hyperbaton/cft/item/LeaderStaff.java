@@ -123,7 +123,7 @@ public class LeaderStaff extends Item {
         StructureType bestFailureType = null;
 
         for (StructureType structureType : matchingTypes) {
-            StructureDetectionResult result = structureType.detect(clickedPos, level, leaderId);
+            StructureDetectionResult result = StructureUtils.detect(level, structureType, clickedPos, leaderId);
             if (result.success()) {
                 ResourceLocation structureTypeId = CftRegistry.getStructureTypeId(structureType);
                 if (registered.isPresent() && registered.get().getStructureTypeId().equals(structureTypeId)) {

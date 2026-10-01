@@ -1,6 +1,7 @@
 package com.hyperbaton.cft.structure;
 
 import com.hyperbaton.cft.CftRegistry;
+import com.hyperbaton.cft.api.event.StructureDetectedEvent;
 import com.hyperbaton.cft.world.StructuresData;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
@@ -9,9 +10,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Keeps the registered structures true to the world. A structure is detected again when it's
@@ -26,13 +29,26 @@ public final class StructureUtils {
     }
 
     /**
+     * Detects a structure of a type at a key block. Every detection goes through here, so a
+     * structure that passes its type's checks is also offered to the {@link StructureDetectedEvent}
+     * listeners, which may still fail it.
+     */
+    public static StructureDetectionResult detect(ServerLevel level, StructureType type, BlockPos keyBlockPos,
+                                                  UUID leaderId) {
+        StructureDetectionResult result = type.detect(keyBlockPos, level, leaderId);
+        if (!result.success()) return result;
+        StructureDetectedEvent event = NeoForge.EVENT_BUS.post(new StructureDetectedEvent(level, type, result.structure()));
+        return event.getFailure().orElse(result);
+    }
+
+    /**
      * Detects a registered structure again, with its own type. If it still passes, it takes the
      * blocks found, which may have changed; if not, it's unregistered.
      */
     public static StructureDetectionResult recheck(ServerLevel level, Structure structure) {
         StructureType type = CftRegistry.getStructureType(structure.getStructureTypeId());
         StructureDetectionResult result = type != null
-                ? type.detect(structure.getKeyBlockPos(), level, structure.getLeaderId())
+                ? detect(level, type, structure.getKeyBlockPos(), structure.getLeaderId())
                 : StructureDetectionResult.failure(StructureDetectionReasons.NOT_A_KEY_BLOCK);
         if (result.success()) {
             structure.update(result.structure());

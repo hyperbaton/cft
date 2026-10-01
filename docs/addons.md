@@ -367,6 +367,47 @@ it only stops once its own `canStillUse` says so, or its duration is over. Have 
 the activity or its memories, as `JobBehavior` does. And since the behaviors of an activity run at
 the same time, avoid two of them steering the Xoonglin's navigation at once.
 
+## Events
+
+CFT posts events on the NeoForge event bus (`NeoForge.EVENT_BUS`) when things happen to Xoonglins
+and structures, so an addon can react to them, and sometimes change what happens, without touching
+CFT. They're in `com.hyperbaton.cft.api.event` and posted on the server only.
+
+| Event | When | What a listener can do |
+|---|---|---|
+| `SocialClassChangeEvent.Pre` | A Xoonglin is about to be promoted or demoted | Cancel it, or send it to another class with `setNextClass` |
+| `SocialClassChangeEvent.Post` | It changed class: it has the new class's needs, job and health | React |
+| `JobChangeEvent.Pre` | A Xoonglin is about to change job, because its leader picked one (`PLAYER`) or its job no longer fits its class or age (`AUTOMATIC`) | Cancel it |
+| `JobChangeEvent.Post` | It changed job | React |
+| `NeedStateChangeEvent` | One of a Xoonglin's needs became satisfied, or stopped being so | React |
+| `StructureDetectedEvent` | A structure passed its type's checks | Add checks of your own, and `fail` it with a reason |
+
+CFT uses these events too: telling the leader about a class change is a listener of
+`SocialClassChangeEvent.Post`.
+
+```java
+@EventBusSubscriber(modid = MyAddon.MOD_ID)
+public class MyAddonEvents {
+    // Noble houses need a banner by the door
+    @SubscribeEvent
+    public static void onStructureDetected(StructureDetectedEvent event) {
+        if (event.getStructureTypeId().equals(ResourceLocation.parse("cft:noble_house"))
+                && !BannerUtil.hasBannerNear(event.getLevel(), event.getStructure().getKeyBlockPos())) {
+            event.fail(MyAddonReasons.NO_BANNER);
+        }
+    }
+
+    // A bell rings when a Xoonglin is promoted
+    @SubscribeEvent
+    public static void onClassChange(SocialClassChangeEvent.Post event) {
+        if (event.isUpgrade()) {
+            XoonglinEntity xoonglin = event.getXoonglin();
+            xoonglin.level().playSound(null, xoonglin.blockPosition(), SoundEvents.BELL_BLOCK, SoundSource.NEUTRAL);
+        }
+    }
+}
+```
+
 ## Lang entries
 
 | Text | Lang key |

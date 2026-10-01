@@ -1,10 +1,12 @@
 package com.hyperbaton.cft.need.satisfaction;
 
+import com.hyperbaton.cft.api.event.NeedStateChangeEvent;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.need.Need;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -92,8 +94,16 @@ public abstract class NeedSatisfier<T extends Need> {
         return isSatisfied;
     }
 
-    public void setSatisfied(boolean satisfied) {
-        isSatisfied = satisfied;
+    /**
+     * After the need is checked: whether it's satisfied now, from its satisfaction. When that
+     * changes, {@link NeedStateChangeEvent} listeners are told.
+     */
+    public void updateSatisfied(XoonglinEntity mob) {
+        boolean satisfied = satisfaction >= need.getSatisfactionThreshold();
+        if (satisfied != isSatisfied) {
+            isSatisfied = satisfied;
+            NeoForge.EVENT_BUS.post(new NeedStateChangeEvent(mob, this));
+        }
     }
 
     public T getNeed() {

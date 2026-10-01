@@ -1,10 +1,10 @@
 package com.hyperbaton.cft.network;
 
 import com.hyperbaton.cft.CftMod;
+import com.hyperbaton.cft.api.event.JobChangeEvent;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -47,9 +47,7 @@ public record ChangeXoonglinJobPacket(UUID xoonglinId, ResourceLocation newJobId
                     if (xoonglin.getLeaderId() == null || !xoonglin.getLeaderId().equals(player.getUUID())) return;
                     if (xoonglin.getSocialClass() == null) return;
                     if (!xoonglin.getSocialClass().getJobsForAge(xoonglin.isBaby()).contains(packet.newJobId)) return;
-                    xoonglin.removeFromJobStructures();
-                    xoonglin.setJob(packet.newJobId);
-                    xoonglin.getJobState().resetJobSpecific();
+                    xoonglin.changeJob(packet.newJobId, JobChangeEvent.Cause.PLAYER);
                 }
             }
         });
