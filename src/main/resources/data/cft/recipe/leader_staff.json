@@ -18,7 +18,8 @@
     "CBC"
   ],
   "result": {
-    "item": "cft:leader_staff"
+    "id": "cft:leader_staff",
+    "count": 1
   },
   "show_notification": true
 }
