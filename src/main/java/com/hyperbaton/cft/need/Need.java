@@ -4,7 +4,6 @@ import com.hyperbaton.cft.CftRegistry;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -17,40 +16,32 @@ public abstract class Need {
     public static final Codec<Need> NEED_CODEC = Codec.lazyInitialized(() -> CftRegistry.NEEDS_CODEC_REGISTRY.byNameCodec()
             .dispatch("type", Need::needType, codec -> MapCodec.assumeMapUnsafe(codec)));
 
-    private double damage;
+    private final double damage;
 
-    private double damageThreshold;
+    private final double damageThreshold;
 
     /**
      * The happiness this need gives if satisfied over a full period
      * The period is given by its frequency
      */
-    private double providedHappiness;
-    private double satisfactionThreshold;
+    private final double providedHappiness;
+    private final double satisfactionThreshold;
     /**
      * Given in in-game days (each day is 24000 ticks or 20 real world minutes).
      */
-    private double frequency;
+    private final double frequency;
 
     /**
      * Whether or not this need should be shown to the player. It allows for "technical" needs
      */
-    private boolean hidden;
+    private final boolean hidden;
 
     /**
      * Bonus needs only add happiness when satisfied, and never subtract it when unsatisfied
      */
-    private boolean bonus;
+    private final boolean bonus;
 
     private final ResourceLocation icon;
-
-    public static final String TAG_DAMAGE = "damage";
-    public static final String TAG_DAMAGE_THRESHOLD = "damageThreshold";
-    public static final String TAG_PROVIDED_HAPPINESS = "providedHappiness";
-    public static final String TAG_SATISFACTION_THRESHOLD = "satisfactionThreshold";
-    public static final String TAG_FREQUENCY = "frequency";
-    public static final String TAG_HIDDEN = "hidden";
-    public static final String TAG_BONUS = "bonus";
 
     public Need(double damage, double damageThreshold, double providedHappiness,
                 double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
@@ -71,56 +62,28 @@ public abstract class Need {
         return damage;
     }
 
-    public void setDamage(double damage) {
-        this.damage = damage;
-    }
-
     public double getDamageThreshold() {
         return damageThreshold;
-    }
-
-    public void setDamageThreshold(double damageThreshold) {
-        this.damageThreshold = damageThreshold;
     }
 
     public double getProvidedHappiness() {
         return providedHappiness;
     }
 
-    public void setProvidedHappiness(double providedHappiness) {
-        this.providedHappiness = providedHappiness;
-    }
-
     public double getSatisfactionThreshold() {
         return satisfactionThreshold;
-    }
-
-    public void setSatisfactionThreshold(double satisfactionThreshold) {
-        this.satisfactionThreshold = satisfactionThreshold;
     }
 
     public double getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(double frequency) {
-        this.frequency = frequency;
-    }
-
     public boolean isHidden() {
         return hidden;
     }
 
-    public void setHidden(boolean hidden) {
-        this.hidden = hidden;
-    }
-
     public boolean isBonus() {
         return bonus;
-    }
-
-    public void setBonus(boolean bonus) {
-        this.bonus = bonus;
     }
 
     public NeedSatisfier<? extends Need> createSatisfier() {
@@ -143,16 +106,4 @@ public abstract class Need {
     }
 
     public abstract String getTypeName();
-
-    public CompoundTag toTag() {
-        CompoundTag tag = new CompoundTag();
-        tag.putDouble(TAG_DAMAGE, damage);
-        tag.putDouble(TAG_DAMAGE_THRESHOLD, damageThreshold);
-        tag.putDouble(TAG_PROVIDED_HAPPINESS, providedHappiness);
-        tag.putDouble(TAG_SATISFACTION_THRESHOLD, satisfactionThreshold);
-        tag.putDouble(TAG_FREQUENCY, frequency);
-        tag.putBoolean(TAG_HIDDEN, hidden);
-        tag.putBoolean(TAG_BONUS, bonus);
-        return tag;
-    }
 }

@@ -87,10 +87,6 @@ public abstract class NeedSatisfier<T extends Need> {
         return satisfaction;
     }
 
-    public void setSatisfaction(double satisfaction) {
-        this.satisfaction = satisfaction;
-    }
-
     public boolean isSatisfied() {
         return isSatisfied;
     }
@@ -101,10 +97,6 @@ public abstract class NeedSatisfier<T extends Need> {
 
     public T getNeed() {
         return need;
-    }
-
-    public void setNeed(T need) {
-        this.need = need;
     }
 
     public String getNeedId() {

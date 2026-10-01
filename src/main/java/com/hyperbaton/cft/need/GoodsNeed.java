@@ -6,8 +6,6 @@ import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -36,13 +34,9 @@ public class GoodsNeed extends Need {
     ).apply(instance, GoodsNeed::new));
     private static final String GOODS_NEED_TYPE = "cft:goods_need";
 
-    private Ingredient item;
-    private int quantity;
-    private int hoarding;
-
-    public static final String TAG_ITEM = "item";
-    public static final String TAG_QUANTITY = "quantity";
-    public static final String TAG_HOARDING = "hoarding";
+    private final Ingredient item;
+    private final int quantity;
+    private final int hoarding;
 
     public GoodsNeed(double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, Ingredient item, double frequency, boolean hidden, boolean bonus, int quantity,
@@ -57,20 +51,8 @@ public class GoodsNeed extends Need {
         return this.item;
     }
 
-    public Ingredient getItem() {
-        return item;
-    }
-
-    public void setItem(Ingredient item) {
-        this.item = item;
-    }
-
     public int getQuantity() {
         return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
     }
 
     public int getHoarding() {
@@ -98,17 +80,4 @@ public class GoodsNeed extends Need {
                 .map(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()))
                 .toList();
     }
-
-    @Override
-    public CompoundTag toTag() {
-        CompoundTag tag = super.toTag();
-        tag.put(TAG_ITEM, INGREDIENT_CODEC.encodeStart(NbtOps.INSTANCE, item)
-                .result()
-                .orElseThrow());
-        tag.putDouble(TAG_FREQUENCY, getFrequency());
-        tag.putInt(TAG_QUANTITY, quantity);
-        tag.putInt(TAG_HOARDING, hoarding);
-        return tag;
-    }
-
 }

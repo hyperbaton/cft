@@ -5,7 +5,6 @@ import com.hyperbaton.cft.need.satisfaction.EnergyNeedSatisfier;
 import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -26,8 +25,6 @@ public class EnergyNeed extends Need {
     ).apply(instance, EnergyNeed::new));
 
     private final int energyAmount;
-
-    public static final String TAG_ENERGY_AMOUNT = "energy_amount";
 
     public EnergyNeed(double damage, double damageThreshold, double providedHappiness,
                       double satisfactionThreshold, double frequency, boolean hidden, boolean bonus,
@@ -63,12 +60,5 @@ public class EnergyNeed extends Need {
     @Override
     public List<ResourceLocation> getDefaultIcons() {
         return List.of(ResourceLocation.withDefaultNamespace("redstone"));
-    }
-
-    @Override
-    public CompoundTag toTag() {
-        CompoundTag tag = super.toTag();
-        tag.putInt(TAG_ENERGY_AMOUNT, energyAmount);
-        return tag;
     }
 }

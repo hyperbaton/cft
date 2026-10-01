@@ -6,8 +6,6 @@ import com.hyperbaton.cft.need.satisfaction.NeedSatisfier;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -90,16 +88,5 @@ public class EquipmentNeed extends Need {
         return Arrays.stream(item.getItems())
                 .map(stack -> BuiltInRegistries.ITEM.getKey(stack.getItem()))
                 .toList();
-    }
-
-    @Override
-    public CompoundTag toTag() {
-        CompoundTag tag = super.toTag();
-        tag.put("item", INGREDIENT_CODEC.encodeStart(NbtOps.INSTANCE, item)
-                .result()
-                .orElseThrow());
-        tag.putDouble(TAG_FREQUENCY, getFrequency());
-        tag.putString("slot", slotName);
-        return tag;
     }
 }

@@ -28,7 +28,7 @@ public class BiomeNeed extends Need {
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(BiomeNeed::getIcon)
     ).apply(instance, BiomeNeed::new));
 
-    private RegistryEntries<Biome> biomes;
+    private final RegistryEntries<Biome> biomes;
 
     public BiomeNeed(double damage, double damageThreshold, double providedHappiness,
                      double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, RegistryEntries<Biome> biomes,
@@ -59,9 +59,5 @@ public class BiomeNeed extends Need {
 
     public RegistryEntries<Biome> getBiomes() {
         return biomes;
-    }
-
-    public void setBiomes(RegistryEntries<Biome> biomes) {
-        this.biomes = biomes;
     }
 }

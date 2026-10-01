@@ -4,10 +4,7 @@ import com.hyperbaton.cft.entity.ai.ErrandUtils;
 import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.EquipmentNeed;
-import com.hyperbaton.cft.need.Need;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
@@ -109,13 +106,5 @@ public class EquipmentNeedSatisfier extends NeedSatisfier<EquipmentNeed> {
                             return false;
                         })
                         .findFirst());
-    }
-
-    public static NeedSatisfier<EquipmentNeed> fromTag(CompoundTag tag) {
-        return new EquipmentNeedSatisfier(
-                tag.getInt(TAG_SATISFACTION),
-                tag.getBoolean(TAG_IS_SATISFIED),
-                (EquipmentNeed) Need.NEED_CODEC.parse(NbtOps.INSTANCE, tag.getCompound(TAG_NEED)).result().orElse(null)
-        );
     }
 }

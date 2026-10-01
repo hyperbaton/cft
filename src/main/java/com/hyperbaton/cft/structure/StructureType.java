@@ -42,10 +42,6 @@ public abstract class StructureType {
         return keyBlock.contains(state.getBlockHolder());
     }
 
-    public boolean isKeyBlock(BlockState state) {
-        return matchesKeyBlock(state);
-    }
-
     public boolean isRequiresContainer() {
         return requiresContainer;
     }

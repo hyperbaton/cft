@@ -26,8 +26,8 @@ public class AltitudeNeed extends Need {
             ResourceLocation.CODEC.optionalFieldOf("icon").forGetter(AltitudeNeed::getIcon)
     ).apply(instance, AltitudeNeed::new));
 
-    private double minAltitude;
-    private double maxAltitude;
+    private final double minAltitude;
+    private final double maxAltitude;
 
     public AltitudeNeed(double damage, double damageThreshold, double providedHappiness,
                         double satisfactionThreshold, double frequency, boolean hidden, boolean bonus, double minAltitude,
@@ -61,15 +61,7 @@ public class AltitudeNeed extends Need {
         return minAltitude;
     }
 
-    public void setMinAltitude(double minAltitude) {
-        this.minAltitude = minAltitude;
-    }
-
     public double getMaxAltitude() {
         return maxAltitude;
-    }
-
-    public void setMaxAltitude(double maxAltitude) {
-        this.maxAltitude = maxAltitude;
     }
 }

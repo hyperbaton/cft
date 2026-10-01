@@ -73,8 +73,6 @@ public abstract class Job {
      */
     public abstract MemoryModuleType<Boolean> getWorkMemory();
 
-    String idHint() { return getClass().getSimpleName(); }
-
     public abstract Codec<? extends Job> jobType();
 
     public List<String> getRequiredNeeds() {

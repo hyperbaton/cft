@@ -5,10 +5,7 @@ import com.hyperbaton.cft.entity.custom.XoonglinEntity;
 import com.hyperbaton.cft.entity.ai.memory.CftMemoryModuleType;
 import com.hyperbaton.cft.need.GoodsNeed;
 import com.hyperbaton.cft.need.NeedUtils;
-import com.hyperbaton.cft.need.Need;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -69,14 +66,6 @@ public class ConsumeItemNeedSatisfier extends NeedSatisfier<GoodsNeed> {
                     return false;
                 })
                 .findFirst();
-    }
-
-    public static NeedSatisfier<GoodsNeed> fromTag(CompoundTag tag) {
-        return new ConsumeItemNeedSatisfier(
-                tag.getInt(TAG_SATISFACTION),
-                tag.getBoolean(TAG_IS_SATISFIED),
-                (GoodsNeed) Need.NEED_CODEC.parse(NbtOps.INSTANCE, tag.getCompound(TAG_NEED)).result().orElse(null)
-        );
     }
 
     private MemoryModuleType<List<Ingredient>> suppliesNeededMemoryType() {
