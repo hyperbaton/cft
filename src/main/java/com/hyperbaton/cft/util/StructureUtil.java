@@ -17,7 +17,9 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -34,15 +36,37 @@ public final class StructureUtil {
 
     /**
      * Detects a structure of a type at a key block. Every detection goes through here, so a
-     * structure that passes its type's checks is also offered to the {@link StructureDetectedEvent}
-     * listeners, which may still fail it.
+     * structure that passes its type's checks also mustn't share a key block with another
+     * registered structure, and is offered to the {@link StructureDetectedEvent} listeners, which
+     * may still fail it.
      */
     public static StructureDetectionResult detect(ServerLevel level, StructureType type, BlockPos keyBlockPos,
                                                   UUID leaderId) {
         StructureDetectionResult result = type.detect(keyBlockPos, level, leaderId);
         if (!result.success()) return result;
+        if (sharesKeyBlock(level, result.structure())) {
+            return StructureDetectionResult.failure(StructureDetectionReasons.OVERLAPPING_STRUCTURE);
+        }
         StructureDetectedEvent event = NeoForge.EVENT_BUS.post(new StructureDetectedEvent(level, type, result.structure()));
         return event.getFailure().orElse(result);
+    }
+
+    /**
+     * Whether a detected structure and another registered one share a key block: it holds the
+     * other's key block (e.g. a house with two doors, registered through the other one), or the
+     * other holds its key block. Structures may share other blocks, like a wall between two
+     * houses. The structure registered at its own key block is itself, being detected again.
+     */
+    private static boolean sharesKeyBlock(ServerLevel level, Structure detected) {
+        BlockPos keyBlockPos = detected.getKeyBlockPos();
+        Set<BlockPos> blocks = new HashSet<>(detected.getAllBlockPositions());
+        for (Structure other : StructuresData.get(level).getStructures()) {
+            if (other.getKeyBlockPos().equals(keyBlockPos)) continue;
+            if (blocks.contains(other.getKeyBlockPos())) return true;
+            if (other.getBounds().filter(bounds -> bounds.isInside(keyBlockPos)).isPresent()
+                    && other.getAllBlockPositions().contains(keyBlockPos)) return true;
+        }
+        return false;
     }
 
     /**

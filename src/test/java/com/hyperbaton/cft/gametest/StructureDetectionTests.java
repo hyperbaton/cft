@@ -11,9 +11,13 @@ import com.hyperbaton.cft.world.StructuresData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+
+import java.util.Map;
+import java.util.UUID;
 
 import static com.hyperbaton.cft.util.GameTestUtil.*;
 
@@ -21,6 +25,7 @@ import static com.hyperbaton.cft.util.GameTestUtil.*;
 @GameTestHolder(CftMod.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class StructureDetectionTests {
+    private static final ResourceLocation SMELTERY = cftId("smeltery");
 
     @GameTest(template = EMPTY_TEMPLATE)
     public static void houseIsDetected(GameTestHelper helper) {
@@ -78,6 +83,37 @@ public class StructureDetectionTests {
         Structure structure = register(helper, CITIZEN_HOUSE, HOUSE_DOOR);
         helper.assertTrue(StructureUtil.recheck(helper.getLevel(), structure).success(), "A standing house failed its recheck");
         helper.assertTrue(isRegistered(helper, HOUSE_DOOR), "A standing house was unregistered");
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY_TEMPLATE)
+    public static void structureIsNotRegisteredThroughEachOfItsKeyBlocks(GameTestHelper helper) {
+        // A smeltery can have several furnaces, any of them its key block
+        BlockPos firstFurnace = HOUSE_CORNER.offset(1, 1, 1);
+        BlockPos secondFurnace = HOUSE_CORNER.offset(3, 1, 1);
+        buildBox(helper, HOUSE_CORNER, Blocks.STONE_BRICKS, Blocks.COBBLESTONE, Blocks.STONE_BRICKS);
+        placeDoor(helper, HOUSE_DOOR);
+        helper.setBlock(HOUSE_CHEST, Blocks.CHEST);
+        helper.setBlock(firstFurnace, Blocks.FURNACE);
+        helper.setBlock(secondFurnace, Blocks.FURNACE);
+
+        register(helper, SMELTERY, firstFurnace);
+        assertNotDetected(helper, SMELTERY, secondFurnace, StructureDetectionReasons.OVERLAPPING_STRUCTURE);
+        // Its own key block is still fine, as when it's checked again
+        assertDetected(helper, SMELTERY, firstFurnace);
+        helper.succeed();
+    }
+
+    @GameTest(template = EMPTY_TEMPLATE)
+    public static void structureHoldingAnotherKeyBlockIsNotDetected(GameTestHelper helper) {
+        buildCitizenHouse(helper);
+        // A structure registered with its key block in the house's wall, and no blocks of its own
+        Structure other = new Structure(helper.absolutePos(HOUSE_WALL), 1, UUID.randomUUID(), BAKERY, 1, Map.of());
+        StructuresData.get(helper.getLevel()).addStructure(other);
+        StructureDetectionResult result = detect(helper, CITIZEN_HOUSE, HOUSE_DOOR);
+        StructuresData.get(helper.getLevel()).removeStructure(other);
+        helper.assertTrue(result.reason().equals(StructureDetectionReasons.OVERLAPPING_STRUCTURE),
+                "Expected " + StructureDetectionReasons.OVERLAPPING_STRUCTURE.id() + ", got " + result.reason().id());
         helper.succeed();
     }
 

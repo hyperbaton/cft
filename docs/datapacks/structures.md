@@ -5,6 +5,11 @@ Each structure type specifies which blocks are valid for its different parts, an
 the building should be shaped. Structures are detected by right clicking their **key block**
 with the **Leader Staff**.
 
+A key block belongs to a single structure. A structure isn't detected if it holds the key block of
+another registered structure, or if its key block is part of another one: a smeltery with two
+furnaces is registered through one of them, and can't be registered again through the other.
+Structures can share other blocks, such as a wall between two buildings.
+
 ### Keeping structures up to date
 
 A registered structure is detected again right before it's used, and unregistered if it no
